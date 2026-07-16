@@ -19,16 +19,17 @@ export function configureHttpClient(value: ClientSession): () => void {
   };
 }
 
-export interface PublicApiRequestOptions<TResponse = unknown>
-  extends Omit<RequestInit, 'body' | 'signal'> {
+export interface PublicApiRequestOptions<TResponse = unknown> extends Omit<
+  RequestInit,
+  'body' | 'signal'
+> {
   body?: unknown;
   signal?: AbortSignal;
   timeoutMs?: number;
   responseSchema?: ZodType<TResponse>;
 }
 
-export interface ApiRequestOptions<TResponse = unknown>
-  extends PublicApiRequestOptions<TResponse> {
+export interface ApiRequestOptions<TResponse = unknown> extends PublicApiRequestOptions<TResponse> {
   retryOnUnauthorized?: boolean;
 }
 
@@ -61,10 +62,7 @@ export async function publicApiRequest<T>(
 /**
  * Sends an authenticated API request and performs at most one token refresh.
  */
-export async function apiRequest<T>(
-  path: string,
-  options: ApiRequestOptions<T> = {},
-): Promise<T> {
+export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> = {}): Promise<T> {
   assertSafeApiPath(path);
   const activeSession = session;
   const token = activeSession?.getAccessToken();

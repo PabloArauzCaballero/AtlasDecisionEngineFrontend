@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { apiRequest, configureHttpClient } from './http-client';
 
-function configureAuthenticatedClient(overrides: {
-  refreshAccessToken?: () => Promise<string>;
-  expireSession?: () => void;
-} = {}) {
+function configureAuthenticatedClient(
+  overrides: {
+    refreshAccessToken?: () => Promise<string>;
+    expireSession?: () => void;
+  } = {},
+) {
   const expireSession = overrides.expireSession ?? vi.fn();
   const refreshAccessToken = overrides.refreshAccessToken ?? vi.fn().mockResolvedValue('new-token');
   const cleanup = configureHttpClient({
@@ -74,10 +76,13 @@ describe('apiRequest', () => {
 
   it('normalizes a request timeout', async () => {
     vi.useFakeTimers();
-    vi.spyOn(globalThis, 'fetch').mockImplementation((_input, init) =>
-      new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
-      }),
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), {
+            once: true,
+          });
+        }),
     );
     const { cleanup } = configureAuthenticatedClient();
 
@@ -93,10 +98,13 @@ describe('apiRequest', () => {
   });
 
   it('propagates caller cancellation as a normalized error', async () => {
-    vi.spyOn(globalThis, 'fetch').mockImplementation((_input, init) =>
-      new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true });
-      }),
+    vi.spyOn(globalThis, 'fetch').mockImplementation(
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), {
+            once: true,
+          });
+        }),
     );
     const controller = new AbortController();
     const { cleanup } = configureAuthenticatedClient();
