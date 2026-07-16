@@ -1,0 +1,115 @@
+.graph-canvas {
+  position: relative;
+  overflow: hidden;
+  min-width: 500px;
+  background: #f8fafc;
+}
+.canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.graph-canvas-zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+.graph-node {
+  position: absolute;
+  z-index: 2;
+  width: 155px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 11px;
+  border: 2px solid #94a3b8;
+  border-radius: 5px;
+  background: #fff;
+  color: #334155;
+  text-align: left;
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.08);
+}
+.graph-node:active {
+  cursor: grabbing;
+}
+.graph-node.connect-source {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22);
+}
+.graph-node span,
+.graph-node strong,
+.graph-node small {
+  display: block;
+}
+.graph-node strong {
+  font-size: 11px;
+}
+.graph-node small {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 8px;
+}
+.graph-node.selected {
+  border-color: #006a61;
+  box-shadow: 0 0 0 3px rgba(0, 106, 97, 0.15);
+}
+.node-manual_review {
+  border-color: #dc2626;
+}
+.node-start,
+.node-end {
+  border-radius: 99px;
+}
+.graph-edges {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.graph-edges path {
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 0.5;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.graph-edges path:hover {
+  stroke: #dc2626;
+  stroke-width: 0.8;
+}
+.graph-edges path.selected,
+.graph-edges path:focus-visible {
+  stroke: #2563eb;
+  stroke-width: 1;
+  outline: none;
+}
+.condition-node-editor,
+.edge-properties section {
+  background: #f8fafc;
+}
+.edge-properties-heading {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+.edge-properties-heading > div {
+  display: grid;
+  gap: 2px;
+}
+.edge-properties-heading .icon-button {
+  width: 28px;
+  height: 28px;
+}
+.node-properties .field {
+  margin-bottom: 11px;
+}
+.field-error {
+  display: block;
+  margin-top: -6px;
+  color: var(--danger);
+  font-size: 10px;
+}
+

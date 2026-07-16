@@ -1,0 +1,60 @@
+@media (max-width: 1180px) {
+  .top-links {
+    display: none;
+  }
+  .graph-workbench {
+    grid-template-columns: 190px 1fr;
+  }
+  .node-properties {
+    display: none;
+  }
+  .definition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .environment-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 820px) {
+  .global-search {
+    display: none;
+  }
+  .health-layout,
+  .artifact-overview,
+  .objective-layout,
+  .wizard-layout,
+  .test-cases-layout,
+  .result-layout,
+  .coverage-layout,
+  .governance-detail,
+  .review-detail-grid,
+  .execution-detail-grid,
+  .simulator-layout {
+    grid-template-columns: 1fr;
+  }
+  .wizard-steps,
+  .filters-panel {
+    display: none;
+  }
+  .graph-workbench {
+    grid-template-columns: 1fr;
+  }
+  .node-library {
+    display: none;
+  }
+  .environment-grid {
+    grid-template-columns: 1fr;
+  }
+  .graph-editor-page {
+    margin: -24px -18px;
+  }
+}
+@media (max-width: 560px) {
+  .definition-grid {
+    grid-template-columns: 1fr;
+  }
+  .editor-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
