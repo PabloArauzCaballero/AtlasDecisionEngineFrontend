@@ -1,0 +1,51 @@
+name: Format phase 4
+
+on:
+  push:
+    branches:
+      - migration/next-app-router
+    paths:
+      - .github/workflows/format-phase-4.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Format repository
+        run: yarn format
+
+      - name: Commit formatting
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "Repository is already formatted"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "style: format API contract phase"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
