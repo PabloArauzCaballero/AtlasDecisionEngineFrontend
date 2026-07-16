@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { AppProviders } from './AppProviders';
 import '../styles/global.css';
+import { AppProviders } from './AppProviders';
 
 export const metadata: Metadata = {
   title: {
@@ -19,6 +19,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="es-BO">
       <body>
+        <a className="skip-link" href="#main-content">
+          Saltar al contenido principal
+        </a>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>
