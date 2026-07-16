@@ -87,13 +87,14 @@ describe('apiRequest', () => {
     const { cleanup } = configureAuthenticatedClient();
 
     const request = apiRequest('/v1/slow', { timeoutMs: 100 });
-    await vi.advanceTimersByTimeAsync(100);
-
-    await expect(request).rejects.toMatchObject({
+    const rejection = expect(request).rejects.toMatchObject({
       status: 408,
       code: 'REQUEST_TIMEOUT',
       kind: 'timeout',
     });
+
+    await vi.advanceTimersByTimeAsync(100);
+    await rejection;
     cleanup();
   });
 
@@ -110,13 +111,14 @@ describe('apiRequest', () => {
     const { cleanup } = configureAuthenticatedClient();
 
     const request = apiRequest('/v1/search', { signal: controller.signal });
-    controller.abort();
-
-    await expect(request).rejects.toMatchObject({
+    const rejection = expect(request).rejects.toMatchObject({
       status: 499,
       code: 'REQUEST_ABORTED',
       kind: 'cancelled',
     });
+
+    controller.abort();
+    await rejection;
     cleanup();
   });
 
