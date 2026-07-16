@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  lint-diagnostics:
+  source-diagnostics:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -33,20 +33,20 @@ jobs:
       - name: Install dependencies from lockfile
         run: yarn install --frozen-lockfile
 
-      - name: Capture complete ESLint diagnostics
+      - name: Capture source-verification diagnostics
         shell: bash
         run: |
           set +e
-          yarn lint > eslint-diagnostics.txt 2>&1
+          yarn verify:source > source-diagnostics.txt 2>&1
           status=$?
-          echo "exit_code=${status}" >> eslint-diagnostics.txt
+          echo "exit_code=${status}" >> source-diagnostics.txt
           exit 0
 
-      - name: Upload ESLint diagnostics
+      - name: Upload source diagnostics
         uses: actions/upload-artifact@v4
         with:
-          name: eslint-diagnostics-complete
-          path: eslint-diagnostics.txt
+          name: source-diagnostics-complete
+          path: source-diagnostics.txt
           if-no-files-found: error
           retention-days: 1
 
