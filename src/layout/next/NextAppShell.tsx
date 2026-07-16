@@ -20,7 +20,9 @@ export function NextAppShell({ children }: PropsWithChildren) {
       ) : null}
       <div className="app-main">
         <NextTopbar onMenu={() => setMenuOpen(true)} />
-        <main className="content">{children}</main>
+        <main className="content" id="main-content" tabIndex={-1}>
+          {children}
+        </main>
       </div>
     </div>
   );
