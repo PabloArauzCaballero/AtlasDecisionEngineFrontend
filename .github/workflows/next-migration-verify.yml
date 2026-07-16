@@ -14,42 +14,6 @@ permissions:
   contents: read
 
 jobs:
-  source-diagnostics:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies from lockfile
-        run: yarn install --frozen-lockfile
-
-      - name: Capture source-verification diagnostics
-        shell: bash
-        run: |
-          set +e
-          yarn verify:source > source-diagnostics.txt 2>&1
-          status=$?
-          echo "exit_code=${status}" >> source-diagnostics.txt
-          exit 0
-
-      - name: Upload source diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-diagnostics-complete
-          path: source-diagnostics.txt
-          if-no-files-found: error
-          retention-days: 1
-
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
