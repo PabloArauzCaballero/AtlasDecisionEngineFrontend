@@ -1,9 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { CheckCircle2, FileDiff, Printer, Share2, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
@@ -12,26 +11,31 @@ import { StatusBadge } from '../components/StatusBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function ApprovalRequestDetailPage() {
-  const { requestId } = useParams();
+interface ApprovalRequestDetailPageProps {
+  requestId: string;
+}
+
+export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPageProps) {
   const [comments, setComments] = useState('');
   const query = useDetailQuery<unknown>(
     'approval-request',
-    requestId ? `/v1/approval-requests/${requestId}` : null,
+    requestId ? `/v1/approval-requests/${encodeURIComponent(requestId)}` : null,
   );
   const request = asRecord(query.data);
   const version = asRecord(request.artifactVersion);
   const artifact = asRecord(version.artifact);
   const steps = asRows(request.steps);
   const activeStep = steps.find((step) => step.status === 'PENDING') ?? {};
+  const activeStepId = display(activeStep, 'id');
   const decide = useMutation({
     mutationFn: (decision: 'APPROVE' | 'REJECT') =>
-      apiRequest(`/v1/approval-steps/${display(activeStep, 'id')}/decisions`, {
+      apiRequest(`/v1/approval-steps/${encodeURIComponent(activeStepId)}/decisions`, {
         method: 'POST',
         body: { decision, comments, evidence: [] },
       }),
     onSuccess: () => query.refetch(),
   });
+
   return (
     <>
       <PageHeader
@@ -116,7 +120,7 @@ export function ApprovalRequestDetailPage() {
             <div className="decision-buttons">
               <button
                 className="button button-danger"
-                disabled={!comments || decide.isPending}
+                disabled={!comments || activeStepId === '—' || decide.isPending}
                 onClick={() => decide.mutate('REJECT')}
                 type="button"
               >
@@ -124,7 +128,7 @@ export function ApprovalRequestDetailPage() {
               </button>
               <button
                 className="button button-primary"
-                disabled={!comments || decide.isPending}
+                disabled={!comments || activeStepId === '—' || decide.isPending}
                 onClick={() => decide.mutate('APPROVE')}
                 type="button"
               >

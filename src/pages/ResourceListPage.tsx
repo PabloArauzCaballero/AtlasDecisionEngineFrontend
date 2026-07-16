@@ -1,10 +1,10 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Download, Plus, Search, SlidersHorizontal } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
+import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
 import { PageHeader } from '../components/PageHeader';
-import { errorMessage } from '../api/ApiError';
 import { listResource } from '../resources/resource.api';
 import type { ResourceConfig } from '../resources/resource.types';
 
@@ -14,14 +14,16 @@ export function ResourceListPage({ config }: { config: ResourceConfig }) {
   const [filter, setFilter] = useState('');
   const query = useQuery({
     queryKey: ['resource', config.key, page, filter],
-    queryFn: () => listResource(config, { page, filter }),
+    queryFn: ({ signal }) => listResource(config, { page, filter }, signal),
     placeholderData: keepPreviousData,
   });
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setPage(1);
     setFilter(draftFilter);
   };
+
   return (
     <>
       <PageHeader

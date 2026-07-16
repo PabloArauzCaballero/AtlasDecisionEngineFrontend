@@ -1,21 +1,27 @@
 import { useMutation } from '@tanstack/react-query';
 import { CheckCircle2, Circle, Code2, Play, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 
-export function CompilePage() {
-  const params = useParams();
-  const [versionId, setVersionId] = useState(params.versionId ?? '');
+interface CompilePageProps {
+  initialVersionId: string;
+}
+
+export function CompilePage({ initialVersionId }: CompilePageProps) {
+  const [versionId, setVersionId] = useState(initialVersionId);
   const action = useMutation({
     mutationFn: (operation: 'validate' | 'compile') =>
-      apiRequest(`/v1/artifact-versions/${versionId}/${operation}`, { method: 'POST', body: {} }),
+      apiRequest(`/v1/artifact-versions/${encodeURIComponent(versionId)}/${operation}`, {
+        method: 'POST',
+        body: {},
+      }),
   });
+
   return (
     <>
       <PageHeader

@@ -3,7 +3,13 @@
 .env.*.local
 
 node_modules/
-
+.next/
+out/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
 
 .vscode/
 .idea/

@@ -1,0 +1,190 @@
+.graph-editor-page {
+  margin: -32px;
+  min-height: calc(100vh - 64px);
+  background: #fff;
+}
+.editor-toolbar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.editor-toolbar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-toolbar strong {
+  margin-right: 10px;
+  font-size: 13px;
+}
+.editor-toolbar span {
+  color: #64748b;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.editor-toolbar input {
+  width: 150px;
+  padding: 7px;
+}
+.graph-workbench {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  height: calc(100vh - 122px);
+  min-height: 650px;
+}
+.output-contract-panel {
+  padding: 12px 14px;
+  border-bottom: 1px solid #dbe3ec;
+  background: #f8fafc;
+}
+.output-contract-heading,
+.output-contract-controls,
+.output-chips,
+.output-create-form {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.output-contract-heading {
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+.output-contract-heading div {
+  display: grid;
+  gap: 2px;
+}
+.output-contract-heading strong {
+  font-size: 12px;
+}
+.output-contract-heading small,
+.field-hint {
+  color: #64748b;
+  font-size: 9px;
+}
+.output-contract-controls > select {
+  width: 270px;
+}
+.output-chips {
+  flex-wrap: wrap;
+}
+.output-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 99px;
+  background: #fff;
+  font-size: 10px;
+}
+.output-chip.primary {
+  border-color: #006a61;
+  background: #ecfdf3;
+  color: #006a61;
+}
+.output-chip button {
+  display: grid;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.output-chip small {
+  color: #64748b;
+}
+.output-create-form {
+  align-items: end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+}
+.output-create-form label {
+  display: grid;
+  gap: 4px;
+  color: #475467;
+  font-size: 9px;
+}
+.output-create-form input,
+.output-create-form select {
+  width: 180px;
+}
+.result-node-editor {
+  background: #f8fafc;
+}
+.result-assignment {
+  margin: 9px 0;
+  padding: 10px;
+  border: 1px solid #dbe3ec;
+  background: #fff;
+}
+.script-warning {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 9px;
+  line-height: 1.4;
+}
+.node-result {
+  border-color: #7c3aed;
+}
+.node-library,
+.node-properties {
+  overflow: auto;
+  background: #fff;
+}
+.node-library {
+  border-right: 1px solid #e2e8f0;
+}
+.node-properties {
+  border-left: 1px solid #e2e8f0;
+}
+.workbench-heading {
+  display: grid;
+  gap: 2px;
+  padding: 15px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.workbench-heading strong {
+  font-size: 13px;
+}
+.workbench-heading small {
+  color: #64748b;
+  font-size: 9px;
+}
+.node-library section,
+.node-properties section {
+  padding: 14px;
+  border-bottom: 1px solid #eef2f6;
+}
+.node-library h3,
+.node-properties h3,
+.validation-group h3 {
+  margin: 0 0 10px;
+  color: #475467;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.node-library button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+  padding: 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #344054;
+  text-align: left;
+  font-size: 11px;
+  cursor: grab;
+}

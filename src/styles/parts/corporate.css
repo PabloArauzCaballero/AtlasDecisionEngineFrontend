@@ -1,0 +1,242 @@
+/* Technical Corporate components from the supplied Stitch views */
+.quick-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 14px 16px 4px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 4px;
+  background: #000;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.global-search {
+  position: relative;
+  width: min(270px, 23vw);
+}
+.global-search svg {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 16px;
+  transform: translateY(-50%);
+  color: #64748b;
+}
+.global-search input {
+  padding: 7px 10px 7px 31px;
+  background: #f8fafc;
+  font-size: 11px;
+}
+.top-links {
+  display: flex;
+  gap: 22px;
+}
+.top-links a,
+.top-action {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+}
+.top-links a:hover,
+.top-action:hover {
+  color: #111827;
+}
+.top-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.table-action {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: #475467;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+}
+.filter-icon {
+  border: 1px solid #cfd6df;
+}
+.inline-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.inline-actions a,
+.inline-actions button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff;
+  color: #475467;
+  font-size: 10px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.full-width {
+  width: 100%;
+}
+.button-danger {
+  color: #b42318;
+  border-color: #fecdca;
+  background: #fff4f2;
+}
+
+.definition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+.definition-grid > div {
+  padding: 11px 13px;
+  border-bottom: 1px solid #eef2f6;
+}
+.definition-grid dt {
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.definition-grid dd {
+  margin: 5px 0 0;
+  color: #1b1b1d;
+  font-size: 12px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.progress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e8edf3;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #16a34a;
+}
+.progress-warning span {
+  background: #d97706;
+}
+.progress-danger span {
+  background: #dc2626;
+}
+.progress-info span {
+  background: #2563eb;
+}
+.coverage-cell {
+  min-width: 130px;
+}
+.coverage-cell .progress {
+  display: inline-block;
+  width: 70px;
+  margin-right: 8px;
+}
+
+.health-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr;
+  gap: 16px;
+}
+.check-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.check-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 13px 0;
+  border-bottom: 1px solid #eef2f6;
+}
+.check-list svg {
+  width: 18px;
+  color: #16a34a;
+}
+.check-list span,
+.check-list small {
+  display: block;
+}
+.check-list span {
+  font-size: 12px;
+  font-weight: 650;
+}
+.check-list small {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 400;
+}
+.check-list code {
+  color: #067647;
+  font-size: 10px;
+  font-weight: 800;
+}
+.alert-card {
+  display: flex;
+  gap: 12px;
+  padding: 13px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.alert-card svg {
+  flex: 0 0 auto;
+  width: 18px;
+}
+.alert-card strong {
+  font-size: 12px;
+}
+.alert-card p {
+  margin: 4px 0 0;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.system-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 9px;
+  margin-top: 16px;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.artifact-overview,
+.objective-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 0.8fr;
+  gap: 16px;
+}
+.current-version {
+  display: grid;
+  gap: 10px;
+  align-items: start;
+}
+.current-version > strong {
+  font-size: 26px;
+}
+.current-version p {
+  margin: 0;
+  color: #64748b;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.stack-actions,
+.decision-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}

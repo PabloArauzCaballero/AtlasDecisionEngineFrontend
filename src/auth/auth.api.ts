@@ -1,34 +1,30 @@
-import { env } from '../config/env';
-import { parseResponse } from '../api/response';
+import { publicApiRequest } from '../api/http-client';
+import { sessionPayloadSchema } from './auth.schemas';
 import type { LoginInput, SessionPayload } from './auth.types';
 
-const sessionUrl = (path: string) => `${env.apiBaseUrl}/v1/session/${path}`;
+const sessionPath = (operation: string) => `/v1/session/${operation}`;
 
-async function sessionRequest(path: string, init: RequestInit): Promise<SessionPayload> {
-  const response = await fetch(sessionUrl(path), {
-    ...init,
-    credentials: 'include',
-    headers: { 'content-type': 'application/json', ...init.headers },
+function sessionRequest(operation: string, body: unknown): Promise<SessionPayload> {
+  return publicApiRequest(sessionPath(operation), {
+    method: 'POST',
+    body,
+    responseSchema: sessionPayloadSchema,
   });
-  return parseResponse<SessionPayload>(response);
 }
 
 export function login(input: LoginInput): Promise<SessionPayload> {
-  return sessionRequest('login', { method: 'POST', body: JSON.stringify(input) });
+  return sessionRequest('login', input);
 }
 
 export function refresh(): Promise<SessionPayload> {
-  return sessionRequest('refresh', { method: 'POST', body: '{}' });
+  return sessionRequest('refresh', {});
 }
 
 export async function logout(allDevices = false): Promise<void> {
-  const response = await fetch(sessionUrl('logout'), {
+  await publicApiRequest<void>(sessionPath('logout'), {
     method: 'POST',
-    credentials: 'include',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ allDevices }),
+    body: { allDevices },
   });
-  await parseResponse(response);
 }
 
 let bootstrapPromise: Promise<SessionPayload> | null = null;

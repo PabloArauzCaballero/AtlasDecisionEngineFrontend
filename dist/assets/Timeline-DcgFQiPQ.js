@@ -1,2 +1,0 @@
-import{j as s,C as i}from"./index-CN4iDlkc.js";function a({items:e}){return s.jsx("ol",{className:"timeline",children:e.map((l,n)=>s.jsxs("li",{className:l.tone??"",children:[s.jsx(i,{}),s.jsxs("div",{children:[s.jsx("strong",{children:l.title}),l.detail?s.jsx("p",{children:l.detail}):null,l.meta?s.jsx("small",{children:l.meta}):null]})]},`${l.title}-${n}`))})}export{a as T};
-//# sourceMappingURL=Timeline-DcgFQiPQ.js.map

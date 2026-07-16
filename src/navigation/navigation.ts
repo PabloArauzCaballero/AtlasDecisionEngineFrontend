@@ -17,6 +17,7 @@ import {
   ScrollText,
   ShieldCheck,
 } from 'lucide-react';
+import { accessPolicies } from '../auth/access-policies';
 
 export interface NavigationItem {
   label: string;
@@ -24,6 +25,7 @@ export interface NavigationItem {
   icon: LucideIcon;
   roles: readonly string[];
 }
+
 export interface NavigationSection {
   label: string;
   items: readonly NavigationItem[];
@@ -32,7 +34,14 @@ export interface NavigationSection {
 export const navigation: readonly NavigationSection[] = [
   {
     label: 'Plataforma',
-    items: [{ label: 'Platform Health', path: '/platform-health', icon: Activity, roles: [] }],
+    items: [
+      {
+        label: 'Platform Health',
+        path: '/platform-health',
+        icon: Activity,
+        roles: accessPolicies.platformHealth,
+      },
+    ],
   },
   {
     label: 'Diseño',
@@ -41,25 +50,25 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Variables',
         path: '/variables',
         icon: Database,
-        roles: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'],
+        roles: accessPolicies.catalogRead,
       },
       {
         label: 'Reason Codes',
         path: '/reason-codes',
         icon: Braces,
-        roles: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'],
+        roles: accessPolicies.catalogRead,
       },
       {
         label: 'Artefactos',
         path: '/artifacts',
         icon: Boxes,
-        roles: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'AUDITOR'],
+        roles: accessPolicies.artifacts,
       },
       {
         label: 'Editor de Grafo',
         path: '/graph-editor',
         icon: GitBranch,
-        roles: ['RISK_ANALYST', 'FRAUD_ANALYST'],
+        roles: accessPolicies.graphAuthoring,
       },
     ],
   },
@@ -70,19 +79,19 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Suites de Prueba',
         path: '/test-suites',
         icon: FlaskConical,
-        roles: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'],
+        roles: accessPolicies.qualityAuthoring,
       },
       {
         label: 'Casos de Prueba',
         path: '/test-cases',
         icon: ListChecks,
-        roles: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'],
+        roles: accessPolicies.qualityAuthoring,
       },
       {
         label: 'Cobertura',
         path: '/graph-coverage',
         icon: ShieldCheck,
-        roles: ['QA_ANALYST', 'RISK_ANALYST', 'AUDITOR'],
+        roles: accessPolicies.coverageRead,
       },
     ],
   },
@@ -93,19 +102,19 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Revisiones',
         path: '/reviews',
         icon: ClipboardCheck,
-        roles: ['QA_ANALYST', 'RISK_APPROVER', 'COMPLIANCE', 'AUDITOR'],
+        roles: accessPolicies.governanceReview,
       },
       {
         label: 'Ambientes',
         path: '/environments',
         icon: Rocket,
-        roles: ['PLATFORM_ADMIN', 'RISK_ANALYST', 'QA_ANALYST', 'AUDITOR'],
+        roles: accessPolicies.environments,
       },
       {
         label: 'Despliegues',
         path: '/deployments',
         icon: History,
-        roles: ['PLATFORM_ADMIN', 'RISK_ANALYST', 'QA_ANALYST', 'AUDITOR'],
+        roles: accessPolicies.environments,
       },
     ],
   },
@@ -116,13 +125,13 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Simulador',
         path: '/simulator',
         icon: Play,
-        roles: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST'],
+        roles: accessPolicies.simulator,
       },
       {
         label: 'Revisión Manual',
         path: '/manual-reviews',
         icon: ScanSearch,
-        roles: ['OPERATIONS', 'RISK_ANALYST', 'FRAUD_ANALYST'],
+        roles: accessPolicies.manualReview,
       },
     ],
   },
@@ -133,13 +142,13 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Ejecuciones',
         path: '/executions',
         icon: FileSearch,
-        roles: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST', 'OPERATIONS'],
+        roles: accessPolicies.executionAudit,
       },
       {
         label: 'Bitácora',
         path: '/audit-events',
         icon: ScrollText,
-        roles: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST'],
+        roles: accessPolicies.auditEvents,
       },
     ],
   },
@@ -150,13 +159,13 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Objetivos',
         path: '/objectives',
         icon: Goal,
-        roles: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'],
+        roles: accessPolicies.traceability,
       },
       {
         label: 'Matriz de Cobertura',
         path: '/coverage-matrix',
         icon: ShieldCheck,
-        roles: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'],
+        roles: accessPolicies.traceability,
       },
     ],
   },
