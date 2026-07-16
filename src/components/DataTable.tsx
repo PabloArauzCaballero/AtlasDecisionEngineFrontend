@@ -1,6 +1,6 @@
-import { StatusBadge } from './StatusBadge';
 import { Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+import { StatusBadge } from './StatusBadge';
 
 export interface TableColumn<T> {
   key: keyof T & string;
@@ -22,12 +22,14 @@ export function DataTable<T extends Record<string, unknown>>({
   getRowKey,
   detailPath,
 }: DataTableProps<T>) {
-  if (!rows.length)
+  if (!rows.length) {
     return (
       <div className="empty-state">
         <p>No hay registros para los filtros seleccionados.</p>
       </div>
     );
+  }
+
   return (
     <div className="table-wrap">
       <table>
@@ -55,7 +57,7 @@ export function DataTable<T extends Record<string, unknown>>({
               ))}
               {detailPath ? (
                 <td>
-                  <Link className="table-action" to={detailPath(row)} aria-label="Ver detalle">
+                  <Link className="table-action" href={detailPath(row)} aria-label="Ver detalle">
                     <Eye size={16} />
                   </Link>
                 </td>
