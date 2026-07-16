@@ -1,5 +1,4 @@
 import { Copy, GitBranch } from 'lucide-react';
-import { useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
@@ -10,15 +9,19 @@ import { Timeline } from '../components/Timeline';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function ExecutionDetailPage() {
-  const { executionId } = useParams();
+interface ExecutionDetailPageProps {
+  executionId: string;
+}
+
+export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const query = useDetailQuery<unknown>(
     'execution-detail',
-    executionId ? `/v1/audit/executions/${executionId}` : null,
+    executionId ? `/v1/audit/executions/${encodeURIComponent(executionId)}` : null,
   );
   const execution = asRecord(query.data);
   const variables = asRows(execution.variables);
   const trace = asRows(execution.traceSteps ?? execution.trace);
+
   return (
     <>
       <PageHeader
