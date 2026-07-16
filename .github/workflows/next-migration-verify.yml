@@ -14,6 +14,29 @@ permissions:
   contents: read
 
 jobs:
+  format-diagnostics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Capture files that need formatting
+        shell: bash
+        run: >-
+          npx --yes prettier@3.6.2
+          --config .prettierrc.json
+          --list-different .
+          > prettier-differences.txt || true
+
+      - name: Upload formatting diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-differences-current
+          path: prettier-differences.txt
+          if-no-files-found: error
+          retention-days: 1
+
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
