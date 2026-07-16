@@ -1,33 +1,40 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Eye, Play, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function TestSuitesPage() {
-  const params = useParams();
-  const [draftId, setDraftId] = useState(params.versionId ?? '');
-  const [versionId, setVersionId] = useState(params.versionId ?? '');
+interface TestSuitesPageProps {
+  initialVersionId?: string;
+}
+
+export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
+  const [draftId, setDraftId] = useState(initialVersionId);
+  const [versionId, setVersionId] = useState(initialVersionId);
   const query = useQuery({
     queryKey: ['test-suites', versionId],
-    queryFn: () =>
-      apiRequest<unknown>(`/v1/artifact-versions/${versionId}/test-suites?page=1&pageSize=50`),
+    queryFn: ({ signal }) =>
+      apiRequest<unknown>(
+        `/v1/artifact-versions/${encodeURIComponent(versionId)}/test-suites?page=1&pageSize=50`,
+        { signal },
+      ),
     enabled: Boolean(versionId),
   });
   const run = useMutation({
     mutationFn: (suiteId: string) =>
-      apiRequest(`/v1/test-suites/${suiteId}/runs`, {
+      apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/runs`, {
         method: 'POST',
         body: { triggerType: 'MANUAL_UI' },
       }),
   });
   const rows = asRows(asRecord(query.data).items);
+
   return (
     <>
       <PageHeader
@@ -85,11 +92,12 @@ export function TestSuitesPage() {
             </thead>
             <tbody>
               {rows.map((row) => {
+                const suiteId = display(row, 'id');
                 const runs = asRows(row.runs);
                 const latest = runs[0] ?? {};
                 const coverage = Number(asRecord(latest.coverage).nodeCoveragePct ?? 0);
                 return (
-                  <tr key={display(row, 'id')}>
+                  <tr key={suiteId}>
                     <td className="mono">{display(row, 'suiteCode')}</td>
                     <td>{display(row, 'name')}</td>
                     <td>{display(row, 'suiteType')}</td>
@@ -106,10 +114,10 @@ export function TestSuitesPage() {
                     </td>
                     <td>
                       <div className="inline-actions">
-                        <button type="button" onClick={() => run.mutate(display(row, 'id'))}>
+                        <button type="button" onClick={() => run.mutate(suiteId)}>
                           <Play size={15} />
                         </button>
-                        <Link to={`/test-suites/${display(row, 'id')}/cases`}>
+                        <Link href={`/test-suites/${suiteId}/cases`} aria-label="Ver casos">
                           <Eye size={15} />
                         </Link>
                       </div>
