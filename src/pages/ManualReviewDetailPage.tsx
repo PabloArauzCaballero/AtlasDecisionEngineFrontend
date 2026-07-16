@@ -1,9 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { CheckCircle2, UserCheck } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
@@ -13,23 +12,27 @@ import { Timeline } from '../components/Timeline';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, display } from '../utils/records';
 
-export function ManualReviewDetailPage() {
-  const { caseId } = useParams();
+interface ManualReviewDetailPageProps {
+  caseId: string;
+}
+
+export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) {
   const [resolution, setResolution] = useState('APPROVE');
   const [comments, setComments] = useState('');
   const query = useDetailQuery<unknown>(
     'manual-review',
-    caseId ? `/v1/manual-reviews/${caseId}` : null,
+    caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
   );
   const review = asRecord(query.data);
   const resolve = useMutation({
     mutationFn: () =>
-      apiRequest(`/v1/manual-reviews/${caseId}/resolve`, {
+      apiRequest(`/v1/manual-reviews/${encodeURIComponent(caseId)}/resolve`, {
         method: 'POST',
         body: { resolution, comments },
       }),
     onSuccess: () => query.refetch(),
   });
+
   return (
     <>
       <PageHeader
@@ -98,7 +101,7 @@ export function ManualReviewDetailPage() {
             </label>
             <button
               className="button button-primary full-width"
-              disabled={!comments || resolve.isPending}
+              disabled={!comments || !caseId || resolve.isPending}
               onClick={() => resolve.mutate()}
               type="button"
             >
