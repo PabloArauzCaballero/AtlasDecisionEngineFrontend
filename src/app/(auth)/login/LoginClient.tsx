@@ -51,7 +51,7 @@ export function LoginClient() {
   };
 
   return (
-    <main className="login-page">
+    <main className="login-page" id="main-content" tabIndex={-1}>
       <div className="login-grid" aria-hidden="true" />
       <section className="login-card" aria-labelledby="login-title">
         <div className="login-brand">
