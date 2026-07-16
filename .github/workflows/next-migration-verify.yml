@@ -14,42 +14,6 @@ permissions:
   contents: read
 
 jobs:
-  format-diagnostics:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Configure Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies from lockfile
-        run: yarn install --frozen-lockfile
-
-      - name: Capture complete formatting diagnostics
-        shell: bash
-        run: |
-          set +e
-          yarn format:check > prettier-diagnostics.txt 2>&1
-          status=$?
-          echo "exit_code=${status}" >> prettier-diagnostics.txt
-          exit 0
-
-      - name: Upload formatting diagnostics
-        uses: actions/upload-artifact@v4
-        with:
-          name: prettier-diagnostics-complete
-          path: prettier-diagnostics.txt
-          if-no-files-found: error
-          retention-days: 1
-
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
