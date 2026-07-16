@@ -1,5 +1,6 @@
 name: Capture Next build diagnostics
 
+# Re-run after isolating App Router page extensions from legacy src/pages.
 on:
   push:
     branches:
