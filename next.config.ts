@@ -7,6 +7,7 @@ const decisionEngineUrl = (process.env.DECISION_ENGINE_URL ?? 'http://localhost:
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  pageExtensions: ['next.tsx', 'next.ts'],
   poweredByHeader: false,
   reactStrictMode: true,
   async rewrites() {
