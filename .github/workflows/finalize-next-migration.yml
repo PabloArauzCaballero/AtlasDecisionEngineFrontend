@@ -1,0 +1,51 @@
+name: Finalize Next migration dependencies
+
+on:
+  push:
+    branches:
+      - migration/next-app-router
+    paths:
+      - .github/workflows/finalize-next-migration.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Refresh Yarn lockfile
+        run: yarn install --ignore-scripts
+
+      - name: Format source and documentation
+        run: yarn format
+
+      - name: Commit generated maintenance changes
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No maintenance changes were required"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add yarn.lock .
+          git commit -m "chore: finalize Next migration dependencies and formatting"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
