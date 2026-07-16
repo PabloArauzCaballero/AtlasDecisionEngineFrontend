@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { updateSiblingEdge } from './graph-edge-update';
 import { createEdgeDraft, createNodeDraft } from './graph-authoring';
 import { useGraphHistory } from './useGraphHistory';
 
@@ -269,33 +270,4 @@ export function useGraphEditor(initialVersionId = '') {
       setPendingFrom(null);
     },
   };
-}
-
-interface UpdateSiblingEdgeInput {
-  edge: UnknownRecord;
-  current: UnknownRecord;
-  patch: UnknownRecord;
-  selectedEdgeKey: string;
-  sourceKey: string;
-  sourceConditionCode: string;
-  firstSibling?: UnknownRecord;
-}
-
-function updateSiblingEdge(input: UpdateSiblingEdgeInput): UnknownRecord {
-  const { edge, current, patch, selectedEdgeKey, sourceKey, sourceConditionCode, firstSibling } =
-    input;
-  if (display(edge, 'key') === selectedEdgeKey) return { ...edge, ...patch };
-  if (display(edge, 'from') !== sourceKey || patch.default === undefined) return edge;
-  if (patch.default === true && edge.default && sourceConditionCode) {
-    return {
-      ...edge,
-      type: 'CONDITIONAL',
-      default: false,
-      conditions: [{ code: sourceConditionCode, order: 1 }],
-    };
-  }
-  if (patch.default === false && current.default && edge === firstSibling) {
-    return { ...edge, type: 'DEFAULT', default: true, conditions: [] };
-  }
-  return edge;
 }
