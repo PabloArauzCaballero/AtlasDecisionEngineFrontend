@@ -19,8 +19,10 @@ export function configureHttpClient(value: ClientSession): () => void {
   };
 }
 
-export interface PublicApiRequestOptions<TResponse = unknown>
-  extends Omit<RequestInit, 'body' | 'signal'> {
+export interface PublicApiRequestOptions<TResponse = unknown> extends Omit<
+  RequestInit,
+  'body' | 'signal'
+> {
   body?: unknown;
   signal?: AbortSignal;
   timeoutMs?: number;

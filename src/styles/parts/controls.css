@@ -1,3 +1,5 @@
+.page-header {
+  display: flex;
   justify-content: space-between;
   gap: 30px;
   align-items: flex-start;
@@ -154,4 +156,3 @@ pre {
   border-color: #344054;
   tab-size: 2;
 }
-
