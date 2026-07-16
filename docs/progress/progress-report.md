@@ -2,23 +2,23 @@
 
 ## Estado general
 
-| Fase | Estado | Evidencia |
-|---:|---|---|
-| 1. Descubrimiento | Completada | Inventario, riesgos, rutas y ADR iniciales |
-| 2. UI/UX y trazabilidad | Completada | Matriz de 25 vistas y trazabilidad UI/UX |
-| 3. Fundamento Next.js | En curso | Rama de migración creada |
-| 4. Red y contratos | Pendiente | — |
-| 5. Auth y permisos | Pendiente | — |
-| 6. Design system | Pendiente | — |
-| 7. Flujos y formularios | Pendiente | — |
-| 8. Tablas y visualización | Pendiente | — |
-| 9. Feedback y animación | Pendiente | — |
-| 10. Accesibilidad | Pendiente | — |
-| 11. Rendimiento | Pendiente | — |
-| 12. Pruebas | Pendiente | — |
-| 13. CI/CD | Pendiente | — |
-| 14. Despliegue | Pendiente | — |
-| 15. Auditoría final | Pendiente | — |
+|                      Fase | Estado     | Evidencia                                  |
+| ------------------------: | ---------- | ------------------------------------------ |
+|         1. Descubrimiento | Completada | Inventario, riesgos, rutas y ADR iniciales |
+|   2. UI/UX y trazabilidad | Completada | Matriz de 25 vistas y trazabilidad UI/UX   |
+|     3. Fundamento Next.js | En curso   | Rama de migración creada                   |
+|        4. Red y contratos | Pendiente  | —                                          |
+|        5. Auth y permisos | Pendiente  | —                                          |
+|          6. Design system | Pendiente  | —                                          |
+|   7. Flujos y formularios | Pendiente  | —                                          |
+| 8. Tablas y visualización | Pendiente  | —                                          |
+|   9. Feedback y animación | Pendiente  | —                                          |
+|         10. Accesibilidad | Pendiente  | —                                          |
+|           11. Rendimiento | Pendiente  | —                                          |
+|               12. Pruebas | Pendiente  | —                                          |
+|                 13. CI/CD | Pendiente  | —                                          |
+|            14. Despliegue | Pendiente  | —                                          |
+|       15. Auditoría final | Pendiente  | —                                          |
 
 ## Fase 1 — Descubrimiento
 
