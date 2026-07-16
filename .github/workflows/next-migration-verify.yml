@@ -39,6 +39,9 @@ jobs:
       - name: Run ESLint
         run: yarn lint
 
+      - name: Verify source architecture and route inventory
+        run: yarn verify:source
+
       - name: Run TypeScript checks
         run: yarn typecheck
 
@@ -48,4 +51,5 @@ jobs:
       - name: Build Next.js production bundle
         env:
           DECISION_ENGINE_URL: http://127.0.0.1:3000
+          NEXT_TELEMETRY_DISABLED: 1
         run: yarn build
