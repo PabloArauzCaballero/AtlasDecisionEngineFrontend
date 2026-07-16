@@ -1,5 +1,4 @@
 import { Link2, TestTube2 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
@@ -9,15 +8,21 @@ import { StatusBadge } from '../components/StatusBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function ObjectiveDetailPage() {
-  const { objectiveId } = useParams();
+interface ObjectiveDetailPageProps {
+  objectiveId: string;
+}
+
+export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
   const query = useDetailQuery<unknown>(
     'objective-detail',
-    objectiveId ? `/v1/traceability/objectives/${objectiveId}` : null,
+    objectiveId
+      ? `/v1/traceability/objectives/${encodeURIComponent(objectiveId)}`
+      : null,
   );
   const objective = asRecord(query.data);
   const policies = asRows(objective.policyRequirements);
   const target = asRecord(objective.targetJson);
+
   return (
     <>
       <PageHeader
@@ -89,22 +94,22 @@ export function ObjectiveDetailPage() {
                 </tr>
               </thead>
               <tbody>
-                {policies.map((policy) => (
-                  <tr key={display(policy, 'id')}>
-                    <td className="mono">{display(policy, 'policyCode')}</td>
-                    <td>{asRows(policy.artifactLinks).length}</td>
-                    <td>{asRows(policy.testLinks).length}</td>
-                    <td>
-                      <StatusBadge
-                        value={
-                          asRows(policy.artifactLinks).length && asRows(policy.testLinks).length
-                            ? 'COVERED'
-                            : 'GAP'
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))}
+                {policies.map((policy) => {
+                  const artifactLinks = asRows(policy.artifactLinks);
+                  const testLinks = asRows(policy.testLinks);
+                  return (
+                    <tr key={display(policy, 'id')}>
+                      <td className="mono">{display(policy, 'policyCode')}</td>
+                      <td>{artifactLinks.length}</td>
+                      <td>{testLinks.length}</td>
+                      <td>
+                        <StatusBadge
+                          value={artifactLinks.length && testLinks.length ? 'COVERED' : 'GAP'}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
