@@ -1,24 +1,32 @@
 {
   "name": "atlas-decision-frontend",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.9 <24"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "typecheck": "tsc -b --pretty false",
+    "dev": "next dev",
+    "dev:legacy": "vite",
+    "build": "next build",
+    "build:legacy": "tsc -b tsconfig.app.json tsconfig.node.json && vite build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build"
+    "verify": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.83.0",
     "lucide-react": "^0.468.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.3"
+    "next": "16.2.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "^7.6.3",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
