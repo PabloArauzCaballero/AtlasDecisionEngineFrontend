@@ -17,6 +17,7 @@ export function LoginClient() {
   const { status, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const destination = resolveDestination(searchParams?.get('from') ?? null);
   const [tenantId, setTenantId] = useState('1');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,9 +27,9 @@ export function LoginClient() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace(resolveDestination(searchParams.get('from')));
+      router.replace(destination);
     }
-  }, [router, searchParams, status]);
+  }, [destination, router, status]);
 
   if (status !== 'unauthenticated') {
     return <LoadingScreen label="Recuperando sesión" />;
@@ -41,7 +42,7 @@ export function LoginClient() {
 
     try {
       await login({ tenantId, email, password });
-      router.replace(resolveDestination(searchParams.get('from')));
+      router.replace(destination);
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
