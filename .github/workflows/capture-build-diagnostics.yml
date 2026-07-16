@@ -1,0 +1,56 @@
+name: Capture Next build diagnostics
+
+on:
+  push:
+    branches:
+      - migration/next-app-router
+    paths:
+      - .github/workflows/capture-build-diagnostics.yml
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout migration branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Capture Next build output
+        shell: bash
+        env:
+          DECISION_ENGINE_URL: http://127.0.0.1:3000
+          NEXT_TELEMETRY_DISABLED: 1
+        run: |
+          set +e
+          FORCE_COLOR=0 yarn build > docs/progress/next-build-diagnostics.txt 2>&1
+          status=$?
+          echo "" >> docs/progress/next-build-diagnostics.txt
+          echo "exit_code=$status" >> docs/progress/next-build-diagnostics.txt
+          exit 0
+
+      - name: Commit diagnostics
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/progress/next-build-diagnostics.txt
+          git commit -m "chore(ci): capture Next build diagnostics"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
