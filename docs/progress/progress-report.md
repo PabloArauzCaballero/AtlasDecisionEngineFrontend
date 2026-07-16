@@ -2,23 +2,23 @@
 
 ## Estado general
 
-| Fase | Estado | Evidencia |
-|---:|---|---|
-| 1. Descubrimiento | Completada | Inventario, riesgos, rutas y ADR iniciales |
-| 2. UI/UX y trazabilidad | Completada | Matriz de 25 vistas y trazabilidad UI/UX |
-| 3. Fundamento Next.js | Completada | App Router, layouts, login, shell, rewrites y build |
-| 4. Red y contratos | Completada | Cliente único, timeout, cancelación, Zod y pruebas |
-| 5. Auth y permisos | Completada | Refresh single-flight, rutas protegidas y default-deny |
-| 6. Design system | En curso | Inventario de componentes y CSS pendiente de división |
-| 7. Flujos y formularios | Pendiente | — |
-| 8. Tablas y visualización | Pendiente | — |
-| 9. Feedback y animación | Pendiente | — |
-| 10. Accesibilidad | Pendiente | — |
-| 11. Rendimiento | Pendiente | — |
-| 12. Pruebas | En curso | Unitarias activas; integración y e2e pendientes |
-| 13. CI/CD | En curso | Pipeline de verificación de migración activo |
-| 14. Despliegue | Pendiente | — |
-| 15. Auditoría final | Pendiente | — |
+|                      Fase | Estado     | Evidencia                                              |
+| ------------------------: | ---------- | ------------------------------------------------------ |
+|         1. Descubrimiento | Completada | Inventario, riesgos, rutas y ADR iniciales             |
+|   2. UI/UX y trazabilidad | Completada | Matriz de 25 vistas y trazabilidad UI/UX               |
+|     3. Fundamento Next.js | Completada | App Router, layouts, login, shell, rewrites y build    |
+|        4. Red y contratos | Completada | Cliente único, timeout, cancelación, Zod y pruebas     |
+|        5. Auth y permisos | Completada | Refresh single-flight, rutas protegidas y default-deny |
+|          6. Design system | En curso   | Inventario de componentes y CSS pendiente de división  |
+|   7. Flujos y formularios | Pendiente  | —                                                      |
+| 8. Tablas y visualización | Pendiente  | —                                                      |
+|   9. Feedback y animación | Pendiente  | —                                                      |
+|         10. Accesibilidad | Pendiente  | —                                                      |
+|           11. Rendimiento | Pendiente  | —                                                      |
+|               12. Pruebas | En curso   | Unitarias activas; integración y e2e pendientes        |
+|                 13. CI/CD | En curso   | Pipeline de verificación de migración activo           |
+|            14. Despliegue | Pendiente  | —                                                      |
+|       15. Auditoría final | Pendiente  | —                                                      |
 
 ## Fase 1 — Descubrimiento
 
