@@ -1,23 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { Download, Play, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { asRows, display } from '../utils/records';
 
-export function TestCasesPage() {
-  const params = useParams();
-  const [draftId, setDraftId] = useState(params.suiteId ?? '');
-  const [suiteId, setSuiteId] = useState(params.suiteId ?? '');
+interface TestCasesPageProps {
+  initialSuiteId?: string;
+}
+
+export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
+  const [draftId, setDraftId] = useState(initialSuiteId);
+  const [suiteId, setSuiteId] = useState(initialSuiteId);
   const query = useQuery({
     queryKey: ['test-cases', suiteId],
-    queryFn: () => apiRequest<unknown>(`/v1/test-suites/${suiteId}/cases`),
+    queryFn: ({ signal }) =>
+      apiRequest<unknown>(`/v1/test-suites/${encodeURIComponent(suiteId)}/cases`, { signal }),
     enabled: Boolean(suiteId),
   });
   const rows = asRows(query.data);
+
   return (
     <div className="test-cases-layout">
       <aside className="filters-panel">
