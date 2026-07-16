@@ -1,0 +1,24 @@
+yarn run v1.22.22
+$ next build
+[33m[1m⚠[22m[39m No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+[1m[38;2;173;127;168m▲ Next.js 16.2.1[39m[22m (Turbopack)
+
+[37m[1m [22m[39m Creating an optimized production build ...
+[32m[1m✓[22m[39m Compiled successfully in 4.2s
+[37m[1m [22m[39m Running TypeScript ...
+
+[37m[1m [22m[39m We detected TypeScript in your project and reconfigured your [36mtsconfig.json[39m file for you.
+[37m[1m [22m[39m The following [37mmandatory changes[39m were made to your [36mtsconfig.json[39m:
+
+[37m[1m [22m[39m 	- [36mjsx[39m was set to [1mreact-jsx[22m (next.js uses the React automatic runtime)
+
+[31mFailed to type check.
+[39m
+[31m[1mType error[22m[39m: Type 'typeof import("/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend/src/pages/ApprovalRequestDetailPage")' does not satisfy the constraint 'PagesPageConfig'.
+  Property 'default' is missing in type 'typeof import("/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend/src/pages/ApprovalRequestDetailPage")' but required in type 'PagesPageConfig'.
+
+Next.js build worker exited with code: 1 and signal: null
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+
+exit_code=1
