@@ -64,7 +64,7 @@ for (const file of sourceFiles) {
   if (!isApplicationSource) continue;
   if (content.includes('react-router-dom')) failures.push(`${path} still imports React Router`);
   if (content.includes("from 'vite'")) failures.push(`${path} contains an unexpected Vite import`);
-  if (content.includes('fetch(') && path !== 'src/api/http-client.ts') {
+  if (/\bfetch\s*\(/.test(content) && path !== 'src/api/http-client.ts') {
     failures.push(`${path} bypasses the authorized HTTP client`);
   }
 }
