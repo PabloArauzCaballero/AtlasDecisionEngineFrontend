@@ -10,12 +10,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "verify:source": "node scripts/verify-source.mjs",
     "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn build"
+    "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.83.0",
