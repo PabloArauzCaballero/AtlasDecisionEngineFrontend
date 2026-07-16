@@ -1,5 +1,4 @@
 import { CheckCircle2, Clock3, Route, ShieldCheck } from 'lucide-react';
-import { useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
@@ -9,14 +8,21 @@ import { Timeline } from '../components/Timeline';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function TestRunDetailPage() {
-  const { runId } = useParams();
-  const query = useDetailQuery<unknown>('test-run', runId ? `/v1/test-runs/${runId}` : null);
+interface TestRunDetailPageProps {
+  runId: string;
+}
+
+export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
+  const query = useDetailQuery<unknown>(
+    'test-run',
+    runId ? `/v1/test-runs/${encodeURIComponent(runId)}` : null,
+  );
   const run = asRecord(query.data);
   const caseRuns = asRows(run.caseRuns);
   const coverage = asRecord(run.coverage);
   const passed = caseRuns.filter((item) => item.status === 'PASSED').length;
   const passRate = caseRuns.length ? Math.round((passed / caseRuns.length) * 100) : 0;
+
   return (
     <>
       <PageHeader
