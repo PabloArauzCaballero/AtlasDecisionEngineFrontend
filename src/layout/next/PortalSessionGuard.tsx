@@ -2,12 +2,12 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type PropsWithChildren } from 'react';
-import { LoadingScreen } from '../../components/LoadingScreen';
 import { useAuth } from '../../auth/useAuth';
+import { LoadingScreen } from '../../components/LoadingScreen';
 
 export function PortalSessionGuard({ children }: PropsWithChildren) {
   const { status } = useAuth();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '/platform-health';
   const router = useRouter();
 
   useEffect(() => {
