@@ -9,18 +9,23 @@ export interface ResourceQuery {
 export async function listResource(
   config: ResourceConfig,
   query: ResourceQuery,
+  signal?: AbortSignal,
 ): Promise<PagedResponse<ResourceRow>> {
   const params = new URLSearchParams();
   if (!config.unpaged) {
     params.set('page', String(query.page));
     params.set('pageSize', '25');
   }
-  if (config.filterParam && query.filter.trim())
+  if (config.filterParam && query.filter.trim()) {
     params.set(config.filterParam, query.filter.trim());
+  }
+
   const suffix = params.size ? `?${params.toString()}` : '';
   const response = await apiRequest<PagedResponse<ResourceRow> | ResourceRow[]>(
     `${config.endpoint}${suffix}`,
+    { signal },
   );
+
   if (Array.isArray(response)) {
     return {
       items: response,
@@ -31,5 +36,6 @@ export async function listResource(
       hasNextPage: false,
     };
   }
+
   return response;
 }
