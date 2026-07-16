@@ -1,0 +1,2 @@
+import{j as a,i as e}from"./index-CN4iDlkc.js";function t(){return a.jsxs("main",{className:"not-found",children:[a.jsx("p",{className:"eyebrow",children:"404"}),a.jsx("h1",{children:"Vista no encontrada"}),a.jsx("p",{children:"La ruta solicitada no existe en el portal."}),a.jsx(e,{className:"button button-primary",to:"/platform-health",children:"Volver al estado general"})]})}export{t as NotFoundPage};
+//# sourceMappingURL=NotFoundPage-bbivI5Tv.js.map
