@@ -17,7 +17,7 @@ function isActivePath(pathname: string, itemPath: string): boolean {
 }
 
 export function NextSidebar({ open, onClose }: NextSidebarProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const { user } = useAuth();
   const roles = [...(user?.roles ?? []), ...(user?.legacyRoles ?? [])];
 
