@@ -1,6 +1,5 @@
 import { AlertTriangle, Download, GitBranch, ListChecks, Route } from 'lucide-react';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
@@ -9,16 +8,23 @@ import { ProgressBar } from '../components/ProgressBar';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function GraphCoveragePage() {
-  const params = useParams();
-  const [draftId, setDraftId] = useState(params.runId ?? '');
-  const [runId, setRunId] = useState(params.runId ?? '');
-  const query = useDetailQuery<unknown>('graph-coverage', runId ? `/v1/test-runs/${runId}` : null);
+interface GraphCoveragePageProps {
+  initialRunId?: string;
+}
+
+export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps) {
+  const [draftId, setDraftId] = useState(initialRunId);
+  const [runId, setRunId] = useState(initialRunId);
+  const query = useDetailQuery<unknown>(
+    'graph-coverage',
+    runId ? `/v1/test-runs/${encodeURIComponent(runId)}` : null,
+  );
   const run = asRecord(query.data);
   const coverage = asRecord(run.coverage);
   const caseRuns = asRows(run.caseRuns);
   const nodePct = Number(coverage.nodeCoveragePct ?? 0);
   const edgePct = Number(coverage.edgeCoveragePct ?? 0);
+
   return (
     <>
       <PageHeader
