@@ -1,0 +1,49 @@
+yarn run v1.22.22
+$ vitest run
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90m/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend[39m
+
+ [32m✓[39m src/graph/graph.adapter.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/features/graph-editor/graph-authoring.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+(node:2450) PromiseRejectionHandledWarning: Promise rejection was handled asynchronously (rejection id: 2)
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m src/api/http-client.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m src/auth/auth-security.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/auth/ProtectedRoute.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mApiError[22m: La solicitud excedió el tiempo máximo de espera.[39m
+[36m [2m❯[22m send src/api/http-client.ts:[2m136:13[22m[39m
+    [90m134| [39m  } [35mcatch[39m {
+    [90m135| [39m    [35mif[39m (managedSignal[33m.[39m[34mdidTimeout[39m()) {
+    [90m136| [39m      [35mthrow[39m [35mnew[39m [33mApiError[39m(
+    [90m   | [39m            [31m^[39m
+    [90m137| [39m        [32m'La solicitud excedió el tiempo máximo de espera.'[39m[33m,[39m
+    [90m138| [39m        [34m408[39m[33m,[39m
+[90m [2m❯[22m apiRequest src/api/http-client.ts:[2m75:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ status: 408, code: 'REQUEST_TIMEOUT', requestId: undefined, kind: 'timeout' }[39m
+[31mThis error originated in "[1msrc/api/http-client.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mnormalizes a request timeout[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m19 passed[39m[22m[90m (19)[39m
+[2m     Errors [22m [1m[31m1 error[39m[22m
+[2m   Start at [22m 05:23:48
+[2m   Duration [22m 2.16s[2m (transform 296ms, setup 536ms, collect 567ms, tests 138ms, environment 2.40s, prepare 582ms)[22m
+
+
+::error file=/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend/src/api/http-client.ts,title=Unhandled error,line=136,column=13::ApiError: La solicitud excedió el tiempo máximo de espera.%0A ❯ send src/api/http-client.ts:136:13%0A ❯ apiRequest src/api/http-client.ts:75:20%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 408, code: 'REQUEST_TIMEOUT', requestId: undefined, kind: 'timeout' }%0AThis error originated in "src/api/http-client.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.%0AThe latest test that might've caused the error is "normalizes a request timeout". It might mean one of the following:%0A- The error was thrown, while Vitest was running this test.%0A- If the error occurred after the test had been completed, this was the last documented test before it was thrown.%0A
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+
+exit_code=1
