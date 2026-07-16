@@ -1,5 +1,5 @@
 import { GitBranch, History, Pencil, TerminalSquare } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import Link from 'next/link';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
@@ -8,16 +8,20 @@ import { StatusBadge } from '../components/StatusBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
-export function ArtifactDetailPage() {
-  const { artifactId } = useParams();
+interface ArtifactDetailPageProps {
+  artifactId: string;
+}
+
+export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   const query = useDetailQuery<unknown>(
     'artifact-detail',
-    artifactId ? `/v1/artifacts/${artifactId}` : null,
+    artifactId ? `/v1/artifacts/${encodeURIComponent(artifactId)}` : null,
   );
   const artifact = asRecord(query.data);
   const versions = asRows(artifact.versions);
   const latest = versions[0] ?? {};
   const latestId = display(latest, 'id');
+
   return (
     <>
       <PageHeader
@@ -27,7 +31,7 @@ export function ArtifactDetailPage() {
         actions={
           <>
             {latestId !== '—' ? (
-              <Link className="button" to={`/artifact-versions/${latestId}/graph`}>
+              <Link className="button" href={`/artifact-versions/${latestId}/graph`}>
                 <GitBranch size={16} /> View Graph
               </Link>
             ) : null}
@@ -84,28 +88,29 @@ export function ArtifactDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {versions.map((version) => (
-                <tr key={display(version, 'id')}>
-                  <td className="mono">v{display(version, 'semanticVersion', 'versionNumber')}</td>
-                  <td>
-                    <StatusBadge value={version.status} />
-                  </td>
-                  <td className="mono">{display(version, 'checksum')}</td>
-                  <td>{display(version, 'createdAt')}</td>
-                  <td>{display(version, 'createdBy')}</td>
-                  <td>
-                    <div className="inline-actions">
-                      <Link to={`/artifact-versions/${display(version, 'id')}/graph`}>Graph</Link>
-                      <Link to={`/artifact-versions/${display(version, 'id')}/compile`}>
-                        Compile
-                      </Link>
-                      <Link to={`/artifact-versions/${display(version, 'id')}/test-suites`}>
-                        Tests
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {versions.map((version) => {
+                const versionId = display(version, 'id');
+                return (
+                  <tr key={versionId}>
+                    <td className="mono">
+                      v{display(version, 'semanticVersion', 'versionNumber')}
+                    </td>
+                    <td>
+                      <StatusBadge value={version.status} />
+                    </td>
+                    <td className="mono">{display(version, 'checksum')}</td>
+                    <td>{display(version, 'createdAt')}</td>
+                    <td>{display(version, 'createdBy')}</td>
+                    <td>
+                      <div className="inline-actions">
+                        <Link href={`/artifact-versions/${versionId}/graph`}>Graph</Link>
+                        <Link href={`/artifact-versions/${versionId}/compile`}>Compile</Link>
+                        <Link href={`/artifact-versions/${versionId}/test-suites`}>Tests</Link>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
