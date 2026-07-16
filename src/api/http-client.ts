@@ -34,7 +34,13 @@ export interface ApiRequestOptions<TResponse = unknown>
 
 function assertSafeApiPath(path: string): void {
   if (!path.startsWith('/') || path.startsWith('//')) {
-    throw new ApiError('La ruta de API no es válida.', 400, 'INVALID_API_PATH', undefined, 'validation');
+    throw new ApiError(
+      'La ruta de API no es válida.',
+      400,
+      'INVALID_API_PATH',
+      undefined,
+      'validation',
+    );
   }
 }
 
@@ -96,16 +102,20 @@ export async function apiRequest<T>(
 
 async function send<T>(
   path: string,
-  options: PublicApiRequestOptions<T>,
+  options: ApiRequestOptions<T>,
   token?: string,
 ): Promise<Response> {
   const {
     body,
-    responseSchema: _responseSchema,
+    responseSchema,
+    retryOnUnauthorized,
     signal: externalSignal,
     timeoutMs = env.apiTimeoutMs,
     ...requestInit
   } = options;
+  void responseSchema;
+  void retryOnUnauthorized;
+
   const headers = new Headers(requestInit.headers);
   headers.set('accept', 'application/json');
   if (token) headers.set('authorization', `Bearer ${token}`);
@@ -123,7 +133,7 @@ async function send<T>(
       signal: managedSignal.signal,
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-  } catch (error) {
+  } catch {
     if (managedSignal.didTimeout()) {
       throw new ApiError(
         'La solicitud excedió el tiempo máximo de espera.',
@@ -135,7 +145,13 @@ async function send<T>(
     }
 
     if (externalSignal?.aborted) {
-      throw new ApiError('La solicitud fue cancelada.', 499, 'REQUEST_ABORTED', undefined, 'cancelled');
+      throw new ApiError(
+        'La solicitud fue cancelada.',
+        499,
+        'REQUEST_ABORTED',
+        undefined,
+        'cancelled',
+      );
     }
 
     throw new ApiError(
