@@ -4,7 +4,7 @@ $ next build
 [1m[38;2;173;127;168m▲ Next.js 16.2.1[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 2.7s
+[32m[1m✓[22m[39m Compiled successfully in 2.9s
 [37m[1m [22m[39m Running TypeScript ...
 
 [37m[1m [22m[39m We detected TypeScript in your project and reconfigured your [36mtsconfig.json[39m file for you.
