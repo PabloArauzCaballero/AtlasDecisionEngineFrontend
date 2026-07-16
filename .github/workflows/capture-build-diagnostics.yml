@@ -1,6 +1,6 @@
 name: Capture Next build diagnostics
 
-# Diagnostic revision 3 after renaming every App Router special file.
+# Diagnostic revision 4 after nullable search-params and JSX fixes.
 on:
   push:
     branches:
