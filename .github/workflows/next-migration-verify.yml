@@ -1,0 +1,51 @@
+name: Verify Next migration
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - migration/next-app-router
+    paths-ignore:
+      - docs/**
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies from lockfile
+        run: yarn install --frozen-lockfile
+
+      - name: Verify formatting
+        run: yarn format:check
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run TypeScript checks
+        run: yarn typecheck
+
+      - name: Run unit tests
+        run: yarn test
+
+      - name: Build Next.js production bundle
+        env:
+          DECISION_ENGINE_URL: http://127.0.0.1:3000
+        run: yarn build
