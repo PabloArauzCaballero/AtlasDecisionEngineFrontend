@@ -4,7 +4,7 @@ $ next build
 [1m[38;2;173;127;168m▲ Next.js 16.2.1[39m[22m (Turbopack)
 
 [37m[1m [22m[39m Creating an optimized production build ...
-[32m[1m✓[22m[39m Compiled successfully in 4.2s
+[32m[1m✓[22m[39m Compiled successfully in 2.7s
 [37m[1m [22m[39m Running TypeScript ...
 
 [37m[1m [22m[39m We detected TypeScript in your project and reconfigured your [36mtsconfig.json[39m file for you.
@@ -14,9 +14,16 @@ $ next build
 
 [31mFailed to type check.
 [39m
-[31m[1mType error[22m[39m: Type 'typeof import("/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend/src/pages/ApprovalRequestDetailPage")' does not satisfy the constraint 'PagesPageConfig'.
-  Property 'default' is missing in type 'typeof import("/home/runner/work/AtlasDecisionEngineFrontend/AtlasDecisionEngineFrontend/src/pages/ApprovalRequestDetailPage")' but required in type 'PagesPageConfig'.
+[36m./src/app/(auth)/login/LoginClient.tsx[39m:[33m29[39m:[33m41[39m
+[31m[1mType error[22m[39m: 'searchParams' is possibly 'null'.
 
+  [90m27 |[0m   useEffect(() => {
+  [90m28 |[0m     [36mif[0m (status === [32m'authenticated'[0m) {
+[31m[1m>[0m [90m29 |[0m       router.replace(resolveDestination(searchParams.get([32m'from'[0m)));
+  [90m   |[0m                                         [31m[1m^[0m
+  [90m30 |[0m     }
+  [90m31 |[0m   }, [router, searchParams, status]);
+  [90m32 |[0m
 Next.js build worker exited with code: 1 and signal: null
 error Command failed with exit code 1.
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
