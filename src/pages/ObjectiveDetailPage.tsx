@@ -15,9 +15,7 @@ interface ObjectiveDetailPageProps {
 export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
   const query = useDetailQuery<unknown>(
     'objective-detail',
-    objectiveId
-      ? `/v1/traceability/objectives/${encodeURIComponent(objectiveId)}`
-      : null,
+    objectiveId ? `/v1/traceability/objectives/${encodeURIComponent(objectiveId)}` : null,
   );
   const objective = asRecord(query.data);
   const policies = asRows(objective.policyRequirements);

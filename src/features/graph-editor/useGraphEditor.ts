@@ -65,14 +65,11 @@ export function useGraphEditor(initialVersionId = '') {
 
   const save = useMutation({
     mutationFn: () =>
-      apiRequest<UnknownRecord>(
-        `/v1/artifact-versions/${encodeURIComponent(versionId)}/graph`,
-        {
-          method: 'PUT',
-          headers: { 'if-match': lockVersion },
-          body: snapshotToEditableGraph(history.snapshot),
-        },
-      ),
+      apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodeURIComponent(versionId)}/graph`, {
+        method: 'PUT',
+        headers: { 'if-match': lockVersion },
+        body: snapshotToEditableGraph(history.snapshot),
+      }),
     onSuccess: (saved) => {
       if (saved.lockVersion !== undefined) setLockVersion(String(saved.lockVersion));
       history.clearHistory();
@@ -118,9 +115,7 @@ export function useGraphEditor(initialVersionId = '') {
     history.commit(
       withNodes(
         history.snapshot,
-        nodes.map((node) =>
-          display(node, 'key') === selectedKey ? { ...node, ...patch } : node,
-        ),
+        nodes.map((node) => (display(node, 'key') === selectedKey ? { ...node, ...patch } : node)),
       ),
     );
   };
