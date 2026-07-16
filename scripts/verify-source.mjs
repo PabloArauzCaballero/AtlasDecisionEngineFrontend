@@ -49,25 +49,29 @@ for (const route of requiredRoutes) {
 }
 
 for (const generatedPath of ['dist', 'tsconfig.app.tsbuildinfo', 'tsconfig.node.tsbuildinfo']) {
-  if (existsSync(join(root, generatedPath))) failures.push(`Generated artifact is versioned: ${generatedPath}`);
+  if (existsSync(join(root, generatedPath))) {
+    failures.push(`Generated artifact is versioned: ${generatedPath}`);
+  }
 }
 
 for (const file of sourceFiles) {
   const path = relative(root, file).replaceAll('\\', '/');
   const content = readFileSync(file, 'utf8');
   const lineCount = content.split(/\r?\n/).length;
+  const isApplicationSource = path.startsWith('src/');
 
   if (lineCount >= 300) failures.push(`${path} exceeds the 299-line limit (${lineCount})`);
+  if (!isApplicationSource) continue;
   if (content.includes('react-router-dom')) failures.push(`${path} still imports React Router`);
-  if (content.includes("from 'vite'") || content.includes("from 'vitest/config'") && path !== 'vitest.config.ts') {
-    failures.push(`${path} contains an unexpected Vite import`);
-  }
+  if (content.includes("from 'vite'")) failures.push(`${path} contains an unexpected Vite import`);
   if (content.includes('fetch(') && path !== 'src/api/http-client.ts') {
     failures.push(`${path} bypasses the authorized HTTP client`);
   }
 }
 
-if (requiredRoutes.length !== 25) failures.push('The required route inventory must contain exactly 25 views');
+if (requiredRoutes.length !== 25) {
+  failures.push('The required route inventory must contain exactly 25 views');
+}
 
 if (failures.length) {
   console.error(failures.map((failure) => `- ${failure}`).join('\n'));
