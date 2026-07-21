@@ -57,7 +57,7 @@ export function SimulatorPage() {
       />
       <div className="simulator-layout">
         <Panel title="Configuration" meta="Runtime request">
-          <form className="simulator-form" onSubmit={submit}>
+          <form className="simulator-form" onSubmit={submit} data-tutorial-id="simulator-form">
             <div className="form-row">
               <label className="field">
                 <span>Artifact</span>
@@ -86,7 +86,12 @@ export function SimulatorPage() {
               onChange={setVariables}
               rows={16}
             />
-            <button className="button button-primary" disabled={simulation.isPending} type="submit">
+            <button
+              className="button button-primary"
+              disabled={simulation.isPending}
+              type="submit"
+              data-tutorial-id="simulator-submit"
+            >
               <Play size={17} /> {simulation.isPending ? 'Running…' : 'Run Simulation'}
             </button>
           </form>

@@ -1,9 +1,10 @@
 'use client';
 
-import { Bell, Boxes, LogOut, Menu, Search, ShieldCheck } from 'lucide-react';
+import { Bell, Boxes, HelpCircle, LogOut, Menu, Search, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../auth/useAuth';
+import { useTutorial } from '../../features/tutorial/useTutorial';
 
 interface NextTopbarProps {
   onMenu: () => void;
@@ -12,6 +13,7 @@ interface NextTopbarProps {
 export function NextTopbar({ onMenu }: NextTopbarProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const tutorial = useTutorial();
 
   const closeSession = async () => {
     await logout();
@@ -47,6 +49,15 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       </Link>
       <button className="icon-button" type="button" aria-label="Notificaciones">
         <Bell />
+      </button>
+      <button
+        className="icon-button"
+        type="button"
+        onClick={tutorial.start}
+        aria-label="Reiniciar el tutorial guiado"
+        title={tutorial.completed ? 'Reiniciar tutorial' : 'Ver tutorial'}
+      >
+        <HelpCircle />
       </button>
       <div className="security-label">
         <ShieldCheck size={15} /> Verified

@@ -58,6 +58,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
                     onClick={onClose}
                     className={active ? 'nav-link active' : 'nav-link'}
                     aria-current={active ? 'page' : undefined}
+                    data-tutorial-id={item.path === '/simulator' ? 'nav-simulator' : undefined}
                   >
                     <Icon size={18} />
                     <span>{item.label}</span>
