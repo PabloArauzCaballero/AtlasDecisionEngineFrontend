@@ -63,6 +63,10 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     roles: accessPolicies.traceability,
   },
   { pattern: /^\/coverage-matrix\/?$/, roles: accessPolicies.traceability },
+  {
+    pattern: /^\/security-review\/[^/]+\/?$/,
+    roles: accessPolicies.securityReview,
+  },
 ];
 
 /**

@@ -1,5 +1,14 @@
 import { useMutation } from '@tanstack/react-query';
-import { CheckCircle2, FileDiff, Printer, Share2, ThumbsDown, ThumbsUp } from 'lucide-react';
+import {
+  CheckCircle2,
+  FileDiff,
+  Printer,
+  Share2,
+  ShieldAlert,
+  ThumbsDown,
+  ThumbsUp,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
@@ -44,6 +53,9 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
         description={`${display(artifact, 'artifactCode')} · v${display(version, 'semanticVersion', 'versionNumber')}`}
         actions={
           <>
+            <Link className="button" href={`/security-review/${display(version, 'id')}`}>
+              <ShieldAlert size={16} /> Revisión de Seguridad
+            </Link>
             <button className="button" type="button">
               <Printer size={16} /> Imprimir
             </button>

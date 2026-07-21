@@ -37,4 +37,10 @@ describe('route access policies', () => {
     expect(canAccessPath('/code-import', ['RISK_ANALYST'])).toBe(true);
     expect(canAccessPath('/code-import', ['AUDITOR'])).toBe(false);
   });
+
+  it('grants the security review dashboard to security-team roles, denying a plain risk analyst', () => {
+    expect(canAccessPath('/security-review/version-1', ['COMPLIANCE'])).toBe(true);
+    expect(canAccessPath('/security-review/version-1', ['AUDITOR'])).toBe(true);
+    expect(canAccessPath('/security-review/version-1', ['RISK_ANALYST'])).toBe(false);
+  });
 });

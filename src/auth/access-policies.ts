@@ -18,4 +18,6 @@ export const accessPolicies = {
   nestedTrees: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   // Fase 5 — code-to-flow import. Write actions mirror graphAuthoring on the backend.
   codeImport: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,
+  // Fase 10 — security team dashboard. Mirrors the backend's SECURITY_TEAM_ROLES.
+  securityReview: ['COMPLIANCE', 'FRAUD_ANALYST', 'RISK_APPROVER', 'AUDITOR'] as const,
 } as const;
