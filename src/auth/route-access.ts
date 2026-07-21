@@ -49,6 +49,7 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/environments\/?$/, roles: accessPolicies.environments },
   { pattern: /^\/deployments\/?$/, roles: accessPolicies.environments },
   { pattern: /^\/simulator\/?$/, roles: accessPolicies.simulator },
+  { pattern: /^\/live-execution\/?$/, roles: accessPolicies.simulator },
   {
     pattern: /^\/manual-reviews(?:\/[^/]+)?\/?$/,
     roles: accessPolicies.manualReview,

@@ -1,0 +1,53 @@
+/* Fase 8 — live execution node-by-node status list. */
+.live-node-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.live-node-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.live-node-running {
+  background: rgba(99, 102, 241, 0.1);
+}
+.live-node-completed {
+  background: rgba(22, 163, 74, 0.08);
+}
+.live-node-error {
+  background: rgba(220, 38, 38, 0.1);
+}
+.live-node-key {
+  font-family: monospace;
+  font-weight: 600;
+}
+.live-node-discarded {
+  color: #94a3b8;
+  font-size: 11px;
+}
+li .live-node-error {
+  background: none;
+  color: #b91c1c;
+  padding: 0;
+}
+.spin {
+  animation: live-node-spin 1s linear infinite;
+}
+@keyframes live-node-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -13,6 +13,7 @@ import {
   History,
   ListChecks,
   Play,
+  Radio,
   Rocket,
   ScanSearch,
   ScrollText,
@@ -132,6 +133,12 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Simulador',
         path: '/simulator',
         icon: Play,
+        roles: accessPolicies.simulator,
+      },
+      {
+        label: 'Ejecución en Vivo',
+        path: '/live-execution',
+        icon: Radio,
         roles: accessPolicies.simulator,
       },
       {

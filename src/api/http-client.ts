@@ -98,6 +98,62 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
   return parseResponse(retryResponse, options.responseSchema);
 }
 
+export interface ApiEvent {
+  type: string;
+  data: unknown;
+}
+
+/**
+ * Fase 8 — live execution. Reads a `text/event-stream` response incrementally
+ * (fetch + ReadableStream, not the browser's native EventSource) specifically so
+ * the request goes through the same Authorization-header auth as every other
+ * apiRequest call — EventSource cannot send custom headers, and this app has no
+ * cookie-based session to fall back on. Resolves once the server closes the
+ * stream (this app's SSE endpoints always complete; they are not open-ended).
+ */
+export async function apiEventStream(
+  path: string,
+  onEvent: (event: ApiEvent) => void,
+  options: ApiRequestOptions = {},
+): Promise<void> {
+  assertSafeApiPath(path);
+  const activeSession = session;
+  const token = activeSession?.getAccessToken();
+  if (!activeSession || !token) {
+    activeSession?.expireSession();
+    throw new ApiError('No existe una sesión activa.', 401, 'UNAUTHORIZED');
+  }
+
+  const response = await send(path, options, token);
+  if (!response.ok || !response.body) {
+    return parseResponse(response, options.responseSchema).then(() => undefined);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let boundary = buffer.indexOf('\n\n');
+    while (boundary !== -1) {
+      const frame = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+      const type = /^event: (.+)$/m.exec(frame)?.[1] ?? 'message';
+      const dataLine = /^data: (.+)$/m.exec(frame)?.[1];
+      if (dataLine !== undefined) {
+        try {
+          onEvent({ type, data: JSON.parse(dataLine) });
+        } catch {
+          // A malformed frame must not kill the whole stream — skip it.
+        }
+      }
+      boundary = buffer.indexOf('\n\n');
+    }
+  }
+}
+
 async function send<T>(
   path: string,
   options: ApiRequestOptions<T>,

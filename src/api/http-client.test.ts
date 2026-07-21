@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { apiRequest, configureHttpClient } from './http-client';
+import { apiEventStream, apiRequest, configureHttpClient } from './http-client';
 
 function configureAuthenticatedClient(
   overrides: {
@@ -152,6 +152,57 @@ describe('apiRequest', () => {
     await expect(apiRequest('//example.com/v1/data')).rejects.toMatchObject({
       code: 'INVALID_API_PATH',
     });
+    cleanup();
+  });
+});
+
+describe('apiEventStream (Fase 8 — live execution)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function sseResponse(frames: string): Response {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(frames));
+        controller.close();
+      },
+    });
+    return new Response(stream, { status: 200, headers: { 'content-type': 'text/event-stream' } });
+  }
+
+  it('parses each SSE frame and calls onEvent with its type and JSON data', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      sseResponse(
+        'event: node_step\ndata: {"nodeKey":"START","status":"RUNNING"}\n\n' +
+          'event: execution_completed\ndata: {"outcome":"APPROVED"}\n\n',
+      ),
+    );
+    const { cleanup } = configureAuthenticatedClient();
+    const events: Array<{ type: string; data: unknown }> = [];
+
+    await apiEventStream('/v1/live-executions/stream', (event) => events.push(event));
+
+    expect(events).toEqual([
+      { type: 'node_step', data: { nodeKey: 'START', status: 'RUNNING' } },
+      { type: 'execution_completed', data: { outcome: 'APPROVED' } },
+    ]);
+    cleanup();
+  });
+
+  it('skips a malformed frame instead of failing the whole stream', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      sseResponse(
+        'event: node_step\ndata: {not json}\n\nevent: node_step\ndata: {"nodeKey":"OK"}\n\n',
+      ),
+    );
+    const { cleanup } = configureAuthenticatedClient();
+    const events: Array<{ type: string; data: unknown }> = [];
+
+    await apiEventStream('/v1/live-executions/stream', (event) => events.push(event));
+
+    expect(events).toEqual([{ type: 'node_step', data: { nodeKey: 'OK' } }]);
     cleanup();
   });
 });
