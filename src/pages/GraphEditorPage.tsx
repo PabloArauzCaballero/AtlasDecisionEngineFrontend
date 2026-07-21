@@ -29,7 +29,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         saving={editor.save.isPending}
         validating={editor.validate.isPending}
         onVersionIdChange={editor.setVersionId}
-        onLoad={() => editor.load.mutate()}
+        onLoad={() => editor.load.mutate(undefined)}
         onUndo={editor.undo}
         onRedo={editor.redo}
         onZoomOut={editor.zoomOut}

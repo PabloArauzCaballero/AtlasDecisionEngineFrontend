@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
@@ -46,8 +46,12 @@ export function useGraphEditor(initialVersionId = '') {
     conditions.find((condition) => display(condition, 'code') === selectedConditionCode) ?? {};
 
   const load = useMutation({
-    mutationFn: async () => {
-      const encodedVersionId = encodeURIComponent(versionId);
+    // Accepts an explicit target id (used by the auto-load effect below, right
+    // after navigating to a new version) so it never races the `versionId` state
+    // update it would otherwise have to wait a render for; the toolbar's manual
+    // "Load" button omits it and falls back to the current `versionId` state.
+    mutationFn: async (targetVersionId?: string) => {
+      const encodedVersionId = encodeURIComponent(targetVersionId ?? versionId);
       return Promise.all([
         apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodedVersionId}/graph`),
         apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodedVersionId}`),
@@ -62,6 +66,21 @@ export function useGraphEditor(initialVersionId = '') {
       setConnectMode(false);
     },
   });
+
+  // Fase 3 QA fix: navigating straight to /artifact-versions/{id}/graph (e.g. the
+  // "View Graph" link on the artifact detail page) previously left the canvas
+  // empty — the version id was pre-filled from the URL, but nothing actually
+  // fetched the graph until the user manually pressed "Load" again. This also
+  // re-syncs and reloads if the route's version id changes while this page stays
+  // mounted (client-side navigation between two versions' graphs). It does NOT
+  // fire on manual edits to the toolbar's version-id input — that field's onChange
+  // only touches local `versionId` state, never `initialVersionId`.
+  useEffect(() => {
+    if (!initialVersionId) return;
+    setVersionId(initialVersionId);
+    load.mutate(initialVersionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialVersionId]);
 
   const save = useMutation({
     mutationFn: () =>
