@@ -187,3 +187,50 @@
   color: #475467;
   font-size: 10px;
 }
+
+/* Fase 5 — code-to-flow import. */
+.code-import-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.2fr) minmax(240px, 1fr);
+  gap: 16px;
+}
+.code-import-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.code-import-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+.code-import-issues li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.code-import-issues .issue-error {
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}
+.code-import-issues .issue-warning {
+  background: rgba(217, 119, 6, 0.1);
+  color: #b45309;
+}
+.issue-location {
+  font-family: monospace;
+  white-space: nowrap;
+}
+.code-import-preview h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 4px;
+  font-size: 13px;
+}

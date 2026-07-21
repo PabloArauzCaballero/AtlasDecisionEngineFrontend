@@ -16,6 +16,7 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     roles: accessPolicies.nestedTrees,
   },
   { pattern: /^\/graph-editor\/?$/, roles: accessPolicies.graphAuthoring },
+  { pattern: /^\/code-import\/?$/, roles: accessPolicies.codeImport },
   {
     pattern: /^\/artifact-versions\/[^/]+\/graph\/?$/,
     roles: accessPolicies.graphAuthoring,

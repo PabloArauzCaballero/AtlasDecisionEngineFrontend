@@ -32,4 +32,9 @@ describe('route access policies', () => {
     // A plain artifact detail path must still resolve through the broader artifacts policy.
     expect(canAccessPath('/artifacts/artifact-1', ['AUDITOR'])).toBe(true);
   });
+
+  it('restricts the code-to-flow import route to authoring roles, denying read-only roles', () => {
+    expect(canAccessPath('/code-import', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/code-import', ['AUDITOR'])).toBe(false);
+  });
 });
