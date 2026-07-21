@@ -25,4 +25,11 @@ describe('route access policies', () => {
     expect(requiredRolesForPath('/unregistered-operation')).toBeNull();
     expect(canAccessPath('/unregistered-operation', ['PLATFORM_ADMIN'])).toBe(false);
   });
+
+  it('applies nested-tree roles to the dependency graph route without matching the broader artifacts route', () => {
+    expect(canAccessPath('/artifacts/artifact-1/dependency-graph', ['AUDITOR'])).toBe(true);
+    expect(canAccessPath('/artifacts/artifact-1/dependency-graph', ['OPERATIONS'])).toBe(false);
+    // A plain artifact detail path must still resolve through the broader artifacts policy.
+    expect(canAccessPath('/artifacts/artifact-1', ['AUDITOR'])).toBe(true);
+  });
 });

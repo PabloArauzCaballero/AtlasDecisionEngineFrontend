@@ -1,4 +1,4 @@
-import { GitBranch, History, Pencil, TerminalSquare } from 'lucide-react';
+import { GitBranch, History, Pencil, TerminalSquare, Workflow } from 'lucide-react';
 import Link from 'next/link';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
@@ -35,6 +35,9 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                 <GitBranch size={16} /> View Graph
               </Link>
             ) : null}
+            <Link className="button" href={`/artifacts/${artifactId}/dependency-graph`}>
+              <Workflow size={16} /> Dependency Graph
+            </Link>
             <button className="button button-primary" type="button">
               <Pencil size={16} /> Edit Draft
             </button>

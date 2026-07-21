@@ -13,4 +13,7 @@ export const accessPolicies = {
   executionAudit: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST', 'OPERATIONS'] as const,
   auditEvents: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST'] as const,
   traceability: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
+  // Fase 7 — nested decision trees. Mirrors the backend's read roles for
+  // GET /v1/artifacts/{id}/dependency-graph (see docs/nested-decision-trees.md).
+  nestedTrees: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
 } as const;
