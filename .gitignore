@@ -2,6 +2,8 @@
 .env.local
 .env.*.local
 
+
+graphify-out/
 node_modules/
 .next/
 out/
@@ -18,3 +20,4 @@ test-results/
 *.njsproj
 *.sln
 *.swp
+

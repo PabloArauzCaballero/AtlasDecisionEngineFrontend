@@ -1,12 +1,17 @@
 import { useMutation } from '@tanstack/react-query';
-import { CheckCircle2, Circle, Code2, Play, ShieldCheck, TriangleAlert } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle2, Circle, Code2, Play, Save, ShieldCheck, TriangleAlert } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { PickerSelect } from '../components/PickerSelect';
+import { useNotifications } from '../notifications/useNotifications';
+import { display } from '../utils/records';
+
+const DRAFT_KEY = 'compile-wizard-draft';
 
 interface CompilePageProps {
   initialVersionId: string;
@@ -14,13 +19,41 @@ interface CompilePageProps {
 
 export function CompilePage({ initialVersionId }: CompilePageProps) {
   const [versionId, setVersionId] = useState(initialVersionId);
+  const { notify } = useNotifications();
+
+  // Restores a hand-saved draft, but never over a version arriving in the URL.
+  useEffect(() => {
+    if (initialVersionId) return;
+    const draft = localStorage.getItem(DRAFT_KEY);
+    if (draft) setVersionId(draft);
+  }, [initialVersionId]);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, versionId);
+    notify({
+      tone: 'success',
+      title: 'Borrador guardado',
+      description: versionId
+        ? `El wizard reabrirá con la versión ${versionId} preseleccionada.`
+        : 'El borrador quedó vacío; el wizard abrirá sin versión.',
+    });
+  };
   const action = useMutation({
     mutationFn: (operation: 'validate' | 'compile') =>
       apiRequest(`/v1/artifact-versions/${encodeURIComponent(versionId)}/${operation}`, {
         method: 'POST',
         body: {},
       }),
+    // Failures are reported globally by the mutation cache; only the success
+    // path needs a message here.
+    onSuccess: (_data, operation) =>
+      notify({
+        tone: 'success',
+        title: operation === 'compile' ? 'Compilación completada' : 'Validación completada',
+        description: `Versión ${versionId} procesada sin errores bloqueantes.`,
+      }),
   });
+  const pendingOperation = action.isPending ? action.variables : undefined;
 
   return (
     <>
@@ -29,8 +62,8 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
         title="Validar y Compilar Modelo"
         description="Proceso controlado de pre-validación, pruebas estructurales y compilación determinista."
         actions={
-          <button className="button" type="button">
-            Guardar Borrador
+          <button className="button" type="button" onClick={saveDraft}>
+            <Save size={16} /> Guardar Borrador
           </button>
         }
       />
@@ -59,14 +92,18 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
         </aside>
         <main className="wizard-main">
           <Panel title="Pre-validación del Modelo" meta="Required gate">
-            <label className="field">
-              <span>Artifact Version ID</span>
-              <input
-                value={versionId}
-                onChange={(event) => setVersionId(event.target.value)}
-                placeholder="ID de la versión"
-              />
-            </label>
+            <PickerSelect
+              label="Versión del artefacto"
+              value={versionId}
+              onChange={setVersionId}
+              endpoint="/v1/views/pickers/artifact-versions"
+              queryKey="artifact-versions"
+              placeholder="Elegir versión…"
+              mapOption={(row) => ({
+                value: display(row, 'id'),
+                label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
+              })}
+            />
             <div className="validation-group">
               <h3>
                 <Code2 /> Análisis Sintáctico
@@ -107,7 +144,12 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
                 disabled={!versionId || action.isPending}
                 onClick={() => action.mutate('validate')}
               >
-                <ShieldCheck size={16} /> Validar
+                {pendingOperation === 'validate' ? (
+                  <span className="inline-spinner" aria-hidden="true" />
+                ) : (
+                  <ShieldCheck size={16} />
+                )}
+                {pendingOperation === 'validate' ? 'Validando…' : 'Validar'}
               </button>
               <button
                 className="button button-primary"
@@ -115,7 +157,12 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
                 disabled={!versionId || action.isPending}
                 onClick={() => action.mutate('compile')}
               >
-                <Play size={16} /> Compilar
+                {pendingOperation === 'compile' ? (
+                  <span className="inline-spinner" aria-hidden="true" />
+                ) : (
+                  <Play size={16} />
+                )}
+                {pendingOperation === 'compile' ? 'Compilando…' : 'Compilar'}
               </button>
             </div>
           </Panel>

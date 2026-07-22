@@ -1,0 +1,194 @@
+/* Toast stack ------------------------------------------------------------- */
+
+.toast-viewport {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(400px, calc(100vw - 48px));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 11px;
+  align-items: start;
+  overflow: hidden;
+  padding: 13px 13px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--muted);
+  border-radius: 7px;
+  background: var(--panel);
+  box-shadow:
+    0 12px 28px -8px rgba(16, 24, 40, 0.22),
+    0 3px 8px -3px rgba(16, 24, 40, 0.12);
+  animation: toast-enter var(--dur-slow) var(--ease-out) both;
+}
+
+/* Driven by the provider's two-phase dismiss, not by :hover or focus. */
+.toast[data-leaving='true'] {
+  animation: toast-leave 180ms var(--ease-in) both;
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes toast-leave {
+  to {
+    opacity: 0;
+    /* Slides out toward its own edge, so the exit reads as "sent away". */
+    transform: translateX(24px) scale(0.97);
+  }
+}
+
+.toast-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.toast-copy {
+  min-width: 0;
+}
+
+.toast-copy strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.toast-copy p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  /* Long API errors get clamped rather than growing an unbounded card. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.toast-action {
+  margin-top: 9px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.toast-action:hover {
+  border-bottom-color: var(--accent);
+}
+
+.toast-close {
+  width: 26px;
+  height: 26px;
+  color: var(--muted);
+}
+.toast-close svg {
+  width: 14px;
+}
+
+/* Countdown rail. Mirrors the timer the provider is running in JS. */
+.toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  transform-origin: left;
+  background: currentColor;
+  opacity: 0.5;
+  animation-name: toast-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+.toast-progress[data-paused='true'] {
+  animation-play-state: paused;
+}
+
+@keyframes toast-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/*
+ * The global reduced-motion rule collapses every animation to ~0ms, which would
+ * leave this rail permanently drained and reading as "expired". It conveys
+ * nothing without motion, so it is removed rather than frozen. The JS timer is
+ * untouched: the toast still dismisses on schedule.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .toast-progress {
+    display: none;
+  }
+}
+
+.toast-success {
+  border-left-color: var(--success);
+  color: var(--success);
+}
+.toast-success .toast-icon {
+  background: var(--success);
+}
+.toast-error {
+  border-left-color: var(--danger);
+  color: var(--danger);
+}
+.toast-error .toast-icon {
+  background: var(--danger);
+}
+.toast-warning {
+  border-left-color: var(--warning);
+  color: var(--warning);
+}
+.toast-warning .toast-icon {
+  background: var(--warning);
+}
+.toast-info {
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+.toast-info .toast-icon {
+  background: var(--accent);
+}
+
+@media (max-width: 560px) {
+  .toast-viewport {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}

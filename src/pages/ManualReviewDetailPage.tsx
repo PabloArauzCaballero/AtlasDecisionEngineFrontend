@@ -10,7 +10,14 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { Timeline } from '../components/Timeline';
 import { useDetailQuery } from '../hooks/useDetailQuery';
+import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, display } from '../utils/records';
+
+const RESOLUTION_LABEL: Record<string, string> = {
+  APPROVE: 'aprobado',
+  REJECT: 'rechazado',
+  ESCALATE: 'escalado',
+};
 
 interface ManualReviewDetailPageProps {
   caseId: string;
@@ -19,6 +26,7 @@ interface ManualReviewDetailPageProps {
 export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) {
   const [resolution, setResolution] = useState('APPROVE');
   const [comments, setComments] = useState('');
+  const { notify } = useNotifications();
   const query = useDetailQuery<unknown>(
     'manual-review',
     caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
@@ -30,7 +38,18 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         method: 'POST',
         body: { resolution, comments },
       }),
-    onSuccess: () => query.refetch(),
+    onSuccess: () => {
+      // Capture the resolution before clearing, so the toast reports what was
+      // actually sent rather than whatever the form holds afterwards.
+      const outcome = RESOLUTION_LABEL[resolution] ?? resolution;
+      setComments('');
+      void query.refetch();
+      notify({
+        tone: resolution === 'APPROVE' ? 'success' : 'info',
+        title: `Caso ${outcome}`,
+        description: `REV-${display(review, 'id')} se resolvió y salió de la cola.`,
+      });
+    },
   });
 
   return (
@@ -40,7 +59,12 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         title={`Case #REV-${display(review, 'id')}`}
         description={`${display(review, 'queueCode')} · ${display(review, 'reason')}`}
         actions={
-          <button className="button" type="button">
+          <button
+            className="button"
+            type="button"
+            disabled
+            title="La asignación de casos aún no está expuesta por el Decision Engine; resuelve el caso desde el formulario"
+          >
             <UserCheck size={16} /> Assign to me
           </button>
         }
@@ -105,7 +129,12 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
               onClick={() => resolve.mutate()}
               type="button"
             >
-              <CheckCircle2 size={16} /> Submit Decision
+              {resolve.isPending ? (
+                <span className="inline-spinner" aria-hidden="true" />
+              ) : (
+                <CheckCircle2 size={16} />
+              )}
+              {resolve.isPending ? 'Enviando…' : 'Submit Decision'}
             </button>
           </Panel>
         </aside>

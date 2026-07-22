@@ -1,5 +1,7 @@
 export const accessPolicies = {
   platformHealth: [] as const,
+  // Search spans every domain; each hit still gates at its target route.
+  globalSearch: [] as const,
   catalogRead: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   artifacts: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'AUDITOR'] as const,
   graphAuthoring: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,

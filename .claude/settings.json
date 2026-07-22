@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "graphify update . >/dev/null 2>&1 || true",
+            "shell": "bash",
+            "async": true,
+            "timeout": 300,
+            "statusMessage": "Actualizando graphify-out…"
+          }
+        ]
+      }
+    ]
+  }
+}

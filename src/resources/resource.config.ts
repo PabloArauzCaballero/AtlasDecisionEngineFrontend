@@ -1,3 +1,9 @@
+import {
+  artifactsCreateFields,
+  reasonCodesCreateFields,
+  variablesCreateFields,
+  variablesCreateStaticBody,
+} from './resource.create-fields';
 import type { ResourceConfig } from './resource.types';
 
 export const resources: Readonly<Record<string, ResourceConfig>> = {
@@ -11,6 +17,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterLabel: 'Buscar variables',
     filterPlaceholder: 'Código o nombre',
     primaryAction: 'Add Variable',
+    createFields: variablesCreateFields,
+    createStaticBody: variablesCreateStaticBody,
     staticFilters: ['Categoría', 'Tipo de dato', 'Sensibilidad'],
     columns: [
       { key: 'variableCode', label: 'Code', mono: true },
@@ -34,6 +42,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterLabel: 'Buscar reason code',
     filterPlaceholder: 'Código, título o mensaje',
     primaryAction: 'Add Reason Code',
+    createFields: reasonCodesCreateFields,
     staticFilters: ['Categoría', 'Severidad'],
     columns: [
       { key: 'code', label: 'Code', mono: true },
@@ -54,6 +63,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterLabel: 'Buscar artefacto',
     filterPlaceholder: 'Código, nombre o equipo',
     primaryAction: 'Nuevo Artefacto',
+    createFields: artifactsCreateFields,
     staticFilters: ['Tipo', 'Estado', 'Ambiente'],
     detailPath: (row) => `/artifacts/${String(row.id)}`,
     columns: [

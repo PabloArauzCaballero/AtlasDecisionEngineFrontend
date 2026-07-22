@@ -104,7 +104,7 @@ describe('snapshotToEditableGraph', () => {
       ],
       edges: [
         {
-          key: 'CHECK->APPROVE',
+          key: 'CHECK__APPROVE',
           from: 'CHECK',
           to: 'APPROVE',
           type: 'CONDITIONAL',

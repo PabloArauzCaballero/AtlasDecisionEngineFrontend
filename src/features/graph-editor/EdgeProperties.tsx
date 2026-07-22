@@ -1,10 +1,24 @@
 import { Trash2, X } from 'lucide-react';
-import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+
+const operators = [
+  ['eq', 'Igual a'],
+  ['neq', 'Distinto de'],
+  ['gt', 'Mayor que'],
+  ['gte', 'Mayor o igual'],
+  ['lt', 'Menor que'],
+  ['lte', 'Menor o igual'],
+  ['in', 'Incluido en lista'],
+  ['contains', 'Contiene'],
+] as const;
 
 interface EdgePropertiesProps {
   edge: UnknownRecord;
   conditions: UnknownRecord[];
+  inputs?: UnknownRecord[];
+  isSwitchBranch?: boolean;
   onChange: (patch: UnknownRecord) => void;
+  onEditCondition?: (code: string, patch: UnknownRecord) => void;
   onDelete: () => void;
   onClose: () => void;
 }
@@ -12,13 +26,33 @@ interface EdgePropertiesProps {
 export function EdgeProperties({
   edge,
   conditions,
+  inputs = [],
+  isSwitchBranch = false,
   onChange,
+  onEditCondition,
   onDelete,
   onClose,
 }: EdgePropertiesProps) {
   const bindings = asRows(edge.conditions);
   const selectedCondition = bindings[0]?.code ? String(bindings[0].code) : '';
   const isDefault = Boolean(edge.default);
+  const branchCondition = conditions.find(
+    (condition) => display(condition, 'code') === selectedCondition,
+  );
+  const expression = asRecord(branchCondition?.expression);
+
+  function updateCaseExpression(patch: UnknownRecord) {
+    if (!onEditCondition || !selectedCondition) return;
+    onEditCondition(selectedCondition, { expression: { ...expression, ...patch } });
+  }
+
+  function updateCaseValue(raw: string) {
+    try {
+      updateCaseExpression({ value: JSON.parse(raw) });
+    } catch {
+      updateCaseExpression({ value: raw });
+    }
+  }
 
   function setMode(mode: 'DEFAULT' | 'CONDITIONAL') {
     if (mode === 'DEFAULT') {
@@ -73,7 +107,7 @@ export function EdgeProperties({
             <option value="CONDITIONAL">Cuando se cumple</option>
           </select>
         </label>
-        {!isDefault ? (
+        {!isDefault && !isSwitchBranch ? (
           <label className="field">
             <span>Condición</span>
             <select
@@ -92,6 +126,50 @@ export function EdgeProperties({
               ))}
             </select>
           </label>
+        ) : null}
+        {!isDefault && isSwitchBranch && branchCondition && onEditCondition ? (
+          <>
+            <label className="field">
+              <span>Variable del caso</span>
+              <select
+                value={String(expression.variable ?? '')}
+                onChange={(event) => updateCaseExpression({ variable: event.target.value })}
+              >
+                <option value="">Elegir variable…</option>
+                {inputs.map((input) => (
+                  <option key={display(input, 'code')} value={display(input, 'code')}>
+                    {display(input, 'code')} · {display(input, 'dataType')}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Operador</span>
+              <select
+                value={String(expression.operator ?? 'eq')}
+                onChange={(event) => updateCaseExpression({ operator: event.target.value })}
+              >
+                {operators.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Valor del caso</span>
+              <textarea
+                key={`${selectedCondition}-${JSON.stringify(expression.value)}`}
+                rows={2}
+                defaultValue={
+                  typeof expression.value === 'string'
+                    ? expression.value
+                    : JSON.stringify(expression.value ?? null)
+                }
+                onBlur={(event) => updateCaseValue(event.target.value)}
+              />
+            </label>
+          </>
         ) : null}
         <label className="field">
           <span>Prioridad</span>

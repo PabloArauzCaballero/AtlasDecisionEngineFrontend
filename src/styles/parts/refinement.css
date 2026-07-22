@@ -1,0 +1,178 @@
+/**
+ * Premium refinement layer.
+ *
+ * Loads last so its polish wins on equal specificity. Everything here is
+ * additive and targets existing class names — no component changes — so it can
+ * be removed wholesale without touching behaviour. Motion stays GPU-friendly
+ * (transform / opacity / shadow) and inherits the timing tokens and the
+ * reduced-motion kill switch already defined in motion.css.
+ */
+
+/* Focus — unify the keyboard ring on the brand accent (foundation shipped a
+   generic blue). Solid 2px reads crisper and more intentional than a soft blur. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Depth — a refined two-layer resting elevation for surfaces, plus a calm hover
+   that reads as "live" without unsettling dense data grids. */
+.panel,
+.editor-panel,
+.json-panel,
+.filter-bar {
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 1px 3px rgba(16, 24, 40, 0.06);
+}
+.panel {
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+.panel:hover {
+  border-color: #cfd6e4;
+  box-shadow:
+    0 4px 14px -6px rgba(16, 24, 40, 0.12),
+    0 2px 6px -3px rgba(16, 24, 40, 0.08);
+}
+
+/* Inputs — a soft accent halo on focus, layered over the border tint motion.css
+   already applies. It never replaces the :focus-visible ring above. */
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 3px rgba(0, 106, 97, 0.11);
+}
+
+/* Native checks, radios and ranges adopt the brand accent instead of the
+   browser's default blue — the cheapest, safest way to make them feel bespoke. */
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'] {
+  accent-color: var(--accent);
+}
+
+/* Selects drop the per-OS native arrow for one consistent inline chevron. */
+select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+}
+
+/* Primary action — give the solid button real presence: a hairline top
+   highlight and a grounded shadow so it sits above the surface it commits. */
+.button-primary {
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+.button-primary:hover:not(:disabled) {
+  box-shadow:
+    0 4px 12px -3px rgba(16, 24, 40, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Status pills — a leading dot in the pill's own colour, the way premium
+   consoles telegraph state at a glance. */
+.status-badge {
+  align-items: center;
+  gap: 5px;
+}
+.status-badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Dialogs — fade the backdrop in alongside the panel so the overlay never snaps
+   to black before the dialog arrives. */
+.dialog-backdrop {
+  animation: fade-in var(--dur-base) var(--ease-standard) both;
+}
+
+/* Tables — pin the header on long grids, revealing a hairline only once the body
+   scrolls beneath it. The header background is already opaque. */
+.table-wrap thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: inset 0 -1px 0 #eaecf0;
+}
+
+/* Progress / coverage — bars measure in from empty on mount. transform keeps the
+   gesture off the layout thread; width still transitions on later updates. */
+.progress span {
+  transform-origin: left;
+  animation: bar-fill var(--dur-slow) var(--ease-out) both;
+  transition: width var(--dur-base) var(--ease-standard);
+}
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Action / entity cards — adopt the metric-card lift language, easing the colour
+   swap these cards already do on hover. */
+.action-card,
+.environment-card {
+  transition:
+    background-color var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+.action-card:hover:not(:disabled),
+.environment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lift-shadow);
+}
+
+/* Topbar — a whisper of depth once it is pinned over scrolling content. */
+.topbar {
+  box-shadow:
+    0 1px 0 rgba(16, 24, 40, 0.03),
+    0 6px 16px -12px rgba(16, 24, 40, 0.16);
+}
+
+/* Text selection picks up the brand tint. */
+::selection {
+  background: var(--accent-soft);
+  color: #00463f;
+}
+
+/* Scrollbars — thin and quiet, prominent only on hover. A considered detail on
+   every scroll surface. Firefox reads the standard properties; WebKit/Blink use
+   the pseudo-elements, where the transparent border insets the thumb. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c3ccd8 transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 99px;
+  background-clip: padding-box;
+  background-color: #cbd3df;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a9b4c4;
+}

@@ -4,20 +4,15 @@ import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { updateSiblingEdge } from './graph-edge-update';
-import { createEdgeDraft, createNodeDraft } from './graph-authoring';
+import { createEdgeDraft, createNodeDraft, edgeCreationError } from './graph-authoring';
+import { connectionErrorNotice, type ConnectionNotice } from './connection-feedback';
+import { layoutGraphNodes } from './graph-layout';
+import { withEdges, withNodes } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
 
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.1;
-
-function withNodes(snapshot: UnknownRecord, nodes: UnknownRecord[]): UnknownRecord {
-  return { ...snapshot, nodes };
-}
-
-function withEdges(snapshot: UnknownRecord, edges: UnknownRecord[]): UnknownRecord {
-  return { ...snapshot, edges };
-}
 
 export function useGraphEditor(initialVersionId = '') {
   const [versionId, setVersionId] = useState(initialVersionId);
@@ -27,6 +22,7 @@ export function useGraphEditor(initialVersionId = '') {
   const [zoom, setZoom] = useState(1);
   const [connectMode, setConnectMode] = useState(false);
   const [pendingFrom, setPendingFrom] = useState<string | null>(null);
+  const [connectionNotice, setConnectionNotice] = useState<ConnectionNotice | null>(null);
   const history = useGraphHistory();
 
   const nodes = asRows(history.snapshot.nodes);
@@ -64,6 +60,7 @@ export function useGraphEditor(initialVersionId = '') {
       setLockVersion(display(version, 'lockVersion'));
       setPendingFrom(null);
       setConnectMode(false);
+      setConnectionNotice(null);
     },
   });
 
@@ -139,14 +136,12 @@ export function useGraphEditor(initialVersionId = '') {
     );
   };
 
-  const updateSelectedCondition = (patch: UnknownRecord) => {
-    if (!selectedConditionCode) return;
+  const updateConditionByCode = (code: string, patch: UnknownRecord) => {
+    if (!code) return;
     history.commit({
       ...history.snapshot,
       conditions: conditions.map((condition) =>
-        display(condition, 'code') === selectedConditionCode
-          ? { ...condition, ...patch }
-          : condition,
+        display(condition, 'code') === code ? { ...condition, ...patch } : condition,
       ),
     });
   };
@@ -224,19 +219,39 @@ export function useGraphEditor(initialVersionId = '') {
     }
     if (!pendingFrom) {
       setPendingFrom(key);
+      setConnectionNotice({
+        tone: 'info',
+        text: `Origen seleccionado: ${display(node, 'label', 'key')}. Ahora elige el destino.`,
+      });
       return;
     }
     if (pendingFrom === key) {
       setPendingFrom(null);
+      setConnectionNotice({ tone: 'info', text: 'Selección de origen cancelada.' });
       return;
     }
 
-    const edge = createEdgeDraft(pendingFrom, key, nodes, edges, conditions);
-    if (edge) {
-      history.commit(withEdges(history.snapshot, [...edges, edge]));
-      selectEdge(display(edge, 'key'));
+    const error = edgeCreationError(pendingFrom, key, nodes, edges, conditions);
+    const draft = createEdgeDraft(pendingFrom, key, nodes, edges, conditions);
+    if (draft) {
+      history.commit({
+        ...withEdges(history.snapshot, [...edges, draft.edge]),
+        conditions: draft.condition ? [...conditions, draft.condition] : conditions,
+      });
+      selectEdge(display(draft.edge, 'key'));
+      setConnectionNotice({
+        tone: 'success',
+        text: `Conexión creada: ${pendingFrom} → ${key}.`,
+      });
+    } else if (error) {
+      setConnectionNotice(connectionErrorNotice(error));
     }
     setPendingFrom(null);
+  };
+
+  const autoLayout = () => {
+    if (!nodes.length) return;
+    history.commit(withNodes(history.snapshot, layoutGraphNodes(nodes, edges)));
   };
 
   return {
@@ -254,6 +269,7 @@ export function useGraphEditor(initialVersionId = '') {
     selectedKey,
     selectedEdgeKey,
     pendingFrom,
+    connectionNotice,
     zoom,
     connectMode,
     load,
@@ -262,7 +278,9 @@ export function useGraphEditor(initialVersionId = '') {
     addNode,
     moveNode,
     updateSelectedNode,
-    updateSelectedCondition,
+    updateSelectedCondition: (patch: UnknownRecord) =>
+      updateConditionByCode(selectedConditionCode, patch),
+    updateConditionByCode,
     updateSelectedEdge,
     deleteSelectedNode,
     deleteEdge,
@@ -279,8 +297,20 @@ export function useGraphEditor(initialVersionId = '') {
     canRedo: history.canRedo,
     zoomOut: () => setZoom((value) => Math.max(ZOOM_MIN, +(value - ZOOM_STEP).toFixed(2))),
     zoomIn: () => setZoom((value) => Math.min(ZOOM_MAX, +(value + ZOOM_STEP).toFixed(2))),
+    resetZoom: () => setZoom(1),
+    autoLayout,
+    cancelConnection: () => {
+      setPendingFrom(null);
+      setConnectionNotice({ tone: 'info', text: 'Conexión cancelada.' });
+    },
     toggleConnectMode: () => {
-      setConnectMode((value) => !value);
+      const next = !connectMode;
+      setConnectMode(next);
+      setConnectionNotice(
+        next
+          ? { tone: 'info', text: 'Selecciona primero el nodo de origen y luego el destino.' }
+          : null,
+      );
       setPendingFrom(null);
     },
   };

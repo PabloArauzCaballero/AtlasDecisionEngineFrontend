@@ -1,8 +1,7 @@
 'use client';
 
-import { ResourceListPage } from '../../../pages/ResourceListPage';
-import { resources } from '../../../resources/resource.config';
+import { ObjectivesPage } from '../../../pages/ObjectivesPage';
 
 export default function ObjectivesRoute() {
-  return <ResourceListPage config={resources.objectives} />;
+  return <ObjectivesPage />;
 }

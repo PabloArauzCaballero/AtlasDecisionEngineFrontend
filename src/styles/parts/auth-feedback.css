@@ -154,11 +154,8 @@
 .not-found h1 {
   margin: 0;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* The `spin` keyframes used above now live once in motion.css; @keyframes are
+   document-global, so the definition is shared regardless of import order. */
 
 @media (max-width: 1050px) {
   .metric-grid {

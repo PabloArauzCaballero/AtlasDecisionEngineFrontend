@@ -292,3 +292,16 @@
   color: var(--muted);
   font-size: 12px;
 }
+/* Canary / champion traffic split rows read as discrete, editable cards. */
+.traffic-rule {
+  display: grid;
+  gap: 12px;
+  padding: 13px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfe;
+}
+.traffic-rule .inline-actions {
+  align-items: end;
+}

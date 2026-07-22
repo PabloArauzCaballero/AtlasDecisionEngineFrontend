@@ -1,0 +1,113 @@
+/* Generic interrupt modal (confirmations, error reports) + validation lists. */
+.modal-dialog {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
+  animation: dialog-enter 0.18s ease-out;
+}
+.modal-heading {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #fbfcfe;
+}
+.modal-dialog.modal-danger .modal-heading {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(248, 113, 113, 0.16), transparent 40%), #fbfcfe;
+}
+.modal-heading-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+}
+.modal-danger .modal-heading-icon {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+.modal-heading h2 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+.modal-heading span {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+.modal-body {
+  padding: 18px 20px;
+  overflow: auto;
+  font-size: 0.86rem;
+  color: #334155;
+}
+.modal-body p {
+  margin: 0 0 8px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* Structured validation report inside the modal. */
+.validation-issue-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.validation-issue-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+}
+.validation-issue-list li.warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.validation-issue-list li strong {
+  display: block;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: #b91c1c;
+}
+.validation-issue-list li.warning strong {
+  color: #92400e;
+}
+.validation-issue-list li span {
+  font-size: 0.82rem;
+  color: #334155;
+}
+.validation-issue-list li small {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 0.72rem;
+}
+.validation-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #047857;
+  font-weight: 600;
+}

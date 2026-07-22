@@ -1,0 +1,206 @@
+/* Notification centre ----------------------------------------------------- */
+
+.notification-center {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  border: 2px solid rgba(255, 255, 255, 0.97);
+  background: var(--danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  animation: badge-pop var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes badge-pop {
+  from {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.18);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Rings once when an unread notification arrives, then stops. */
+.notification-center[data-unread='true'] .icon-button svg {
+  animation: bell-ring 720ms var(--ease-standard);
+  transform-origin: top center;
+}
+
+@keyframes bell-ring {
+  10%,
+  30% {
+    transform: rotate(9deg);
+  }
+  20%,
+  40% {
+    transform: rotate(-9deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+}
+
+.notification-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  z-index: 60;
+  width: min(376px, calc(100vw - 32px));
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  box-shadow:
+    0 16px 34px -10px rgba(16, 24, 40, 0.24),
+    0 3px 8px -3px rgba(16, 24, 40, 0.1);
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+  transform-origin: top right;
+}
+
+.notification-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.notification-head strong {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.notification-head-actions {
+  display: flex;
+  gap: 12px;
+}
+.notification-head-actions button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.notification-head-actions button:hover:not(:disabled) {
+  color: var(--accent);
+}
+.notification-head-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.notification-list {
+  max-height: 380px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+}
+
+.notification-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  animation: fade-in var(--dur-base) var(--ease-out) both;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.notification-item:hover {
+  background: #f6f8fb;
+}
+.notification-item[data-read='false'] {
+  background: rgba(0, 106, 97, 0.05);
+}
+
+.notification-dot {
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.notification-item[data-tone='success'] .notification-dot {
+  background: var(--success);
+}
+.notification-item[data-tone='error'] .notification-dot {
+  background: var(--danger);
+}
+.notification-item[data-tone='warning'] .notification-dot {
+  background: var(--warning);
+}
+.notification-item[data-tone='info'] .notification-dot {
+  background: var(--accent);
+}
+
+/* The item body is a button so the whole row is a keyboard-reachable target that opens
+   the notification (marks read + follows actionUrl); reset the native button chrome. */
+.notification-item-body {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.notification-item-body:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.notification-item strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.notification-item p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.notification-item time {
+  display: block;
+  margin-top: 4px;
+  color: #98a2b3;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.notification-empty {
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  padding: 34px 18px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
+}
+.notification-empty svg {
+  color: #cbd5e1;
+}

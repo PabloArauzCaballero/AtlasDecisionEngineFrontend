@@ -1,4 +1,4 @@
-import type { ZodType } from 'zod';
+import type { ZodType, ZodTypeDef } from 'zod';
 import { env } from '../config/env';
 import { ApiError } from './ApiError';
 import { createRequestSignal } from './request-signal';
@@ -26,7 +26,7 @@ export interface PublicApiRequestOptions<TResponse = unknown> extends Omit<
   body?: unknown;
   signal?: AbortSignal;
   timeoutMs?: number;
-  responseSchema?: ZodType<TResponse>;
+  responseSchema?: ZodType<TResponse, ZodTypeDef, unknown>;
 }
 
 export interface ApiRequestOptions<TResponse = unknown> extends PublicApiRequestOptions<TResponse> {

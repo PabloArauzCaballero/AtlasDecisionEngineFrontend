@@ -1,3 +1,8 @@
 dist
 node_modules
 docs/stitch-reference
+next-env.d.ts
+coverage
+.next
+test-results
+playwright-report

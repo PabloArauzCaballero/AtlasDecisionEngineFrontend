@@ -1,57 +1,167 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Download, Play, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRef, useState, type ChangeEvent } from 'react';
+import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
+import { PickerSelect } from '../components/PickerSelect';
 import { StatusBadge } from '../components/StatusBadge';
-import { asRows, display } from '../utils/records';
+import { useNotifications } from '../notifications/useNotifications';
+import { CreateTestCaseForm } from '../testing/CreateTestCaseForm';
+import { parseTestCasesCsv, type CsvTestCasePayload } from '../testing/test-cases.csv';
+import {
+  importedTestCasesSchema,
+  queuedTestRunSchema,
+  testCasesSchema,
+} from '../testing/testing.schemas';
+import { display } from '../utils/records';
 
 interface TestCasesPageProps {
   initialSuiteId?: string;
 }
 
+function displayJson(value: unknown): string {
+  if (value === null || value === undefined) return '—';
+  return typeof value === 'string' ? value : JSON.stringify(value);
+}
+
 export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
   const [draftId, setDraftId] = useState(initialSuiteId);
   const [suiteId, setSuiteId] = useState(initialSuiteId);
+  const [search, setSearch] = useState('');
+  const [activeOnly, setActiveOnly] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { notify } = useNotifications();
   const query = useQuery({
     queryKey: ['test-cases', suiteId],
     queryFn: ({ signal }) =>
-      apiRequest<unknown>(`/v1/test-suites/${encodeURIComponent(suiteId)}/cases`, { signal }),
+      apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/cases`, {
+        signal,
+        responseSchema: testCasesSchema,
+      }),
     enabled: Boolean(suiteId),
   });
-  const rows = asRows(query.data);
+  const run = useMutation({
+    mutationFn: () =>
+      apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/runs`, {
+        method: 'POST',
+        body: { triggerType: 'MANUAL_UI' },
+        responseSchema: queuedTestRunSchema,
+      }),
+    onSuccess: (queued) => {
+      notify({
+        tone: 'success',
+        title: `Run ${queued.id} encolado`,
+        description: 'La vista de resultados se actualizará mientras el worker ejecuta los casos.',
+      });
+      router.push(`/test-runs/${queued.id}`);
+    },
+  });
+  const importCases = useMutation({
+    mutationFn: (cases: CsvTestCasePayload[]) =>
+      apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/cases/import`, {
+        method: 'POST',
+        body: { cases },
+        responseSchema: importedTestCasesSchema,
+      }),
+    onSuccess: (created) => {
+      setImportError(null);
+      void query.refetch();
+      notify({
+        tone: 'success',
+        title: `${created.length} casos importados`,
+        description: `Los casos quedaron asociados a la suite ${suiteId}.`,
+      });
+    },
+  });
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const rows = (query.data ?? []).filter((testCase) => {
+    if (activeOnly && !testCase.isActive) return false;
+    return (
+      !normalizedSearch ||
+      testCase.caseCode.toLowerCase().includes(normalizedSearch) ||
+      testCase.testName.toLowerCase().includes(normalizedSearch) ||
+      displayJson(testCase.tagsJson).toLowerCase().includes(normalizedSearch)
+    );
+  });
+
+  const readCsv = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    try {
+      setImportError(null);
+      await importCases.mutateAsync(parseTestCasesCsv(await file.text()));
+    } catch (error) {
+      setImportError(errorMessage(error));
+    }
+  };
 
   return (
     <div className="test-cases-layout">
       <aside className="filters-panel">
         <h2>Filtros</h2>
-        {['Etiquetas de Riesgo', 'Áreas del Grafo', 'Estado de Ejecución'].map((group) => (
-          <fieldset key={group}>
-            <legend>{group}</legend>
-            {['Crítico', 'Regresión', 'Activo'].map((option) => (
-              <label key={option}>
-                <input type="checkbox" /> {option}
-              </label>
-            ))}
-          </fieldset>
-        ))}
+        <label className="field">
+          <span>Buscar caso o tag</span>
+          <input value={search} onChange={(event) => setSearch(event.target.value)} />
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={activeOnly}
+            onChange={(event) => setActiveOnly(event.target.checked)}
+          />{' '}
+          Solo casos activos
+        </label>
+        <small>
+          CSV: caseCode, testName, inputJson, expectedResultJson; tagsJson e isActive son
+          opcionales.
+        </small>
       </aside>
       <main>
         <PageHeader
           eyebrow="F3-03 · Quality"
-          title="Validación de Crédito V2"
-          description="Casos de prueba, payloads y resultados esperados de la suite seleccionada."
+          title={suiteId ? `Casos de la suite ${suiteId}` : 'Casos de prueba'}
+          description="Casos deterministas, payloads y resultados esperados de la suite seleccionada."
           actions={
             <>
-              <button className="button" type="button">
-                <Download size={16} /> Importar CSV
+              <input
+                ref={fileInput}
+                hidden
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(event) => void readCsv(event)}
+              />
+              <button
+                className="button"
+                type="button"
+                disabled={!suiteId || importCases.isPending}
+                onClick={() => fileInput.current?.click()}
+              >
+                <Download size={16} /> {importCases.isPending ? 'Importando…' : 'Importar CSV'}
               </button>
-              <button className="button" type="button">
+              <button
+                className="button"
+                type="button"
+                disabled={!suiteId}
+                aria-expanded={showCreate}
+                onClick={() => setShowCreate((visible) => !visible)}
+              >
                 <Plus size={16} /> Agregar Caso
               </button>
-              <button className="button button-primary" type="button">
-                <Play size={16} /> Ejecutar Suite
+              <button
+                className="button button-primary"
+                type="button"
+                disabled={!suiteId || run.isPending}
+                onClick={() => run.mutate()}
+              >
+                <Play size={16} /> {run.isPending ? 'Encolando…' : 'Ejecutar Suite'}
               </button>
             </>
           }
@@ -60,19 +170,45 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
           className="filter-bar"
           onSubmit={(event) => {
             event.preventDefault();
-            setSuiteId(draftId);
+            setSuiteId(draftId.trim());
+            setShowCreate(false);
           }}
         >
-          <label>
-            <span>Test Suite ID</span>
-            <input value={draftId} onChange={(event) => setDraftId(event.target.value)} />
-          </label>
+          <PickerSelect
+            label="Suite de pruebas"
+            value={draftId}
+            onChange={setDraftId}
+            endpoint="/v1/views/pickers/test-suites"
+            queryKey="test-suites"
+            placeholder="Elegir suite…"
+            mapOption={(row) => ({
+              value: display(row, 'id'),
+              label: `${display(row, 'suiteCode')} · ${display(row, 'artifactCode')} v${display(row, 'versionNumber')}`,
+            })}
+          />
           <button className="button button-primary" type="submit">
-            Load cases
+            Cargar casos
           </button>
         </form>
-        {query.isError ? (
-          <Alert tone="error">El backend no pudo devolver los casos de esta suite.</Alert>
+        {showCreate && suiteId ? (
+          <CreateTestCaseForm
+            suiteId={suiteId}
+            onCancel={() => setShowCreate(false)}
+            onCreated={(testCase) => {
+              setShowCreate(false);
+              void query.refetch();
+              notify({
+                tone: 'success',
+                title: `Caso ${testCase.caseCode} creado`,
+                description: 'El caso ya está disponible para la próxima ejecución.',
+              });
+            }}
+          />
+        ) : null}
+        {query.isError || run.isError || importCases.isError || importError ? (
+          <Alert tone="error">
+            {importError ?? errorMessage(query.error ?? run.error ?? importCases.error)}
+          </Alert>
         ) : null}
         <section className="panel">
           <div className="table-wrap">
@@ -89,12 +225,12 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={display(row, 'id')}>
-                    <td className="mono">{display(row, 'caseCode')}</td>
-                    <td>{display(row, 'testName')}</td>
-                    <td>{display(row, 'tagsJson')}</td>
-                    <td className="mono">{display(row, 'inputJson')}</td>
-                    <td className="mono">{display(row, 'expectedResultJson')}</td>
+                  <tr key={row.id}>
+                    <td className="mono">{row.caseCode}</td>
+                    <td>{row.testName}</td>
+                    <td>{displayJson(row.tagsJson)}</td>
+                    <td className="mono">{displayJson(row.inputJson)}</td>
+                    <td className="mono">{displayJson(row.expectedResultJson)}</td>
                     <td>
                       <StatusBadge value={row.isActive ? 'ACTIVE' : 'INACTIVE'} />
                     </td>

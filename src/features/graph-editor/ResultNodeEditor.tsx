@@ -1,5 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { CodeEditor } from './CodeEditor';
+import { lintScript } from './script-lint';
 
 interface Props {
   config: UnknownRecord;
@@ -12,6 +14,14 @@ export function ResultNodeEditor({ config, outputs, inputs, onChange }: Props) {
   const mode = String(config.mode ?? 'MAPPING');
   const assignments = asRows(config.assignments);
   const script = asRecord(config.script);
+  const scriptIssues =
+    mode === 'SCRIPT'
+      ? lintScript(
+          String(script.source ?? ''),
+          String(script.language ?? 'JAVASCRIPT'),
+          outputs.map((output) => display(output, 'code')),
+        )
+      : [];
 
   function updateAssignment(index: number, patch: UnknownRecord) {
     onChange({
@@ -186,29 +196,30 @@ export function ResultNodeEditor({ config, outputs, inputs, onChange }: Props) {
               <option>PYTHON</option>
             </select>
           </label>
-          <label className="field">
-            <span>Código</span>
-            <textarea
-              className="code-input"
-              rows={12}
-              value={String(
-                script.source ??
-                  (script.language === 'PYTHON'
-                    ? 'result = {"scoring": variables["score"]}'
-                    : 'return { scoring: variables.score };'),
-              )}
-              onChange={(event) =>
-                onChange({
-                  ...config,
-                  script: {
-                    ...script,
-                    language: script.language ?? 'JAVASCRIPT',
-                    source: event.target.value,
-                  },
-                })
-              }
-            />
-          </label>
+          <CodeEditor
+            language={String(script.language ?? 'JAVASCRIPT')}
+            inputs={inputs}
+            outputs={outputs}
+            value={String(
+              script.source ??
+                (script.language === 'PYTHON'
+                  ? 'result = {"scoring": variables["score"]}'
+                  : 'return { scoring: variables.score };'),
+            )}
+            onChange={(source) =>
+              onChange({
+                ...config,
+                script: { ...script, language: script.language ?? 'JAVASCRIPT', source },
+              })
+            }
+          />
+          {scriptIssues.length ? (
+            <ul className="script-static-issues">
+              {scriptIssues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
+          ) : null}
           <small className="field-hint">
             JS debe retornar un objeto. Python debe asignarlo a <code>result</code>. Sólo se aceptan
             claves declaradas arriba.

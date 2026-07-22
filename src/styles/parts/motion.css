@@ -1,0 +1,277 @@
+/**
+ * Motion foundation.
+ *
+ * Every animated surface in the portal reads its timing from these tokens so
+ * transitions stay consistent. Durations are deliberately short: this is an
+ * operations console, motion must confirm an action, never delay it.
+ */
+:root {
+  --dur-instant: 90ms;
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 280ms;
+
+  /* Decelerating curve for entrances: fast start, soft landing. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Symmetric curve for state changes on already-visible elements. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  /* Accelerating curve for exits. */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --lift-shadow: 0 6px 16px -6px rgba(16, 24, 40, 0.18), 0 2px 5px -2px rgba(16, 24, 40, 0.1);
+}
+
+/**
+ * Accessibility kill switch. Users who ask for reduced motion still get every
+ * state change (colour, shadow, opacity) but no travel or looping animation.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------- entrances */
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/**
+ * Route view transition. Keyed on pathname in the app shell, so each
+ * navigation replays the entrance and the user gets a clear "this is new
+ * content" signal instead of a silent swap.
+ */
+.route-view {
+  animation: fade-rise var(--dur-slow) var(--ease-out) both;
+}
+
+/**
+ * Opt-in stagger for lists of cards. Children lift in sequence, which reads as
+ * intentional composition rather than a single blunt fade.
+ */
+.stagger-in > * {
+  animation: fade-rise var(--dur-slow) var(--ease-out) both;
+}
+.stagger-in > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-in > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+.stagger-in > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+.stagger-in > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+.stagger-in > *:nth-child(5) {
+  animation-delay: 160ms;
+}
+.stagger-in > *:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+/* -------------------------------------------------------- interactive parts */
+
+/**
+ * Press feedback. The scale is small on purpose — enough to feel the click
+ * land, not enough to read as a toy.
+ */
+.button,
+.top-action,
+.quick-action {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.button:hover:not(:disabled),
+.top-action:hover,
+.quick-action:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--lift-shadow);
+}
+.button:active:not(:disabled),
+.top-action:active,
+.quick-action:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
+  transition-duration: var(--dur-instant);
+}
+
+.icon-button {
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.icon-button:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+/**
+ * Navigation links. The active item grows a rail on its left edge; the rail
+ * scales in from the centre so switching sections reads as movement.
+ */
+.nav-link {
+  position: relative;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+.nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 18px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transform: translateY(-50%) scaleY(0);
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.nav-link:hover:not(.active) {
+  transform: translateX(2px);
+}
+.nav-link.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+.nav-link svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.nav-link:hover svg {
+  transform: scale(1.1);
+}
+
+/* Panels and cards lift toward the cursor to advertise that they are live. */
+.metric-card,
+.panel {
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: #c6cede;
+  box-shadow: var(--lift-shadow);
+}
+
+/* Eases the existing `tbody tr:hover` tint so long grids stay scannable. */
+tbody tr {
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+/* Row-level action buttons and links. */
+.inline-actions button,
+.inline-actions a {
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.inline-actions button:hover,
+.inline-actions a:hover {
+  color: var(--accent);
+}
+.inline-actions button:active,
+.inline-actions a:active {
+  transform: scale(0.9);
+}
+
+input,
+textarea,
+select {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+/**
+ * Focus: the border eases to the accent colour.
+ *
+ * The visible focus ring deliberately stays with foundation.css's
+ * `:focus-visible` outline. Setting `outline` here would win the cascade — same
+ * specificity, later import — and strip the keyboard indicator from every
+ * input, so this layer only adds colour on top of it.
+ */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+}
+
+/* Focus rings should never animate their travel — accessibility over polish. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  transition: none;
+}
+
+/* ------------------------------------------------------------- busy states */
+
+/**
+ * Applied to any control awaiting a server round trip. The control stays put
+ * and pulses, so layout never shifts under the pointer mid-click.
+ */
+.is-busy {
+  position: relative;
+  pointer-events: none;
+  animation: busy-pulse 1.4s var(--ease-standard) infinite;
+}
+
+@keyframes busy-pulse {
+  50% {
+    opacity: 0.62;
+  }
+}
+
+/**
+ * Small spinner for inline busy states inside buttons and links. Deliberately
+ * NOT named `.spinner` — that class already belongs to the 32px LoadingScreen
+ * indicator in auth-feedback.css, and this layer loads later, so reusing the
+ * name would silently shrink every full-page loading spinner.
+ */
+.inline-spinner {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: spin 620ms linear infinite;
+}

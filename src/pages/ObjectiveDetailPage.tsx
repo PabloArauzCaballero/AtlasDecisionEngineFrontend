@@ -29,10 +29,20 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
         description={display(objective, 'objectiveCode')}
         actions={
           <>
-            <button className="button" type="button">
+            <button
+              className="button"
+              type="button"
+              disabled
+              title="El vínculo objetivo→prueba aún no está expuesto por el Decision Engine"
+            >
               <TestTube2 size={16} /> Vincular Prueba
             </button>
-            <button className="button button-primary" type="button">
+            <button
+              className="button button-primary"
+              type="button"
+              disabled
+              title="El vínculo objetivo→versión aún no está expuesto por el Decision Engine"
+            >
               <Link2 size={16} /> Vincular Versión
             </button>
           </>
