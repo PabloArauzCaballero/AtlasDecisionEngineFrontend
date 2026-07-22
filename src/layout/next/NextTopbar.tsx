@@ -1,9 +1,14 @@
 'use client';
 
-import { Bell, Boxes, LogOut, Menu, Search, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import { Boxes, LogOut, Menu, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useAuth } from '../../auth/useAuth';
+import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
+import { TutorialLauncher } from '../../features/tutorial/TutorialLauncher';
+import { NavLink } from '../../navigation/NavLink';
+import { NotificationCenter } from '../../notifications/NotificationCenter';
+import { useNotifications } from '../../notifications/useNotifications';
 
 interface NextTopbarProps {
   onMenu: () => void;
@@ -11,12 +16,26 @@ interface NextTopbarProps {
 
 export function NextTopbar({ onMenu }: NextTopbarProps) {
   const { user, logout } = useAuth();
+  const { notify } = useNotifications();
   const router = useRouter();
+  const [closing, setClosing] = useState(false);
 
   const closeSession = async () => {
-    await logout();
-    router.replace('/login');
-    router.refresh();
+    // Sign-out is a redirect, so the button itself has to carry the busy state.
+    setClosing(true);
+    try {
+      await logout();
+      notify({ tone: 'info', title: 'Sesión cerrada', description: 'Tu canal seguro se liberó.' });
+      router.replace('/login');
+      router.refresh();
+    } catch (error) {
+      setClosing(false);
+      notify({
+        tone: 'error',
+        title: 'No se pudo cerrar la sesión',
+        description: error instanceof Error ? error.message : 'Inténtalo nuevamente.',
+      });
+    }
   };
 
   return (
@@ -29,25 +48,21 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       >
         <Menu />
       </button>
-      <label className="global-search">
-        <Search />
-        <input aria-label="Buscar en ATLAS" placeholder="Search artifacts, requests..." />
-      </label>
+      <GlobalSearchBox />
       <nav className="top-links" aria-label="Accesos rápidos">
-        <Link href="/platform-health">Dashboard</Link>
-        <Link href="/artifacts">Workspaces</Link>
-        <Link href="/coverage-matrix">Analytics</Link>
+        <NavLink href="/platform-health">Dashboard</NavLink>
+        <NavLink href="/artifacts">Workspaces</NavLink>
+        <NavLink href="/coverage-matrix">Analytics</NavLink>
       </nav>
       <div className="topbar-spacer" />
       <div className="environment-chip">
         <span /> Production
       </div>
-      <Link className="top-action" href="/simulator">
+      <NavLink className="top-action" href="/simulator">
         <Boxes size={15} /> Simulate
-      </Link>
-      <button className="icon-button" type="button" aria-label="Notificaciones">
-        <Bell />
-      </button>
+      </NavLink>
+      <TutorialLauncher />
+      <NotificationCenter />
       <div className="security-label">
         <ShieldCheck size={15} /> Verified
       </div>
@@ -56,9 +71,10 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
         <span>{user?.department ?? 'ATLAS'}</span>
       </div>
       <button
-        className="icon-button"
+        className={closing ? 'icon-button is-busy' : 'icon-button'}
         type="button"
         onClick={() => void closeSession()}
+        disabled={closing}
         aria-label="Cerrar sesión"
       >
         <LogOut />

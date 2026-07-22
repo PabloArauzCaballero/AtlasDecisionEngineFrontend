@@ -1,10 +1,12 @@
 'use client';
 
-import { Plus, X } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Boxes, GitBranch, Plus, SendHorizonal, Target, X } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { hasAnyRole } from '../../auth/roles';
+import { canAccessPath } from '../../auth/route-access';
 import { useAuth } from '../../auth/useAuth';
+import { NavLink } from '../../navigation/NavLink';
 import { navigation } from '../../navigation/navigation';
 
 interface NextSidebarProps {
@@ -14,6 +16,71 @@ interface NextSidebarProps {
 
 function isActivePath(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
+}
+
+const QUICK_ACTIONS = [
+  { path: '/simulator', label: 'Ejecutar simulación', icon: Boxes },
+  { path: '/reviews', label: 'Enviar a revisión', icon: SendHorizonal },
+  { path: '/graph-editor', label: 'Editar grafo', icon: GitBranch },
+  { path: '/objectives', label: 'Objetivos de negocio', icon: Target },
+] as const;
+
+/** Shortcut menu to the portal's most common operations, filtered by role. */
+function QuickActionMenu({ roles, onNavigate }: { roles: string[]; onNavigate: () => void }) {
+  const [open, setOpen] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const actions = QUICK_ACTIONS.filter((action) => canAccessPath(action.path, roles));
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!container.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  if (actions.length === 0) return null;
+
+  return (
+    <div className="quick-action-wrap" ref={container}>
+      <button
+        className="quick-action"
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => setOpen((visible) => !visible)}
+      >
+        <Plus size={17} /> Quick Action
+      </button>
+      {open ? (
+        <div className="quick-action-menu" role="menu" aria-label="Acciones rápidas">
+          {actions.map(({ path, label, icon: Icon }) => (
+            <button
+              key={path}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onNavigate();
+                router.push(path);
+              }}
+            >
+              <Icon size={16} /> {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export function NextSidebar({ open, onClose }: NextSidebarProps) {
@@ -38,9 +105,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
           <X />
         </button>
       </div>
-      <button className="quick-action" type="button">
-        <Plus size={17} /> Quick Action
-      </button>
+      <QuickActionMenu roles={roles} onNavigate={onClose} />
       <nav aria-label="Navegación principal">
         {navigation.map((section) => {
           const visibleItems = section.items.filter((item) => hasAnyRole(roles, item.roles));
@@ -52,7 +117,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
               {visibleItems.map(({ icon: Icon, ...item }) => {
                 const active = isActivePath(pathname, item.path);
                 return (
-                  <Link
+                  <NavLink
                     key={item.path}
                     href={item.path}
                     onClick={onClose}
@@ -61,7 +126,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
                   >
                     <Icon size={18} />
                     <span>{item.label}</span>
-                  </Link>
+                  </NavLink>
                 );
               })}
             </section>

@@ -1,45 +1,19 @@
 .graph-editor-page {
   margin: -32px;
   min-height: calc(100vh - 64px);
-  background: #fff;
-}
-.editor-toolbar {
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 9px 14px;
-  border-bottom: 1px solid #e2e8f0;
-}
-.editor-toolbar > div {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.editor-toolbar strong {
-  margin-right: 10px;
-  font-size: 13px;
-}
-.editor-toolbar span {
-  color: #64748b;
-  font-size: 9px;
-  text-transform: uppercase;
-}
-.editor-toolbar input {
-  width: 150px;
-  padding: 7px;
+  background: #f8fafc;
 }
 .graph-workbench {
   display: grid;
-  grid-template-columns: 240px 1fr 300px;
-  height: calc(100vh - 122px);
-  min-height: 650px;
+  grid-template-columns: 250px minmax(520px, 1fr) 320px;
+  height: calc(100vh - 274px);
+  min-height: 620px;
+  border-top: 1px solid #edf1f5;
 }
 .output-contract-panel {
   padding: 12px 14px;
   border-bottom: 1px solid #dbe3ec;
-  background: #f8fafc;
+  background: #f5f8fb;
 }
 .output-contract-heading,
 .output-contract-controls,
@@ -138,6 +112,8 @@
 .node-properties {
   overflow: auto;
   background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 .node-library {
   border-right: 1px solid #e2e8f0;
@@ -148,15 +124,17 @@
 .workbench-heading {
   display: grid;
   gap: 2px;
-  padding: 15px;
+  padding: 16px;
   border-bottom: 1px solid #e2e8f0;
+  background: #fbfcfe;
 }
 .workbench-heading strong {
   font-size: 13px;
 }
 .workbench-heading small {
   color: #64748b;
-  font-size: 9px;
+  font-size: 9.5px;
+  line-height: 1.4;
 }
 .node-library section,
 .node-properties section {
@@ -172,19 +150,120 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
-.node-library button {
+.node-library .library-node {
   width: 100%;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  margin: 6px 0;
-  padding: 9px;
+  margin: 7px 0;
+  padding: 10px;
   border: 1px solid #e2e8f0;
-  border-radius: 4px;
+  border-radius: 8px;
   background: #fff;
   color: #344054;
   text-align: left;
   font-size: 11px;
   cursor: grab;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.node-library .library-node:hover {
+  border-color: #aeb9c7;
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.07);
+  transform: translateY(-1px);
+}
+.library-node-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #eef2f6;
+  color: #475467;
+}
+.library-node > span:nth-child(2) {
+  min-width: 0;
+}
+.library-node strong,
+.library-node small {
+  display: block;
+}
+.library-node strong {
+  color: #253047;
+  font-size: 11px;
+}
+.library-node small {
+  overflow: hidden;
+  margin-top: 2px;
+  color: #7a8699;
+  font-size: 8.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.library-node b {
+  color: #98a2b3;
+  font-size: 15px;
+}
+.library-node-condition .library-node-icon {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+.library-node-result .library-node-icon {
+  background: #e7f8ef;
+  color: #07834f;
+}
+.library-node-manual_review .library-node-icon {
+  background: #fff4e5;
+  color: #b54708;
+}
+.library-node-end .library-node-icon {
+  background: #fff0f0;
+  color: #c81e1e;
+}
+.library-node-expression .library-node-icon {
+  background: #e6f0fb;
+  color: #1d4ed8;
+}
+.library-node-score .library-node-icon {
+  background: #e6f6f8;
+  color: #0e7490;
+}
+.library-tip {
+  display: grid;
+  gap: 4px;
+  margin: 14px;
+  padding: 11px;
+  border: 1px solid #d5eee9;
+  border-radius: 8px;
+  background: #f0fdf9;
+  color: #3f615d;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.library-tip strong {
+  color: #006a61;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.properties-empty-state {
+  display: grid;
+  gap: 6px;
+  color: #667085;
+  line-height: 1.5;
+}
+.properties-empty-state strong,
+.properties-empty-state p {
+  margin: 0;
+}
+.properties-empty-state strong {
+  color: #344054;
+  font-size: 11px;
+}
+.properties-empty-state p {
+  font-size: 10px;
 }

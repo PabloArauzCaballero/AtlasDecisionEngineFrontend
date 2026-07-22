@@ -1,0 +1,192 @@
+/* In-page tutorial: topbar trigger + right-side didactic drawer. */
+
+.tutorial-trigger {
+  position: relative;
+}
+.tutorial-trigger.has-unseen::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--panel);
+  animation: tutorial-pulse 1.8s var(--ease-standard) infinite;
+}
+@keyframes tutorial-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.7;
+  }
+}
+
+.tutorial-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(3px);
+  animation: fade-in var(--dur-base) var(--ease-standard) both;
+}
+
+.tutorial-drawer {
+  width: min(440px, 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px 22px;
+  overflow-y: auto;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  box-shadow: -24px 0 60px -24px rgba(15, 23, 42, 0.4);
+  animation: tutorial-slide var(--dur-slow) var(--ease-out) both;
+}
+@keyframes tutorial-slide {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+}
+
+.tutorial-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.tutorial-head-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: #00544c;
+}
+.tutorial-head p {
+  margin: 0;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.tutorial-head h2 {
+  margin: 2px 0 0;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.25;
+}
+
+.tutorial-intro {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.tutorial-dots {
+  display: flex;
+  gap: 6px;
+}
+.tutorial-dots button {
+  flex: 1;
+  height: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: #e2e8f0;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-base) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+.tutorial-dots button.done {
+  background: var(--accent-soft);
+}
+.tutorial-dots button.active {
+  background: var(--accent);
+  transform: scaleY(1.4);
+}
+
+.tutorial-step {
+  flex: 1;
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.tutorial-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+.tutorial-step h3 {
+  margin: 12px 0 8px;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.3;
+}
+.tutorial-step > p {
+  margin: 0;
+  color: #475467;
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+.tutorial-tip {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 14px;
+  padding: 11px 13px;
+  border: 1px solid #cdeee8;
+  border-radius: 10px;
+  background: #f0fdf9;
+  color: #22645c;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.tutorial-tip svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.tutorial-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.tutorial-counter {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.tutorial-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .tutorial-drawer {
+    width: 100%;
+    border-left: 0;
+  }
+}

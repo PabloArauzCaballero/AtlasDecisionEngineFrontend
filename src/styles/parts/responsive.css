@@ -3,10 +3,25 @@
     display: none;
   }
   .graph-workbench {
-    grid-template-columns: 190px 1fr;
+    height: auto;
+    grid-template-columns: 210px minmax(480px, 1fr);
+    grid-template-rows: minmax(620px, calc(100vh - 260px)) auto;
   }
   .node-properties {
-    display: none;
+    grid-column: 1 / -1;
+    max-height: 460px;
+    border-top: 1px solid #e2e8f0;
+    border-left: 0;
+  }
+  .editor-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .editor-toolbar-actions {
+    flex-wrap: wrap;
+  }
+  .graph-editor-statusbar {
+    overflow-x: auto;
   }
   .definition-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -37,10 +52,33 @@
     display: none;
   }
   .graph-workbench {
-    grid-template-columns: 1fr;
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
   }
   .node-library {
-    display: none;
+    display: block;
+    max-height: 320px;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .graph-canvas {
+    min-width: 0;
+    min-height: 620px;
+  }
+  .node-properties {
+    max-height: none;
+  }
+  .editor-toolbar-primary {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .editor-toolbar-actions {
+    width: 100%;
+  }
+  .graph-authoring-steps,
+  .graph-editor-counts {
+    flex: 0 0 auto;
   }
   .environment-grid {
     grid-template-columns: 1fr;
@@ -56,5 +94,23 @@
   .editor-toolbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .editor-toolbar-primary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .editor-version-control,
+  .editor-version-control > div {
+    width: 100%;
+  }
+  .editor-version-control input {
+    width: 100%;
+  }
+  .editor-layout-button,
+  .editor-actions-separator {
+    display: none;
+  }
+  .canvas-legend {
+    display: none;
   }
 }

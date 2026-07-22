@@ -1,25 +1,44 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
+import { PickerSelect } from '../components/PickerSelect';
+import { useNotifications } from '../notifications/useNotifications';
+import { display } from '../utils/records';
 
 export function ReviewsPage() {
   const [versionId, setVersionId] = useState('');
   const [requestId, setRequestId] = useState('');
   const [result, setResult] = useState<unknown>(null);
+  const { notify } = useNotifications();
+
+  // Rollback on the artifact page deep-links here with the version prefilled;
+  // the operator still reviews and confirms the submission by hand.
+  useEffect(() => {
+    const prefill = new URLSearchParams(window.location.search).get('versionId');
+    if (prefill && /^[1-9][0-9]*$/.test(prefill)) setVersionId(prefill);
+  }, []);
   const submitReview = useMutation({
     mutationFn: (id: string) =>
       apiRequest<unknown>(`/v1/artifact-versions/${id}/submit-for-review`, {
         method: 'POST',
         body: { requireCompliance: true },
       }),
-    onSuccess: setResult,
+    onSuccess: (data, id) => {
+      setResult(data);
+      notify({
+        tone: 'success',
+        title: 'Versión enviada a revisión',
+        description: `v${id} entró al flujo de aprobación con Compliance requerido.`,
+      });
+    },
   });
   const getRequest = useMutation({
     mutationFn: (id: string) => apiRequest<unknown>(`/v1/approval-requests/${id}`),
+    // A lookup that renders its result needs no toast — the panel is the answer.
     onSuccess: setResult,
   });
   const submit = (event: FormEvent, action: () => void) => {
@@ -40,32 +59,46 @@ export function ReviewsPage() {
           onSubmit={(event) => submit(event, () => submitReview.mutate(versionId))}
         >
           <h2>Enviar a revisión</h2>
-          <label className="field">
-            <span>ID de versión</span>
-            <input
-              required
-              pattern="[1-9][0-9]*"
-              value={versionId}
-              onChange={(event) => setVersionId(event.target.value)}
-            />
-          </label>
-          <button className="button button-primary">Enviar con Compliance</button>
+          <PickerSelect
+            label="Versión del artefacto"
+            value={versionId}
+            onChange={setVersionId}
+            endpoint="/v1/views/pickers/artifact-versions"
+            queryKey="artifact-versions"
+            required
+            placeholder="Elegir versión…"
+            mapOption={(row) => ({
+              value: display(row, 'id'),
+              label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
+            })}
+          />
+          <button className="button button-primary" disabled={submitReview.isPending}>
+            {submitReview.isPending ? <span className="inline-spinner" aria-hidden="true" /> : null}
+            {submitReview.isPending ? 'Enviando…' : 'Enviar con Compliance'}
+          </button>
         </form>
         <form
           className="panel compact-form"
           onSubmit={(event) => submit(event, () => getRequest.mutate(requestId))}
         >
           <h2>Consultar solicitud</h2>
-          <label className="field">
-            <span>ID de solicitud</span>
-            <input
-              required
-              pattern="[1-9][0-9]*"
-              value={requestId}
-              onChange={(event) => setRequestId(event.target.value)}
-            />
-          </label>
-          <button className="button button-primary">Consultar</button>
+          <PickerSelect
+            label="Solicitud de aprobación"
+            value={requestId}
+            onChange={setRequestId}
+            endpoint="/v1/approval-requests?page=1&pageSize=100"
+            queryKey="approval-requests"
+            required
+            placeholder="Elegir solicitud…"
+            mapOption={(row) => ({
+              value: display(row, 'id'),
+              label: `REQ-${display(row, 'id')} · ${display(row, 'artifactCode')} v${display(row, 'versionNumber')} · ${display(row, 'status')}`,
+            })}
+          />
+          <button className="button button-primary" disabled={getRequest.isPending}>
+            {getRequest.isPending ? <span className="inline-spinner" aria-hidden="true" /> : null}
+            {getRequest.isPending ? 'Consultando…' : 'Consultar'}
+          </button>
         </form>
       </div>
       {error ? <Alert tone="error">{errorMessage(error)}</Alert> : null}

@@ -5,6 +5,10 @@ import process from 'node:process';
 const root = process.cwd();
 const codeExtensions = new Set(['.ts', '.tsx', '.js', '.mjs', '.css']);
 const ignoredDirectories = new Set(['.git', '.next', 'node_modules', 'coverage', 'docs']);
+const authorizedFetchFiles = new Set([
+  'src/api/http-client.ts',
+  'src/server/decision-engine-proxy.ts',
+]);
 const requiredRoutes = [
   'src/app/(auth)/login/page.next.tsx',
   'src/app/(portal)/platform-health/page.next.tsx',
@@ -23,6 +27,7 @@ const requiredRoutes = [
   'src/app/(portal)/environments/page.next.tsx',
   'src/app/(portal)/deployments/page.next.tsx',
   'src/app/(portal)/simulator/page.next.tsx',
+  'src/app/(portal)/search/page.next.tsx',
   'src/app/(portal)/manual-reviews/page.next.tsx',
   'src/app/(portal)/manual-reviews/[caseId]/page.next.tsx',
   'src/app/(portal)/executions/page.next.tsx',
@@ -64,13 +69,13 @@ for (const file of sourceFiles) {
   if (!isApplicationSource) continue;
   if (content.includes('react-router-dom')) failures.push(`${path} still imports React Router`);
   if (content.includes("from 'vite'")) failures.push(`${path} contains an unexpected Vite import`);
-  if (/\bfetch\s*\(/.test(content) && path !== 'src/api/http-client.ts') {
+  if (/\bfetch\s*\(/.test(content) && !authorizedFetchFiles.has(path)) {
     failures.push(`${path} bypasses the authorized HTTP client`);
   }
 }
 
-if (requiredRoutes.length !== 25) {
-  failures.push('The required route inventory must contain exactly 25 views');
+if (requiredRoutes.length !== 26) {
+  failures.push('The required route inventory must contain exactly 26 views');
 }
 
 if (failures.length) {
@@ -78,4 +83,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Source verification passed for ${sourceFiles.length} files and 25 routes.`);
+console.log(`Source verification passed for ${sourceFiles.length} files and 26 routes.`);

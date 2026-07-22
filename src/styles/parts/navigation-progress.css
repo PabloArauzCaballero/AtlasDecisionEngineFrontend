@@ -1,0 +1,77 @@
+/**
+ * Route progress bar. Sits above the sidebar (z 30) and topbar (z 20) but
+ * below toasts (z 90) so a notification is never occluded by it.
+ */
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  height: 2px;
+  pointer-events: none;
+}
+
+.route-progress-bar {
+  display: block;
+  height: 100%;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+  box-shadow: 0 0 10px rgba(0, 106, 97, 0.5);
+}
+
+/*
+ * Creeps to 90% and waits. The duration is long and the curve decelerates hard,
+ * so the bar keeps inching forward on a slow route without ever claiming to be
+ * finished before the content arrives.
+ */
+.route-progress-bar[data-phase='loading'] {
+  animation: route-progress-creep 2.4s var(--ease-out) forwards;
+}
+
+.route-progress-bar[data-phase='finishing'] {
+  animation: route-progress-finish 260ms var(--ease-standard) forwards;
+}
+
+@keyframes route-progress-creep {
+  from {
+    transform: scaleX(0.02);
+    opacity: 1;
+  }
+  to {
+    transform: scaleX(0.9);
+    opacity: 1;
+  }
+}
+
+@keyframes route-progress-finish {
+  from {
+    transform: scaleX(0.9);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+/* Pending spinner inside a navigation link. */
+.nav-link-spinner {
+  margin-left: auto;
+}
+
+/* The sidebar link's icon yields to the spinner while its route loads. */
+.nav-link:has(.nav-link-spinner) svg:first-child {
+  opacity: 0.45;
+}
+
+.top-links a .nav-link-spinner,
+.top-action .nav-link-spinner {
+  width: 11px;
+  height: 11px;
+  margin-left: 6px;
+}

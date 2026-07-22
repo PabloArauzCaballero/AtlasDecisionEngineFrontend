@@ -10,8 +10,6 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
   yarn install --frozen-lockfile
 
 FROM base AS builder
-ARG DECISION_ENGINE_URL=http://atlas-decision-backend:3000
-ENV DECISION_ENGINE_URL=${DECISION_ENGINE_URL}
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN yarn build
@@ -21,7 +19,8 @@ WORKDIR /app
 ENV NODE_ENV=production \
   NEXT_TELEMETRY_DISABLED=1 \
   HOSTNAME=0.0.0.0 \
-  PORT=3000
+  PORT=3000 \
+  DECISION_ENGINE_URL=http://atlas-decision-backend:3000
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs

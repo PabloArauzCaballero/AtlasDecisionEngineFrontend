@@ -43,10 +43,12 @@ export function useGraphHistory() {
     dragOrigin.current = snapshot;
   };
 
-  const endDrag = () => {
+  const endDrag = (changed = true) => {
     if (!dragOrigin.current) return;
-    setPast((current) => [...current, dragOrigin.current as UnknownRecord]);
-    setFuture([]);
+    if (changed) {
+      setPast((current) => [...current, dragOrigin.current as UnknownRecord]);
+      setFuture([]);
+    }
     dragOrigin.current = null;
   };
 

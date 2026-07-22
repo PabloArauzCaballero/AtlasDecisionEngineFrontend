@@ -1,29 +1,76 @@
+import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, GitBranch, ListChecks, Route } from 'lucide-react';
 import { useState } from 'react';
+import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { PickerSelect } from '../components/PickerSelect';
 import { ProgressBar } from '../components/ProgressBar';
-import { useDetailQuery } from '../hooks/useDetailQuery';
-import { asRecord, asRows, display } from '../utils/records';
+import { StatusBadge } from '../components/StatusBadge';
+import {
+  coveragePercentage,
+  testRunSchema,
+  type TestCase,
+  type TestRun,
+} from '../testing/testing.schemas';
+import { downloadJson } from '../utils/download';
+import { display } from '../utils/records';
 
 interface GraphCoveragePageProps {
   initialRunId?: string;
 }
 
+function traceTerminal(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const trace = (value as Record<string, unknown>).trace;
+  if (!trace || typeof trace !== 'object' || Array.isArray(trace)) return null;
+  const terminal = (trace as Record<string, unknown>).terminal;
+  return typeof terminal === 'string' && terminal ? terminal : null;
+}
+
+function caseLabel(testCase: TestCase | undefined, fallback: string): string {
+  return testCase ? `${testCase.caseCode} · ${testCase.testName}` : fallback;
+}
+
 export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps) {
   const [draftId, setDraftId] = useState(initialRunId);
   const [runId, setRunId] = useState(initialRunId);
-  const query = useDetailQuery<unknown>(
-    'graph-coverage',
-    runId ? `/v1/test-runs/${encodeURIComponent(runId)}` : null,
-  );
-  const run = asRecord(query.data);
-  const coverage = asRecord(run.coverage);
-  const caseRuns = asRows(run.caseRuns);
-  const nodePct = Number(coverage.nodeCoveragePct ?? 0);
-  const edgePct = Number(coverage.edgeCoveragePct ?? 0);
+  const query = useQuery({
+    queryKey: ['test-run', runId],
+    queryFn: ({ signal }) =>
+      apiRequest(`/v1/test-runs/${encodeURIComponent(runId)}`, {
+        signal,
+        responseSchema: testRunSchema,
+      }),
+    enabled: Boolean(runId),
+    refetchInterval: (current) =>
+      current.state.data?.status === 'QUEUED' || current.state.data?.status === 'RUNNING'
+        ? 1_000
+        : false,
+  });
+  const run = query.data;
+  const coverage = run?.coverage ?? [];
+  const caseRuns = run?.caseRuns ?? [];
+  const nodePct = coveragePercentage(coverage, 'NODE');
+  const edgePct = coveragePercentage(coverage, 'EDGE');
+  const terminalPct = coveragePercentage(coverage, 'TERMINAL');
+  const nonTerminalRuns = caseRuns.filter((item) => !traceTerminal(item.actualResultJson));
+  const inProgress = run?.status === 'QUEUED' || run?.status === 'RUNNING';
+
+  const exportReport = (current: TestRun) =>
+    downloadJson(`test-run-${current.id}-coverage.json`, {
+      runId: current.id,
+      status: current.status,
+      coverage: current.coverage,
+      nonTerminalCases: nonTerminalRuns.map((item) => ({
+        caseId: item.testCaseId,
+        caseCode: item.testCase?.caseCode,
+        resultStatus: item.resultStatus,
+        error: item.errorJson,
+      })),
+    });
 
   return (
     <>
@@ -32,7 +79,12 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         title="Cobertura de Grafo"
         description="Análisis de rutas críticas, nodos alcanzados y caminos sin terminación."
         actions={
-          <button className="button" type="button">
+          <button
+            className="button"
+            type="button"
+            disabled={!run || inProgress}
+            onClick={() => run && exportReport(run)}
+          >
             <Download size={16} /> Exportar Reporte
           </button>
         }
@@ -41,18 +93,32 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault();
-          setRunId(draftId);
+          setRunId(draftId.trim());
         }}
       >
-        <label>
-          <span>Test Run ID</span>
-          <input value={draftId} onChange={(event) => setDraftId(event.target.value)} />
-        </label>
+        <PickerSelect
+          label="Ejecución de pruebas"
+          value={draftId}
+          onChange={setDraftId}
+          endpoint="/v1/views/pickers/test-runs"
+          queryKey="test-runs"
+          placeholder="Elegir run…"
+          mapOption={(row) => ({
+            value: display(row, 'id'),
+            label: `Run ${display(row, 'id')} · ${display(row, 'suiteCode')} · ${display(row, 'status')}`,
+          })}
+        />
         <button className="button button-primary" type="submit">
-          Load coverage
+          Cargar cobertura
         </button>
       </form>
       {query.isError ? <Alert tone="error">No fue posible recuperar la cobertura.</Alert> : null}
+      {inProgress ? (
+        <Alert tone="info">
+          El run está {run?.status === 'QUEUED' ? 'en cola' : 'en ejecución'}; la cobertura se
+          actualizará automáticamente al terminar.
+        </Alert>
+      ) : null}
       <div className="metric-grid">
         <MetricCard
           label="Casos Ejecutados"
@@ -62,34 +128,42 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         />
         <MetricCard
           label="Node Coverage"
-          value={`${nodePct}%`}
+          value={`${nodePct.toFixed(1)}%`}
           hint="nodes reached"
           icon={GitBranch}
           tone="success"
         />
         <MetricCard
           label="Edge Coverage"
-          value={`${edgePct}%`}
+          value={`${edgePct.toFixed(1)}%`}
           hint="edges traversed"
           icon={Route}
         />
         <MetricCard
           label="Non-terminal Paths"
-          value={display(coverage, 'nonTerminalPaths')}
+          value={String(nonTerminalRuns.length)}
           hint="requires attention"
           icon={AlertTriangle}
         />
       </div>
       <div className="coverage-layout">
-        <Panel title="Mapa de Calor (Ruta Crítica)" meta="Interactive graph">
-          <div className="heat-graph">
-            <div className="heat-node success">Trigger</div>
-            <span>→</span>
-            <div className="heat-node success">Policy</div>
-            <span>→</span>
-            <div className="heat-node warning">Score</div>
-            <span>→</span>
-            <div className="heat-node danger">Manual Review</div>
+        <Panel title="Elementos cubiertos y pendientes" meta="Evidencia del motor">
+          <div className="coverage-bars">
+            {coverage.map((item) => (
+              <div key={item.coverageType}>
+                <span>
+                  {item.coverageType}
+                  <b>
+                    {item.coveredCount}/{item.totalCount}
+                  </b>
+                </span>
+                <p>
+                  Cubiertos: {item.detailsJson?.covered.join(', ') || 'ninguno'}
+                  <br />
+                  Pendientes: {item.detailsJson?.missing.join(', ') || 'ninguno'}
+                </p>
+              </div>
+            ))}
           </div>
         </Panel>
         <Panel title="Cobertura por Tipo" meta="Percent">
@@ -97,12 +171,12 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
             {[
               ['Nodes', nodePct],
               ['Edges', edgePct],
-              ['Terminals', Number(coverage.terminalCoveragePct ?? 0)],
+              ['Terminals', terminalPct],
             ].map(([label, value]) => (
               <div key={String(label)}>
                 <span>
                   {label}
-                  <b>{value}%</b>
+                  <b>{Number(value).toFixed(1)}%</b>
                 </span>
                 <ProgressBar
                   value={Number(value)}
@@ -118,23 +192,23 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
           <table>
             <thead>
               <tr>
-                <th>ID Ruta</th>
-                <th>Nodo Origen</th>
-                <th>Nodo Final Alcanzado</th>
-                <th>Motivo</th>
+                <th>Caso</th>
+                <th>Resultado</th>
+                <th>Terminal alcanzado</th>
+                <th>Error</th>
               </tr>
             </thead>
             <tbody>
-              {caseRuns
-                .filter((item) => item.status !== 'PASSED')
-                .map((item) => (
-                  <tr key={display(item, 'id')}>
-                    <td className="mono">{display(item, 'id')}</td>
-                    <td>{display(item, 'testCaseId')}</td>
-                    <td>{display(item, 'status')}</td>
-                    <td>{display(item, 'failureMessage')}</td>
-                  </tr>
-                ))}
+              {nonTerminalRuns.map((item) => (
+                <tr key={item.id}>
+                  <td>{caseLabel(item.testCase, item.testCaseId)}</td>
+                  <td>
+                    <StatusBadge value={item.resultStatus} />
+                  </td>
+                  <td>Sin terminal</td>
+                  <td>{item.errorJson ? JSON.stringify(item.errorJson) : '—'}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

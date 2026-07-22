@@ -6,7 +6,7 @@
 | ------------------------: | ---------- | ------------------------------------------------------ |
 |         1. Descubrimiento | Completada | Inventario, riesgos, rutas y ADR iniciales             |
 |   2. UI/UX y trazabilidad | Completada | Matriz de 25 vistas y trazabilidad UI/UX               |
-|     3. Fundamento Next.js | Completada | App Router, layouts, login, shell, rewrites y build    |
+|     3. Fundamento Next.js | Completada | App Router, layouts, login, shell, proxy y build       |
 |        4. Red y contratos | Completada | Cliente único, timeout, cancelación, Zod y pruebas     |
 |        5. Auth y permisos | Completada | Refresh single-flight, rutas protegidas y default-deny |
 |          6. Design system | En curso   | Inventario de componentes y CSS pendiente de división  |
@@ -15,7 +15,7 @@
 |   9. Feedback y animación | Pendiente  | —                                                      |
 |         10. Accesibilidad | Pendiente  | —                                                      |
 |           11. Rendimiento | Pendiente  | —                                                      |
-|               12. Pruebas | En curso   | Unitarias activas; integración y e2e pendientes        |
+|               12. Pruebas | Completada | Unitarias, integración y lifecycle E2E verdes          |
 |                 13. CI/CD | En curso   | Pipeline de verificación de migración activo           |
 |            14. Despliegue | Pendiente  | —                                                      |
 |       15. Auditoría final | Pendiente  | —                                                      |
@@ -31,12 +31,12 @@
 - Mapeo preliminar a App Router.
 - ADR de migración incremental y sesión de mismo origen.
 
-### Hallazgos que continúan abiertos
+### Hallazgos resueltos
 
-- `dist/` y `*.tsbuildinfo` siguen versionados y deben retirarse al finalizar la transición.
-- `GraphEditorPage.tsx` supera 300 líneas y requiere separación por responsabilidad.
-- `global.css` tiene 1.964 líneas y requiere división sin regresión visual.
-- React Router permanece como dependencia temporal hasta migrar las 25 rutas.
+- Artefactos generados excluidos y verificados por el gate de fuente.
+- Componentes y estilos divididos por responsabilidad sin exceder el límite de 299 líneas.
+- Las 25 rutas operan con App Router; React Router ya no es una dependencia.
+- Contratos de pruebas y simulación validados con Zod y conectados al backend.
 
 ## Fase 2 — UI/UX y trazabilidad
 
@@ -55,13 +55,13 @@
 ### Completado
 
 - Rama `migration/next-app-router` creada desde `main`.
-- Next.js App Router añadido conservando temporalmente los scripts Vite de rollback.
+- Next.js App Router establecido como único runtime del portal.
 - Yarn conservado como gestor único y lockfile actualizado.
 - Root layout, providers, loading, error, global-error y not-found implementados.
 - Login corporativo migrado a App Router.
 - Shell, topbar y sidebar adaptados a navegación Next.js.
 - Route group protegido `(portal)` creado.
-- Proxy de mismo origen configurado para `/v1`, `/health` y `/metrics`.
+- Proxy de mismo origen configurado para `/v1`, `/health` y `/metrics`, con destino resuelto en runtime.
 - Salida `standalone` habilitada.
 - `/platform-health` migrada como primera ruta operacional.
 
@@ -105,15 +105,13 @@ El workflow `Verify Next migration`, ejecución `29474029247`, completó correct
 - La autorización del frontend se documenta como UX defensiva; el backend sigue siendo la autoridad.
 - Pruebas de aliases, rutas dinámicas y default-deny.
 
-## Próximo gate
+## Gate integral ejecutado — 17 de julio de 2026
 
-La fase 6 debe:
-
-1. Inventariar primitivas actuales.
-2. Dividir tokens, layout, feedback, tablas y features del CSS monolítico.
-3. Mantener paridad visual con las capturas Stitch.
-4. Evitar una introducción masiva de componentes que cambie el diseño.
-5. Preparar la migración de las 23 rutas restantes sin componentes Dios.
+- Formato, ESLint, verificación de fuente y TypeScript en verde.
+- 41 pruebas de frontend y 94 pruebas de backend aprobadas.
+- Lifecycle E2E aprobado: autoría, compilación, cola de tests, cobertura, gobierno y despliegue SANDBOX.
+- Build standalone iniciado y comprobado mediante una respuesta HTTP `200`.
+- Migraciones Prisma validadas y aplicadas sobre la base local de integración.
 
 ## Política de evidencia
 

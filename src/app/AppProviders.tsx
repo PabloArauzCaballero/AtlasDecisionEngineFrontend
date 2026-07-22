@@ -1,33 +1,27 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, type PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 import { AuthProvider } from '../auth/AuthProvider';
+import { NavigationProgressProvider } from '../navigation/NavigationProgressProvider';
+import { NotificationProvider } from '../notifications/NotificationProvider';
+import { QueryProvider } from './QueryProvider';
 
 /**
  * Creates the client-side provider tree used by App Router.
  *
- * A QueryClient is created once per browser session to avoid sharing cache
- * state between server requests while preserving React Query behavior.
+ * Notifications sit outermost so the query client can report failures through
+ * them, and so every surface below — including error boundaries — can raise a
+ * toast. The QueryClient itself is owned by QueryProvider, which keeps it to a
+ * single instance per browser session.
  */
 export function AppProviders({ children }: PropsWithChildren) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 30_000,
-            retry: (count, error) =>
-              !(error instanceof Error && 'status' in error && error.status === 403) && count < 1,
-          },
-          mutations: { retry: false },
-        },
-      }),
-  );
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
-    </QueryClientProvider>
+    <NotificationProvider>
+      <NavigationProgressProvider>
+        <QueryProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryProvider>
+      </NavigationProgressProvider>
+    </NotificationProvider>
   );
 }

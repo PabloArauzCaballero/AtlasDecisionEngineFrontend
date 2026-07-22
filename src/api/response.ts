@@ -1,4 +1,4 @@
-import { z, type ZodType } from 'zod';
+import { z, type ZodType, type ZodTypeDef } from 'zod';
 import { ApiError } from './ApiError';
 
 const errorPayloadSchema = z
@@ -41,7 +41,7 @@ async function readJsonBody(response: Response): Promise<unknown> {
  */
 export async function parseResponse<T>(
   response: Response,
-  responseSchema?: ZodType<T>,
+  responseSchema?: ZodType<T, ZodTypeDef, unknown>,
 ): Promise<T> {
   if (response.status === 204) return undefined as T;
 

@@ -21,6 +21,10 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   const versions = asRows(artifact.versions);
   const latest = versions[0] ?? {};
   const latestId = display(latest, 'id');
+  // Rollback is a governed action: it routes to the review flow prefilled with
+  // the previous version instead of mutating anything directly.
+  const previousId = display(versions[1] ?? {}, 'id');
+  const artifactCode = display(artifact, 'artifactCode', 'code');
 
   return (
     <>
@@ -35,9 +39,18 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                 <GitBranch size={16} /> View Graph
               </Link>
             ) : null}
-            <button className="button button-primary" type="button">
-              <Pencil size={16} /> Edit Draft
-            </button>
+            {latestId !== '—' ? (
+              <Link
+                className="button button-primary"
+                href={`/graph-editor?versionId=${encodeURIComponent(latestId)}`}
+              >
+                <Pencil size={16} /> Edit Draft
+              </Link>
+            ) : (
+              <button className="button button-primary" type="button" disabled>
+                <Pencil size={16} /> Edit Draft
+              </button>
+            )}
           </>
         }
       />
@@ -65,12 +78,34 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
             <p className="mono">{display(latest, 'checksum')}</p>
           </div>
           <div className="stack-actions">
-            <button className="button" type="button">
-              <History size={16} /> Rollback
-            </button>
-            <button className="button" type="button">
+            {previousId !== '—' ? (
+              <Link
+                className="button"
+                href={`/reviews?versionId=${encodeURIComponent(previousId)}`}
+                title="Enviar la versión anterior al flujo de aprobación"
+              >
+                <History size={16} /> Rollback
+              </Link>
+            ) : (
+              <button
+                className="button"
+                type="button"
+                disabled
+                title="No hay una versión anterior a la cual volver"
+              >
+                <History size={16} /> Rollback
+              </button>
+            )}
+            <Link
+              className="button"
+              href={
+                artifactCode !== '—'
+                  ? `/executions?filter=${encodeURIComponent(artifactCode)}`
+                  : '/executions'
+              }
+            >
               <TerminalSquare size={16} /> Execution Logs
-            </button>
+            </Link>
           </div>
         </Panel>
       </div>

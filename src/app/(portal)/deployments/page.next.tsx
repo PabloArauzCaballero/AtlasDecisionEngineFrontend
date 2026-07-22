@@ -1,8 +1,7 @@
 'use client';
 
-import { ResourceListPage } from '../../../pages/ResourceListPage';
-import { resources } from '../../../resources/resource.config';
+import { DeploymentsPage } from '../../../pages/DeploymentsPage';
 
 export default function DeploymentsRoute() {
-  return <ResourceListPage config={resources.deployments} />;
+  return <DeploymentsPage />;
 }

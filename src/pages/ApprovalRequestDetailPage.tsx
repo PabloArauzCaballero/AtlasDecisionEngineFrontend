@@ -9,6 +9,7 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
+import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display } from '../utils/records';
 
 interface ApprovalRequestDetailPageProps {
@@ -17,6 +18,7 @@ interface ApprovalRequestDetailPageProps {
 
 export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPageProps) {
   const [comments, setComments] = useState('');
+  const { notify } = useNotifications();
   const query = useDetailQuery<unknown>(
     'approval-request',
     requestId ? `/v1/approval-requests/${encodeURIComponent(requestId)}` : null,
@@ -33,8 +35,40 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
         method: 'POST',
         body: { decision, comments, evidence: [] },
       }),
-    onSuccess: () => query.refetch(),
+    onSuccess: (_data, decision) => {
+      // Clearing the box prevents the comment being replayed onto a later step.
+      setComments('');
+      void query.refetch();
+      notify({
+        tone: decision === 'APPROVE' ? 'success' : 'warning',
+        title:
+          decision === 'APPROVE'
+            ? 'Decisión registrada: aprobada'
+            : 'Decisión registrada: rechazada',
+        description: `REQ-${display(request, 'id')} quedó firmado en la bitácora de auditoría.`,
+      });
+    },
   });
+  const pendingDecision = decide.isPending ? decide.variables : undefined;
+
+  /** Copies the request's deep link so it can be pasted into chat or email. */
+  const shareRequest = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      notify({
+        tone: 'success',
+        title: 'Enlace copiado',
+        description: `El enlace directo a REQ-${display(request, 'id')} está en tu portapapeles.`,
+      });
+    } catch {
+      notify({
+        tone: 'warning',
+        title: 'No se pudo copiar el enlace',
+        description:
+          'Tu navegador bloqueó el portapapeles. Copia la URL desde la barra de direcciones.',
+      });
+    }
+  };
 
   return (
     <>
@@ -44,10 +78,10 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
         description={`${display(artifact, 'artifactCode')} · v${display(version, 'semanticVersion', 'versionNumber')}`}
         actions={
           <>
-            <button className="button" type="button">
+            <button className="button" type="button" onClick={() => window.print()}>
               <Printer size={16} /> Imprimir
             </button>
-            <button className="button" type="button">
+            <button className="button" type="button" onClick={() => void shareRequest()}>
               <Share2 size={16} /> Compartir
             </button>
           </>
@@ -124,7 +158,12 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
                 onClick={() => decide.mutate('REJECT')}
                 type="button"
               >
-                <ThumbsDown size={16} /> Rechazar
+                {pendingDecision === 'REJECT' ? (
+                  <span className="inline-spinner" aria-hidden="true" />
+                ) : (
+                  <ThumbsDown size={16} />
+                )}
+                Rechazar
               </button>
               <button
                 className="button button-primary"
@@ -132,7 +171,12 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
                 onClick={() => decide.mutate('APPROVE')}
                 type="button"
               >
-                <ThumbsUp size={16} /> Aprobar Despliegue
+                {pendingDecision === 'APPROVE' ? (
+                  <span className="inline-spinner" aria-hidden="true" />
+                ) : (
+                  <ThumbsUp size={16} />
+                )}
+                Aprobar Despliegue
               </button>
             </div>
           </Panel>

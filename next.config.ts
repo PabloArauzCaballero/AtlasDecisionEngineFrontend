@@ -1,10 +1,5 @@
 import type { NextConfig } from 'next';
 
-const decisionEngineUrl = (process.env.DECISION_ENGINE_URL ?? 'http://localhost:3000').replace(
-  /\/+$/,
-  '',
-);
-
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
@@ -26,22 +21,6 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [...securityHeaders],
-      },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/v1/:path*',
-        destination: `${decisionEngineUrl}/v1/:path*`,
-      },
-      {
-        source: '/health/:path*',
-        destination: `${decisionEngineUrl}/health/:path*`,
-      },
-      {
-        source: '/metrics',
-        destination: `${decisionEngineUrl}/metrics`,
       },
     ];
   },

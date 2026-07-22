@@ -8,6 +8,7 @@ interface RouteAccessRule {
 
 const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/platform-health\/?$/, roles: accessPolicies.platformHealth },
+  { pattern: /^\/search\/?$/, roles: accessPolicies.globalSearch },
   { pattern: /^\/variables\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/reason-codes\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/artifacts(?:\/[^/]+)?\/?$/, roles: accessPolicies.artifacts },

@@ -6,6 +6,8 @@ import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
+import { useNotifications } from '../notifications/useNotifications';
+import { downloadCsv, exportFilename } from '../utils/download';
 import { asRecord, asRows, display } from '../utils/records';
 
 export function CoverageMatrixPage() {
@@ -19,6 +21,27 @@ export function CoverageMatrixPage() {
   const covered = Number(payload.covered ?? 0);
   const total = Number(payload.total ?? 0);
   const pct = total ? Math.round((covered / total) * 100) : 0;
+  const { notify } = useNotifications();
+
+  /** Flattens the objective × policy grid into the same CSV shape as the table. */
+  const exportMatrix = () => {
+    const policyCodes = policies.map((policy) => display(policy, 'policyCode'));
+    const header = ['Objetivo', 'Nombre', ...policyCodes].join(',');
+    const lines = rows.map((objective) => {
+      const links = asRecord(objective.coverage);
+      const states = policyCodes.map((code) => String(links[code] ?? 'GAP'));
+      return [display(objective, 'objectiveCode'), display(objective, 'name'), ...states]
+        .map((cell) => (/[",\r\n]/.test(cell) ? `"${cell.replaceAll('"', '""')}"` : cell))
+        .join(',');
+    });
+    downloadCsv(exportFilename('coverage-matrix', 'csv'), [header, ...lines].join('\r\n'));
+    notify({
+      tone: 'success',
+      title: 'Matriz exportada',
+      description: `${rows.length} objetivos × ${policyCodes.length} políticas descargados como CSV.`,
+    });
+  };
+
   return (
     <>
       <PageHeader
@@ -27,7 +50,7 @@ export function CoverageMatrixPage() {
         description="Estado de cumplimiento entre objetivos, políticas, artefactos y pruebas."
         actions={
           <>
-            <button className="button" type="button">
+            <button className="button" type="button" disabled={!rows.length} onClick={exportMatrix}>
               <Download size={16} /> Exportar
             </button>
             <button

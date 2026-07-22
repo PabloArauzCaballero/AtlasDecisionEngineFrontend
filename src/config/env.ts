@@ -12,8 +12,8 @@ function normalizeBaseUrl(value: string): string {
 /**
  * Validates browser-visible configuration without exposing server secrets.
  *
- * The portal intentionally uses same-origin requests. Next.js rewrites `/v1`,
- * `/health` and `/metrics` to the Decision Engine.
+ * The portal intentionally uses same-origin requests. Next.js route handlers proxy
+ * `/v1`, `/health` and `/metrics` to the Decision Engine.
  */
 function readPublicEnvironment() {
   const parsed = publicEnvironmentSchema.safeParse({

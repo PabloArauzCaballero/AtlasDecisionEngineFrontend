@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import type { UnknownRecord } from '../../utils/records';
 import { display } from '../../utils/records';
 import { ConditionNodeEditor } from './ConditionNodeEditor';
+import { DecisionTableNodeEditor } from './DecisionTableNodeEditor';
+import { ExpressionNodeEditor } from './ExpressionNodeEditor';
+import { ManualReviewNodeEditor } from './ManualReviewNodeEditor';
 import { ResultNodeEditor } from './ResultNodeEditor';
+import { SwitchNodeEditor } from './SwitchNodeEditor';
 
 interface NodePropertiesProps {
   node: UnknownRecord;
@@ -12,6 +16,7 @@ interface NodePropertiesProps {
   outputs?: UnknownRecord[];
   inputs?: UnknownRecord[];
   condition?: UnknownRecord;
+  branchCount?: number;
   onConditionChange?: (patch: UnknownRecord) => void;
 }
 
@@ -22,6 +27,7 @@ export function NodeProperties({
   outputs = [],
   inputs = [],
   condition = {},
+  branchCount = 0,
   onConditionChange,
 }: NodePropertiesProps) {
   const key = display(node, 'key');
@@ -42,11 +48,12 @@ export function NodeProperties({
     return (
       <aside className="node-properties">
         <div className="workbench-heading">
-          <strong>Node Properties</strong>
-          <small>Sin selección</small>
+          <strong>Propiedades del nodo</strong>
+          <small>Selecciona un bloque del lienzo</small>
         </div>
-        <section>
-          <p>Selecciona un nodo del canvas para ver y editar sus propiedades.</p>
+        <section className="properties-empty-state">
+          <strong>Ningún nodo seleccionado</strong>
+          <p>Selecciona un bloque para configurar su nombre, lógica y comportamiento de salida.</p>
         </section>
       </aside>
     );
@@ -65,17 +72,17 @@ export function NodeProperties({
   return (
     <aside className="node-properties">
       <div className="workbench-heading">
-        <strong>Node Properties</strong>
+        <strong>Propiedades del nodo</strong>
         <small>{key}</small>
       </div>
       <section>
         <h3>General</h3>
         <label className="field">
-          <span>Node Key</span>
+          <span>Clave del nodo</span>
           <input readOnly value={key} />
         </label>
         <label className="field">
-          <span>Label</span>
+          <span>Nombre visible</span>
           <input
             value={label}
             onChange={(event) => setLabel(event.target.value)}
@@ -83,7 +90,7 @@ export function NodeProperties({
           />
         </label>
         <label className="field">
-          <span>Type</span>
+          <span>Tipo</span>
           <input readOnly value={display(node, 'type')} />
         </label>
       </section>
@@ -93,6 +100,16 @@ export function NodeProperties({
           condition={condition}
           inputs={inputs}
           onChange={onConditionChange}
+        />
+      ) : null}
+      {display(node, 'type') === 'SWITCH' ? (
+        <SwitchNodeEditor
+          config={
+            node.config && typeof node.config === 'object' ? (node.config as UnknownRecord) : {}
+          }
+          inputs={inputs}
+          branchCount={branchCount}
+          onChange={(nextConfig) => onChange({ config: nextConfig })}
         />
       ) : null}
       {display(node, 'type') === 'RESULT' ? (
@@ -105,11 +122,46 @@ export function NodeProperties({
           onChange={(nextConfig) => onChange({ config: nextConfig, terminal: true })}
         />
       ) : null}
-      {!['RESULT', 'CONDITION'].includes(display(node, 'type')) ? (
+      {['EXPRESSION', 'SCORE'].includes(display(node, 'type')) ? (
+        <ExpressionNodeEditor
+          nodeType={display(node, 'type')}
+          config={
+            node.config && typeof node.config === 'object' ? (node.config as UnknownRecord) : {}
+          }
+          inputs={inputs}
+          onChange={(nextConfig) => onChange({ config: nextConfig })}
+        />
+      ) : null}
+      {display(node, 'type') === 'MANUAL_REVIEW' ? (
+        <ManualReviewNodeEditor
+          config={
+            node.config && typeof node.config === 'object' ? (node.config as UnknownRecord) : {}
+          }
+          onChange={(nextConfig) => onChange({ config: nextConfig })}
+        />
+      ) : null}
+      {display(node, 'type') === 'DECISION_TABLE' ? (
+        <DecisionTableNodeEditor
+          config={
+            node.config && typeof node.config === 'object' ? (node.config as UnknownRecord) : {}
+          }
+          inputs={inputs}
+          onChange={(nextConfig) => onChange({ config: nextConfig })}
+        />
+      ) : null}
+      {![
+        'RESULT',
+        'CONDITION',
+        'SWITCH',
+        'EXPRESSION',
+        'SCORE',
+        'MANUAL_REVIEW',
+        'DECISION_TABLE',
+      ].includes(display(node, 'type')) ? (
         <section>
-          <h3>Evaluation Logic</h3>
+          <h3>Configuración</h3>
           <label className="field">
-            <span>Configuration</span>
+            <span>Parámetros avanzados</span>
             <textarea
               rows={8}
               className="code-input"
@@ -122,7 +174,7 @@ export function NodeProperties({
         </section>
       ) : null}
       <section>
-        <h3>Routing / Outcomes</h3>
+        <h3>Enrutamiento y salida</h3>
         <label className="field">
           <span>
             <input
@@ -131,7 +183,7 @@ export function NodeProperties({
               disabled={display(node, 'type') === 'RESULT'}
               onChange={(event) => onChange({ terminal: event.target.checked })}
             />{' '}
-            Terminal
+            Nodo terminal
           </span>
         </label>
       </section>

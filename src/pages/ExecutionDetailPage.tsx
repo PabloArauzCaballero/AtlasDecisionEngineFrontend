@@ -1,4 +1,6 @@
 import { Copy, GitBranch } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
@@ -21,6 +23,24 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const execution = asRecord(query.data);
   const variables = asRows(execution.variables);
   const trace = asRows(execution.traceSteps ?? execution.trace);
+  const versionId = display(execution, 'artifactVersionId', 'versionId');
+  const router = useRouter();
+
+  /**
+   * Hands the original input to the simulator through sessionStorage — the
+   * payload can exceed what a query string tolerates — and navigates there.
+   */
+  const cloneToSimulator = () => {
+    const input = asRecord(execution.inputJson ?? execution.inputSnapshot);
+    sessionStorage.setItem(
+      'simulator-prefill',
+      JSON.stringify({
+        artifactCode: display(execution, 'artifactCode'),
+        variables: input.variables ?? input,
+      }),
+    );
+    router.push('/simulator');
+  };
 
   return (
     <>
@@ -30,12 +50,32 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
         description={`${display(execution, 'requestId')} · ${display(execution, 'artifactCode')}`}
         actions={
           <>
-            <button className="button" type="button">
+            <button
+              className="button"
+              type="button"
+              disabled={!query.data}
+              onClick={cloneToSimulator}
+              title="Reproducir esta transacción en el simulador"
+            >
               <Copy size={16} /> Clonar
             </button>
-            <button className="button button-primary" type="button">
-              <GitBranch size={16} /> Ver Grafo
-            </button>
+            {versionId !== '—' ? (
+              <Link
+                className="button button-primary"
+                href={`/artifact-versions/${encodeURIComponent(versionId)}/graph`}
+              >
+                <GitBranch size={16} /> Ver Grafo
+              </Link>
+            ) : (
+              <button
+                className="button button-primary"
+                type="button"
+                disabled
+                title="La ejecución no referencia una versión de grafo"
+              >
+                <GitBranch size={16} /> Ver Grafo
+              </button>
+            )}
           </>
         }
       />
