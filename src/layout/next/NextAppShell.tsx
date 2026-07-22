@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useState, type PropsWithChildren } from 'react';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
+import { ViewExplainer } from '../../features/view-explainer/ViewExplainer';
 import { RouteProgress } from '../../navigation/RouteProgress';
 import { ToastViewport } from '../../notifications/ToastViewport';
 import { UnsavedChangesProvider } from '../../shared/navigation/unsaved-changes';
@@ -36,6 +37,7 @@ export function NextAppShell({ children }: PropsWithChildren) {
             arrival. Query data survives it — the cache lives in QueryProvider.
           */}
               <div className="route-view" key={pathname}>
+                <ViewExplainer />
                 {children}
               </div>
             </main>
