@@ -21,4 +21,24 @@ describe('layoutGraphNodes', () => {
     expect(Number(byKey.get('CHECK')?.x)).toBeLessThan(Number(byKey.get('APPROVE')?.x));
     expect(byKey.get('APPROVE')?.y).not.toBe(byKey.get('REVIEW')?.y);
   });
+
+  it('coloca un nodo a la derecha de TODOS sus predecesores (camino más largo)', () => {
+    // D depende de START y de B; B también sale de START. Su columna debe ser la
+    // del camino más largo (START→B→D), no la del atajo START→D. Con el BFS
+    // anterior B y D caían en la misma columna y la arista B→D retrocedía.
+    const nodes = [
+      { key: 'START', type: 'START' },
+      { key: 'B', type: 'CONDITION' },
+      { key: 'D', type: 'RESULT' },
+    ];
+    const edges = [
+      { from: 'START', to: 'B' },
+      { from: 'START', to: 'D' },
+      { from: 'B', to: 'D' },
+    ];
+
+    const byKey = new Map(layoutGraphNodes(nodes, edges).map((node) => [node.key, node]));
+
+    expect(Number(byKey.get('B')?.x)).toBeLessThan(Number(byKey.get('D')?.x));
+  });
 });
