@@ -1,0 +1,76 @@
+/* Historial de versiones como grafo de git (carriles + commits) alineado a una
+   lista de filas con los datos de cada versión. */
+
+.version-graph {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.version-graph-rails {
+  flex: none;
+}
+
+.version-graph-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.version-graph-row {
+  height: var(--row-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.version-graph-row:last-child {
+  border-bottom: 0;
+}
+
+.version-graph-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-graph-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.version-graph-summary {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.version-graph-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.version-graph-actions {
+  display: inline-flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.version-graph-actions a {
+  color: var(--accent);
+  font-weight: 600;
+}

@@ -27,3 +27,4 @@
 /* Premium refinement — additive polish, loaded last so it wins on equal specificity. */
 @import './parts/refinement.css';
 @import './parts/view-explainer.css';
+@import './parts/version-graph.css';

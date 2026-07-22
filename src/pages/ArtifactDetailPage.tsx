@@ -5,8 +5,23 @@ import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
+import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
+import type { VersionRow } from '../features/version-history/VersionHistoryGraph';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
+
+function toVersionRow(version: Record<string, unknown>): VersionRow {
+  const parent = display(version, 'sourceVersionId');
+  return {
+    id: display(version, 'id'),
+    parentId: parent && parent !== '—' ? parent : null,
+    label: display(version, 'semanticVersion', 'versionNumber'),
+    status: version.status,
+    createdAt: display(version, 'createdAt'),
+    createdBy: display(version, 'createdBy'),
+    changeSummary: display(version, 'changeSummary'),
+  };
+}
 
 interface ArtifactDetailPageProps {
   artifactId: string;
@@ -112,46 +127,8 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
           </div>
         </Panel>
       </div>
-      <Panel title="Version History" meta={`${versions.length} versions`}>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Version</th>
-                <th>Status</th>
-                <th>Checksum</th>
-                <th>Created</th>
-                <th>Author</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {versions.map((version) => {
-                const versionId = display(version, 'id');
-                return (
-                  <tr key={versionId}>
-                    <td className="mono">
-                      v{display(version, 'semanticVersion', 'versionNumber')}
-                    </td>
-                    <td>
-                      <StatusBadge value={version.status} />
-                    </td>
-                    <td className="mono">{display(version, 'checksum')}</td>
-                    <td>{display(version, 'createdAt')}</td>
-                    <td>{display(version, 'createdBy')}</td>
-                    <td>
-                      <div className="inline-actions">
-                        <Link href={`/artifact-versions/${versionId}/graph`}>Graph</Link>
-                        <Link href={`/artifact-versions/${versionId}/compile`}>Compile</Link>
-                        <Link href={`/artifact-versions/${versionId}/test-suites`}>Tests</Link>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      <Panel title="Historial de Versiones" meta={`${versions.length} versiones · lineaje`}>
+        <VersionHistoryGraph versions={versions.map(toVersionRow)} />
       </Panel>
     </>
   );
