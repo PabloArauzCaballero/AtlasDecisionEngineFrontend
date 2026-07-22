@@ -1,5 +1,5 @@
 import { AlertCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { ModalDialog } from '../components/ModalDialog';
@@ -23,6 +23,17 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
   const editor = useGraphEditor(initialVersionId);
   const [validationOpen, setValidationOpen] = useState(false);
   const [dismissedError, setDismissedError] = useState<unknown>(null);
+
+  // Fase 3 QA fix: opening this page by URL (e.g. the artifact detail "View Graph"
+  // link) used to leave the canvas empty until "Load" was pressed. Auto-load on the
+  // route's version id; passing it explicitly avoids racing the hook's versionId state.
+  const loadGraph = editor.load.mutate;
+  const setVersionId = editor.setVersionId;
+  useEffect(() => {
+    if (!initialVersionId) return;
+    setVersionId(initialVersionId);
+    loadGraph(initialVersionId);
+  }, [initialVersionId, loadGraph, setVersionId]);
   useUnsavedChangesGuard(
     editor.canUndo,
     '¿Estás seguro de que quieres dejar el algoritmo inconcluso? El diseño del grafo tiene cambios sin guardar.',
