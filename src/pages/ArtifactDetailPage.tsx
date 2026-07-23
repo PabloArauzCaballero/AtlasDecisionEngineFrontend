@@ -5,6 +5,8 @@ import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
+import { Tabs } from '../components/Tabs';
+import { useTabParam } from '../components/useTabParam';
 import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
 import type { VersionRow } from '../features/version-history/VersionHistoryGraph';
 import { useDetailQuery } from '../hooks/useDetailQuery';
@@ -40,6 +42,8 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   // the previous version instead of mutating anything directly.
   const previousId = display(versions[1] ?? {}, 'id');
   const artifactCode = display(artifact, 'artifactCode', 'code');
+  const tabIds = ['summary', 'versions'] as const;
+  const [activeTab, setActiveTab] = useTabParam(tabIds, 'summary');
 
   return (
     <>
@@ -75,61 +79,76 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
       {query.isError ? (
         <Alert tone="error">No fue posible cargar el artefacto solicitado.</Alert>
       ) : null}
-      <div className="artifact-overview">
-        <Panel title="Metadata" meta={display(artifact, 'artifactCode')}>
-          <DefinitionGrid
-            record={artifact}
-            items={[
-              { label: 'Artifact Code', keys: ['artifactCode', 'code'], mono: true },
-              { label: 'Type', keys: ['artifactType', 'type'] },
-              { label: 'Owner Team', keys: ['ownerTeam'] },
-              { label: 'Risk Domain', keys: ['riskDomain'] },
-              { label: 'Created At', keys: ['createdAt'] },
-              { label: 'Active', keys: ['isActive'] },
-            ]}
-          />
-        </Panel>
-        <Panel title="Current Version" meta="Governed">
-          <div className="current-version">
-            <strong>v{display(latest, 'semanticVersion', 'versionNumber')}</strong>
-            <StatusBadge value={latest.status} />
-            <p className="mono">{display(latest, 'checksum')}</p>
-          </div>
-          <div className="stack-actions">
-            {previousId !== '—' ? (
-              <Link
-                className="button"
-                href={`/reviews?versionId=${encodeURIComponent(previousId)}`}
-                title="Enviar la versión anterior al flujo de aprobación"
-              >
-                <History size={16} /> Rollback
-              </Link>
-            ) : (
-              <button
-                className="button"
-                type="button"
-                disabled
-                title="No hay una versión anterior a la cual volver"
-              >
-                <History size={16} /> Rollback
-              </button>
-            )}
-            <Link
-              className="button"
-              href={
-                artifactCode !== '—'
-                  ? `/executions?filter=${encodeURIComponent(artifactCode)}`
-                  : '/executions'
-              }
-            >
-              <TerminalSquare size={16} /> Execution Logs
-            </Link>
-          </div>
-        </Panel>
-      </div>
-      <Panel title="Historial de Versiones" meta={`${versions.length} versiones · lineaje`}>
-        <VersionHistoryGraph versions={versions.map(toVersionRow)} />
-      </Panel>
+      <Tabs
+        tabs={[
+          { id: 'summary', label: 'Resumen' },
+          { id: 'versions', label: 'Versiones', count: versions.length },
+        ]}
+        active={activeTab}
+        onChange={setActiveTab}
+        idPrefix="artifact"
+      >
+        {(tab) =>
+          tab === 'summary' ? (
+            <div className="artifact-overview">
+              <Panel title="Metadata" meta={display(artifact, 'artifactCode')}>
+                <DefinitionGrid
+                  record={artifact}
+                  items={[
+                    { label: 'Artifact Code', keys: ['artifactCode', 'code'], mono: true },
+                    { label: 'Type', keys: ['artifactType', 'type'] },
+                    { label: 'Owner Team', keys: ['ownerTeam'] },
+                    { label: 'Risk Domain', keys: ['riskDomain'] },
+                    { label: 'Created At', keys: ['createdAt'] },
+                    { label: 'Active', keys: ['isActive'] },
+                  ]}
+                />
+              </Panel>
+              <Panel title="Current Version" meta="Governed">
+                <div className="current-version">
+                  <strong>v{display(latest, 'semanticVersion', 'versionNumber')}</strong>
+                  <StatusBadge value={latest.status} />
+                  <p className="mono">{display(latest, 'checksum')}</p>
+                </div>
+                <div className="stack-actions">
+                  {previousId !== '—' ? (
+                    <Link
+                      className="button"
+                      href={`/reviews?versionId=${encodeURIComponent(previousId)}`}
+                      title="Enviar la versión anterior al flujo de aprobación"
+                    >
+                      <History size={16} /> Rollback
+                    </Link>
+                  ) : (
+                    <button
+                      className="button"
+                      type="button"
+                      disabled
+                      title="No hay una versión anterior a la cual volver"
+                    >
+                      <History size={16} /> Rollback
+                    </button>
+                  )}
+                  <Link
+                    className="button"
+                    href={
+                      artifactCode !== '—'
+                        ? `/executions?filter=${encodeURIComponent(artifactCode)}`
+                        : '/executions'
+                    }
+                  >
+                    <TerminalSquare size={16} /> Execution Logs
+                  </Link>
+                </div>
+              </Panel>
+            </div>
+          ) : (
+            <Panel title="Lineaje de versiones" meta={`${versions.length} versiones`}>
+              <VersionHistoryGraph versions={versions.map(toVersionRow)} />
+            </Panel>
+          )
+        }
+      </Tabs>
     </>
   );
 }

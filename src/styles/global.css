@@ -9,8 +9,10 @@
 @import './parts/graph-toolbar.css';
 @import './parts/graph-canvas.css';
 @import './parts/graph-canvas-feedback.css';
+@import './parts/graph-flow.css';
 @import './parts/objective-authoring.css';
 @import './parts/dialogs-feedback.css';
+@import './parts/info-hint.css';
 @import './parts/search-picking.css';
 @import './parts/quality.css';
 @import './parts/operations-governance.css';
@@ -29,3 +31,4 @@
 @import './parts/view-explainer.css';
 @import './parts/version-graph.css';
 @import './parts/graph-notes.css';
+@import './parts/tabs.css';
