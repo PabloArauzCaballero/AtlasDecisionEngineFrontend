@@ -6,6 +6,7 @@ import { ModalDialog } from '../components/ModalDialog';
 import { EdgeProperties } from '../features/graph-editor/EdgeProperties';
 import { GraphCanvas } from '../features/graph-editor/GraphCanvas';
 import { GraphEditorToolbar } from '../features/graph-editor/GraphEditorToolbar';
+import { GraphNotesPanel } from '../features/graph-editor/GraphNotesPanel';
 import { GraphValidationModal } from '../features/graph-editor/GraphValidationModal';
 import { NodeLibrary } from '../features/graph-editor/NodeLibrary';
 import { NodeProperties } from '../features/graph-editor/NodeProperties';
@@ -136,6 +137,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       </div>
       <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
       <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
+      {hasVersion ? <GraphNotesPanel versionId={editor.versionId} /> : null}
       <div className="graph-workbench">
         <NodeLibrary onAddNode={editor.addNode} />
         <GraphCanvas

@@ -1,0 +1,52 @@
+/* Panel de notas explicativas del grafo dentro del editor. */
+
+.graph-notes {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+
+.graph-notes-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.graph-notes-input {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: #fff;
+}
+
+.graph-notes-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.graph-notes-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.graph-notes-hint {
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-right: auto;
+}
