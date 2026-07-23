@@ -1,0 +1,77 @@
+/* Algorithms & versions expandable table. */
+.algo-table th:first-child,
+.algo-table td:first-child {
+  width: 34px;
+  text-align: center;
+}
+.algo-row.open > td {
+  background: #f6f9ff;
+}
+.algo-row-detail > td {
+  padding: 0;
+  background: #f8fafc;
+  border-top: 0;
+}
+.algo-empty {
+  text-align: center;
+  color: #94a3b8;
+  padding: 22px 0;
+}
+.algo-versions {
+  display: grid;
+  gap: 10px;
+  padding: 14px 18px 18px;
+}
+.algo-versions-note {
+  padding: 14px 18px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+.algo-versions-note.error {
+  color: #b91c1c;
+}
+.algo-version {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 14px;
+  display: grid;
+  gap: 10px;
+}
+.algo-version-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.algo-version-head strong {
+  font-size: 0.92rem;
+}
+.algo-version-meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 18px;
+}
+.algo-version-meta div {
+  display: grid;
+  gap: 2px;
+}
+.algo-version-meta dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+.algo-version-meta dd {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #334155;
+}
+.algo-version-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.algo-version-actions .button {
+  font-size: 0.78rem;
+}

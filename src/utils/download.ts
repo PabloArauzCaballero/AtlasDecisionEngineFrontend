@@ -1,5 +1,7 @@
 /** Client-side file downloads for exports; no backend round trip involved. */
 
+import { resolvePath } from './records';
+
 function triggerDownload(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
@@ -24,6 +26,8 @@ export function downloadCsv(filename: string, content: string): void {
 export interface CsvColumn {
   key: string;
   label: string;
+  /** Dot-notation path for nested backend fields; mirrors the table columns. */
+  path?: string;
 }
 
 function escapeCsvCell(value: unknown): string {
@@ -32,14 +36,16 @@ function escapeCsvCell(value: unknown): string {
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
-/** Serializes rows to CSV following the visible column order. */
+/** Serializes rows to CSV following the visible column order, resolving nested paths. */
 export function toCsv(
   rows: readonly Record<string, unknown>[],
   columns: readonly CsvColumn[],
 ): string {
   const header = columns.map((column) => escapeCsvCell(column.label)).join(',');
   const lines = rows.map((row) =>
-    columns.map((column) => escapeCsvCell(row[column.key])).join(','),
+    columns
+      .map((column) => escapeCsvCell(column.path ? resolvePath(row, column.path) : row[column.key]))
+      .join(','),
   );
   return [header, ...lines].join('\r\n');
 }

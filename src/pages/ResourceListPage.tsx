@@ -1,15 +1,14 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Download, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { Download, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
 import { PageHeader } from '../components/PageHeader';
-import { useNotifications } from '../notifications/useNotifications';
+import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
 import { ResourceCreateForm } from '../resources/ResourceCreateForm';
 import type { ResourceConfig } from '../resources/resource.types';
-import { downloadCsv, exportFilename, toCsv } from '../utils/download';
 
 interface ResourceListPageProps {
   config: ResourceConfig;
@@ -29,7 +28,11 @@ export function ResourceListPage({
   const [filter, setFilter] = useState('');
   const [showExtraFilters, setShowExtraFilters] = useState(false);
   const [creating, setCreating] = useState(false);
-  const { notify } = useNotifications();
+  const [exporting, setExporting] = useState(false);
+  // `extraFilters` drives the query; `draftExtra` holds in-progress edits. Selects
+  // apply instantly; free-text extra filters apply on submit alongside the search.
+  const [extraFilters, setExtraFilters] = useState<Record<string, string>>({});
+  const [draftExtra, setDraftExtra] = useState<Record<string, string>>({});
 
   // Resources that declare `createFields` get a built-in inline form; others may
   // supply a bespoke dialog via `onPrimaryAction`. Without either the alta stays
@@ -37,39 +40,82 @@ export function ResourceListPage({
   const hasInlineCreate = Boolean(config.createFields?.length);
   const openPrimary = onPrimaryAction ?? (hasInlineCreate ? () => setCreating(true) : undefined);
   const query = useQuery({
-    queryKey: ['resource', config.key, page, filter],
-    queryFn: ({ signal }) => listResource(config, { page, filter }, signal),
+    queryKey: ['resource', config.key, page, filter, extraFilters],
+    queryFn: ({ signal }) => listResource(config, { page, filter, filters: extraFilters }, signal),
     placeholderData: keepPreviousData,
   });
 
   /**
-   * Detail pages deep-link into lists with `?filter=` (e.g. execution logs for
-   * one artifact). Applied after mount so server and client render identically.
+   * Read filters from the URL on mount: detail pages deep-link with `?filter=`,
+   * and any shared/bookmarked filtered view restores its extra filters too.
+   * Applied after mount so server and client render identically.
    */
   useEffect(() => {
-    const initial = new URLSearchParams(window.location.search).get('filter');
+    const params = new URLSearchParams(window.location.search);
+    const initial = params.get('filter');
     if (initial) {
       setDraftFilter(initial);
       setFilter(initial);
     }
+    const extra: Record<string, string> = {};
+    for (const entry of config.filters ?? []) {
+      const value = params.get(entry.param);
+      if (value) extra[entry.param] = value;
+    }
+    if (Object.keys(extra).length) {
+      setDraftExtra(extra);
+      setExtraFilters(extra);
+      setShowExtraFilters(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Keep the URL in sync with the APPLIED filters (not the drafts) so a filtered
+   * view is shareable and survives a refresh. replaceState avoids a history spam.
+   */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('filter');
+    for (const entry of config.filters ?? []) params.delete(entry.param);
+    if (filter.trim()) params.set('filter', filter.trim());
+    for (const [param, value] of Object.entries(extraFilters)) {
+      if (value.trim()) params.set(param, value.trim());
+    }
+    const qs = params.toString();
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  }, [filter, extraFilters, config.filters]);
+
+  const hasActiveFilters =
+    filter.trim() !== '' || Object.values(extraFilters).some((value) => value.trim() !== '');
+  const activeExtraCount = Object.values(extraFilters).filter(
+    (value) => value.trim() !== '',
+  ).length;
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     setPage(1);
     setFilter(draftFilter);
+    setExtraFilters(draftExtra);
+  };
+
+  const clearFilters = () => {
+    setDraftFilter('');
+    setFilter('');
+    setDraftExtra({});
+    setExtraFilters({});
+    setPage(1);
+  };
+
+  // A dropdown reads as "apply now"; commit it to the query immediately.
+  const applySelectFilter = (param: string, value: string) => {
+    const next = { ...draftExtra, [param]: value };
+    setDraftExtra(next);
+    setExtraFilters(next);
+    setPage(1);
   };
 
   const rows = query.data?.items ?? [];
-
-  const exportRows = () => {
-    downloadCsv(exportFilename(config.key, 'csv'), toCsv(rows, config.columns));
-    notify({
-      tone: 'success',
-      title: 'Exportación generada',
-      description: `${rows.length} registros de ${config.title} descargados como CSV.`,
-    });
-  };
 
   return (
     <>
@@ -77,9 +123,15 @@ export function ResourceListPage({
         eyebrow={config.eyebrow}
         title={config.title}
         description={config.description}
+        hint={config.hint}
         actions={
           <>
-            <button className="button" type="button" disabled={!rows.length} onClick={exportRows}>
+            <button
+              className="button"
+              type="button"
+              disabled={!rows.length}
+              onClick={() => setExporting(true)}
+            >
               <Download size={16} /> Exportar
             </button>
             {config.primaryAction ? (
@@ -110,37 +162,72 @@ export function ResourceListPage({
             />
           </label>
           {showExtraFilters
-            ? (config.staticFilters ?? []).map((filterName) => (
-                <label key={filterName}>
-                  <span>{filterName}</span>
-                  <select defaultValue="">
-                    <option value="">Todos</option>
-                    <option>Activo</option>
-                    <option>Pendiente</option>
-                  </select>
+            ? (config.filters ?? []).map((extra) => (
+                <label key={extra.param}>
+                  <span>{extra.label}</span>
+                  {extra.options ? (
+                    <select
+                      value={draftExtra[extra.param] ?? ''}
+                      onChange={(event) => applySelectFilter(extra.param, event.target.value)}
+                    >
+                      <option value="">Todos</option>
+                      {extra.options.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={draftExtra[extra.param] ?? ''}
+                      placeholder={extra.placeholder}
+                      onChange={(event) =>
+                        setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
+                      }
+                    />
+                  )}
                 </label>
               ))
             : null}
           <button className="button button-primary" type="submit">
             <Search size={17} /> Buscar
           </button>
-          {config.staticFilters?.length ? (
+          {hasActiveFilters ? (
+            <button className="button" type="button" onClick={clearFilters}>
+              <X size={16} /> Limpiar
+            </button>
+          ) : null}
+          {config.filters?.length ? (
             <button
               className={
-                showExtraFilters ? 'icon-button filter-icon active' : 'icon-button filter-icon'
+                showExtraFilters || activeExtraCount
+                  ? 'icon-button filter-icon active'
+                  : 'icon-button filter-icon'
               }
               type="button"
-              aria-label="Más filtros"
+              aria-label={
+                activeExtraCount ? `Más filtros (${activeExtraCount} activos)` : 'Más filtros'
+              }
               aria-expanded={showExtraFilters}
               onClick={() => setShowExtraFilters((visible) => !visible)}
             >
               <SlidersHorizontal />
+              {activeExtraCount ? <span className="filter-count">{activeExtraCount}</span> : null}
             </button>
           ) : null}
         </form>
       ) : null}
       {creating && hasInlineCreate ? (
         <ResourceCreateForm config={config} onClose={() => setCreating(false)} />
+      ) : null}
+      {exporting ? (
+        <ExportDialog
+          config={config}
+          pageRows={rows}
+          filter={filter}
+          extraFilters={extraFilters}
+          onClose={() => setExporting(false)}
+        />
       ) : null}
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
       <section className="panel">

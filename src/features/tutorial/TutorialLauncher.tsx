@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { resolveTutorial } from './tutorial-content';
 import { TutorialDrawer } from './TutorialDrawer';
+import { useTutorial } from './useTutorial';
 
 const SEEN_KEY = 'atlas.tutorial.seen';
 
@@ -26,6 +27,7 @@ function readSeen(): string[] {
 export function TutorialLauncher() {
   const pathname = usePathname() ?? '';
   const tutorial = resolveTutorial(pathname);
+  const { start } = useTutorial();
   const [open, setOpen] = useState(false);
   const [unseen, setUnseen] = useState(false);
 
@@ -55,7 +57,9 @@ export function TutorialLauncher() {
   return (
     <>
       <button
-        className={unseen ? 'icon-button tutorial-trigger has-unseen' : 'icon-button tutorial-trigger'}
+        className={
+          unseen ? 'icon-button tutorial-trigger has-unseen' : 'icon-button tutorial-trigger'
+        }
         type="button"
         onClick={launch}
         aria-label={`Tutorial: ${tutorial.title}`}
@@ -63,7 +67,16 @@ export function TutorialLauncher() {
       >
         <GraduationCap />
       </button>
-      {open ? <TutorialDrawer tutorial={tutorial} onClose={() => setOpen(false)} /> : null}
+      {open ? (
+        <TutorialDrawer
+          tutorial={tutorial}
+          onClose={() => setOpen(false)}
+          onStartTour={() => {
+            setOpen(false);
+            start();
+          }}
+        />
+      ) : null}
     </>
   );
 }

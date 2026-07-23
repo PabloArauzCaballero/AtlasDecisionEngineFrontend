@@ -3,7 +3,7 @@ import { Eye, Play, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { errorMessage } from '../api/ApiError';
+import { ApiError, errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
@@ -99,6 +99,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
         eyebrow="F3-01 · Quality"
         title={`Test Suites${versionId ? ` for v${versionId}` : ''}`}
         description="Suites deterministas, cobertura y gates bloqueantes por versión de artefacto."
+        hint="Una suite de prueba comprueba que una versión del algoritmo decide como esperas: defines entradas y el resultado esperado, y se ejecuta automáticamente. Una suite bloqueante frena el despliegue si falla."
         actions={
           <>
             <button
@@ -164,7 +165,15 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
           }}
         />
       ) : null}
-      {query.isError || run.isError ? (
+      {run.error instanceof ApiError && run.error.code === 'COMPILED_ARTIFACT_NOT_FOUND' ? (
+        <Alert tone="warning">
+          Esta versión todavía no tiene un artefacto compilado, así que sus pruebas no pueden
+          ejecutarse aún. Primero <strong>valida y compila</strong> la versión.{' '}
+          <Link href={`/artifact-versions/${encodeURIComponent(versionId)}/compile`}>
+            Ir a compilar →
+          </Link>
+        </Alert>
+      ) : query.isError || run.isError ? (
         <Alert tone="error">{errorMessage(query.error ?? run.error)}</Alert>
       ) : null}
       <section className="panel">

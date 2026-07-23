@@ -95,6 +95,35 @@
   line-height: 1.55;
 }
 
+.tutorial-tour-cta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: #00544c;
+  font-size: 12.5px;
+  font-weight: 750;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.tutorial-tour-cta:hover {
+  background: #a7f3e6;
+}
+.tutorial-tour-cta:active {
+  transform: scale(0.99);
+}
+.tutorial-tour-cta svg {
+  flex: none;
+  color: var(--accent);
+}
+
 .tutorial-dots {
   display: flex;
   gap: 6px;
@@ -120,8 +149,64 @@
 }
 
 .tutorial-step {
-  flex: 1;
   animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.tutorial-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tutorial-back:hover {
+  text-decoration: underline;
+}
+.tutorial-concepts {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.tutorial-concepts > p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.tutorial-concept-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tutorial-concept-chips button {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: #fff;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.tutorial-concept-chips button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.tutorial-concept-chips button.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: #00544c;
 }
 .tutorial-step-number {
   display: inline-grid;

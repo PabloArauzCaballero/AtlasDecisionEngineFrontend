@@ -1,28 +1,48 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, GraduationCap, Lightbulb, X } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Compass,
+  GraduationCap,
+  Lightbulb,
+  X,
+} from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { CONCEPTS, conceptTutorials } from './tutorial-content-concepts';
 import type { Tutorial } from './tutorial.types';
 
 interface TutorialDrawerProps {
   tutorial: Tutorial;
   onClose: () => void;
+  /** Launches the global interactive walkthrough (spotlight tour), if available. */
+  onStartTour?: () => void;
 }
 
 /**
- * In-page tutorial drawer. Slides in from the right, walks the steps with
- * prev/next + progress dots, and replays a soft transition on each step (the
- * `key` on the step body forces a remount so the entrance animation fires).
- * Keyboard: ← / → move, Esc closes.
+ * In-page tutorial drawer. Slides in from the right and walks the steps of the
+ * active tutorial (prev/next, dots, keyboard ← / → / Esc). It doubles as a mini
+ * docs browser: the "Conceptos clave" chips swap the body to a business-level
+ * concept explainer (for analysts), and "Volver" returns to the tool tutorial.
  */
-export function TutorialDrawer({ tutorial, onClose }: TutorialDrawerProps) {
+export function TutorialDrawer({ tutorial, onClose, onStartTour }: TutorialDrawerProps) {
+  const [active, setActive] = useState<Tutorial>(tutorial);
   const [index, setIndex] = useState(0);
-  const total = tutorial.steps.length;
-  const step = tutorial.steps[index];
+  const isConcept = active !== tutorial;
+  const total = active.steps.length;
+  const step = active.steps[index];
   const atFirst = index === 0;
   const atLast = index === total - 1;
 
-  const go = useCallback((delta: number) => setIndex((i) => Math.min(total - 1, Math.max(0, i + delta))), [total]);
+  const go = useCallback(
+    (delta: number) => setIndex((i) => Math.min(total - 1, Math.max(0, i + delta))),
+    [total],
+  );
+  const show = (next: Tutorial) => {
+    setActive(next);
+    setIndex(0);
+  };
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -52,18 +72,36 @@ export function TutorialDrawer({ tutorial, onClose }: TutorialDrawerProps) {
             <GraduationCap size={20} />
           </span>
           <div>
-            <p>{tutorial.eyebrow}</p>
-            <h2 id="tutorial-title">{tutorial.title}</h2>
+            <p>{active.eyebrow}</p>
+            <h2 id="tutorial-title">{active.title}</h2>
           </div>
-          <button className="icon-button" type="button" aria-label="Cerrar tutorial" onClick={onClose}>
+          <button
+            className="icon-button"
+            type="button"
+            aria-label="Cerrar tutorial"
+            onClick={onClose}
+          >
             <X />
           </button>
         </header>
 
-        <p className="tutorial-intro">{tutorial.intro}</p>
+        {isConcept ? (
+          <button type="button" className="tutorial-back" onClick={() => show(tutorial)}>
+            <ArrowLeft size={14} /> Volver a {tutorial.title}
+          </button>
+        ) : null}
+
+        <p className="tutorial-intro">{active.intro}</p>
+
+        {!isConcept && onStartTour ? (
+          <button type="button" className="tutorial-tour-cta" onClick={onStartTour}>
+            <Compass size={16} aria-hidden="true" />
+            <span>Iniciar recorrido guiado interactivo de la plataforma</span>
+          </button>
+        ) : null}
 
         <div className="tutorial-dots" role="tablist" aria-label="Pasos del tutorial">
-          {tutorial.steps.map((item, i) => (
+          {active.steps.map((item, i) => (
             <button
               key={item.title}
               type="button"
@@ -76,7 +114,7 @@ export function TutorialDrawer({ tutorial, onClose }: TutorialDrawerProps) {
           ))}
         </div>
 
-        <div key={index} className="tutorial-step">
+        <div key={`${active.title}-${index}`} className="tutorial-step">
           <span className="tutorial-step-number">{index + 1}</span>
           <h3>{step.title}</h3>
           <p>{step.body}</p>
@@ -86,6 +124,22 @@ export function TutorialDrawer({ tutorial, onClose }: TutorialDrawerProps) {
               <span>{step.tip}</span>
             </div>
           ) : null}
+        </div>
+
+        <div className="tutorial-concepts">
+          <p>Conceptos clave para analistas</p>
+          <div className="tutorial-concept-chips">
+            {CONCEPTS.map((concept) => (
+              <button
+                key={concept.key}
+                type="button"
+                className={active === conceptTutorials[concept.key] ? 'active' : ''}
+                onClick={() => show(conceptTutorials[concept.key])}
+              >
+                {concept.title}
+              </button>
+            ))}
+          </div>
         </div>
 
         <footer className="tutorial-actions">

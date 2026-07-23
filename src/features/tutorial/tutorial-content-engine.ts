@@ -67,6 +67,27 @@ export const engineTutorials: TutorialRegistry = {
       },
     ],
   },
+  '/algorithms': {
+    eyebrow: 'Motor de decisión · Diseño',
+    title: 'Algoritmos y Versiones',
+    intro:
+      'Una tabla desplegable con todos tus algoritmos de decisión y su historial de versiones.',
+    steps: [
+      {
+        title: 'Qué ves aquí',
+        body: 'Cada fila es un algoritmo (artefacto): su código, tipo, última versión, estado y responsable. Es el mapa general de todo lo que decide la plataforma.',
+      },
+      {
+        title: 'Desplegar versiones',
+        body: 'Pulsa la flecha de una fila para ver sus versiones: en qué estado está cada una (borrador, en revisión, publicada…), quién la creó y qué cambió.',
+      },
+      {
+        title: 'Actuar sobre una versión',
+        body: 'Desde cada versión saltas directo a su grafo, a validarla/compilarla o a sus pruebas, sin perder el contexto.',
+        tip: 'Filtra por estado para encontrar rápido lo que está en borrador o pendiente de revisión.',
+      },
+    ],
+  },
   '/graph-editor': {
     eyebrow: 'Motor de decisión · Diseño',
     title: 'Editor de Grafo',
@@ -80,6 +101,16 @@ export const engineTutorials: TutorialRegistry = {
         title: 'Añadir bloques',
         body: 'Arrastra desde la paleta: Inicio, Condición, Switch, y en «Cálculo con código» los nodos Expresión y Score, donde escribes lógica en JavaScript o Python.',
         tip: 'Los chips de variables insertan la referencia correcta: variables.x en JS, variables["x"] en Python.',
+      },
+      {
+        title: 'Entradas, salidas y revisión de flujo',
+        body: 'Declara las variables de entrada y las de salida (contrato global de resultados). La «Revisión de flujo» sobre el lienzo verifica en vivo que el inicio alcanza un nodo terminal y que cada salida se produce en algún nodo de resultado.',
+        tip: 'Marca con la estrella la salida principal: es la que resume la decisión.',
+      },
+      {
+        title: 'Referenciar otro algoritmo',
+        body: 'En un nodo de Resultado elige el modo «Referenciar otro algoritmo»: ejecuta otro artefacto dentro de este flujo, alimentando sus entradas desde tus variables y trayendo sus salidas a tus resultados. Así compones árboles de decisión anidados.',
+        tip: 'Define qué pasa si el algoritmo referenciado falla: fallar en cerrado, usar una salida de reserva u omitirlo.',
       },
       {
         title: 'Conectar y validar',

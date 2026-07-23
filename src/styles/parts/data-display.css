@@ -99,6 +99,11 @@ tbody tr:hover {
   background: #eff8ff;
   border-color: #b2ddff;
 }
+.alert-warning {
+  color: #93370d;
+  background: #fffaeb;
+  border-color: #fedf89;
+}
 .json-panel {
   margin-top: 16px;
   overflow: hidden;

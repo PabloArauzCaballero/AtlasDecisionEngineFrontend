@@ -1,0 +1,75 @@
+/* Accessible "?" tooltip for demystifying jargon (see InfoHint.tsx). */
+.info-hint {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+.page-title-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+th .info-hint {
+  margin-left: 5px;
+}
+.info-hint-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #94a3b8;
+  cursor: help;
+  transition: color var(--dur-1, 0.12s) var(--ease-standard, ease);
+}
+.info-hint-trigger:hover,
+.info-hint-trigger:focus-visible {
+  color: #4338ca;
+}
+.info-hint-bubble {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  z-index: 40;
+  width: max-content;
+  max-width: 240px;
+  transform: translateX(-50%) translateY(4px);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 0.74rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--dur-1, 0.12s) var(--ease-standard, ease),
+    transform var(--dur-1, 0.12s) var(--ease-standard, ease);
+}
+.info-hint-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #0f172a;
+}
+.info-hint:hover .info-hint-bubble,
+.info-hint-trigger:focus-visible + .info-hint-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .info-hint-bubble {
+    transition: opacity 0.01ms;
+    transform: translateX(-50%);
+  }
+}

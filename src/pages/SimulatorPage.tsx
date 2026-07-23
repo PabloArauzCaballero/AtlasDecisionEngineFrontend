@@ -126,6 +126,7 @@ export function SimulatorPage() {
         eyebrow="F5-01 · Operations"
         title="Simulador de Decisión"
         description="Ejecuta una evaluación controlada sin crear una decisión productiva ni evidencia runtime."
+        hint="Prueba cómo decidiría un algoritmo con las entradas que tú escribas, sin afectar producción ni guardar nada. Ideal para entender por qué el motor toma una ruta."
       />
       {environments.isError ? (
         <Alert tone="error">No fue posible cargar los ambientes seguros de simulación.</Alert>

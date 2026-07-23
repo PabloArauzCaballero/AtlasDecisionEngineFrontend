@@ -34,6 +34,13 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
     systems:
       '`decision_artifact` con sus versiones (`decision_artifact_version`): estado del ciclo (DRAFT→DEPLOYED), checksum canónico y ambiente inferido. El detalle abre el grafo, las dependencias de variables y el historial de despliegues.',
   },
+  algorithms: {
+    module: 'Algoritmos y Versiones · Diseño',
+    business:
+      'La vista general de todos los algoritmos de decisión y su historial de versiones. Deja ver de un vistazo qué existe, en qué estado está cada versión (borrador, en revisión, publicada) y saltar a construir, validar o probar cada una.',
+    systems:
+      'Lista `decision_artifact` con búsqueda y filtro por estado; cada fila despliega sus `decision_artifact_version` bajo demanda (detalle del artefacto) con acciones a grafo, compilación y suites.',
+  },
   'graph-editor': {
     module: 'Editor de Grafo · Diseño',
     business:

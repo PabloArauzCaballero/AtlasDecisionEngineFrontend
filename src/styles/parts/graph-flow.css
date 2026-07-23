@@ -1,0 +1,127 @@
+/* Live input/output flow review panel above the graph canvas. */
+.flow-checklist {
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #f59e0b;
+  border-radius: 10px;
+  background: #fffdf7;
+}
+.flow-checklist-ok {
+  border-left-color: #10b981;
+  background: #f4fdf9;
+}
+.flow-checklist-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flow-checklist-heading strong {
+  font-size: 0.86rem;
+}
+.flow-checklist-heading small {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+.flow-icon-ok {
+  color: #059669;
+}
+.flow-icon-warn {
+  color: #d97706;
+}
+.flow-icon-error {
+  color: #dc2626;
+}
+.flow-checklist-legend {
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+.flow-checklist-items {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+.flow-checklist-items li {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding-left: 10px;
+  border-left: 2px solid transparent;
+}
+.flow-checklist-items li.flow-error {
+  border-left-color: #dc2626;
+  color: #991b1b;
+}
+.flow-checklist-items li.flow-warning {
+  border-left-color: #f59e0b;
+  color: #92400e;
+}
+.flow-checklist-items li button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+.flow-checklist-hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #047857;
+}
+
+/* RESULT node "reference another algorithm" editor. */
+.reference-editor {
+  display: grid;
+  gap: 10px;
+}
+.reference-editor h4 {
+  margin: 6px 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #475569;
+}
+.reference-output-row span small {
+  color: #94a3b8;
+}
+.reference-inputs-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.reference-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+.reference-errors {
+  margin: 0;
+  padding: 8px 10px 8px 24px;
+  border-radius: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.76rem;
+}
+.reference-existing {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+.reference-existing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  padding: 4px 0;
+}

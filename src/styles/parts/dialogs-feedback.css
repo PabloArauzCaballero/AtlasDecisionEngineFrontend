@@ -111,3 +111,68 @@
   color: #047857;
   font-weight: 600;
 }
+
+/* Export dialog: scope + column selection before downloading a CSV. */
+.export-section {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid #eef2f7;
+}
+.export-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.export-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.export-label small {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #94a3b8;
+}
+.export-scope {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.export-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.export-chip {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.export-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+.export-hint-warn {
+  color: #b45309;
+}
+.export-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px 14px;
+}
+.export-column {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.83rem;
+  cursor: pointer;
+}

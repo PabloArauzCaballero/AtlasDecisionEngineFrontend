@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useId } from 'react';
+import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { asRows, type UnknownRecord } from '../utils/records';
 
@@ -22,12 +22,14 @@ interface CatalogInputProps {
   placeholder?: string;
 }
 
+const CUSTOM = '__custom__';
+
 /**
- * Catalog-backed field that suggests existing values via a native <datalist> but
- * lets the user type a NEW value to create it inline. Unlike PickerSelect (strict
- * select), it never traps the user in the current catalog — creation drives the
- * catalog, not the other way around. Missing/empty catalog just means no
- * suggestions, so the plain input still works.
+ * Catalog-backed field with defined values. Renders a real <select> of the
+ * catalog options plus an "＋ Otro valor…" escape that reveals a text input, so
+ * defined-value fields are selects (not free text) without trapping the user:
+ * a brand-new value can still be created. Falls back to a plain input when the
+ * catalog endpoint is unavailable or empty.
  */
 export function CatalogInput({
   label,
@@ -39,7 +41,7 @@ export function CatalogInput({
   required = false,
   placeholder,
 }: CatalogInputProps) {
-  const listId = useId();
+  const [custom, setCustom] = useState(false);
   const catalog = useQuery({
     queryKey: ['catalog', queryKey, endpoint],
     queryFn: () => apiRequest<unknown>(endpoint),
@@ -53,26 +55,56 @@ export function CatalogInput({
     .map(mapOption)
     .filter((option): option is CatalogOption => option !== null && option.value !== '');
 
+  const noCatalog = catalog.isError || (!catalog.isPending && options.length === 0);
+  const inList = value !== '' && options.some((option) => option.value === value);
+  const asText = noCatalog || custom || (value !== '' && !inList);
+
   return (
     <label className="field">
       <span>{label}</span>
-      <input
-        list={listId}
-        value={value}
-        required={required}
-        placeholder={
-          placeholder ?? (catalog.isPending ? 'Cargando catálogo…' : 'Elige o escribe uno nuevo')
-        }
-        onChange={(event) => onChange(event.target.value)}
-      />
-      <datalist id={listId}>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </datalist>
-      <small className="field-hint">Elige de la lista o escribe un valor nuevo.</small>
+      {asText ? (
+        <>
+          <input
+            value={value}
+            required={required}
+            placeholder={placeholder ?? 'Escribe el valor'}
+            onChange={(event) => onChange(event.target.value)}
+          />
+          {!noCatalog ? (
+            <button
+              type="button"
+              className="field-inline-link"
+              onClick={() => {
+                setCustom(false);
+                onChange('');
+              }}
+            >
+              ← Elegir de la lista
+            </button>
+          ) : null}
+        </>
+      ) : (
+        <select
+          value={value}
+          required={required}
+          onChange={(event) => {
+            if (event.target.value === CUSTOM) {
+              setCustom(true);
+              onChange('');
+            } else {
+              onChange(event.target.value);
+            }
+          }}
+        >
+          <option value="">{catalog.isPending ? 'Cargando…' : (placeholder ?? 'Elegir…')}</option>
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+          <option value={CUSTOM}>＋ Otro valor…</option>
+        </select>
+      )}
     </label>
   );
 }

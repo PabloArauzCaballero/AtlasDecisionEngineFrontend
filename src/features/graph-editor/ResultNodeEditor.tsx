@@ -1,6 +1,7 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { CodeEditor } from './CodeEditor';
+import { ReferenceNodeEditor } from './ReferenceNodeEditor';
 import { lintScript } from './script-lint';
 
 interface Props {
@@ -8,9 +9,18 @@ interface Props {
   outputs: UnknownRecord[];
   inputs: UnknownRecord[];
   onChange: (config: UnknownRecord) => void;
+  versionId?: string;
+  nodeKey?: string;
 }
 
-export function ResultNodeEditor({ config, outputs, inputs, onChange }: Props) {
+export function ResultNodeEditor({
+  config,
+  outputs,
+  inputs,
+  onChange,
+  versionId = '',
+  nodeKey = '',
+}: Props) {
   const mode = String(config.mode ?? 'MAPPING');
   const assignments = asRows(config.assignments);
   const script = asRecord(config.script);
@@ -65,6 +75,7 @@ export function ResultNodeEditor({ config, outputs, inputs, onChange }: Props) {
         >
           <option value="MAPPING">Visual / sin código</option>
           <option value="SCRIPT">Código controlado</option>
+          <option value="REFERENCE">Referenciar otro algoritmo</option>
         </select>
       </label>
       {!outputs.length ? (
@@ -178,6 +189,16 @@ export function ResultNodeEditor({ config, outputs, inputs, onChange }: Props) {
             <Plus size={14} /> Asignar resultado
           </button>
         </>
+      ) : mode === 'REFERENCE' ? (
+        <ReferenceNodeEditor
+          versionId={versionId}
+          nodeKey={nodeKey}
+          inputs={inputs}
+          outputs={outputs}
+          onOutputAssignments={(assignments) =>
+            onChange({ ...config, mode: 'REFERENCE', outputAssignments: assignments })
+          }
+        />
       ) : (
         <>
           <div className="script-warning">

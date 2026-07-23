@@ -201,6 +201,32 @@ test('every tool exposes an in-page tutorial that opens, steps and closes', asyn
   expect(problems, report(problems)).toEqual([]);
 });
 
+test('list filters send the real backend query param', async ({ page }) => {
+  test.setTimeout(120_000);
+  const problems: Problem[] = [];
+  const where = { route: '/artifacts' };
+  watch(page, where, problems);
+  await mockBackend(page);
+
+  const artifactRequests: string[] = [];
+  page.on('request', (request) => {
+    const url = request.url();
+    if (url.includes('/v1/artifacts')) artifactRequests.push(url);
+  });
+
+  await page.goto('/artifacts', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await page.locator('.app-main, .content, main').first().waitFor({ timeout: 30_000 });
+  await page.getByRole('button', { name: 'Más filtros' }).click();
+  await page.getByLabel('Estado').selectOption('APPROVED');
+
+  await expect
+    .poll(() => artifactRequests.some((url) => url.includes('status=APPROVED')), {
+      timeout: 10_000,
+    })
+    .toBe(true);
+  expect(problems, report(problems)).toEqual([]);
+});
+
 test('create forms and the deployment dialog open without errors', async ({ page }) => {
   const problems: Problem[] = [];
   const where = { route: '/variables' };

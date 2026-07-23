@@ -12,6 +12,7 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/variables\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/reason-codes\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/artifacts(?:\/[^/]+)?\/?$/, roles: accessPolicies.artifacts },
+  { pattern: /^\/algorithms\/?$/, roles: accessPolicies.artifacts },
   {
     pattern: /^\/artifacts\/[^/]+\/dependency-graph\/?$/,
     roles: accessPolicies.nestedTrees,

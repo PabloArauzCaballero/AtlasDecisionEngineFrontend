@@ -50,11 +50,26 @@ select:focus {
 }
 
 /* Native checks, radios and ranges adopt the brand accent instead of the
-   browser's default blue — the cheapest, safest way to make them feel bespoke. */
+   browser's default blue — the cheapest, safest way to make them feel bespoke.
+   They must also opt OUT of the global input box model (width:100%, padding,
+   border) so a checkbox/radio doesn't stretch into a full-width padded box. */
 input[type='checkbox'],
-input[type='radio'],
+input[type='radio'] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  vertical-align: -2px;
+}
 input[type='range'] {
   accent-color: var(--accent);
+  width: auto;
+  padding: 0;
+  border: 0;
 }
 
 /* Selects drop the per-OS native arrow for one consistent inline chevron. */
@@ -175,4 +190,19 @@ select {
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: #a9b4c4;
+}
+
+/* Inline "back to list" affordance under a catalog field's free-text escape. */
+.field-inline-link {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.field-inline-link:hover {
+  text-decoration: underline;
 }

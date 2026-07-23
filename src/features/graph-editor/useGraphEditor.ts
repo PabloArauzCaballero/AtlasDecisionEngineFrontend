@@ -40,7 +40,6 @@ export function useGraphEditor(initialVersionId = '') {
   const selectedConditionCode = String(asRecord(selected.config).conditionCode ?? '');
   const selectedCondition =
     conditions.find((condition) => display(condition, 'code') === selectedConditionCode) ?? {};
-
   const load = useMutation({
     mutationFn: async (targetVersionId?: string) => {
       const encodedVersionId = encodeURIComponent(targetVersionId ?? versionId);
@@ -266,6 +265,7 @@ export function useGraphEditor(initialVersionId = '') {
     deleteSelectedNode,
     deleteEdge,
     handleNodeClick,
+    selectNode,
     selectEdge,
     closeEdge: () => setSelectedEdgeKey(''),
     changeVariables: (nextVariables: UnknownRecord[]) =>

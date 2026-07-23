@@ -113,6 +113,25 @@
 .filter-bar label {
   flex: 1;
 }
+.filter-icon {
+  position: relative;
+}
+.filter-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent, #006a61);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
 .field,
 .filter-bar label {
   display: grid;
@@ -125,6 +144,16 @@
 .filter-bar label > span {
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+/* Helper text under a field must read as muted prose, not inherit the bold,
+   uppercase-tracked weight of the field label. */
+.field > small,
+.filter-bar label > small {
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #667085;
+  line-height: 1.4;
 }
 input,
 textarea,

@@ -55,7 +55,10 @@ describe('ResourceCreateForm', () => {
     renderForm();
 
     fireEvent.change(screen.getByLabelText('Código'), { target: { value: 'w-1' } });
-    // A value that is NOT in the catalog must still be accepted (inline create).
+    // The catalog field is a real <select>; choosing "Otro valor…" reveals a text
+    // input so a value NOT in the catalog can still be created inline.
+    await screen.findByRole('option', { name: 'EXISTING' });
+    fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: '__custom__' } });
     fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: 'BRAND_NEW' } });
     fireEvent.change(screen.getByLabelText('Dato'), { target: { value: 'STRING' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear widget/ }));

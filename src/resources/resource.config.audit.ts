@@ -1,0 +1,91 @@
+import type { ResourceConfig } from './resource.types';
+
+/** Auditoría y trazabilidad de negocio (F6–F7). Se fusionan en `resources`. */
+export const auditResources: Readonly<Record<string, ResourceConfig>> = {
+  executions: {
+    key: 'executions',
+    eyebrow: 'F6-01 · Auditoría',
+    title: 'Buscador de Ejecuciones',
+    description: 'Consulta reproducible de solicitudes, resultados, tiempos y trazas.',
+    hint: 'Cada decisión que el motor ya tomó, con sus entradas, resultado y tiempos. Sirve para auditar y reproducir exactamente por qué se decidió algo.',
+    endpoint: '/v1/audit/executions',
+    filterParam: 'artifactCode',
+    filterLabel: 'Request ID / Artefacto',
+    filterPlaceholder: 'req_... o código',
+    filters: [
+      { param: 'outcome', label: 'Outcome', placeholder: 'APPROVED, DECLINED…' },
+      { param: 'requestId', label: 'Request ID', placeholder: 'req_...' },
+    ],
+    detailPath: (row) => `/executions/${String(row.id)}`,
+    columns: [
+      { key: 'executedAt', label: 'Fecha / Hora' },
+      { key: 'requestId', label: 'Request ID', mono: true },
+      {
+        key: 'artifactCode',
+        label: 'Artefacto',
+        mono: true,
+        path: 'artifactVersion.artifact.artifactCode',
+      },
+      { key: 'environmentCode', label: 'Ambiente', path: 'deployment.environment.code' },
+      {
+        key: 'businessOutcome',
+        label: 'Outcome',
+        status: true,
+        hint: 'El resultado de negocio de la decisión (p. ej. APROBADO, RECHAZADO, DERIVADO).',
+      },
+      {
+        key: 'durationMs',
+        label: 'Duración (ms)',
+        hint: 'Cuánto tardó el motor en tomar la decisión, en milisegundos.',
+      },
+    ],
+  },
+  'audit-events': {
+    key: 'audit-events',
+    eyebrow: 'F6-05 · Auditoría',
+    title: 'Bitácora de Auditoría',
+    description: 'Cadena inmutable de eventos administrativos y operativos.',
+    hint: 'Registro inalterable de todo lo que pasó en la plataforma (quién hizo qué y cuándo). Cada evento se encadena con un hash para probar que nadie lo modificó.',
+    endpoint: '/v1/audit/events',
+    filterParam: 'eventType',
+    filterLabel: 'Buscar evento',
+    filterPlaceholder: 'Evento, actor o IP',
+    filters: [
+      { param: 'actorId', label: 'Actor', placeholder: 'ID del actor' },
+      { param: 'aggregateType', label: 'Tipo de agregado', placeholder: 'p. ej. Artifact' },
+    ],
+    columns: [
+      { key: 'createdAt', label: 'Fecha / Hora' },
+      { key: 'eventType', label: 'Evento', mono: true },
+      { key: 'actorId', label: 'Actor', mono: true },
+      { key: 'ipAddress', label: 'IP Origen', mono: true },
+      { key: 'previousHash', label: 'Hash Anterior', mono: true },
+      {
+        key: 'currentHash',
+        label: 'Hash Actual',
+        mono: true,
+        hint: 'Huella criptográfica de este evento; enlaza con la del anterior para formar una cadena a prueba de manipulación.',
+      },
+    ],
+  },
+  objectives: {
+    key: 'objectives',
+    eyebrow: 'F7-01 · Business Traceability',
+    title: 'Objetivos de Negocio',
+    description: 'Métricas, políticas, artefactos y pruebas conectados de extremo a extremo.',
+    hint: 'Los objetivos de negocio (p. ej. reducir la morosidad) conectados con las políticas, algoritmos y pruebas que los cumplen, para trazar todo de punta a punta.',
+    endpoint: '/v1/traceability/objectives',
+    primaryAction: 'Nuevo Objetivo',
+    detailPath: (row) => `/objectives/${String(row.id)}`,
+    columns: [
+      { key: 'objectiveCode', label: 'Código', mono: true },
+      { key: 'name', label: 'Objetivo' },
+      { key: 'metric', label: 'Métrica / Meta' },
+      { key: 'ownerTeam', label: 'Propietario' },
+      { key: 'policyCount', label: 'Políticas' },
+      { key: 'artifactCount', label: 'Artefactos' },
+      { key: 'testCount', label: 'Pruebas' },
+      { key: 'status', label: 'Estado', status: true },
+    ],
+  },
+};

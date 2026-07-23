@@ -17,6 +17,7 @@ interface NodePropertiesProps {
   inputs?: UnknownRecord[];
   condition?: UnknownRecord;
   branchCount?: number;
+  versionId?: string;
   onConditionChange?: (patch: UnknownRecord) => void;
 }
 
@@ -28,6 +29,7 @@ export function NodeProperties({
   inputs = [],
   condition = {},
   branchCount = 0,
+  versionId = '',
   onConditionChange,
 }: NodePropertiesProps) {
   const key = display(node, 'key');
@@ -119,6 +121,8 @@ export function NodeProperties({
           }
           outputs={outputs}
           inputs={inputs}
+          versionId={versionId}
+          nodeKey={key}
           onChange={(nextConfig) => onChange({ config: nextConfig, terminal: true })}
         />
       ) : null}

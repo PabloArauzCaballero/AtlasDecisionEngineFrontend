@@ -38,11 +38,22 @@ export interface CreateField {
   defaultValue?: string | boolean;
 }
 
+export interface ResourceFilter {
+  /** Real backend query parameter this control sends (e.g. `status`). */
+  param: string;
+  label: string;
+  /** With options → a select of allowed values; without → a free-text input. */
+  options?: readonly CreateFieldOption[];
+  placeholder?: string;
+}
+
 export interface ResourceConfig {
   key: string;
   eyebrow: string;
   title: string;
   description: string;
+  /** Plain-language "what is this tool for" hint (shown as a ? beside the title). */
+  hint?: string;
   endpoint: string;
   columns: readonly TableColumn<ResourceRow>[];
   filterParam?: string;
@@ -55,5 +66,6 @@ export interface ResourceConfig {
   /** Constant payload defaults deep-merged under the create form values (e.g. required arrays). */
   createStaticBody?: Record<string, unknown>;
   detailPath?: (row: ResourceRow) => string;
-  staticFilters?: readonly string[];
+  /** Extra filters wired to real backend query params, shown under "Más filtros". */
+  filters?: readonly ResourceFilter[];
 }

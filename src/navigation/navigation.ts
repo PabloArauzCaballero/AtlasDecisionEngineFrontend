@@ -11,6 +11,7 @@ import {
   GitBranch,
   Goal,
   History,
+  Layers,
   ListChecks,
   Play,
   Radio,
@@ -64,6 +65,12 @@ export const navigation: readonly NavigationSection[] = [
         label: 'Artefactos',
         path: '/artifacts',
         icon: Boxes,
+        roles: accessPolicies.artifacts,
+      },
+      {
+        label: 'Algoritmos y Versiones',
+        path: '/algorithms',
+        icon: Layers,
         roles: accessPolicies.artifacts,
       },
       {

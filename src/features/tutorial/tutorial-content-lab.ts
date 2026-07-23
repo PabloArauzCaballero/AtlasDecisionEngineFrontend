@@ -16,6 +16,11 @@ export const labTutorials: TutorialRegistry = {
         body: '«Create Suite» crea una suite con un caso inicial: una entrada y su resultado esperado en JSON.',
       },
       {
+        title: 'Compila antes de probar',
+        body: 'Una suite solo se ejecuta si la versión del artefacto está COMPILADA. Si al correr ves "No compiled artifact available", abre «Validar y compilar» de esa versión, compílala y vuelve a ejecutar la suite.',
+        tip: 'La app te muestra un aviso con un enlace directo a la pantalla de compilar cuando falta ese paso.',
+      },
+      {
         title: 'Ejecutar y bloquear',
         body: '«Run» encola la suite; el worker la ejecuta y muestra resultado y cobertura. Una suite bloqueante frena el despliegue si falla.',
         tip: 'Corre «Run All» para validar toda la versión antes de solicitar su aprobación.',

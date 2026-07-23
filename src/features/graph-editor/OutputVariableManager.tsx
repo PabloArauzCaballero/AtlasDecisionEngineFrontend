@@ -1,28 +1,35 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Plus, Star, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { apiRequest } from '../../api/http-client';
 import { errorMessage } from '../../api/ApiError';
-import type { PagedResponse } from '../../resources/resource.types';
-import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { apiRequest } from '../../api/http-client';
+import { asRows, display, type UnknownRecord } from '../../utils/records';
 
 interface Props {
   variables: UnknownRecord[];
   onChange: (variables: UnknownRecord[]) => void;
 }
 
+const NON_SCALAR = ['OBJECT', 'JSON', 'ARRAY', 'LIST'];
+
 export function OutputVariableManager({ variables, onChange }: Props) {
-  const client = useQueryClient();
   const [catalogId, setCatalogId] = useState('');
   const [showCreate, setShowCreate] = useState(false);
   const [code, setCode] = useState('scoring');
   const [name, setName] = useState('Scoring');
   const [dataType, setDataType] = useState('NUMBER');
   const outputs = variables.filter((item) => String(item.usageType ?? '').startsWith('OUTPUT'));
+
+  // Same slim picker the InputVariableManager reads: it exposes `latestVersionId`
+  // directly. The full `/v1/variables` list is a flat summary WITHOUT a nested
+  // `versions[]`, so reading a version id from it always failed silently — that
+  // was the "Añadir salida no funciona" bug.
   const catalog = useQuery({
-    queryKey: ['output-variable-catalog'],
-    queryFn: () => apiRequest<PagedResponse<UnknownRecord>>('/v1/variables?page=1&pageSize=100'),
+    queryKey: ['variable-picker'],
+    queryFn: () => apiRequest<UnknownRecord[]>('/v1/views/pickers/variables'),
   });
+  const pickerRows = asRows(catalog.data);
+
   const create = useMutation({
     mutationFn: () =>
       apiRequest<UnknownRecord>('/v1/variables', {
@@ -34,41 +41,39 @@ export function OutputVariableManager({ variables, onChange }: Props) {
           dataClassification: 'INTERNAL',
           ownerTeam: 'DECISION_ENGINE',
           isSensitive: false,
-          initialVersion: {
-            dataType,
-            nullable: false,
-            sources: [],
-            validationRules: [],
-          },
+          initialVersion: { dataType, nullable: false, sources: [], validationRules: [] },
         },
       }),
-    onSuccess: (definition) => {
-      client.invalidateQueries({ queryKey: ['output-variable-catalog'] });
-      addDefinition(definition);
+    onSuccess: async (created) => {
+      // The create response is a full definition; the picker is the reliable
+      // source of the version id, so refetch it and add the fresh row.
+      const refreshed = await catalog.refetch();
+      const match = asRows(refreshed.data).find(
+        (item) => display(item, 'variableCode') === String(created.variableCode ?? code),
+      );
+      if (match) addFromPicker(match);
       setShowCreate(false);
     },
   });
 
-  function addDefinition(definition: UnknownRecord) {
-    const latest = asRows(definition.versions)[0];
-    if (!latest?.id || !definition.variableCode) return;
-    const variableVersionId = String(latest.id);
-    const variableCode = String(definition.variableCode);
+  function addFromPicker(definition: UnknownRecord) {
+    const variableVersionId = display(definition, 'latestVersionId');
+    const variableCode = display(definition, 'variableCode');
+    if (variableVersionId === '—' || variableCode === '—') return;
     if (outputs.some((item) => display(item, 'code') === variableCode)) return;
-    const outputType = display(latest, 'dataType').toUpperCase();
-    const canBePrimary = !['OBJECT', 'JSON', 'ARRAY', 'LIST'].includes(outputType);
+    const outputType = display(definition, 'dataType').toUpperCase();
+    const canBePrimary = !NON_SCALAR.includes(outputType);
     const hasPrimary = outputs.some((item) => item.usageType === 'OUTPUT_PRIMARY');
     onChange([
       ...variables,
       {
         variableVersionId,
         code: variableCode,
-        version: Number(latest.versionNumber ?? 1),
-        dataType: display(latest, 'dataType'),
-        nullable: Boolean(latest.nullable),
-        defaultValue: latest.defaultValueJson,
-        validationRules: asRows(latest.validationRules),
-        sources: asRows(latest.sources),
+        version: Number(definition.versionNumber ?? 1),
+        dataType: display(definition, 'dataType'),
+        nullable: Boolean(definition.nullable),
+        validationRules: [],
+        sources: [],
         required: true,
         fallbackPolicy: 'FAIL_CLOSED',
         sensitive: Boolean(definition.isSensitive),
@@ -80,17 +85,13 @@ export function OutputVariableManager({ variables, onChange }: Props) {
   }
 
   function addSelected() {
-    const definition = catalog.data?.items.find((item) => display(item, 'id') === catalogId);
-    if (definition) addDefinition(asRecord(definition));
+    const definition = pickerRows.find((item) => display(item, 'definitionId') === catalogId);
+    if (definition) addFromPicker(definition);
   }
 
   function makePrimary(codeToPromote: string) {
     const selected = outputs.find((item) => display(item, 'code') === codeToPromote);
-    if (
-      !selected ||
-      ['OBJECT', 'JSON', 'ARRAY', 'LIST'].includes(display(selected, 'dataType').toUpperCase())
-    )
-      return;
+    if (!selected || NON_SCALAR.includes(display(selected, 'dataType').toUpperCase())) return;
     onChange(
       variables.map((item) =>
         String(item.usageType ?? '').startsWith('OUTPUT')
@@ -114,8 +115,7 @@ export function OutputVariableManager({ variables, onChange }: Props) {
     const remaining = next.filter((item) => String(item.usageType ?? '').startsWith('OUTPUT'));
     if (remaining.length && !remaining.some((item) => item.usageType === 'OUTPUT_PRIMARY')) {
       const firstScalar = remaining.find(
-        (item) =>
-          !['OBJECT', 'JSON', 'ARRAY', 'LIST'].includes(display(item, 'dataType').toUpperCase()),
+        (item) => !NON_SCALAR.includes(display(item, 'dataType').toUpperCase()),
       );
       const firstCode = firstScalar ? display(firstScalar, 'code') : '';
       onChange(
@@ -152,11 +152,12 @@ export function OutputVariableManager({ variables, onChange }: Props) {
           value={catalogId}
           onChange={(event) => setCatalogId(event.target.value)}
         >
-          <option value="">Elegir variable del catálogo…</option>
-          {(catalog.data?.items ?? []).map((item) => (
-            <option key={display(item, 'id')} value={display(item, 'id')}>
-              {display(item, 'variableCode')} ·{' '}
-              {display(asRows(item.versions)[0] ?? {}, 'dataType')}
+          <option value="">
+            {catalog.isError ? 'Catálogo no disponible' : 'Elegir variable del catálogo…'}
+          </option>
+          {pickerRows.map((item) => (
+            <option key={display(item, 'definitionId')} value={display(item, 'definitionId')}>
+              {display(item, 'variableCode')} · {display(item, 'dataType')}
             </option>
           ))}
         </select>
@@ -172,9 +173,7 @@ export function OutputVariableManager({ variables, onChange }: Props) {
           {outputs.map((item) => {
             const outputCode = display(item, 'code');
             const primary = item.usageType === 'OUTPUT_PRIMARY';
-            const scalar = !['OBJECT', 'JSON', 'ARRAY', 'LIST'].includes(
-              display(item, 'dataType').toUpperCase(),
-            );
+            const scalar = !NON_SCALAR.includes(display(item, 'dataType').toUpperCase());
             return (
               <span className={primary ? 'output-chip primary' : 'output-chip'} key={outputCode}>
                 <button
@@ -201,6 +200,11 @@ export function OutputVariableManager({ variables, onChange }: Props) {
               </span>
             );
           })}
+          {!outputs.length ? (
+            <small className="field-hint">
+              Sin variables de salida: la decisión no devolverá ningún valor. Añade al menos una.
+            </small>
+          ) : null}
         </div>
       </div>
       {showCreate ? (

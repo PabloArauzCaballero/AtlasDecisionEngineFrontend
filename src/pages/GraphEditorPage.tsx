@@ -7,6 +7,7 @@ import { EdgeProperties } from '../features/graph-editor/EdgeProperties';
 import { GraphCanvas } from '../features/graph-editor/GraphCanvas';
 import { GraphEditorToolbar } from '../features/graph-editor/GraphEditorToolbar';
 import { GraphNotesPanel } from '../features/graph-editor/GraphNotesPanel';
+import { FlowChecklist } from '../features/graph-editor/FlowChecklist';
 import { GraphValidationModal } from '../features/graph-editor/GraphValidationModal';
 import { NodeLibrary } from '../features/graph-editor/NodeLibrary';
 import { NodeProperties } from '../features/graph-editor/NodeProperties';
@@ -137,6 +138,13 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       </div>
       <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
       <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
+      <FlowChecklist
+        nodes={editor.nodes}
+        edges={editor.edges}
+        inputs={editor.inputs}
+        outputs={editor.outputs}
+        onSelectNode={editor.selectNode}
+      />
       {hasVersion ? <GraphNotesPanel versionId={editor.versionId} /> : null}
       <div className="graph-workbench">
         <NodeLibrary onAddNode={editor.addNode} />
@@ -176,6 +184,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
             inputs={editor.inputs}
             condition={asRecord(editor.selectedCondition)}
             branchCount={selectedNodeBranchCount}
+            versionId={editor.versionId}
             onConditionChange={editor.updateSelectedCondition}
             onChange={editor.updateSelectedNode}
             onDelete={editor.deleteSelectedNode}
