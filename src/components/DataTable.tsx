@@ -1,5 +1,7 @@
-import { Eye } from 'lucide-react';
-import Link from 'next/link';
+import { resolvePath } from '../utils/records';
+import { ActionIcon } from './ActionIcon';
+import type { ActionKey } from './action-catalog';
+import { InfoHint } from './InfoHint';
 import { StatusBadge } from './StatusBadge';
 
 export interface TableColumn<T> {
@@ -7,6 +9,23 @@ export interface TableColumn<T> {
   label: string;
   mono?: boolean;
   status?: boolean;
+  /**
+   * Dot-notation path into the row for nested or renamed backend fields, e.g.
+   * 'artifactVersion.artifact.artifactCode'. When set it overrides `key` as the
+   * value source (`key` stays the stable React/column identifier).
+   */
+  path?: string;
+  /** Plain-language explanation of the column, shown as a ? in the header. */
+  hint?: string;
+}
+
+export interface RowAction {
+  action: ActionKey;
+  href?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  /** Texto accesible especializado (recomendado sobre el genérico del catálogo). */
+  label?: string;
 }
 
 interface DataTableProps<T extends Record<string, unknown>> {
@@ -14,6 +33,8 @@ interface DataTableProps<T extends Record<string, unknown>> {
   columns: readonly TableColumn<T>[];
   getRowKey: (row: T) => string;
   detailPath?: (row: T) => string;
+  /** Acciones por fila con iconos del catálogo. Tiene prioridad sobre detailPath. */
+  rowActions?: (row: T) => RowAction[];
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -21,7 +42,9 @@ export function DataTable<T extends Record<string, unknown>>({
   columns,
   getRowKey,
   detailPath,
+  rowActions,
 }: DataTableProps<T>) {
+  const hasActions = Boolean(rowActions) || Boolean(detailPath);
   if (!rows.length) {
     return (
       <div className="empty-state">
@@ -38,28 +61,36 @@ export function DataTable<T extends Record<string, unknown>>({
             {columns.map((column) => (
               <th key={column.key} scope="col">
                 {column.label}
+                {column.hint ? (
+                  <InfoHint text={column.hint} label={`Qué es: ${column.label}`} />
+                ) : null}
               </th>
             ))}
-            {detailPath ? <th scope="col">Acciones</th> : null}
+            {hasActions ? <th scope="col">Acciones</th> : null}
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
             <tr key={getRowKey(row)}>
-              {columns.map((column) => (
-                <td key={column.key} className={column.mono ? 'mono' : undefined}>
-                  {column.status ? (
-                    <StatusBadge value={row[column.key]} />
-                  ) : (
-                    formatValue(row[column.key])
-                  )}
-                </td>
-              ))}
-              {detailPath ? (
+              {columns.map((column) => {
+                const value = column.path ? resolvePath(row, column.path) : row[column.key];
+                return (
+                  <td key={column.key} className={column.mono ? 'mono' : undefined}>
+                    {column.status ? <StatusBadge value={value} /> : formatValue(value)}
+                  </td>
+                );
+              })}
+              {hasActions ? (
                 <td>
-                  <Link className="table-action" href={detailPath(row)} aria-label="Ver detalle">
-                    <Eye size={16} />
-                  </Link>
+                  <div className="action-row">
+                    {rowActions ? (
+                      rowActions(row).map((rowAction, index) => (
+                        <ActionIcon key={`${rowAction.action}-${index}`} {...rowAction} />
+                      ))
+                    ) : detailPath ? (
+                      <ActionIcon action="view" href={detailPath(row)} />
+                    ) : null}
+                  </div>
                 </td>
               ) : null}
             </tr>

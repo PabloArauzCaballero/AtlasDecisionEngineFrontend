@@ -13,6 +13,7 @@
 @import './parts/objective-authoring.css';
 @import './parts/dialogs-feedback.css';
 @import './parts/info-hint.css';
+@import './parts/algorithms.css';
 @import './parts/search-picking.css';
 @import './parts/quality.css';
 @import './parts/operations-governance.css';
@@ -32,3 +33,4 @@
 @import './parts/version-graph.css';
 @import './parts/graph-notes.css';
 @import './parts/tabs.css';
+@import './parts/action-icons.css';

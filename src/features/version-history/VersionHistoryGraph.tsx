@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import type { CSSProperties } from 'react';
+import { ActionIcon } from '../../components/ActionIcon';
 import { StatusBadge } from '../../components/StatusBadge';
 import { layoutVersionGraph } from './version-graph-layout';
 
@@ -87,10 +87,22 @@ export function VersionHistoryGraph({ versions }: { versions: VersionRow[] }) {
             <div className="version-graph-meta">
               <span>{formatDate(version.createdAt)}</span>
               <span>· {version.createdBy || '—'}</span>
-              <span className="version-graph-actions">
-                <Link href={`/artifact-versions/${version.id}/graph`}>Grafo</Link>
-                <Link href={`/artifact-versions/${version.id}/compile`}>Compilar</Link>
-                <Link href={`/artifact-versions/${version.id}/test-suites`}>Pruebas</Link>
+              <span className="version-graph-actions action-row">
+                <ActionIcon
+                  action="graph"
+                  href={`/artifact-versions/${version.id}/graph`}
+                  label={`Ver grafo de v${version.label}`}
+                />
+                <ActionIcon
+                  action="compile"
+                  href={`/artifact-versions/${version.id}/compile`}
+                  label={`Compilar v${version.label}`}
+                />
+                <ActionIcon
+                  action="tests"
+                  href={`/artifact-versions/${version.id}/test-suites`}
+                  label={`Ver pruebas de v${version.label}`}
+                />
               </span>
             </div>
           </li>
