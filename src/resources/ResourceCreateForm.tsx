@@ -6,6 +6,7 @@ import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { CatalogInput } from '../components/CatalogInput';
+import { InfoHint } from '../components/InfoHint';
 import { Panel } from '../components/Panel';
 import { useNotifications } from '../notifications/useNotifications';
 import { display, type UnknownRecord } from '../utils/records';
@@ -29,6 +30,7 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
             onChange={(event) => onChange(event.target.checked)}
           />{' '}
           {field.label}
+          {field.help ? <InfoHint text={field.help} label={`Qué es: ${field.label}`} /> : null}
         </span>
       </label>
     );
@@ -40,6 +42,7 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
     return (
       <CatalogInput
         label={field.label}
+        help={field.help}
         value={String(value)}
         onChange={onChange}
         endpoint={field.optionsEndpoint}
@@ -61,7 +64,10 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
 
   return (
     <label className="field">
-      <span>{field.label}</span>
+      <span>
+        {field.label}
+        {field.help ? <InfoHint text={field.help} label={`Qué es: ${field.label}`} /> : null}
+      </span>
       {field.kind === 'textarea' ? (
         <textarea
           rows={3}
@@ -91,7 +97,6 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
           onChange={(event) => handleText(event.target.value)}
         />
       )}
-      {field.help ? <small>{field.help}</small> : null}
     </label>
   );
 }

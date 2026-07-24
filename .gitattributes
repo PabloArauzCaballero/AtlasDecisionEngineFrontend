@@ -1,0 +1,15 @@
+# Normaliza los finales de línea a LF en todo el repo. Evita que core.autocrlf
+# (Windows) convierta el working copy a CRLF y que Prettier (endOfLine: lf) lo
+# marque como sin formatear. El contenido en git ya se guarda con LF; esto también
+# lo fuerza en el working copy tras el próximo checkout/normalización.
+* text=auto eol=lf
+
+# Binarios: nunca tocar sus finales de línea.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

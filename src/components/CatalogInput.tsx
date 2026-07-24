@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { asRows, type UnknownRecord } from '../utils/records';
+import { InfoHint } from './InfoHint';
 
 export interface CatalogOption {
   value: string;
@@ -20,6 +21,8 @@ interface CatalogInputProps {
   mapOption: (row: UnknownRecord) => CatalogOption | null;
   required?: boolean;
   placeholder?: string;
+  /** Plain-language help shown as an info (?) tooltip next to the label. */
+  help?: string;
 }
 
 const CUSTOM = '__custom__';
@@ -40,7 +43,14 @@ export function CatalogInput({
   mapOption,
   required = false,
   placeholder,
+  help,
 }: CatalogInputProps) {
+  const labelNode = (
+    <span>
+      {label}
+      {help ? <InfoHint text={help} label={`Qué es: ${label}`} /> : null}
+    </span>
+  );
   const [custom, setCustom] = useState(false);
   const catalog = useQuery({
     queryKey: ['catalog', queryKey, endpoint],
@@ -61,7 +71,7 @@ export function CatalogInput({
 
   return (
     <label className="field">
-      <span>{label}</span>
+      {labelNode}
       {asText ? (
         <>
           <input

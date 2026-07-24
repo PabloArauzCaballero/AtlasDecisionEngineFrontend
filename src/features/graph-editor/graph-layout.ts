@@ -1,4 +1,4 @@
-import { display, type UnknownRecord } from '../../utils/records';
+import { asRows, display, type UnknownRecord } from '../../utils/records';
 
 /**
  * Layout determinista de izquierda a derecha para grafos de decisión.
@@ -31,6 +31,14 @@ export function normalizeNodePositions(
     return x > 100 || x < 0 || y > 100 || y < 0;
   });
   return outOfRange ? layoutGraphNodes(nodes, edges) : nodes;
+}
+
+/** Re-layouts a freshly loaded graph object if its node coordinates are outside the
+ *  canvas space (seeded/imported pixel graphs); returns the same object otherwise. */
+export function normalizeLoadedGraph(graph: UnknownRecord): UnknownRecord {
+  const nodes = asRows(graph.nodes);
+  const laid = normalizeNodePositions(nodes, asRows(graph.edges));
+  return laid === nodes ? graph : { ...graph, nodes: laid };
 }
 
 export function layoutGraphNodes(nodes: UnknownRecord[], edges: UnknownRecord[]): UnknownRecord[] {
