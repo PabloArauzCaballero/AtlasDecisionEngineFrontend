@@ -12,20 +12,20 @@ const DATA = {
 };
 
 describe('DataInspector', () => {
-  it('muestra la tabla atributo-valor por defecto, con valores formateados', () => {
-    render(<DataInspector data={DATA} idPrefix="t" />);
+  it('muestra por defecto la tabla atributo-valor, con valores formateados', () => {
+    render(<DataInspector data={DATA} label="Artefacto" />);
     expect(screen.getByText('variableCode')).toBeInTheDocument();
     expect(screen.getByText('kyc_status')).toBeInTheDocument();
     // booleano en español
     expect(screen.getByText('Sí')).toBeInTheDocument();
-    // objeto anidado como JSON compacto
-    expect(screen.getByText('{"a":1}')).toBeInTheDocument();
+    // objeto anidado se aplana a ruta con punto
+    expect(screen.getByText('meta.a')).toBeInTheDocument();
     // nulo como guion
     expect(screen.getByText('—')).toBeInTheDocument();
   });
 
-  it('permite cambiar a la vista JSON de la misma respuesta', () => {
-    render(<DataInspector data={DATA} idPrefix="t" />);
+  it('permite cambiar a la vista JSON crudo de la misma respuesta', () => {
+    render(<DataInspector data={DATA} label="Artefacto" />);
     fireEvent.click(screen.getByRole('tab', { name: /JSON/ }));
     expect(screen.getByText(/"variableCode": "kyc_status"/)).toBeInTheDocument();
   });

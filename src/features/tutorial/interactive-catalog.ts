@@ -97,7 +97,11 @@ export const TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   },
 };
 
-/** Código de error del backend → tutorial que enseña a corregirlo. */
+/**
+ * Código de error del backend (o `kind` de ApiError) → tutorial que enseña a
+ * corregirlo. Se acepta el `kind` (p. ej. `validation`) para cubrir cualquier
+ * error de esa familia aunque no traiga un código específico.
+ */
 export const ERROR_TUTORIALS: Readonly<Record<string, ErrorTutorialLink>> = {
   VALIDATION_ERROR: {
     tutorialId: 'error:VALIDATION_ERROR',
@@ -108,6 +112,11 @@ export const ERROR_TUTORIALS: Readonly<Record<string, ErrorTutorialLink>> = {
     tutorialId: 'error:VALIDATION_ERROR',
     title: 'La solicitud no era válida',
     description: 'Te muestro cómo dejar los datos correctos.',
+  },
+  validation: {
+    tutorialId: 'error:VALIDATION_ERROR',
+    title: 'Hay datos que corregir antes de guardar',
+    description: 'Abrí el tutorial guiado para dejarlos correctos.',
   },
 };
 

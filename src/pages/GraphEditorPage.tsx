@@ -1,5 +1,5 @@
 import { AlertCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { ModalDialog } from '../components/ModalDialog';
@@ -14,6 +14,10 @@ import { NodeProperties } from '../features/graph-editor/NodeProperties';
 import { InputVariableManager } from '../features/graph-editor/InputVariableManager';
 import { OutputVariableManager } from '../features/graph-editor/OutputVariableManager';
 import { useGraphEditor } from '../features/graph-editor/useGraphEditor';
+import { notifyApiError } from '../features/tutorial/error-tutorial';
+import { TutorialButton } from '../features/tutorial/TutorialButton';
+import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
+import { useNotifications } from '../notifications/useNotifications';
 import { useUnsavedChangesGuard } from '../shared/navigation/unsaved-changes';
 import { asRecord, display } from '../utils/records';
 
@@ -53,6 +57,19 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
     (node) => display(node, 'key') === display(asRecord(editor.selectedEdge), 'from'),
   );
   const selectedEdgeSourceType = selectedEdgeSource ? display(selectedEdgeSource, 'type') : '';
+
+  // Un error real al guardar no queda en un mensaje opaco: se notifica con una
+  // acción "Ver tutorial guiado" que abre el tutorial que explica cómo corregirlo.
+  const { notify } = useNotifications();
+  const { startForError } = useInteractiveTutorial();
+  const saveError = editor.save.error;
+  const notifiedError = useRef<unknown>(null);
+  useEffect(() => {
+    if (saveError && saveError !== notifiedError.current) {
+      notifiedError.current = saveError;
+      notifyApiError(saveError, notify, startForError);
+    }
+  }, [saveError, notify, startForError]);
 
   return (
     <div className="graph-editor-page">
@@ -112,7 +129,10 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       ) : null}
       <div className="graph-editor-statusbar">
         <div className="graph-authoring-steps" aria-label="Progreso del diseño">
-          <span className={hasVersion ? 'complete' : 'current'}>
+          <span
+            className={hasVersion ? 'complete' : 'current'}
+            data-tutorial-id="graph-load"
+          >
             <b>1</b> Cargar versión
           </span>
           <span className={hasFlow ? 'complete' : hasVersion ? 'current' : ''}>
@@ -135,6 +155,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
             <strong>{editor.edges.length}</strong> conexiones
           </span>
         </div>
+        <TutorialButton tutorialId="graph-editor" />
       </div>
       <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
       <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
