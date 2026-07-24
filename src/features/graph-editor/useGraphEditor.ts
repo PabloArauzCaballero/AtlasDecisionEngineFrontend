@@ -6,13 +6,22 @@ import { asRecord, asRows, display, type UnknownRecord } from '../../utils/recor
 import { updateSiblingEdge } from './graph-edge-update';
 import { createEdgeDraft, createNodeDraft, edgeCreationError } from './graph-authoring';
 import { connectionErrorNotice, type ConnectionNotice } from './connection-feedback';
-import { layoutGraphNodes } from './graph-layout';
+import { layoutGraphNodes, normalizeNodePositions } from './graph-layout';
 import { withEdges, withNodes } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
 
 const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 2;
 const ZOOM_STEP = 0.1;
+
+/** Re-layouts a freshly loaded graph only if its node coordinates are outside the
+ *  canvas's 0–100 space, so seeded/imported pixel-based graphs render instead of
+ *  collapsing into one corner. See normalizeNodePositions. */
+function normalizeLoadedGraph(graph: UnknownRecord): UnknownRecord {
+  const nodes = asRows(graph.nodes);
+  const laid = normalizeNodePositions(nodes, asRows(graph.edges));
+  return laid === nodes ? graph : { ...graph, nodes: laid };
+}
 
 export function useGraphEditor(initialVersionId = '') {
   const [versionId, setVersionId] = useState(initialVersionId);
@@ -49,8 +58,9 @@ export function useGraphEditor(initialVersionId = '') {
       ]);
     },
     onSuccess: ([graph, version]) => {
-      history.reset(graph);
-      setSelectedKey(display(asRows(graph.nodes)[0] ?? {}, 'key'));
+      const normalized = normalizeLoadedGraph(graph);
+      history.reset(normalized);
+      setSelectedKey(display(asRows(normalized.nodes)[0] ?? {}, 'key'));
       setSelectedEdgeKey('');
       setLockVersion(display(version, 'lockVersion'));
       setPendingFrom(null);

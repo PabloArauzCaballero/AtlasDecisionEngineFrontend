@@ -13,6 +13,26 @@ import { display, type UnknownRecord } from '../../utils/records';
  * Luego un par de barridas por **baricentro** ordenan las filas de cada columna
  * según la posición media de sus vecinos, reduciendo cruces y alineando el flujo.
  */
+/**
+ * The canvas positions nodes as percentages (0–100). Re-layout a graph only when
+ * its coordinates fall OUTSIDE that space — e.g. the seeder writes pixel-based
+ * `xPos = order*120`, and imported/legacy graphs may too, which would clamp every
+ * node into one corner and render nothing. Percentage graphs pass through
+ * untouched (same array reference) so user-placed positions are preserved.
+ */
+export function normalizeNodePositions(
+  nodes: UnknownRecord[],
+  edges: UnknownRecord[],
+): UnknownRecord[] {
+  if (!nodes.length) return nodes;
+  const outOfRange = nodes.some((node) => {
+    const x = typeof node.x === 'number' ? node.x : 0;
+    const y = typeof node.y === 'number' ? node.y : 0;
+    return x > 100 || x < 0 || y > 100 || y < 0;
+  });
+  return outOfRange ? layoutGraphNodes(nodes, edges) : nodes;
+}
+
 export function layoutGraphNodes(nodes: UnknownRecord[], edges: UnknownRecord[]): UnknownRecord[] {
   if (!nodes.length) return nodes;
 

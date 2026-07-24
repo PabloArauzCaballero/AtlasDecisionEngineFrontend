@@ -1,4 +1,4 @@
-import { layoutGraphNodes } from './graph-layout';
+import { layoutGraphNodes, normalizeNodePositions } from './graph-layout';
 
 describe('layoutGraphNodes', () => {
   it('orders a decision flow from left to right and separates sibling outcomes', () => {
@@ -40,5 +40,32 @@ describe('layoutGraphNodes', () => {
     const byKey = new Map(layoutGraphNodes(nodes, edges).map((node) => [node.key, node]));
 
     expect(Number(byKey.get('B')?.x)).toBeLessThan(Number(byKey.get('D')?.x));
+  });
+});
+
+describe('normalizeNodePositions', () => {
+  const edges = [{ from: 'START', to: 'CHECK' }];
+
+  it('re-layouts pixel-based coordinates (seeder xPos=order*120) into the 0-100 canvas', () => {
+    // These would all clamp to the corner (x>100) and render nothing.
+    const nodes = [
+      { key: 'START', type: 'START', x: 120, y: 100 },
+      { key: 'CHECK', type: 'CONDITION', x: 240, y: 100 },
+    ];
+    const result = normalizeNodePositions(nodes, edges);
+    expect(result).not.toBe(nodes); // re-laid
+    for (const node of result) {
+      expect(Number(node.x)).toBeGreaterThanOrEqual(0);
+      expect(Number(node.x)).toBeLessThanOrEqual(100);
+      expect(Number(node.y)).toBeLessThanOrEqual(100);
+    }
+  });
+
+  it('leaves an already-percentage graph untouched (preserves user positions)', () => {
+    const nodes = [
+      { key: 'START', type: 'START', x: 10, y: 43 },
+      { key: 'CHECK', type: 'CONDITION', x: 40, y: 43 },
+    ];
+    expect(normalizeNodePositions(nodes, edges)).toBe(nodes);
   });
 });
