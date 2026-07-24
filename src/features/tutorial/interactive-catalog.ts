@@ -1,3 +1,4 @@
+import { ERROR_LINKS, ERROR_TUTORIAL_DEFS } from './interactive-catalog-errors';
 import { ROUTE_TUTORIAL, TOOL_TUTORIALS } from './interactive-catalog-tools';
 import type { ErrorTutorialLink, InteractiveTutorial } from './interactive-types';
 
@@ -6,7 +7,7 @@ import type { ErrorTutorialLink, InteractiveTutorial } from './interactive-types
  * estables (ids que el componente ya genera o `data-tutorial-id`), nunca clases
  * de CSS volátiles. El contenido está escrito para alguien que no programa.
  */
-export const TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
+const BASE_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   'artifact-detail': {
     id: 'artifact-detail',
     title: 'Ficha del artefacto',
@@ -208,12 +209,20 @@ export const TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   },
 };
 
+/** Catálogo completo: base + herramientas (por ruta) + tutoriales de error. */
+export const TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
+  ...BASE_TUTORIALS,
+  ...TOOL_TUTORIALS,
+  ...ERROR_TUTORIAL_DEFS,
+};
+
 /**
  * Código de error del backend (o `kind` de ApiError) → tutorial que enseña a
  * corregirlo. Se acepta el `kind` (p. ej. `validation`) para cubrir cualquier
  * error de esa familia aunque no traiga un código específico.
  */
 export const ERROR_TUTORIALS: Readonly<Record<string, ErrorTutorialLink>> = {
+  ...ERROR_LINKS,
   VALIDATION_ERROR: {
     tutorialId: 'error:VALIDATION_ERROR',
     title: 'Faltan datos o hay un formato inválido',
@@ -232,7 +241,7 @@ export const ERROR_TUTORIALS: Readonly<Record<string, ErrorTutorialLink>> = {
 };
 
 export function tutorialById(id: string): InteractiveTutorial | null {
-  return TUTORIALS[id] ?? TOOL_TUTORIALS[id] ?? null;
+  return TUTORIALS[id] ?? null;
 }
 
 /** Resolves the interactive tutorial id for an exact route (list/tool pages). */

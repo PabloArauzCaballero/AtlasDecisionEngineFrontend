@@ -1,7 +1,8 @@
 'use client';
 
-import { Braces, Check, Copy, GitBranch, Table2 } from 'lucide-react';
+import { Braces, Check, Copy, Download, GitBranch, Table2 } from 'lucide-react';
 import { useState } from 'react';
+import { downloadJson, exportFilename } from '../utils/download';
 import { GraphView, TableView } from './json-views';
 
 interface JsonPanelProps {
@@ -73,6 +74,15 @@ export function JsonPanel({ value, label = 'Respuesta' }: JsonPanelProps) {
           >
             {copied ? <Check size={13} /> : <Copy size={13} />}
             {copied ? 'Copiado' : 'Copiar'}
+          </button>
+          <button
+            type="button"
+            className="json-copy-btn"
+            onClick={() => downloadJson(exportFilename('datos', 'json'), value)}
+            title="Descargar JSON"
+            aria-label="Descargar JSON"
+          >
+            <Download size={13} /> JSON
           </button>
         </div>
       </div>

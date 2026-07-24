@@ -1,3 +1,8 @@
+'use client';
+
+import { useState } from 'react';
+import { downloadCsv, exportFilename, toCsv } from '../utils/download';
+
 /** One flattened key → value row for the table view. */
 interface KvRow {
   path: string;
@@ -54,25 +59,79 @@ export function findSteps(value: unknown, depth = 0): Record<string, unknown>[] 
 }
 
 export function TableView({ value }: { value: unknown }) {
+  const [query, setQuery] = useState('');
   const rows = flattenToRows(value);
+  const needle = query.trim().toLowerCase();
+  const filtered = needle
+    ? rows.filter((row) => `${row.path} ${row.value}`.toLowerCase().includes(needle))
+    : rows;
+
+  const copyTable = () => {
+    const tsv = ['Campo\tValor', ...filtered.map((row) => `${row.path}\t${row.value}`)].join('\n');
+    void navigator.clipboard.writeText(tsv).catch(() => {});
+  };
+  const downloadTable = () =>
+    downloadCsv(
+      exportFilename('datos', 'csv'),
+      toCsv(filtered as unknown as Record<string, unknown>[], [
+        { key: 'path', label: 'Campo' },
+        { key: 'value', label: 'Valor' },
+      ]),
+    );
+
   return (
-    <div className="table-wrap json-table-wrap">
-      <table className="json-table">
-        <thead>
-          <tr>
-            <th scope="col">Campo</th>
-            <th scope="col">Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={`${row.path}-${index}`}>
-              <td className="mono">{row.path}</td>
-              <td>{row.value}</td>
+    <div>
+      <div className="json-table-toolbar">
+        <input
+          className="json-table-search"
+          type="search"
+          placeholder="Buscar campo o valor…"
+          aria-label="Buscar en la tabla"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <button
+          type="button"
+          className="json-copy-btn"
+          onClick={copyTable}
+          title="Copiar como tabla"
+        >
+          Copiar tabla
+        </button>
+        <button
+          type="button"
+          className="json-copy-btn"
+          onClick={downloadTable}
+          title="Descargar CSV"
+        >
+          CSV
+        </button>
+      </div>
+      <div className="table-wrap json-table-wrap">
+        <table className="json-table">
+          <thead>
+            <tr>
+              <th scope="col">Campo</th>
+              <th scope="col">Valor</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtered.map((row, index) => (
+              <tr key={`${row.path}-${index}`}>
+                <td className="mono">{row.path}</td>
+                <td>{row.value}</td>
+              </tr>
+            ))}
+            {!filtered.length ? (
+              <tr>
+                <td colSpan={2} className="json-table-empty">
+                  Sin coincidencias para “{query}”.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
