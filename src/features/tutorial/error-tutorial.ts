@@ -42,11 +42,7 @@ export function notifyErrorWithTutorial({
  * error (p. ej. `validation`). Así cualquier error de una familia cubierta ofrece
  * su guía sin depender de un código exacto.
  */
-export function notifyApiError(
-  error: unknown,
-  notify: Notify,
-  startForError: StartForError,
-): void {
+export function notifyApiError(error: unknown, notify: Notify, startForError: StartForError): void {
   let code: string | undefined;
   if (error instanceof ApiError) {
     if (error.code && ERROR_TUTORIALS[error.code]) code = error.code;

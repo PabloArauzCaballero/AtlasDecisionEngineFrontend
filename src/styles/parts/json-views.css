@@ -1,4 +1,35 @@
 /* Triple view (JSON / Tabla / Gráfico) for any data panel — see JsonPanel. */
+.json-panel-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.json-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #dbe3ee;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition:
+    color var(--dur-1, 0.12s) ease,
+    border-color var(--dur-1, 0.12s) ease,
+    background var(--dur-1, 0.12s) ease;
+}
+.json-copy-btn:hover {
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+.json-copy-btn.copied {
+  color: #047857;
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+}
 .json-view-tabs {
   display: inline-flex;
   gap: 4px;
@@ -55,50 +86,94 @@
   white-space: nowrap;
 }
 
-/* Gráfico: fases/camino de una traza de ejecución. */
-.json-phases {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding: 14px;
+/* Gráfico de una decisión: línea de tiempo vertical de fases (traza de ejecución). */
+.decision-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 16px 18px;
+  display: grid;
+  gap: 0;
 }
-.json-phase {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  padding-bottom: 16px;
 }
-.json-phase-card {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid #dbe3ee;
-  border-left: 3px solid #3b82f6;
-  border-radius: 10px;
-  background: #fff;
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 26px;
+  bottom: -4px;
+  width: 2px;
+  background: linear-gradient(#c7d2fe, #e2e8f0);
 }
-.json-phase-index {
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+.timeline-item:last-child::before {
+  display: none;
+}
+.timeline-marker {
+  z-index: 1;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
   border-radius: 50%;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 4px #eff6ff;
+}
+.timeline-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  padding: 11px 13px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07);
+}
+.timeline-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.timeline-head b {
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+.timeline-type {
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 999px;
   background: #eff6ff;
   color: #1d4ed8;
-  font-size: 0.7rem;
-  font-weight: 700;
 }
-.json-phase-card b {
-  font-size: 0.82rem;
+.timeline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 8px 0 0;
 }
-.json-phase-card small {
-  display: block;
-  color: #64748b;
-  font-size: 0.68rem;
+.timeline-meta div {
+  display: flex;
+  gap: 6px;
+  font-size: 0.76rem;
 }
-.json-phase-arrow {
+.timeline-meta dt {
   color: #94a3b8;
+}
+.timeline-meta dd {
+  margin: 0;
+  color: #334155;
+  font-weight: 600;
 }
 
 /* Gráfico fallback: árbol jerárquico indentado. */

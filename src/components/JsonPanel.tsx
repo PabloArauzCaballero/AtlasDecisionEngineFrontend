@@ -1,6 +1,6 @@
 'use client';
 
-import { Braces, GitBranch, Table2 } from 'lucide-react';
+import { Braces, Check, Copy, GitBranch, Table2 } from 'lucide-react';
 import { useState } from 'react';
 import { GraphView, TableView } from './json-views';
 
@@ -18,38 +18,61 @@ type Mode = 'json' | 'table' | 'graph';
  */
 export function JsonPanel({ value, label = 'Respuesta' }: JsonPanelProps) {
   const [mode, setMode] = useState<Mode>('table');
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(value, null, 2));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // Clipboard can be blocked (insecure context / permissions); fail quietly.
+    }
+  };
 
   return (
     <section className="json-panel" aria-label={label}>
       <div className="panel-title">
         <span>{label}</span>
-        <div className="json-view-tabs" role="tablist" aria-label="Vista de los datos">
+        <div className="json-panel-actions">
+          <div className="json-view-tabs" role="tablist" aria-label="Vista de los datos">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'table'}
+              className={mode === 'table' ? 'active' : ''}
+              onClick={() => setMode('table')}
+            >
+              <Table2 size={13} /> Tabla
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'graph'}
+              className={mode === 'graph' ? 'active' : ''}
+              onClick={() => setMode('graph')}
+            >
+              <GitBranch size={13} /> Gráfico
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'json'}
+              className={mode === 'json' ? 'active' : ''}
+              onClick={() => setMode('json')}
+            >
+              <Braces size={13} /> JSON
+            </button>
+          </div>
           <button
             type="button"
-            role="tab"
-            aria-selected={mode === 'table'}
-            className={mode === 'table' ? 'active' : ''}
-            onClick={() => setMode('table')}
+            className={copied ? 'json-copy-btn copied' : 'json-copy-btn'}
+            onClick={() => void copy()}
+            title="Copiar como JSON"
+            aria-label="Copiar como JSON"
           >
-            <Table2 size={13} /> Tabla
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'graph'}
-            className={mode === 'graph' ? 'active' : ''}
-            onClick={() => setMode('graph')}
-          >
-            <GitBranch size={13} /> Gráfico
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'json'}
-            className={mode === 'json' ? 'active' : ''}
-            onClick={() => setMode('json')}
-          >
-            <Braces size={13} /> JSON
+            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? 'Copiado' : 'Copiar'}
           </button>
         </div>
       </div>

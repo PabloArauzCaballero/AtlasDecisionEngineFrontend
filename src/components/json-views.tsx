@@ -1,5 +1,3 @@
-import { ArrowRight } from 'lucide-react';
-
 /** One flattened key → value row for the table view. */
 interface KvRow {
   path: string;
@@ -84,31 +82,57 @@ const label = (step: Record<string, unknown>): string =>
 const sublabel = (step: Record<string, unknown>): string =>
   scalarText(step.nodeType ?? step.branchTaken ?? '');
 
+/** The interesting scalar details of a step, shown under its timeline card. */
+function timelineMeta(step: Record<string, unknown>) {
+  const parts: Array<{ k: string; v: string }> = [];
+  if (step.branchTaken != null && step.branchTaken !== '') {
+    parts.push({ k: 'Ruta tomada', v: scalarText(step.branchTaken) });
+  }
+  if (step.durationMs != null)
+    parts.push({ k: 'Duración', v: `${scalarText(step.durationMs)} ms` });
+  else if (step.durationUs != null)
+    parts.push({ k: 'Duración', v: `${scalarText(step.durationUs)} µs` });
+  if (step.status != null) parts.push({ k: 'Estado', v: scalarText(step.status) });
+  if (step.outcome != null) parts.push({ k: 'Resultado', v: scalarText(step.outcome) });
+  if (!parts.length) return null;
+  return (
+    <dl className="timeline-meta">
+      {parts.map((part) => (
+        <div key={part.k}>
+          <dt>{part.k}</dt>
+          <dd>{part.v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /**
- * Graphic view: an execution trace becomes a left-to-right sequence of "fases"
- * (the path the decision took), each a card with an arrow to the next — easy to
- * read for any user. Anything else falls back to an indented hierarchical tree.
+ * Graphic view: an execution trace becomes a vertical TIMELINE (línea de tiempo) —
+ * each phase is a numbered marker on a rail with a card describing the node, the
+ * route it took and its timing. The clearest way for any user to read "por qué
+ * decidió esto". Anything that isn't a trace falls back to a hierarchical tree.
  */
 export function GraphView({ value }: { value: unknown }) {
   const steps = findSteps(value);
   if (steps) {
     return (
-      <div className="json-phases">
+      <ol className="decision-timeline">
         {steps.map((step, index) => (
-          <div className="json-phase" key={index}>
-            <div className="json-phase-card">
-              <span className="json-phase-index">{index + 1}</span>
-              <div>
+          <li className="timeline-item" key={index}>
+            <span className="timeline-marker">{index + 1}</span>
+            <div className="timeline-card">
+              <div className="timeline-head">
                 <b>{label(step)}</b>
-                {sublabel(step) !== '—' ? <small>{sublabel(step)}</small> : null}
+                {sublabel(step) !== '—' ? (
+                  <span className="timeline-type">{sublabel(step)}</span>
+                ) : null}
               </div>
+              {timelineMeta(step)}
             </div>
-            {index < steps.length - 1 ? (
-              <ArrowRight className="json-phase-arrow" size={16} aria-hidden="true" />
-            ) : null}
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     );
   }
   return <TreeView value={value} depth={0} />;

@@ -129,10 +129,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       ) : null}
       <div className="graph-editor-statusbar">
         <div className="graph-authoring-steps" aria-label="Progreso del diseño">
-          <span
-            className={hasVersion ? 'complete' : 'current'}
-            data-tutorial-id="graph-load"
-          >
+          <span className={hasVersion ? 'complete' : 'current'} data-tutorial-id="graph-load">
             <b>1</b> Cargar versión
           </span>
           <span className={hasFlow ? 'complete' : hasVersion ? 'current' : ''}>
