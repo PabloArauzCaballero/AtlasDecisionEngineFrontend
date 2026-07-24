@@ -1,3 +1,4 @@
+import { InfoHint } from '../../components/InfoHint';
 import { asRecord, type UnknownRecord } from '../../utils/records';
 import { CodeEditor } from './CodeEditor';
 import { lintScript } from './script-lint';
@@ -32,7 +33,10 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
     <section className="result-node-editor">
       <h3>{nodeType === 'SCORE' ? 'Cálculo de score' : 'Expresión calculada'}</h3>
       <label className="field">
-        <span>Variable destino</span>
+        <span>
+          Variable destino
+          <InfoHint text="Dónde se guarda el resultado del cálculo. Puede ser una salida o una variable intermedia que otros nodos usen." />
+        </span>
         <input
           value={targetVariable}
           placeholder={nodeType === 'SCORE' ? 'score_riesgo' : 'valor_calculado'}
@@ -45,7 +49,10 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
         </p>
       ) : null}
       <label className="field">
-        <span>Lenguaje</span>
+        <span>
+          Lenguaje
+          <InfoHint text="En qué se escribe el cálculo: una expresión visual, o código (JavaScript/Python) para casos avanzados." />
+        </span>
         <select
           value={language}
           onChange={(event) =>

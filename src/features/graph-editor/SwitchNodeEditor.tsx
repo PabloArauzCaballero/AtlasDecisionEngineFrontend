@@ -1,3 +1,4 @@
+import { InfoHint } from '../../components/InfoHint';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
 
 interface SwitchNodeEditorProps {
@@ -19,7 +20,10 @@ export function SwitchNodeEditor({ config, inputs, branchCount, onChange }: Swit
     <section className="condition-node-editor">
       <h3>Switch (multi-caso)</h3>
       <label className="field">
-        <span>Variable a evaluar</span>
+        <span>
+          Variable a evaluar
+          <InfoHint text="El dato cuyo valor decide a qué rama ir. Cada caso compara esta variable con un valor y sigue un camino distinto." />
+        </span>
         <select
           value={variable}
           onChange={(event) => onChange({ ...config, variable: event.target.value })}
