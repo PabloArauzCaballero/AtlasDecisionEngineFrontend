@@ -1,4 +1,4 @@
-import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 
 /**
  * Layout determinista de izquierda a derecha para grafos de decisión.
@@ -33,12 +33,34 @@ export function normalizeNodePositions(
   return outOfRange ? layoutGraphNodes(nodes, edges) : nodes;
 }
 
-/** Re-layouts a freshly loaded graph object if its node coordinates are outside the
- *  canvas space (seeded/imported pixel graphs); returns the same object otherwise. */
+/**
+ * A loaded CONDITION node carries its condition in the `conditions[].code` binding
+ * (backend shape), but the editor and edge logic read `config.conditionCode`. Copy
+ * it across so clicking a loaded condition node shows its condition instead of "no
+ * tiene una condición asociada", and edges can still branch from it.
+ */
+function withConditionCode(node: UnknownRecord): UnknownRecord {
+  if (node.type !== 'CONDITION') return node;
+  const config = asRecord(node.config);
+  if (config.conditionCode) return node;
+  const bound = asRows(node.conditions)[0];
+  const code = bound ? display(bound, 'code', 'conditionCode') : '';
+  if (!code || code === '—') return node;
+  return { ...node, config: { ...config, conditionCode: code } };
+}
+
+/**
+ * Normalises a freshly loaded graph so the editor can render it: re-layouts nodes
+ * whose coordinates are outside the canvas space (seeded/imported pixel graphs) and
+ * back-fills each CONDITION node's `config.conditionCode` from its binding.
+ */
 export function normalizeLoadedGraph(graph: UnknownRecord): UnknownRecord {
   const nodes = asRows(graph.nodes);
+  if (!nodes.length) return graph;
   const laid = normalizeNodePositions(nodes, asRows(graph.edges));
-  return laid === nodes ? graph : { ...graph, nodes: laid };
+  const normalized = laid.map(withConditionCode);
+  const unchanged = laid === nodes && normalized.every((node, index) => node === nodes[index]);
+  return unchanged ? graph : { ...graph, nodes: normalized };
 }
 
 export function layoutGraphNodes(nodes: UnknownRecord[], edges: UnknownRecord[]): UnknownRecord[] {

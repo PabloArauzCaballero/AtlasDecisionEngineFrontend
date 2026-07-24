@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { RouteTutorialButton } from '../features/tutorial/RouteTutorialButton';
 import { InfoHint } from './InfoHint';
 
 interface PageHeaderProps {
@@ -18,6 +19,7 @@ export function PageHeader({ eyebrow, title, description, actions, hint }: PageH
         <h1 className="page-title-line">
           {title}
           {hint ? <InfoHint text={hint} label={`Qué es: ${title}`} /> : null}
+          <RouteTutorialButton />
         </h1>
         <p className="page-description">{description}</p>
       </div>

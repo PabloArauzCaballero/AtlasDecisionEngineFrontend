@@ -1,3 +1,4 @@
+import { ROUTE_TUTORIAL, TOOL_TUTORIALS } from './interactive-catalog-tools';
 import type { ErrorTutorialLink, InteractiveTutorial } from './interactive-types';
 
 /**
@@ -231,7 +232,12 @@ export const ERROR_TUTORIALS: Readonly<Record<string, ErrorTutorialLink>> = {
 };
 
 export function tutorialById(id: string): InteractiveTutorial | null {
-  return TUTORIALS[id] ?? null;
+  return TUTORIALS[id] ?? TOOL_TUTORIALS[id] ?? null;
+}
+
+/** Resolves the interactive tutorial id for an exact route (list/tool pages). */
+export function tutorialForRoute(pathname: string): string | null {
+  return ROUTE_TUTORIAL[pathname] ?? null;
 }
 
 export function errorTutorial(code: string | undefined): ErrorTutorialLink | null {

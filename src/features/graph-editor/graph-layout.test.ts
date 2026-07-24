@@ -1,4 +1,5 @@
-import { layoutGraphNodes, normalizeNodePositions } from './graph-layout';
+import { layoutGraphNodes, normalizeLoadedGraph, normalizeNodePositions } from './graph-layout';
+import { asRows, display } from '../../utils/records';
 
 describe('layoutGraphNodes', () => {
   it('orders a decision flow from left to right and separates sibling outcomes', () => {
@@ -67,5 +68,28 @@ describe('normalizeNodePositions', () => {
       { key: 'CHECK', type: 'CONDITION', x: 40, y: 43 },
     ];
     expect(normalizeNodePositions(nodes, edges)).toBe(nodes);
+  });
+});
+
+describe('normalizeLoadedGraph (condition binding)', () => {
+  it('back-fills config.conditionCode on a loaded CONDITION node from its binding', () => {
+    const graph = {
+      nodes: [
+        { key: 'START', type: 'START', x: 10, y: 43 },
+        {
+          key: 'CHECK',
+          type: 'CONDITION',
+          x: 40,
+          y: 43,
+          config: {},
+          conditions: [{ code: 'KYC_OK', expected: true }],
+        },
+      ],
+      edges: [{ from: 'START', to: 'CHECK' }],
+    };
+    const result = normalizeLoadedGraph(graph);
+    const check = asRows(result.nodes).find((node) => display(node, 'key') === 'CHECK');
+    const config = (check?.config ?? {}) as Record<string, unknown>;
+    expect(config.conditionCode).toBe('KYC_OK');
   });
 });
