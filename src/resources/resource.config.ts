@@ -57,7 +57,14 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterPlaceholder: 'Código, título o mensaje',
     primaryAction: 'Add Reason Code',
     createFields: reasonCodesCreateFields,
-    filters: [{ param: 'category', label: 'Categoría', placeholder: 'Categoría exacta' }],
+    filters: [
+      {
+        param: 'category',
+        label: 'Categoría',
+        optionsEndpoint: '/v1/views/options?group=reasonCategory',
+        placeholder: 'Categoría exacta',
+      },
+    ],
     columns: [
       { key: 'reasonCode', label: 'Code', mono: true },
       { key: 'category', label: 'Category' },

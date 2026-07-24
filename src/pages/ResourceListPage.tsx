@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
+import { FilterSelect } from '../components/FilterSelect';
 import { PageHeader } from '../components/PageHeader';
 import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
@@ -162,32 +163,43 @@ export function ResourceListPage({
             />
           </label>
           {showExtraFilters
-            ? (config.filters ?? []).map((extra) => (
-                <label key={extra.param}>
-                  <span>{extra.label}</span>
-                  {extra.options ? (
-                    <select
-                      value={draftExtra[extra.param] ?? ''}
-                      onChange={(event) => applySelectFilter(extra.param, event.target.value)}
-                    >
-                      <option value="">Todos</option>
-                      {extra.options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      value={draftExtra[extra.param] ?? ''}
-                      placeholder={extra.placeholder}
-                      onChange={(event) =>
-                        setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
-                      }
-                    />
-                  )}
-                </label>
-              ))
+            ? (config.filters ?? []).map((extra) =>
+                extra.optionsEndpoint ? (
+                  <FilterSelect
+                    key={extra.param}
+                    label={extra.label}
+                    value={draftExtra[extra.param] ?? ''}
+                    endpoint={extra.optionsEndpoint}
+                    placeholder={extra.placeholder}
+                    onChange={(value) => applySelectFilter(extra.param, value)}
+                  />
+                ) : (
+                  <label key={extra.param}>
+                    <span>{extra.label}</span>
+                    {extra.options ? (
+                      <select
+                        value={draftExtra[extra.param] ?? ''}
+                        onChange={(event) => applySelectFilter(extra.param, event.target.value)}
+                      >
+                        <option value="">Todos</option>
+                        {extra.options.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        value={draftExtra[extra.param] ?? ''}
+                        placeholder={extra.placeholder}
+                        onChange={(event) =>
+                          setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
+                        }
+                      />
+                    )}
+                  </label>
+                ),
+              )
             : null}
           <button className="button button-primary" type="submit">
             <Search size={17} /> Buscar

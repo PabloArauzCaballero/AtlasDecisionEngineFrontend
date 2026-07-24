@@ -1,3 +1,4 @@
+import { InfoHint } from '../../components/InfoHint';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
 
 interface ConditionNodeEditorProps {
@@ -57,7 +58,10 @@ export function ConditionNodeEditor({ condition, inputs, onChange }: ConditionNo
         />
       </label>
       <label className="field">
-        <span>Variable de entrada</span>
+        <span>
+          Variable de entrada
+          <InfoHint text="El dato que se compara (p. ej. score_buro). Debe estar declarado como entrada del algoritmo." />
+        </span>
         <select
           value={String(expression.variable ?? '')}
           onChange={(event) => updateExpression({ variable: event.target.value })}
@@ -71,7 +75,10 @@ export function ConditionNodeEditor({ condition, inputs, onChange }: ConditionNo
         </select>
       </label>
       <label className="field">
-        <span>Operador</span>
+        <span>
+          Operador
+          <InfoHint text="Cómo se compara: igual, mayor que, incluido en lista… Define cuándo la condición se cumple (verdadero)." />
+        </span>
         <select
           value={String(expression.operator ?? 'gte')}
           onChange={(event) => updateExpression({ operator: event.target.value })}
@@ -84,7 +91,10 @@ export function ConditionNodeEditor({ condition, inputs, onChange }: ConditionNo
         </select>
       </label>
       <label className="field">
-        <span>Valor de comparación</span>
+        <span>
+          Valor de comparación
+          <InfoHint text="Contra qué se compara la variable (p. ej. 650). Para el operador «incluido en lista», escribe los valores en formato JSON de lista." />
+        </span>
         <textarea
           key={`${code}-${JSON.stringify(expression.value)}`}
           rows={3}

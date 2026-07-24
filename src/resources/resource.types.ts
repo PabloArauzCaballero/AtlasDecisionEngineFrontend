@@ -44,6 +44,12 @@ export interface ResourceFilter {
   label: string;
   /** With options → a select of allowed values; without → a free-text input. */
   options?: readonly CreateFieldOption[];
+  /**
+   * Read-model endpoint returning `{ value, label }[]` for a catalog-backed filter
+   * (e.g. `/v1/views/options?group=reasonCategory`). Renders a real select whose
+   * options come from the backend; degrades to a free-text input if unavailable.
+   */
+  optionsEndpoint?: string;
   placeholder?: string;
 }
 

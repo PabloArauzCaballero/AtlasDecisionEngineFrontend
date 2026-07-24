@@ -1,3 +1,4 @@
+import { InfoHint } from '../../components/InfoHint';
 import { type UnknownRecord } from '../../utils/records';
 
 interface Props {
@@ -15,7 +16,10 @@ export function ManualReviewNodeEditor({ config, onChange }: Props) {
     <section className="condition-node-editor">
       <h3>Derivación a revisión manual</h3>
       <label className="field">
-        <span>Cola destino</span>
+        <span>
+          Cola destino
+          <InfoHint text="A qué bandeja de revisión manual se envía el caso (p. ej. FRAUD_QUEUE). Un analista de esa cola lo resolverá." />
+        </span>
         <input
           value={String(config.queueCode ?? '')}
           placeholder="FRAUD_QUEUE"
@@ -23,7 +27,10 @@ export function ManualReviewNodeEditor({ config, onChange }: Props) {
         />
       </label>
       <label className="field">
-        <span>Prioridad</span>
+        <span>
+          Prioridad
+          <InfoHint text="Urgencia del caso en la cola. Los casos críticos se atienden antes." />
+        </span>
         <select
           value={String(config.priority ?? 'MEDIUM')}
           onChange={(event) => onChange({ ...config, priority: event.target.value })}
