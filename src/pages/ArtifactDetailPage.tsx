@@ -7,6 +7,7 @@ import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
+import { TutorialButton } from '../features/tutorial/TutorialButton';
 import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
 import type { VersionRow } from '../features/version-history/VersionHistoryGraph';
 import { useDetailQuery } from '../hooks/useDetailQuery';
@@ -53,6 +54,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
         description={display(artifact, 'description')}
         actions={
           <>
+            <TutorialButton tutorialId="artifact-detail" />
             {latestId !== '—' ? (
               <Link className="button" href={`/artifact-versions/${latestId}/graph`}>
                 <GitBranch size={16} /> View Graph

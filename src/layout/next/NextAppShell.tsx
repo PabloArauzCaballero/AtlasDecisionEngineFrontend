@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useState, type PropsWithChildren } from 'react';
+import { InteractiveTutorialProvider } from '../../features/tutorial/InteractiveTutorialProvider';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
 import { ViewExplainer } from '../../features/view-explainer/ViewExplainer';
 import { RouteProgress } from '../../navigation/RouteProgress';
@@ -17,33 +18,35 @@ export function NextAppShell({ children }: PropsWithChildren) {
   return (
     <UnsavedChangesProvider>
       <TutorialProvider>
-        <div className="app-shell">
-          <RouteProgress />
-          <NextSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
-          {menuOpen ? (
-            <button
-              className="sidebar-backdrop"
-              type="button"
-              aria-label="Cerrar navegación"
-              onClick={() => setMenuOpen(false)}
-            />
-          ) : null}
-          <div className="app-main">
-            <NextTopbar onMenu={() => setMenuOpen(true)} />
-            <main className="content" id="main-content" tabIndex={-1}>
-              {/*
+        <InteractiveTutorialProvider>
+          <div className="app-shell">
+            <RouteProgress />
+            <NextSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+            {menuOpen ? (
+              <button
+                className="sidebar-backdrop"
+                type="button"
+                aria-label="Cerrar navegación"
+                onClick={() => setMenuOpen(false)}
+              />
+            ) : null}
+            <div className="app-main">
+              <NextTopbar onMenu={() => setMenuOpen(true)} />
+              <main className="content" id="main-content" tabIndex={-1}>
+                {/*
             Keying on the pathname remounts the view on each route change, which
             replays the entrance animation so every navigation has a visible
             arrival. Query data survives it — the cache lives in QueryProvider.
           */}
-              <div className="route-view" key={pathname}>
-                <ViewExplainer />
-                {children}
-              </div>
-            </main>
+                <div className="route-view" key={pathname}>
+                  <ViewExplainer />
+                  {children}
+                </div>
+              </main>
+            </div>
+            <ToastViewport />
           </div>
-          <ToastViewport />
-        </div>
+        </InteractiveTutorialProvider>
       </TutorialProvider>
     </UnsavedChangesProvider>
   );

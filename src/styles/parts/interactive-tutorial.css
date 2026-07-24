@@ -1,0 +1,59 @@
+/* Extras del tutorial interactivo: tip destacado, aviso de acción requerida y
+   el botón [?] por sección. Reusa las clases base .tutorial-* existentes. */
+
+/* Clave para los pasos con acción requerida: el overlay deja pasar los clics al
+   elemento resaltado; solo la tarjeta y sus controles capturan el puntero. */
+.tutorial-overlay {
+  pointer-events: none;
+}
+
+.tutorial-overlay .tutorial-tooltip {
+  pointer-events: auto;
+}
+
+.tutorial-tip {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.tutorial-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.tutorial-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.tutorial-button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.tutorial-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
