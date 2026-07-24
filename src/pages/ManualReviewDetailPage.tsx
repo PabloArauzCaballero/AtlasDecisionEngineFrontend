@@ -9,6 +9,9 @@ import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { Timeline } from '../components/Timeline';
+import { notifyApiError } from '../features/tutorial/error-tutorial';
+import { TutorialButton } from '../features/tutorial/TutorialButton';
+import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, display } from '../utils/records';
@@ -27,6 +30,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   const [resolution, setResolution] = useState('APPROVE');
   const [comments, setComments] = useState('');
   const { notify } = useNotifications();
+  const { startForError } = useInteractiveTutorial();
   const query = useDetailQuery<unknown>(
     'manual-review',
     caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
@@ -50,6 +54,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         description: `REV-${display(review, 'id')} se resolvió y salió de la cola.`,
       });
     },
+    onError: (error) => notifyApiError(error, notify, startForError),
   });
 
   return (
@@ -59,14 +64,17 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         title={`Case #REV-${display(review, 'id')}`}
         description={`${display(review, 'queueCode')} · ${display(review, 'reason')}`}
         actions={
-          <button
-            className="button"
-            type="button"
-            disabled
-            title="La asignación de casos aún no está expuesta por el Decision Engine; resuelve el caso desde el formulario"
-          >
-            <UserCheck size={16} /> Assign to me
-          </button>
+          <>
+            <TutorialButton tutorialId="manual-review" />
+            <button
+              className="button"
+              type="button"
+              disabled
+              title="La asignación de casos aún no está expuesta por el Decision Engine; resuelve el caso desde el formulario"
+            >
+              <UserCheck size={16} /> Assign to me
+            </button>
+          </>
         }
       />
       {query.isError || resolve.isError ? (
@@ -105,7 +113,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
           </Panel>
           <JsonPanel label="Input Snapshot" value={review.inputSnapshot ?? review} />
         </main>
-        <aside>
+        <aside data-tutorial-id="review-resolution">
           <Panel title="Resolution Form" meta="Required">
             <label className="field">
               <span>Decision</span>

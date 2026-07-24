@@ -8,6 +8,7 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { Timeline } from '../components/Timeline';
+import { TutorialButton } from '../features/tutorial/TutorialButton';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
@@ -50,6 +51,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
         description={`${display(execution, 'requestId')} · ${display(execution, 'artifactCode')}`}
         actions={
           <>
+            <TutorialButton tutorialId="execution-detail" />
             <button
               className="button"
               type="button"
