@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
+import { DataInspector } from '../components/DataInspector';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { Tabs } from '../components/Tabs';
@@ -43,7 +44,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   // the previous version instead of mutating anything directly.
   const previousId = display(versions[1] ?? {}, 'id');
   const artifactCode = display(artifact, 'artifactCode', 'code');
-  const tabIds = ['summary', 'versions'] as const;
+  const tabIds = ['summary', 'versions', 'data'] as const;
   const [activeTab, setActiveTab] = useTabParam(tabIds, 'summary');
 
   return (
@@ -85,6 +86,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
         tabs={[
           { id: 'summary', label: 'Resumen' },
           { id: 'versions', label: 'Versiones', count: versions.length },
+          { id: 'data', label: 'Datos' },
         ]}
         active={activeTab}
         onChange={setActiveTab}
@@ -144,9 +146,13 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                 </div>
               </Panel>
             </div>
-          ) : (
+          ) : tab === 'versions' ? (
             <Panel title="Lineaje de versiones" meta={`${versions.length} versiones`}>
               <VersionHistoryGraph versions={versions.map(toVersionRow)} />
+            </Panel>
+          ) : (
+            <Panel title="Datos del artefacto" meta="atributo-valor · JSON">
+              <DataInspector data={artifact} idPrefix="artifact-data" label="Artefacto" />
             </Panel>
           )
         }
