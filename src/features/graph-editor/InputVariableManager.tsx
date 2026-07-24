@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Trash2 } from 'lucide-react';
+import { LogIn, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
@@ -75,8 +75,15 @@ export function InputVariableManager({ variables, onChange }: Props) {
     <section className="output-contract-panel input-contract-panel">
       <div className="output-contract-heading">
         <div>
-          <strong>Variables a considerar</strong>
-          <small>Entradas del catálogo que el algoritmo evalúa en condiciones y scripts</small>
+          <strong>
+            <span className="io-badge io-in">
+              <LogIn size={12} /> Entradas
+            </span>{' '}
+            Variables a considerar
+          </strong>
+          <small>
+            Datos que ENTRAN a la decisión. El algoritmo los evalúa en condiciones y scripts.
+          </small>
         </div>
       </div>
       <div className="output-contract-controls">

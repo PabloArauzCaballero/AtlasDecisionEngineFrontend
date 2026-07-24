@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Plus, Star, Trash2 } from 'lucide-react';
+import { LogOut, Plus, Star, Trash2 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
@@ -139,8 +139,13 @@ export function OutputVariableManager({ variables, onChange }: Props) {
     <section className="output-contract-panel">
       <div className="output-contract-heading">
         <div>
-          <strong>Contrato global de resultados</strong>
-          <small>Variables de salida tipadas para todo el artefacto</small>
+          <strong>
+            <span className="io-badge io-out">
+              <LogOut size={12} /> Salidas
+            </span>{' '}
+            Contrato global de resultados
+          </strong>
+          <small>Resultados que SALEN de la decisión (lo que devuelve al resto del sistema).</small>
         </div>
         <button className="button" type="button" onClick={() => setShowCreate((value) => !value)}>
           <Plus size={14} /> Crear variable
