@@ -6,7 +6,9 @@ vi.mock('../../api/http-client', () => ({ apiRequest }));
 
 const { InteractiveTutorialProvider } = await import('./InteractiveTutorialProvider');
 const { useInteractiveTutorial } = await import('./useInteractiveTutorial');
-const { notifyErrorWithTutorial } = await import('./error-tutorial');
+const { notifyErrorWithTutorial, notifyApiError } = await import('./error-tutorial');
+const { ERROR_TUTORIALS, TUTORIALS } = await import('./interactive-catalog');
+const { ApiError } = await import('../../api/ApiError');
 
 function Harness() {
   const { start, startForError } = useInteractiveTutorial();
@@ -107,5 +109,34 @@ describe('tutorial interactivo', () => {
       startForError: vi.fn(),
     });
     expect(notify.mock.calls[0][0].action).toBeUndefined();
+  });
+
+  it('notifyApiError cae al kind cuando el código no tiene tutorial', () => {
+    const notify = vi.fn();
+    const startForError = vi.fn();
+    // kind "validation" está mapeado; el código puntual no.
+    const error = new ApiError('faltan campos', 422, 'SIN_TUTORIAL', 'req-1', 'validation');
+    notifyApiError(error, notify, startForError);
+
+    const input = notify.mock.calls[0][0];
+    expect(input.action?.label).toBe('Ver tutorial guiado');
+    input.action.onSelect();
+    expect(startForError).toHaveBeenCalledWith('validation');
+  });
+
+  it('notifyApiError prioriza el código específico sobre el kind', () => {
+    const notify = vi.fn();
+    const startForError = vi.fn();
+    const error = new ApiError('inválido', 400, 'VALIDATION_ERROR', 'req-2', 'validation');
+    notifyApiError(error, notify, startForError);
+
+    notify.mock.calls[0][0].action.onSelect();
+    expect(startForError).toHaveBeenCalledWith('VALIDATION_ERROR');
+  });
+
+  it('cada error mapeado apunta a un tutorial existente (cadena error→tutorial íntegra)', () => {
+    for (const link of Object.values(ERROR_TUTORIALS)) {
+      expect(TUTORIALS[link.tutorialId], `falta el tutorial ${link.tutorialId}`).toBeDefined();
+    }
   });
 });
