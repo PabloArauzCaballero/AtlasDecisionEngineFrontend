@@ -193,7 +193,9 @@ test('every tool exposes an in-page tutorial that opens, steps and closes', asyn
     await page.getByRole('button', { name: /^Tutorial:/ }).click();
     await expect(page.locator('.tutorial-drawer')).toBeVisible();
     await expect(page.locator('#tutorial-title')).toBeVisible();
-    await page.getByRole('button', { name: /Siguiente/ }).click();
+    // Scope to the drawer: the interactive tutorial overlay uses the same
+    // "Siguiente" label, so an unscoped query is ambiguous with both systems present.
+    await page.locator('.tutorial-drawer').getByRole('button', { name: /Siguiente/ }).click();
     await page.keyboard.press('Escape');
     await expect(page.locator('.tutorial-drawer')).toHaveCount(0);
   }
