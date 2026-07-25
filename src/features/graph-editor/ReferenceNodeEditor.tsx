@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link2, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, Link2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { PickerSelect } from '../../components/PickerSelect';
+import { NavLink } from '../../navigation/NavLink';
 import { useNotifications } from '../../notifications/useNotifications';
 import { display, type UnknownRecord } from '../../utils/records';
 import {
@@ -233,6 +234,12 @@ export function ReferenceNodeEditor({
               <span className="mono">
                 {display(ref, 'childArtifactVersionId', 'childArtifactId')}
               </span>
+              <NavLink
+                className="reference-open"
+                href={`/artifact-versions/${display(ref, 'childArtifactVersionId')}/graph`}
+              >
+                <ExternalLink size={12} /> Abrir algoritmo
+              </NavLink>
               <button
                 type="button"
                 className="icon-button"
