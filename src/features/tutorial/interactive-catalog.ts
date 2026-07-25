@@ -244,9 +244,20 @@ export function tutorialById(id: string): InteractiveTutorial | null {
   return TUTORIALS[id] ?? null;
 }
 
-/** Resolves the interactive tutorial id for an exact route (list/tool pages). */
+/** Detail/editor routes (dynamic) → their interactive tutorial id. */
+const PATTERN_TUTORIAL: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^\/graph-editor\/?$/, 'graph-editor'],
+  [/^\/artifacts\/[^/]+\/?$/, 'artifact-detail'],
+  [/^\/executions\/[^/]+\/?$/, 'execution-detail'],
+  [/^\/manual-reviews\/[^/]+\/?$/, 'manual-review'],
+  [/^\/objectives\/[^/]+\/?$/, 'objective-detail'],
+];
+
+/** Resolves the interactive tutorial id for a route (exact tool routes + patterns). */
 export function tutorialForRoute(pathname: string): string | null {
-  return ROUTE_TUTORIAL[pathname] ?? null;
+  if (ROUTE_TUTORIAL[pathname]) return ROUTE_TUTORIAL[pathname];
+  for (const [pattern, id] of PATTERN_TUTORIAL) if (pattern.test(pathname)) return id;
+  return null;
 }
 
 export function errorTutorial(code: string | undefined): ErrorTutorialLink | null {

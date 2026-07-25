@@ -10,7 +10,6 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { Timeline } from '../components/Timeline';
 import { notifyApiError } from '../features/tutorial/error-tutorial';
-import { TutorialButton } from '../features/tutorial/TutorialButton';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
@@ -65,7 +64,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         description={`${display(review, 'queueCode')} · ${display(review, 'reason')}`}
         actions={
           <>
-            <TutorialButton tutorialId="manual-review" />
             <button
               className="button"
               type="button"

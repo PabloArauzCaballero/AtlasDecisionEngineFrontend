@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '../../auth/useAuth';
 import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
-import { TutorialLauncher } from '../../features/tutorial/TutorialLauncher';
 import { NavLink } from '../../navigation/NavLink';
 import { NotificationCenter } from '../../notifications/NotificationCenter';
 import { useNotifications } from '../../notifications/useNotifications';
@@ -61,7 +60,6 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       <NavLink className="top-action" href="/simulator">
         <Boxes size={15} /> Simulate
       </NavLink>
-      <TutorialLauncher />
       <NotificationCenter />
       <div className="security-label">
         <ShieldCheck size={15} /> Verified

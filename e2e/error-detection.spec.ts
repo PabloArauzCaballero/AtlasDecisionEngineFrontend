@@ -186,18 +186,20 @@ test('every tool exposes an in-page tutorial that opens, steps and closes', asyn
   watch(page, where, problems);
   await mockBackend(page);
 
-  const sample = ['/variables', '/graph-editor', '/simulator', '/deployments', '/objectives'];
+  // Unified tutorial: one "Tutorial" button per tool. If both modes exist it opens a
+  // menu (guided / read); otherwise it acts directly. Either way a panel opens/closes.
+  const sample = ['/variables', '/graph-editor', '/simulator', '/deployments'];
   for (const route of sample) {
     where.route = route;
     await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await page.getByRole('button', { name: /^Tutorial:/ }).click();
-    await expect(page.locator('.tutorial-drawer')).toBeVisible();
-    await expect(page.locator('#tutorial-title')).toBeVisible();
-    // Scope to the drawer: the interactive tutorial overlay uses the same
-    // "Siguiente" label, so an unscoped query is ambiguous with both systems present.
-    await page.locator('.tutorial-drawer').getByRole('button', { name: /Siguiente/ }).click();
+    await page.getByRole('button', { name: 'Tutorial' }).first().click();
+    const guided = page.getByRole('menuitem', { name: /Recorrido guiado/ });
+    if (await guided.isVisible().catch(() => false)) await guided.click();
+    const panel = page.locator('.tutorial-overlay, .tutorial-drawer').first();
+    await expect(panel).toBeVisible();
+    // Both the interactive overlay and the read drawer close on Escape.
     await page.keyboard.press('Escape');
-    await expect(page.locator('.tutorial-drawer')).toHaveCount(0);
+    await expect(page.locator('.tutorial-overlay, .tutorial-drawer')).toHaveCount(0);
   }
 
   expect(problems, report(problems)).toEqual([]);

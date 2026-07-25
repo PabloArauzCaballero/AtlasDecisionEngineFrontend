@@ -15,7 +15,7 @@ import { InputVariableManager } from '../features/graph-editor/InputVariableMana
 import { OutputVariableManager } from '../features/graph-editor/OutputVariableManager';
 import { useGraphEditor } from '../features/graph-editor/useGraphEditor';
 import { notifyApiError } from '../features/tutorial/error-tutorial';
-import { TutorialButton } from '../features/tutorial/TutorialButton';
+import { TutorialMenu } from '../features/tutorial/TutorialMenu';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useNotifications } from '../notifications/useNotifications';
 import { useUnsavedChangesGuard } from '../shared/navigation/unsaved-changes';
@@ -152,7 +152,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
             <strong>{editor.edges.length}</strong> conexiones
           </span>
         </div>
-        <TutorialButton tutorialId="graph-editor" />
+        <TutorialMenu />
       </div>
       <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
       <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />

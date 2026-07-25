@@ -5,7 +5,6 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
-import { TutorialButton } from '../features/tutorial/TutorialButton';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 
@@ -30,7 +29,6 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
         description={display(objective, 'objectiveCode')}
         actions={
           <>
-            <TutorialButton tutorialId="objective-detail" />
             <button
               className="button"
               type="button"

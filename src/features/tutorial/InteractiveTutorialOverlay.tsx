@@ -32,6 +32,16 @@ export function InteractiveTutorialOverlay({
   const rect = useTutorialTarget(step.target);
   const [actionDone, setActionDone] = useState(false);
 
+  // Escape cierra el recorrido (además del botón de cerrar): es lo que espera
+  // cualquier usuario de un overlay modal.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onExit();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onExit]);
+
   useEffect(() => {
     setActionDone(false);
     if (step.requiredAction !== 'click' || !step.target) return;
