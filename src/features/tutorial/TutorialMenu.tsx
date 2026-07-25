@@ -2,11 +2,11 @@
 
 import { BookOpen, GraduationCap, Play } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { tutorialForRoute } from './interactive-catalog';
+import { InteractiveTutorialContext } from './InteractiveTutorialContext';
 import { resolveTutorial } from './tutorial-content';
-import { useInteractiveTutorial } from './useInteractiveTutorial';
-import { useTutorial } from './useTutorial';
+import { TutorialContext } from './TutorialContext';
 
 /**
  * Único punto de entrada a la ayuda de cada pantalla. Ofrece dos modos, con el
@@ -16,8 +16,11 @@ import { useTutorial } from './useTutorial';
  */
 export function TutorialMenu() {
   const pathname = usePathname() ?? '';
-  const interactive = useInteractiveTutorial();
-  const drawer = useTutorial();
+  // Read the contexts nullably: a page rendered without the tutorial providers
+  // (e.g. an isolated unit test of that page) must not crash — the button just
+  // won't have anything to start. Availability is route-based, not context-based.
+  const interactive = useContext(InteractiveTutorialContext);
+  const drawer = useContext(TutorialContext);
   const [open, setOpen] = useState(false);
 
   const interactiveId = tutorialForRoute(pathname);
@@ -27,11 +30,11 @@ export function TutorialMenu() {
 
   const startInteractive = () => {
     setOpen(false);
-    if (interactiveId) interactive.start(interactiveId);
+    if (interactiveId) interactive?.start(interactiveId);
   };
   const startDrawer = () => {
     setOpen(false);
-    drawer.start();
+    drawer?.start();
   };
 
   // A single available mode acts directly — no menu needed.
