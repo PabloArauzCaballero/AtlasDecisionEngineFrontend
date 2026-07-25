@@ -173,6 +173,31 @@
   color: #94a3b8;
 }
 
+/* Third input mode: attribute→value pair builder. */
+.pairs-editor {
+  display: grid;
+  gap: 8px;
+  padding-top: 4px;
+}
+.pair-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1.4fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+.pair-eq {
+  color: #94a3b8;
+  font-weight: 700;
+}
+.pair-key {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.82rem;
+}
+.pair-add {
+  justify-self: start;
+  margin-top: 2px;
+}
+
 /* Line-numbered code editor for script nodes. */
 .code-editor {
   display: grid;

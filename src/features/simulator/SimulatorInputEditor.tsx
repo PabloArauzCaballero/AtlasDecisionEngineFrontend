@@ -6,6 +6,9 @@ import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { JsonTextarea } from '../../components/JsonTextarea';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { PairsEditor } from './SimulatorPairsEditor';
+
+type View = 'form' | 'json' | 'pairs';
 
 interface Props {
   artifactCode: string;
@@ -22,7 +25,7 @@ const STRUCTURED = new Set(['OBJECT', 'JSON', 'ARRAY', 'LIST']);
  * JSON payload string.
  */
 export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
-  const [view, setView] = useState<'form' | 'json'>('json');
+  const [view, setView] = useState<View>('json');
   const autoSwitched = useRef(false);
   const contract = useQuery({
     queryKey: ['artifact-input-contract', artifactCode],
@@ -79,13 +82,32 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
         <button
           type="button"
           role="tab"
+          aria-selected={view === 'pairs'}
+          onClick={() => setView('pairs')}
+        >
+          Atributo-valor
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={view === 'json'}
           onClick={() => setView('json')}
         >
           JSON
         </button>
       </div>
-      {view === 'json' ? (
+      {view === 'pairs' ? (
+        parsed === null ? (
+          <Alert tone="error">
+            El JSON actual es inválido: corrígelo en la vista JSON antes de usar atributo-valor.
+          </Alert>
+        ) : (
+          <PairsEditor
+            parsed={parsed}
+            onCommit={(next) => onChange(JSON.stringify(next, null, 2))}
+          />
+        )
+      ) : view === 'json' ? (
         <JsonTextarea
           id="variables"
           label="Variables de entrada (JSON)"
