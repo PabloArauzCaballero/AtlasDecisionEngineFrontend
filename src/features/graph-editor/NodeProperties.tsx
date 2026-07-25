@@ -1,7 +1,8 @@
 import { Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { InfoHint } from '../../components/InfoHint';
 import type { UnknownRecord } from '../../utils/records';
-import { display } from '../../utils/records';
+import { asRecord, display } from '../../utils/records';
 import { ConditionNodeEditor } from './ConditionNodeEditor';
 import { DecisionTableNodeEditor } from './DecisionTableNodeEditor';
 import { ExpressionNodeEditor } from './ExpressionNodeEditor';
@@ -21,6 +22,29 @@ interface NodePropertiesProps {
   onConditionChange?: (patch: UnknownRecord) => void;
 }
 
+/** Plain-language input→output role of a node, so the data flow is obvious. */
+function dataFlowHint(type: string): string {
+  switch (type) {
+    case 'START':
+      return 'Entrada: recibe las variables de entrada de la decisión. No produce salida.';
+    case 'CONDITION':
+      return 'Entrada: lee variables para decidir el camino. Salida: la rama (sí / no) según su regla.';
+    case 'SWITCH':
+      return 'Entrada: lee una variable. Salida: la rama del caso que coincide.';
+    case 'EXPRESSION':
+    case 'SCORE':
+      return 'Entrada: variables que usa el cálculo. Salida: la variable destino que escribe.';
+    case 'RESULT':
+      return 'Entrada: variables del flujo. Salida: las variables de resultado (lo que devuelve la decisión).';
+    case 'MANUAL_REVIEW':
+      return 'Entrada: el caso y su evidencia. Salida: deriva a una persona (no decide automáticamente).';
+    case 'END':
+      return 'Cierra el flujo sin producir un resultado.';
+    default:
+      return 'Configura las entradas que lee y las salidas que escribe este paso.';
+  }
+}
+
 export function NodeProperties({
   node,
   onChange,
@@ -34,11 +58,13 @@ export function NodeProperties({
 }: NodePropertiesProps) {
   const key = display(node, 'key');
   const [label, setLabel] = useState('');
+  const [description, setDescription] = useState('');
   const [config, setConfig] = useState('{}');
   const [configError, setConfigError] = useState<string | null>(null);
 
   useEffect(() => {
     setLabel(node.label !== undefined ? String(node.label) : '');
+    setDescription(String(asRecord(node.config).description ?? ''));
     setConfig(JSON.stringify(node.config ?? {}, null, 2));
     setConfigError(null);
     // Only reload the form when the selected node changes — re-running on every
@@ -92,9 +118,23 @@ export function NodeProperties({
           />
         </label>
         <label className="field">
+          <span>
+            Descripción del paso
+            <InfoHint text="Explica en palabras simples QUÉ hace este paso y POR QUÉ, para que cualquier persona lo entienda sin ser técnica." />
+          </span>
+          <textarea
+            rows={3}
+            value={description}
+            placeholder="Ej.: Comprueba que el cliente pasó KYC y dio su consentimiento antes de evaluar el riesgo."
+            onChange={(event) => setDescription(event.target.value)}
+            onBlur={() => onChange({ config: { ...asRecord(node.config), description } })}
+          />
+        </label>
+        <label className="field">
           <span>Tipo</span>
           <input readOnly value={display(node, 'type')} />
         </label>
+        <p className="node-io-hint">{dataFlowHint(display(node, 'type'))}</p>
       </section>
       {display(node, 'type') === 'CONDITION' && onConditionChange ? (
         <ConditionNodeEditor

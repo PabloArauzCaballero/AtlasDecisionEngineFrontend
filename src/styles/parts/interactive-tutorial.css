@@ -1,14 +1,77 @@
 /* Extras del tutorial interactivo: tip destacado, aviso de acción requerida y
    el botón [?] por sección. Reusa las clases base .tutorial-* existentes. */
 
-/* Clave para los pasos con acción requerida: el overlay deja pasar los clics al
-   elemento resaltado; solo la tarjeta y sus controles capturan el puntero. */
+/* Overlay interactivo a pantalla completa. Deja pasar los clics al elemento
+   resaltado (pointer-events:none); solo el scrim y la tarjeta capturan el puntero. */
 .tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
   pointer-events: none;
 }
-
-.tutorial-overlay .tutorial-tooltip {
+.tutorial-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
   pointer-events: auto;
+}
+/* Resalta el elemento del paso oscureciendo TODO lo demás con un box-shadow gigante. */
+.tutorial-spotlight {
+  position: absolute;
+  border-radius: 10px;
+  border: 2px solid var(--accent, #1d4ed8);
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
+  pointer-events: none;
+  transition:
+    top 0.15s ease,
+    left 0.15s ease,
+    width 0.15s ease,
+    height 0.15s ease;
+}
+.tutorial-tooltip {
+  position: fixed;
+  z-index: 1001;
+  width: 340px;
+  max-width: calc(100vw - 24px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.32);
+  padding: 16px 18px;
+  pointer-events: auto;
+}
+.tutorial-tooltip-centered {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.tutorial-tooltip h3 {
+  margin: 6px 0 4px;
+  font-size: 1rem;
+}
+.tutorial-tooltip > p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #334155;
+  line-height: 1.5;
+}
+.tutorial-progress {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+.tutorial-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.tutorial-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .tutorial-tip {

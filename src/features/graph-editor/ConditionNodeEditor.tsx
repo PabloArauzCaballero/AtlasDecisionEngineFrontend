@@ -38,7 +38,12 @@ export function ConditionNodeEditor({ condition, inputs, onChange }: ConditionNo
     return (
       <section className="condition-node-editor">
         <h3>Condición visual</h3>
-        <p className="field-error">Este nodo no tiene una condición asociada.</p>
+        <p className="field-hint">
+          Este nodo decide el camino según las condiciones de sus{' '}
+          <strong>conexiones de salida</strong> (cada flecha lleva su regla). Usa la{' '}
+          <strong>“Descripción del paso”</strong> de arriba para explicar en palabras qué evalúa, y
+          edita cada regla haciendo clic en su conexión.
+        </p>
       </section>
     );
   }

@@ -79,11 +79,15 @@ export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowI
     });
   }
 
-  if (!outputs.length) {
+  // The final output need not be declared up front: if a RESULT node exists, the
+  // output is inferred from it. Only warn when nothing at all can produce a result.
+  const hasResultNode = nodes.some((node) => display(node, 'type') === 'RESULT');
+  if (!outputs.length && !hasResultNode) {
     issues.push({
       code: 'NO_OUTPUTS',
       severity: 'warning',
-      message: 'No hay variables de salida en el contrato: la decisión no devolverá ningún valor.',
+      message:
+        'La decisión no produce ningún resultado: añade un nodo Resultado (su salida se toma como resultado final).',
     });
   }
 

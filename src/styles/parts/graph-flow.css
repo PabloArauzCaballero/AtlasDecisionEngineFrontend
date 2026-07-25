@@ -153,3 +153,14 @@
   font-size: 0.78rem;
   padding: 4px 0;
 }
+
+/* Per-node data-flow role hint in the node properties panel. */
+.node-io-hint {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  color: #475569;
+  line-height: 1.45;
+}

@@ -103,9 +103,17 @@ describe('analyzeFlow', () => {
     expect(issue?.nodeKey).toBe('EXPRESSION_1');
   });
 
-  it('warns when there are no output variables declared', () => {
+  it('does NOT warn about missing declared outputs when a Result node infers it', () => {
     const graph = healthy();
     graph.outputs = [];
+    const codes = analyzeFlow(graph).map((issue) => issue.code);
+    expect(codes).not.toContain('NO_OUTPUTS');
+  });
+
+  it('warns NO_OUTPUTS only when nothing can produce a result (no Result node)', () => {
+    const graph = healthy();
+    graph.outputs = [];
+    graph.nodes = graph.nodes.filter((node) => node.type !== 'RESULT');
     const codes = analyzeFlow(graph).map((issue) => issue.code);
     expect(codes).toContain('NO_OUTPUTS');
   });
