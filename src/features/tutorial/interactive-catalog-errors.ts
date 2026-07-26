@@ -86,6 +86,26 @@ export const ERROR_TUTORIAL_DEFS: Readonly<Record<string, InteractiveTutorial>> 
       ),
     ],
   },
+  'error:VERSION_STATE': {
+    id: 'error:VERSION_STATE',
+    title: 'Esta versión ya no se puede editar ni recompilar',
+    intro:
+      'Una versión desplegada o retirada queda “congelada” como registro; los cambios van en una versión nueva.',
+    version: 1,
+    steps: [
+      step(
+        'what',
+        '¿Qué pasó?',
+        'Intentaste validar, compilar o modificar una versión que ya está desplegada (o retirada). Para que una decisión en producción sea auditable, su versión no puede cambiar después de desplegarse: queda fija tal como se aprobó.',
+      ),
+      step(
+        'fix',
+        '¿Cómo corregirlo?',
+        'Abre el artefacto y crea una NUEVA versión (Nueva versión / duplicar). Esa nueva versión nace en Borrador: ahí sí puedes editar el grafo, validar, compilar, aprobar y desplegar.',
+        'Piensa en cada versión como una foto inmutable; para cambiar algo, tomas una foto nueva.',
+      ),
+    ],
+  },
   'error:REFERENCE': {
     id: 'error:REFERENCE',
     title: 'Problema con un algoritmo referenciado',
@@ -133,6 +153,21 @@ export const ERROR_LINKS: Readonly<Record<string, ErrorTutorialLink>> = {
     'error:NOT_COMPILED',
     'La versión no está compilada',
     'Compílala antes de ejecutarla.',
+  ),
+  VERSION_NOT_VALIDATABLE: link(
+    'error:VERSION_STATE',
+    'Esta versión ya no se puede validar',
+    'Está desplegada o retirada: crea una versión nueva.',
+  ),
+  VERSION_NOT_COMPILABLE: link(
+    'error:VERSION_STATE',
+    'Esta versión ya no se puede compilar',
+    'Está desplegada o retirada: crea una versión nueva.',
+  ),
+  VALIDATION_REQUIRED: link(
+    'error:NOT_COMPILED',
+    'El grafo cambió y ya no es válido',
+    'Vuelve a validarlo y corrige lo señalado antes de compilar.',
   ),
   VERSION_NOT_APPROVED: link(
     'error:DEPLOY_PERMISSION',

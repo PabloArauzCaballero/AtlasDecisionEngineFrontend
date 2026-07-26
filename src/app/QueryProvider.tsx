@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { ApiError, errorMessage, type ApiErrorKind } from '../api/ApiError';
 import type { NotificationInput, NotificationTone } from '../notifications/notification.types';
 import { useNotifications } from '../notifications/useNotifications';
+import { errorTutorial } from '../features/tutorial/interactive-catalog';
 
 /** Operator-facing headline per failure kind; the API message is the detail. */
 const TITLE_BY_KIND: Record<ApiErrorKind, string> = {
@@ -42,12 +43,15 @@ function toNotification(error: unknown): NotificationInput | null {
   if (error.kind === 'cancelled') return null;
 
   const tone: NotificationTone = WARNING_KINDS.has(error.kind) ? 'warning' : 'error';
+  // Si el código del backend tiene una explicación comprensible en el catálogo,
+  // la usamos en vez del mensaje técnico crudo (p. ej. "Version in state
+  // DEPLOYED_TO_PROD cannot be validated" → "Esta versión ya no se puede validar…").
+  const link = error.code ? errorTutorial(error.code) : null;
+  const detail = link ? link.description : error.message;
   return {
     tone,
-    title: TITLE_BY_KIND[error.kind],
-    description: error.requestId
-      ? `${error.message} · Referencia ${error.requestId}`
-      : error.message,
+    title: link ? link.title : TITLE_BY_KIND[error.kind],
+    description: error.requestId ? `${detail} · Referencia ${error.requestId}` : detail,
     // Warnings clear themselves; hard failures wait to be acknowledged.
     durationMs: tone === 'warning' ? 7000 : null,
   };
