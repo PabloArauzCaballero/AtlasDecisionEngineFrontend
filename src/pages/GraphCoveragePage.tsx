@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, GitBranch, ListChecks, Route } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
+import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
@@ -32,6 +33,11 @@ function traceTerminal(value: unknown): string | null {
 
 function caseLabel(testCase: TestCase | undefined, fallback: string): string {
   return testCase ? `${testCase.caseCode} · ${testCase.testName}` : fallback;
+}
+
+/** Join a coverage detail list defensively, whatever shape the backend sends. */
+function detailList(value: unknown): string {
+  return Array.isArray(value) && value.length ? value.map(String).join(', ') : 'ninguno';
 }
 
 export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps) {
@@ -112,7 +118,11 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
           Cargar cobertura
         </button>
       </form>
-      {query.isError ? <Alert tone="error">No fue posible recuperar la cobertura.</Alert> : null}
+      {query.isError ? (
+        <Alert tone="error">
+          No fue posible recuperar la cobertura de este run: {errorMessage(query.error)}
+        </Alert>
+      ) : null}
       {inProgress ? (
         <Alert tone="info">
           El run está {run?.status === 'QUEUED' ? 'en cola' : 'en ejecución'}; la cobertura se
@@ -158,9 +168,9 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
                   </b>
                 </span>
                 <p>
-                  Cubiertos: {item.detailsJson?.covered.join(', ') || 'ninguno'}
+                  Cubiertos: {detailList(item.detailsJson?.covered)}
                   <br />
-                  Pendientes: {item.detailsJson?.missing.join(', ') || 'ninguno'}
+                  Pendientes: {detailList(item.detailsJson?.missing)}
                 </p>
               </div>
             ))}
