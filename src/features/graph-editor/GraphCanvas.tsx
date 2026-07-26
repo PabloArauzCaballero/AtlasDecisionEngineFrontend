@@ -97,13 +97,18 @@ export function GraphCanvas({
   const byKey = new Map(placed.map((item) => [item.key, item]));
 
   function toPercent(clientX: number, clientY: number, includeDragOffset = false) {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 0, y: 0 };
+    const canvas = canvasRef.current;
+    const rect = canvas?.getBoundingClientRect();
+    if (!canvas || !rect) return { x: 0, y: 0 };
     const offsetX = includeDragOffset ? dragOffset.current.x : 0;
     const offsetY = includeDragOffset ? dragOffset.current.y : 0;
+    // The canvas is scrollable: getBoundingClientRect gives the visible viewport
+    // origin, so add the internal scroll offset to land in the scaled content space.
+    const contentX = clientX - rect.left + canvas.scrollLeft - offsetX;
+    const contentY = clientY - rect.top + canvas.scrollTop - offsetY;
     return {
-      x: clamp(((clientX - rect.left - offsetX) / (rect.width * zoom)) * 100, 0, maxNodeX),
-      y: clamp(((clientY - rect.top - offsetY) / (rect.height * zoom)) * 100, 0, maxNodeY),
+      x: clamp((contentX / (rect.width * zoom)) * 100, 0, maxNodeX),
+      y: clamp((contentY / (rect.height * zoom)) * 100, 0, maxNodeY),
     };
   }
 
