@@ -1,5 +1,5 @@
-import { AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
-import type { UnknownRecord } from '../../utils/records';
+import { AlertTriangle, CheckCircle2, LogIn, LogOut, XCircle } from 'lucide-react';
+import { display, type UnknownRecord } from '../../utils/records';
 import { analyzeFlow } from './flow-analysis';
 
 interface FlowChecklistProps {
@@ -19,6 +19,8 @@ export function FlowChecklist({ nodes, edges, inputs, outputs, onSelectNode }: F
   if (!nodes.length) return null;
   const issues = analyzeFlow({ nodes, edges, inputs, outputs });
   const errors = issues.filter((issue) => issue.severity === 'error');
+  const primary = outputs.find((output) => output.usageType === 'OUTPUT_PRIMARY');
+  const primaryOutput = primary ? display(primary, 'code') : '';
 
   return (
     <section className={`flow-checklist${issues.length ? '' : ' flow-checklist-ok'}`}>
@@ -38,6 +40,15 @@ export function FlowChecklist({ nodes, edges, inputs, outputs, onSelectNode }: F
             ? `${errors.length} bloquean publicación · ${issues.length - errors.length} por revisar`
             : 'Listo para publicar'}
         </small>
+        <span className="flow-io-summary">
+          <span className="io-badge io-in">
+            <LogIn size={12} /> {inputs.length} entrada{inputs.length === 1 ? '' : 's'}
+          </span>
+          <span className="io-badge io-out">
+            <LogOut size={12} /> {outputs.length} salida{outputs.length === 1 ? '' : 's'}
+            {primaryOutput ? ` · principal: ${primaryOutput}` : ''}
+          </span>
+        </span>
       </div>
       {issues.length ? (
         <>

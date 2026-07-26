@@ -38,6 +38,30 @@ function reachableFromStart(nodes: UnknownRecord[], edges: UnknownRecord[]): Set
   return reached;
 }
 
+/**
+ * Node keys from which SOME terminal is reachable (reverse BFS from every terminal
+ * over incoming edges). A decision tree requires every path to end in a terminal,
+ * so any reachable non-terminal outside this set is a broken branch (e.g. a loop
+ * that never concludes).
+ */
+function canReachTerminal(nodes: UnknownRecord[], edges: UnknownRecord[]): Set<string> {
+  const good = new Set<string>();
+  const pending = nodes.filter(isTerminal).map((node) => display(node, 'key'));
+  for (const key of pending) good.add(key);
+  while (pending.length) {
+    const current = pending.pop();
+    for (const edge of edges) {
+      if (display(edge, 'to') !== current) continue;
+      const from = display(edge, 'from');
+      if (!good.has(from)) {
+        good.add(from);
+        pending.push(from);
+      }
+    }
+  }
+  return good;
+}
+
 /** Output variable codes that at least one RESULT node writes to. */
 function assignedOutputCodes(nodes: UnknownRecord[]): { codes: Set<string>; hasScript: boolean } {
   const codes = new Set<string>();
@@ -91,7 +115,17 @@ export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowI
     });
   }
 
+  // Un árbol de decisión concluye en una sola variable de salida (la conclusión).
+  if (outputs.length > 1) {
+    issues.push({
+      code: 'MULTIPLE_OUTPUTS',
+      severity: 'warning',
+      message: `Un árbol de decisión debería tener una sola variable de salida (la conclusión); hay ${outputs.length}. Deja solo la principal.`,
+    });
+  }
+
   const reached = reachableFromStart(nodes, edges);
+  const terminalReach = canReachTerminal(nodes, edges);
   const reachesTerminal = nodes.some(
     (node) => reached.has(display(node, 'key')) && isTerminal(node),
   );
@@ -120,8 +154,16 @@ export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowI
     if (!isTerminal(node) && !hasOutgoing) {
       issues.push({
         code: 'DEAD_END',
-        severity: 'warning',
-        message: `El nodo «${display(node, 'label', 'key')}» no es terminal pero no tiene ninguna salida.`,
+        severity: 'error',
+        message: `El nodo «${display(node, 'label', 'key')}» no es terminal pero no tiene ninguna salida. Todo camino debe terminar en un fin (Resultado/Fin).`,
+        nodeKey: key,
+      });
+    } else if (!isTerminal(node) && hasOutgoing && !terminalReach.has(key)) {
+      // Tiene salidas pero ninguna conduce a un fin (p. ej. un bucle): rama rota.
+      issues.push({
+        code: 'NODE_NO_TERMINAL_PATH',
+        severity: 'error',
+        message: `Desde el nodo «${display(node, 'label', 'key')}» ningún camino llega a un fin (Resultado/Fin). En un árbol de decisión todo nodo debe conducir a un final.`,
         nodeKey: key,
       });
     }

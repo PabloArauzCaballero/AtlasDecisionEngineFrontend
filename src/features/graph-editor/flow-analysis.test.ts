@@ -117,4 +117,29 @@ describe('analyzeFlow', () => {
     const codes = analyzeFlow(graph).map((issue) => issue.code);
     expect(codes).toContain('NO_OUTPUTS');
   });
+
+  it('errors when a node has exits but no path reaches a terminal (loop)', () => {
+    const graph = healthy();
+    graph.nodes.push({ key: 'A', type: 'EXPRESSION', terminal: false, config: {} });
+    graph.nodes.push({ key: 'B', type: 'EXPRESSION', terminal: false, config: {} });
+    graph.edges.push({ key: 'START__A', from: 'START', to: 'A' });
+    graph.edges.push({ key: 'A__B', from: 'A', to: 'B' });
+    graph.edges.push({ key: 'B__A', from: 'B', to: 'A' });
+    const issue = analyzeFlow(graph).find((entry) => entry.code === 'NODE_NO_TERMINAL_PATH');
+    expect(issue?.severity).toBe('error');
+    expect(['A', 'B']).toContain(issue?.nodeKey);
+  });
+
+  it('warns when more than one output variable is declared', () => {
+    const graph = healthy();
+    graph.outputs = [output('score'), output('riskBand')];
+    const codes = analyzeFlow(graph).map((issue) => issue.code);
+    expect(codes).toContain('MULTIPLE_OUTPUTS');
+  });
+
+  it('does not flag a healthy single-output tree', () => {
+    const codes = analyzeFlow(healthy()).map((issue) => issue.code);
+    expect(codes).not.toContain('MULTIPLE_OUTPUTS');
+    expect(codes).not.toContain('NODE_NO_TERMINAL_PATH');
+  });
 });
