@@ -38,6 +38,20 @@ export interface CreateField {
   defaultValue?: string | boolean;
 }
 
+/**
+ * Picker-backed filter: a real select whose options come from an entity picker
+ * endpoint (e.g. `pickers/artifacts`) mapping arbitrary row keys to value/label.
+ * Unlike `optionsEndpoint` (which needs `{ value, label }` rows), this adapts the
+ * domain-shaped picker rows the rest of the app already uses.
+ */
+export interface FilterPicker {
+  endpoint: string;
+  /** Row key used as the option value (the query-param value). */
+  valueKey: string;
+  /** Row keys joined with · to build the option label. */
+  labelKeys: readonly string[];
+}
+
 export interface ResourceFilter {
   /** Real backend query parameter this control sends (e.g. `status`). */
   param: string;
@@ -50,6 +64,10 @@ export interface ResourceFilter {
    * options come from the backend; degrades to a free-text input if unavailable.
    */
   optionsEndpoint?: string;
+  /** Entity picker backing this filter (e.g. artefactos), mapping row keys. */
+  picker?: FilterPicker;
+  /** HTML input type for free-text filters (e.g. `date`, `number`). Defaults to text. */
+  inputType?: string;
   placeholder?: string;
 }
 
@@ -65,6 +83,8 @@ export interface ResourceConfig {
   filterParam?: string;
   filterLabel?: string;
   filterPlaceholder?: string;
+  /** When set, the primary filter is a picker-backed select instead of free text. */
+  filterPicker?: FilterPicker;
   unpaged?: boolean;
   primaryAction?: string;
   /** When present, the list view renders a built-in create form for this resource. */

@@ -9,6 +9,7 @@ import { PageHeader } from '../components/PageHeader';
 import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
 import { ResourceCreateForm } from '../resources/ResourceCreateForm';
+import { ResourceExtraFilters } from '../resources/ResourceExtraFilters';
 import type { ResourceConfig } from '../resources/resource.types';
 
 interface ResourceListPageProps {
@@ -154,53 +155,38 @@ export function ResourceListPage({
       />
       {config.filterParam ? (
         <form className="filter-bar" onSubmit={submit}>
-          <label>
-            <span>{config.filterLabel}</span>
-            <input
-              value={draftFilter}
-              onChange={(event) => setDraftFilter(event.target.value)}
+          {config.filterPicker ? (
+            <FilterSelect
+              label={config.filterLabel ?? 'Filtro'}
+              value={filter}
+              endpoint={config.filterPicker.endpoint}
+              valueKey={config.filterPicker.valueKey}
+              labelKeys={config.filterPicker.labelKeys}
               placeholder={config.filterPlaceholder}
+              onChange={(value) => {
+                setDraftFilter(value);
+                setFilter(value);
+                setPage(1);
+              }}
             />
-          </label>
-          {showExtraFilters
-            ? (config.filters ?? []).map((extra) =>
-                extra.optionsEndpoint ? (
-                  <FilterSelect
-                    key={extra.param}
-                    label={extra.label}
-                    value={draftExtra[extra.param] ?? ''}
-                    endpoint={extra.optionsEndpoint}
-                    placeholder={extra.placeholder}
-                    onChange={(value) => applySelectFilter(extra.param, value)}
-                  />
-                ) : (
-                  <label key={extra.param}>
-                    <span>{extra.label}</span>
-                    {extra.options ? (
-                      <select
-                        value={draftExtra[extra.param] ?? ''}
-                        onChange={(event) => applySelectFilter(extra.param, event.target.value)}
-                      >
-                        <option value="">Todos</option>
-                        {extra.options.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        value={draftExtra[extra.param] ?? ''}
-                        placeholder={extra.placeholder}
-                        onChange={(event) =>
-                          setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
-                        }
-                      />
-                    )}
-                  </label>
-                ),
-              )
-            : null}
+          ) : (
+            <label>
+              <span>{config.filterLabel}</span>
+              <input
+                value={draftFilter}
+                onChange={(event) => setDraftFilter(event.target.value)}
+                placeholder={config.filterPlaceholder}
+              />
+            </label>
+          )}
+          {showExtraFilters && config.filters?.length ? (
+            <ResourceExtraFilters
+              filters={config.filters}
+              draftExtra={draftExtra}
+              setDraftExtra={setDraftExtra}
+              applySelectFilter={applySelectFilter}
+            />
+          ) : null}
           <button className="button button-primary" type="submit">
             <Search size={17} /> Buscar
           </button>

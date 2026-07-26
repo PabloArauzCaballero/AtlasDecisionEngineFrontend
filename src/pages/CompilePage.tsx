@@ -7,9 +7,8 @@ import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
-import { PickerSelect } from '../components/PickerSelect';
+import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { useNotifications } from '../notifications/useNotifications';
-import { display } from '../utils/records';
 
 const DRAFT_KEY = 'compile-wizard-draft';
 
@@ -92,17 +91,10 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
         </aside>
         <main className="wizard-main">
           <Panel title="Pre-validación del Modelo" meta="Required gate">
-            <PickerSelect
-              label="Versión del artefacto"
-              value={versionId}
-              onChange={setVersionId}
-              endpoint="/v1/views/pickers/artifact-versions"
-              queryKey="artifact-versions"
-              placeholder="Elegir versión…"
-              mapOption={(row) => ({
-                value: display(row, 'id'),
-                label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
-              })}
+            <ArtifactVersionPicker
+              versionId={versionId}
+              onVersionChange={setVersionId}
+              initialVersionId={initialVersionId}
             />
             <div className="validation-group">
               <h3>

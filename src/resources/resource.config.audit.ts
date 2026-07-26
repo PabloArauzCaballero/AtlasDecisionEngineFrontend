@@ -10,11 +10,26 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
     hint: 'Cada decisión que el motor ya tomó, con sus entradas, resultado y tiempos. Sirve para auditar y reproducir exactamente por qué se decidió algo.',
     endpoint: '/v1/audit/executions',
     filterParam: 'artifactCode',
-    filterLabel: 'Request ID / Artefacto',
-    filterPlaceholder: 'req_... o código',
+    filterLabel: 'Artefacto',
+    filterPlaceholder: 'Todos los artefactos',
+    filterPicker: {
+      endpoint: '/v1/views/pickers/artifacts',
+      valueKey: 'artifactCode',
+      labelKeys: ['artifactCode', 'name'],
+    },
     filters: [
-      { param: 'outcome', label: 'Outcome', placeholder: 'APPROVED, DECLINED…' },
+      {
+        param: 'outcome',
+        label: 'Resultado',
+        options: [
+          { value: 'APPROVED', label: 'Aprobado' },
+          { value: 'DECLINED', label: 'Rechazado' },
+          { value: 'MANUAL_REVIEW', label: 'Revisión manual' },
+        ],
+      },
       { param: 'requestId', label: 'Request ID', placeholder: 'req_...' },
+      { param: 'from', label: 'Desde', inputType: 'date' },
+      { param: 'to', label: 'Hasta', inputType: 'date' },
     ],
     detailPath: (row) => `/executions/${String(row.id)}`,
     columns: [

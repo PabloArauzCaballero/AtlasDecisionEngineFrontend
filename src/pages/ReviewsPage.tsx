@@ -5,12 +5,14 @@ import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
+import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { PickerSelect } from '../components/PickerSelect';
 import { useNotifications } from '../notifications/useNotifications';
 import { display } from '../utils/records';
 
 export function ReviewsPage() {
   const [versionId, setVersionId] = useState('');
+  const [initialVersionId, setInitialVersionId] = useState('');
   const [requestId, setRequestId] = useState('');
   const [result, setResult] = useState<unknown>(null);
   const { notify } = useNotifications();
@@ -19,7 +21,7 @@ export function ReviewsPage() {
   // the operator still reviews and confirms the submission by hand.
   useEffect(() => {
     const prefill = new URLSearchParams(window.location.search).get('versionId');
-    if (prefill && /^[1-9][0-9]*$/.test(prefill)) setVersionId(prefill);
+    if (prefill && /^[1-9][0-9]*$/.test(prefill)) setInitialVersionId(prefill);
   }, []);
   const submitReview = useMutation({
     mutationFn: (id: string) =>
@@ -59,18 +61,11 @@ export function ReviewsPage() {
           onSubmit={(event) => submit(event, () => submitReview.mutate(versionId))}
         >
           <h2>Enviar a revisión</h2>
-          <PickerSelect
-            label="Versión del artefacto"
-            value={versionId}
-            onChange={setVersionId}
-            endpoint="/v1/views/pickers/artifact-versions"
-            queryKey="artifact-versions"
+          <ArtifactVersionPicker
+            versionId={versionId}
+            onVersionChange={setVersionId}
+            initialVersionId={initialVersionId}
             required
-            placeholder="Elegir versión…"
-            mapOption={(row) => ({
-              value: display(row, 'id'),
-              label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
-            })}
           />
           <button className="button button-primary" disabled={submitReview.isPending}>
             {submitReview.isPending ? <span className="inline-spinner" aria-hidden="true" /> : null}

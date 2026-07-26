@@ -7,10 +7,14 @@ import { asRows, display, type UnknownRecord } from '../utils/records';
 interface FilterSelectProps {
   label: string;
   value: string;
-  /** `/v1/views/options?group=…` catalog endpoint. */
+  /** `/v1/views/options?group=…` catalog endpoint, or an entity picker endpoint. */
   endpoint: string;
   placeholder?: string;
   onChange: (value: string) => void;
+  /** Row key for the option value (defaults to `value`, the options-catalog shape). */
+  valueKey?: string;
+  /** Row keys joined with · for the label (defaults to `label`/`value`). */
+  labelKeys?: readonly string[];
 }
 
 /**
@@ -19,7 +23,15 @@ interface FilterSelectProps {
  * chosen, not typed. Degrades to a free-text input when the catalog is unavailable
  * or empty, so filtering never breaks.
  */
-export function FilterSelect({ label, value, endpoint, placeholder, onChange }: FilterSelectProps) {
+export function FilterSelect({
+  label,
+  value,
+  endpoint,
+  placeholder,
+  onChange,
+  valueKey = 'value',
+  labelKeys,
+}: FilterSelectProps) {
   const catalog = useQuery({
     queryKey: ['filter-options', endpoint],
     queryFn: () => apiRequest<unknown>(endpoint),
@@ -29,7 +41,12 @@ export function FilterSelect({ label, value, endpoint, placeholder, onChange }: 
     ? asRows(catalog.data)
     : asRows((catalog.data as UnknownRecord | undefined)?.items);
   const options = rows
-    .map((row) => ({ value: display(row, 'value'), label: display(row, 'label', 'value') }))
+    .map((row) => ({
+      value: display(row, valueKey),
+      label: labelKeys
+        ? labelKeys.map((key) => display(row, key)).join(' · ')
+        : display(row, 'label', 'value'),
+    }))
     .filter((option) => option.value !== '—' && option.value !== '');
   const noCatalog = catalog.isError || (!catalog.isPending && options.length === 0);
 

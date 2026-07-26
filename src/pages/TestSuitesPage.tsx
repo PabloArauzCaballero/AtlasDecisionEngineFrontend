@@ -7,7 +7,7 @@ import { ApiError, errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
-import { PickerSelect } from '../components/PickerSelect';
+import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
@@ -17,7 +17,6 @@ import {
   queuedTestRunSchema,
   testSuitesPageSchema,
 } from '../testing/testing.schemas';
-import { display } from '../utils/records';
 
 interface TestSuitesPageProps {
   initialVersionId?: string;
@@ -134,18 +133,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
           setVersionId(draftId.trim());
         }}
       >
-        <PickerSelect
-          label="Versión del artefacto"
-          value={draftId}
-          onChange={setDraftId}
-          endpoint="/v1/views/pickers/artifact-versions"
-          queryKey="artifact-versions"
-          placeholder="Elegir versión…"
-          mapOption={(row) => ({
-            value: display(row, 'id'),
-            label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
-          })}
-        />
+        <ArtifactVersionPicker versionId={draftId} onVersionChange={setDraftId} />
         <button className="button button-primary" type="submit">
           Load suites
         </button>

@@ -139,6 +139,19 @@
   color: #b45309;
 }
 
+/* Two-step artefacto → versión picker: artifact chooses, version narrows to it. */
+.artifact-version-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .artifact-version-picker {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Simulator: form/JSON switch. */
 .view-tabs {
   display: inline-flex;
