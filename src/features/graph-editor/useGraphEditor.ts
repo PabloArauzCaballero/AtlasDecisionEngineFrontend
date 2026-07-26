@@ -7,7 +7,7 @@ import { updateSiblingEdge } from './graph-edge-update';
 import { createEdgeDraft, createNodeDraft, edgeCreationError } from './graph-authoring';
 import { connectionErrorNotice, type ConnectionNotice } from './connection-feedback';
 import { layoutGraphNodes, normalizeLoadedGraph } from './graph-layout';
-import { withEdges, withNodes } from './graph-snapshot';
+import { withEdges, withNewNodeCondition, withNodes } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
 
 const ZOOM_MIN = 0.5;
@@ -58,7 +58,6 @@ export function useGraphEditor(initialVersionId = '') {
       setConnectionNotice(null);
     },
   });
-
   const save = useMutation({
     mutationFn: () =>
       apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodeURIComponent(versionId)}/graph`, {
@@ -71,7 +70,6 @@ export function useGraphEditor(initialVersionId = '') {
       history.clearHistory();
     },
   });
-
   const validate = useMutation({
     mutationFn: () =>
       apiRequest(`/v1/artifact-versions/${encodeURIComponent(versionId)}/validate`, {
@@ -233,7 +231,6 @@ export function useGraphEditor(initialVersionId = '') {
     if (!nodes.length) return;
     history.commit(withNodes(history.snapshot, layoutGraphNodes(nodes, edges)));
   };
-
   return {
     versionId,
     setVersionId,
@@ -261,6 +258,9 @@ export function useGraphEditor(initialVersionId = '') {
     updateSelectedCondition: (patch: UnknownRecord) =>
       updateConditionByCode(selectedConditionCode, patch),
     updateConditionByCode,
+    createSelectedNodeCondition: (variableCode: string) =>
+      selectedKey &&
+      history.commit(withNewNodeCondition(history.snapshot, selectedKey, variableCode)),
     updateSelectedEdge,
     deleteSelectedNode,
     deleteEdge,

@@ -6,8 +6,10 @@ import { Alert } from '../components/Alert';
 import { LiveNodeStepList, type LiveNodeStep } from '../components/LiveNodeStepList';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { PickerSelect } from '../components/PickerSelect';
 import { JsonPanel } from '../components/JsonPanel';
 import { JsonTextarea } from '../components/JsonTextarea';
+import { display } from '../utils/records';
 import { parseJsonObject } from '../utils/json';
 
 interface NestedExecutionEntry {
@@ -86,14 +88,21 @@ export function LiveExecutionPage() {
         <Panel title="Configuración" meta="Live request">
           <form className="simulator-form" onSubmit={start}>
             <div className="form-row">
-              <label className="field">
-                <span>Artifact Code</span>
-                <input
-                  required
-                  value={artifactCode}
-                  onChange={(event) => setArtifactCode(event.target.value.toUpperCase())}
-                />
-              </label>
+              <PickerSelect
+                label="Artifact Code"
+                value={artifactCode}
+                onChange={setArtifactCode}
+                endpoint="/v1/views/pickers/artifacts"
+                queryKey="live-artifacts"
+                required
+                placeholder="Elegir artefacto…"
+                mapOption={(row) => {
+                  const code = display(row, 'artifactCode');
+                  return code === '—'
+                    ? null
+                    : { value: code, label: `${code} · ${display(row, 'name')}` };
+                }}
+              />
               <label className="field">
                 <span>Environment</span>
                 <select

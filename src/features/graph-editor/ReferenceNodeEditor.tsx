@@ -211,7 +211,7 @@ export function ReferenceNodeEditor({
 
       {errors.length ? (
         <ul className="reference-errors">
-          {errors.map((error) => (
+          {[...new Set(errors)].map((error) => (
             <li key={error}>{error}</li>
           ))}
         </ul>

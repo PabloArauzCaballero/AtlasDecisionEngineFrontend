@@ -20,6 +20,7 @@ interface NodePropertiesProps {
   branchCount?: number;
   versionId?: string;
   onConditionChange?: (patch: UnknownRecord) => void;
+  onCreateCondition?: (variableCode: string) => void;
 }
 
 /** Plain-language input→output role of a node, so the data flow is obvious. */
@@ -55,6 +56,7 @@ export function NodeProperties({
   branchCount = 0,
   versionId = '',
   onConditionChange,
+  onCreateCondition,
 }: NodePropertiesProps) {
   const key = display(node, 'key');
   const [label, setLabel] = useState('');
@@ -142,6 +144,7 @@ export function NodeProperties({
           condition={condition}
           inputs={inputs}
           onChange={onConditionChange}
+          onCreateCondition={onCreateCondition}
         />
       ) : null}
       {display(node, 'type') === 'SWITCH' ? (
