@@ -5,6 +5,7 @@ import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
+import { GeneratedGraphPreview } from '../components/GeneratedGraphPreview';
 import { CodeImportIssuesList, type CodeImportIssue } from '../components/CodeImportIssuesList';
 import { JsonTextarea } from '../components/JsonTextarea';
 import { PageHeader } from '../components/PageHeader';
@@ -105,15 +106,7 @@ export function CodeImportPage() {
                   <p className="muted-text">
                     {nodes.length} nodos · {dependencies.length} variables
                   </p>
-                  <div className="code-import-flow" aria-label="Flujo del grafo generado">
-                    {nodes.map((node, index) => (
-                      <span key={display(node, 'key')} className="code-import-flow-node">
-                        {index > 0 ? <span className="code-import-flow-arrow">→</span> : null}
-                        <span className="dependency-node-key">{display(node, 'type')}</span>
-                        {display(node, 'label', 'key')}
-                      </span>
-                    ))}
-                  </div>
+                  <GeneratedGraphPreview nodes={nodes} />
                   <ul className="dependency-list">
                     {dependencies.map((dependency, index) => (
                       <li key={index}>

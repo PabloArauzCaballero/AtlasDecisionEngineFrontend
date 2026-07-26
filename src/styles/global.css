@@ -17,6 +17,7 @@
 @import './parts/json-views.css';
 @import './parts/search-picking.css';
 @import './parts/quality.css';
+@import './parts/generated-graph.css';
 @import './parts/operations-governance.css';
 @import './parts/nested-trees.css';
 /* The interaction layer loads after the component parts it enhances, so its
