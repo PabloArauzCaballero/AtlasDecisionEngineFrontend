@@ -1,0 +1,43 @@
+/* Barra de valores de prueba del simulador: generar desde el contrato o subir JSON/CSV.
+   Sólo tokens; un hex escrito a mano quedaría ilegible al conmutar el tema. */
+.sample-bar {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: var(--surface-inset);
+}
+.sample-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+}
+.sample-bar-kind {
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+.sample-bar-count {
+  width: 84px;
+  flex: 0 0 auto;
+}
+.sample-bar-cases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sample-case-chip {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--surface);
+  cursor: pointer;
+}
+.sample-case-chip[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}

@@ -1,38 +1,51 @@
-/* Vista visual (no editable) del grafo generado en /code-import. */
+/* Vista visual (no editable) del grafo generado en /code-import: una escalera de
+   decisión — el camino "no" baja y cada condición muestra su rama "sí". */
 .generated-graph {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  display: grid;
   gap: 0;
   margin: 8px 0 14px;
   padding: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 10px;
   background:
     radial-gradient(circle at 50% 0%, rgba(216, 251, 245, 0.4), transparent 40%),
     radial-gradient(rgba(148, 163, 184, 0.4) 0.8px, transparent 0.8px) 0 0 / 20px 20px,
-    #f8fafc;
+    var(--canvas);
 }
-.generated-graph-step {
+.generated-graph-row {
+  display: grid;
+  justify-items: start;
+}
+.generated-graph-branch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* Conector vertical del camino por defecto, etiquetado "no" tras una condición. */
+.generated-graph-link {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 2px solid var(--line-strong);
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.generated-graph-yes {
   display: inline-flex;
   align-items: center;
-}
-.generated-graph-arrow {
-  width: 34px;
-  height: 2px;
-  margin: 0 -1px;
-  background: #94a3b8;
-  position: relative;
-}
-.generated-graph-arrow::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  border-left: 6px solid #94a3b8;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
+  gap: 4px;
+  color: var(--success);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 .generated-graph-node {
   display: inline-flex;
@@ -40,15 +53,15 @@
   gap: 10px;
   min-width: 150px;
   padding: 10px 13px;
-  border: 1px solid #d7dee8;
-  border-left: 3px solid var(--node-color, #64748b);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--node-color, var(--muted));
   border-radius: 9px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 .generated-graph-node-icon {
   display: inline-flex;
-  color: var(--node-color, #64748b);
+  color: var(--node-color, var(--muted));
 }
 .generated-graph-node-copy {
   display: flex;
@@ -60,5 +73,5 @@
 }
 .generated-graph-node-copy small {
   font-size: 11px;
-  color: #64748b;
+  color: var(--muted);
 }

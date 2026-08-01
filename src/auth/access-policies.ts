@@ -22,4 +22,24 @@ export const accessPolicies = {
   codeImport: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,
   // Fase 10 — security team dashboard. Mirrors the backend's SECURITY_TEAM_ROLES.
   securityReview: ['COMPLIANCE', 'FRAUD_ANALYST', 'RISK_APPROVER', 'AUDITOR'] as const,
+  // §5 — campos calculados reutilizables. Leerlos es catálogo; crear versiones exige el
+  // mismo rol que diseñar un grafo, porque su código entra en decisiones reales.
+  calculatedFields: [
+    'RISK_ANALYST',
+    'FRAUD_ANALYST',
+    'QA_ANALYST',
+    'COMPLIANCE',
+    'AUDITOR',
+  ] as const,
+  // §7 — registro de librerías autorizadas: lectura amplia, alta solo desde el backend.
+  libraryRegistry: [
+    'RISK_ANALYST',
+    'FRAUD_ANALYST',
+    'QA_ANALYST',
+    'COMPLIANCE',
+    'AUDITOR',
+    'PLATFORM_ADMIN',
+  ] as const,
+  // §10 — QA Lab. Mismos roles que la autoría de calidad: una corrida ejecuta el motor.
+  qaLab: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
 } as const;

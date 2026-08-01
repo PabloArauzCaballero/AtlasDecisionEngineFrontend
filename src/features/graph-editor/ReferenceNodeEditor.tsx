@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Link2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { errorMessage } from '../../api/ApiError';
+import { ConfirmButton } from '../../components/ConfirmButton';
 import { PickerSelect } from '../../components/PickerSelect';
 import { NavLink } from '../../navigation/NavLink';
 import { useNotifications } from '../../notifications/useNotifications';
@@ -13,6 +14,7 @@ import {
   referenceErrors,
   type ReferenceFormState,
 } from './reference-authoring';
+import { ReferencePolicyFields } from './ReferencePolicyFields';
 import { createReference, deleteReference, listReferences } from './references.api';
 
 interface Props {
@@ -182,16 +184,24 @@ export function ReferenceNodeEditor({
               onChange={(event) => setInput(index, { value: event.target.value })}
             />
           )}
-          <button
-            type="button"
+          <ConfirmButton
             className="icon-button"
-            aria-label="Quitar entrada"
-            onClick={() =>
+            label="Quitar entrada"
+            title="¿Quitar este mapeo de entrada?"
+            confirmLabel="Quitar el mapeo"
+            description={
+              <p>
+                El algoritmo referenciado dejará de recibir{' '}
+                <b>{entry.childVariableCode || 'esta variable'}</b>. Si es obligatoria allí, la
+                llamada fallará.
+              </p>
+            }
+            onConfirm={() =>
               patch({ inputMappings: form.inputMappings.filter((_, i) => i !== index) })
             }
           >
             <Trash2 size={13} />
-          </button>
+          </ConfirmButton>
         </div>
       ))}
 
@@ -208,6 +218,8 @@ export function ReferenceNodeEditor({
           <option value="SKIP">Omitir la referencia</option>
         </select>
       </label>
+
+      <ReferencePolicyFields form={form} onPatch={patch} />
 
       {errors.length ? (
         <ul className="reference-errors">
@@ -240,15 +252,24 @@ export function ReferenceNodeEditor({
               >
                 <ExternalLink size={12} /> Abrir algoritmo
               </NavLink>
-              <button
-                type="button"
+              <ConfirmButton
                 className="icon-button"
-                aria-label="Quitar referencia"
+                label="Quitar referencia"
+                title="¿Quitar la referencia a este algoritmo?"
+                confirmLabel="Quitar la referencia"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(display(ref, 'id'))}
+                description={
+                  <p>
+                    Este paso deja de llamar al algoritmo{' '}
+                    <b>{display(ref, 'childArtifactVersionId', 'childArtifactId')}</b>, y el
+                    resultado que traía dejará de estar disponible para los pasos siguientes. Se
+                    borra en el motor al confirmar, no al guardar el grafo.
+                  </p>
+                }
+                onConfirm={() => remove.mutate(display(ref, 'id'))}
               >
                 <Trash2 size={13} />
-              </button>
+              </ConfirmButton>
             </div>
           ))}
         </div>

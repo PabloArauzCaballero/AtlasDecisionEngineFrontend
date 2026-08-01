@@ -1,0 +1,198 @@
+/**
+ * Tokens de tema — capa base del sistema visual.
+ *
+ * Se carga la primera, antes que cualquier componente, y define el mismo juego
+ * de nombres para tema claro y oscuro. El resto de hojas nunca vuelve a decidir
+ * "qué gris es el fondo": pide `var(--surface)` y el tema responde.
+ *
+ * El tema activo se decide por el atributo `data-theme` del elemento raíz, que
+ * escribe un script en línea antes del primer pintado (ver `layout.next.tsx`).
+ * Esto evita el destello blanco al recargar en oscuro y, al no formar parte del
+ * HTML que renderiza React, tampoco provoca discrepancias de hidratación.
+ */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* Superficies, de la más al fondo a la más elevada. */
+  --canvas: #f8fafc;
+  --surface: #ffffff;
+  --surface-sunken: #f6f8fb;
+  --surface-raised: #ffffff;
+  --surface-hover: #f2f4f7;
+  --surface-inset: #fbfcfe;
+  /* Superficie grande de página: deja pasar un punto del fondo ambiental para
+     que su deriva se perciba también donde hay contenido. Ver `surface-live.css`. */
+  --panel-live: rgba(255, 255, 255, 0.92);
+
+  /* Texto. */
+  --ink: #111827;
+  --ink-strong: #0f172a;
+  --text: #344054;
+  /* Se oscurece un punto respecto de #64748b, que se quedaba en 4,47:1 sobre
+     `--surface-sunken`: aprobaba en casi todas las superficies menos en una, y
+     "casi" no es una categoría útil cuando alguien lee esto ocho horas. */
+  --muted: #5b6678;
+  /* 4,97:1 sobre `--surface` y 4,51:1 sobre `--surface-hover`. El gris anterior
+     (#98a2b3) daba 2,58:1, por debajo incluso del mínimo para texto grande, y
+     se usa en rótulos de 9 px en versalitas: era el texto menos legible del
+     portal. Ver `theme-contrast.test.ts`, que fija el umbral. */
+  --faint: #667085;
+
+  /* Trazos. */
+  --line: #dbe2ea;
+  --line-strong: #c2ccd9;
+  --line-soft: #eef2f6;
+
+  /* Acento e identidad. */
+  --accent: #006a61;
+  --accent-strong: #00554e;
+  --accent-soft: #86f2e4;
+  --accent-wash: #e6fffb;
+  --navy: #000000;
+
+  /* Semánticos: color + su fondo tenue + su borde. */
+  --danger: #b42318;
+  --danger-wash: #fff4f2;
+  --danger-line: #fecdca;
+  --warning: #b54708;
+  --warning-wash: #fff8ef;
+  --warning-line: #f6d4ab;
+  --success: #067647;
+  --success-wash: #ecfdf3;
+  --success-line: #abefc6;
+  --info: #175cd3;
+  --info-wash: #eff8ff;
+  --info-line: #b2ddff;
+
+  /*
+   * Variante profunda de cada estado, para texto sobre su propio fondo tenue.
+   * En claro es más oscura que el token base; en oscuro, más clara. Existe
+   * porque una insignia («Aprobado», «Requiere revisión») pone letra encima del
+   * wash, y ahí el token base se queda justo de contraste.
+   */
+  --danger-strong: #912018;
+  --warning-strong: #93370d;
+  --success-strong: #05603a;
+  --info-strong: #1849a9;
+
+  /*
+   * Énfasis. No es el acento de la marca ni un estado: marca lo que el sistema
+   * quiere que mires (la coincidencia de una búsqueda, la salida principal de un
+   * nodo, una pista activa).
+   */
+  --highlight: #4338ca;
+  --highlight-wash: #eef2ff;
+  --highlight-line: #c7d2fe;
+
+  /*
+   * Superficie de código: oscura en los DOS temas a propósito. Un bloque de
+   * código o una consola se leen mejor invertidos, y cambiarlos con el tema
+   * haría que el mismo fragmento se viera distinto según la hora del día.
+   */
+  --code-surface: #101828;
+  --code-ink: #e6edf7;
+
+  /* Sombras: en claro dan volumen; en oscuro casi no se ven y el relieve lo
+     aporta el borde, por eso el token existe en los dos temas. */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 6px 16px -6px rgba(16, 24, 40, 0.18), 0 2px 5px -2px rgba(16, 24, 40, 0.1);
+  --shadow-lg: 0 24px 60px -24px rgba(16, 24, 40, 0.22);
+  --focus-ring: rgba(37, 99, 235, 0.3);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Azules muy desaturados en vez de grises puros: el negro absoluto sobre
+     pantallas OLED produce halos alrededor del texto y cansa en jornadas
+     largas, que es como se usa una consola de operaciones. */
+  --canvas: #0b1120;
+  --surface: #131c2e;
+  --surface-sunken: #0f1728;
+  --surface-raised: #1a2438;
+  --surface-hover: #1e293f;
+  --surface-inset: #162034;
+  --panel-live: rgba(19, 28, 46, 0.92);
+
+  /* Blanco puro sobre fondo oscuro "vibra": se rebaja a un gris muy claro. */
+  --ink: #e8edf6;
+  --ink-strong: #f4f7fb;
+  --text: #cbd5e6;
+  --muted: #94a3b8;
+  /* Mismo motivo que en claro: #6b7a90 se quedaba en 3,33:1 sobre las
+     superficies elevadas. Éste da 4,72:1 en la peor de ellas. */
+  --faint: #8494ad;
+
+  --line: #2a3550;
+  --line-strong: #3b4864;
+  --line-soft: #202b42;
+
+  /* El verde corporativo se aclara para conservar contraste sobre oscuro. */
+  --accent: #2dd4bf;
+  --accent-strong: #5eead4;
+  --accent-soft: #134e4a;
+  --accent-wash: #10302f;
+  --navy: #e8edf6;
+
+  --danger: #fda29b;
+  --danger-wash: #2a1512;
+  --danger-line: #5c2620;
+  --warning: #fdb022;
+  --warning-wash: #2a1e0c;
+  --warning-line: #5d4318;
+  --success: #6ce9a6;
+  --success-wash: #0d2a1c;
+  --success-line: #1f5c3c;
+  --info: #84caff;
+  --info-wash: #10243d;
+  --info-line: #1e4a76;
+
+  /* Aquí «profundo» significa más claro: lo que manda es destacar sobre el
+     wash, y en oscuro eso se consigue subiendo, no bajando. */
+  --danger-strong: #fda29b;
+  --warning-strong: #fedf89;
+  --success-strong: #a6f4c5;
+  --info-strong: #b2ddff;
+
+  --highlight: #a5b4fc;
+  --highlight-wash: #1e1b4b;
+  --highlight-line: #312e81;
+
+  /* La superficie de código no se invierte: ya lo estaba. Sólo se asienta un
+     punto más para no competir con los paneles del propio tema oscuro. */
+  --code-surface: #0b1120;
+  --code-ink: #e6edf7;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 16px -6px rgba(0, 0, 0, 0.55), 0 2px 5px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  --focus-ring: rgba(132, 202, 255, 0.45);
+}
+
+/**
+ * Transición al conmutar de tema.
+ *
+ * Sólo colores, y sólo mientras dura el cambio (la clase la pone y la quita el
+ * conmutador): animar `background-color` de forma permanente encarecería cada
+ * `hover` de la aplicación. Se respeta la reducción de movimiento.
+ */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,217 @@
+/**
+ * Lenguaje visual compartido: insignias de concepto, ilustraciones, estados
+ * vacíos explicativos y contadores animados.
+ *
+ * Todo lo de aquí se dibuja con `currentColor` o con los tokens de
+ * `foundation.css`, de modo que hereda el color de su contenedor y no fija
+ * ningún fondo propio: la misma pieza sirve sobre panel claro, sobre el fondo
+ * ambiental o dentro de una tarjeta teñida por estado.
+ */
+
+/* ------------------------------------------------ ambiente no productivo */
+
+/**
+ * El distintivo de ambiente pasa a ámbar cuando no es producción. El color no
+ * está solo: el texto dice el nombre del ambiente y el tooltip lo explica, así
+ * que la advertencia se entiende sin distinguir colores.
+ */
+.environment-chip.environment-nonprod {
+  border-color: var(--warning-line);
+  background: var(--warning-wash);
+  color: var(--warning);
+}
+.environment-chip.environment-nonprod span {
+  background: var(--warning);
+}
+
+/* ------------------------------------------------- insignias de concepto */
+
+.concept-icon {
+  --concept-color: var(--muted);
+  --concept-soft: var(--line-soft);
+  display: inline-grid;
+  place-items: center;
+  /* 28px de caja para un icono de 16: área de clic/foco cómoda sin que la
+     insignia domine la línea de texto. */
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--concept-soft);
+  color: var(--concept-color);
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-out);
+}
+.concept-icon:hover,
+.concept-chip:hover .concept-icon {
+  transform: translateY(-1px);
+}
+.concept-icon:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3);
+  outline-offset: 2px;
+}
+.concept-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 4px 11px 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: default;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.concept-chip svg {
+  color: var(--concept-color, var(--muted));
+}
+.concept-chip:hover,
+.concept-chip:focus-visible {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.concept-chip:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.3);
+  outline-offset: 2px;
+}
+
+/* Tonos: el color refuerza el significado, nunca lo sustituye — el icono y el
+   texto del tooltip siguen distinguiendo cada concepto sin depender del color. */
+.concept-accent {
+  --concept-color: #00665e;
+  --concept-soft: #dcfaf4;
+}
+.concept-success {
+  --concept-color: var(--success);
+  --concept-soft: #e7f8ef;
+}
+.concept-warning {
+  --concept-color: var(--warning);
+  --concept-soft: #fff4e5;
+}
+.concept-danger {
+  --concept-color: var(--danger);
+  --concept-soft: #fff0ef;
+}
+.concept-info {
+  --concept-color: var(--info);
+  --concept-soft: #eaf2ff;
+}
+
+/* --------------------------------------------------------- ilustraciones */
+
+.illustration {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  color: var(--faint);
+}
+.illustration .illustration-accent {
+  color: var(--accent);
+  stroke: currentColor;
+}
+.illustration .illustration-soft {
+  opacity: 0.5;
+}
+.illustration .illustration-grid {
+  opacity: 0.32;
+  stroke-dasharray: 3 5;
+}
+.rich-empty-success .illustration .illustration-accent {
+  color: var(--success);
+}
+.rich-empty-danger .illustration .illustration-accent {
+  color: var(--danger);
+}
+
+/* ------------------------------------------------------- estados vacíos */
+
+.rich-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 34px 22px 30px;
+  text-align: center;
+  animation: fade-rise var(--dur-slow) var(--ease-out) both;
+}
+.rich-empty-state h3 {
+  margin: 12px 0 0;
+  color: var(--ink);
+  font-size: 16px;
+}
+.rich-empty-state p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+.rich-empty-example {
+  padding: 9px 13px;
+  border-left: 2px solid var(--accent-soft);
+  border-radius: 0 6px 6px 0;
+  background: var(--success-wash);
+  color: var(--muted) !important;
+  text-align: left;
+  font-size: 12px !important;
+}
+.rich-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* ---------------------------------------------------- contador animado */
+
+.animated-number {
+  /* Cifras de ancho fijo: el número no baila mientras cuenta. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------ microinteracciones de tabla */
+
+/**
+ * Filas expandibles y confirmaciones breves. Se apoyan en `motion.css` para las
+ * duraciones; aquí sólo viven las formas que no existían.
+ */
+.row-expand {
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+/* Cambio de pestaña: el panel entrante se anuncia con la misma entrada que el
+   resto de la interfaz, para que el salto de contenido no sea seco. */
+.tabs-panel:not([hidden]) {
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.tabs-tab svg {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.tabs-tab:hover svg {
+  transform: scale(1.12);
+}
+.copy-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 700;
+  animation: fade-in var(--dur-fast) var(--ease-out) both;
+}
+
+@media (max-width: 720px) {
+  .rich-empty-state {
+    padding: 24px 14px;
+  }
+  .rich-empty-state .illustration {
+    width: 116px;
+  }
+}

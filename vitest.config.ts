@@ -8,5 +8,18 @@ export default defineConfig({
     // Unit/component suite lives in src; Playwright specs in e2e/ are driven by
     // `yarn test:e2e`, never by vitest.
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    /*
+     * El presupuesto de la prueba tiene que ser HOLGADAMENTE mayor que el de una espera
+     * (`asyncUtilTimeout`, 5 s en `src/test/setup.ts`). Con los dos en 5 s —el valor por
+     * omisión de vitest— una prueba con dos o tres `waitFor` agota su presupuesto antes de
+     * que ninguna espera llegue a rendirse, y el fallo pasa de «esto nunca apareció», que
+     * señala el problema, a «la prueba tardó demasiado», que no señala nada.
+     *
+     * Con 60+ suites en paralelo, montar un componente y resolver su consulta simulada
+     * cuesta segundos en una máquina cargada; estos plazos absorben esa varianza sin
+     * ocultar un cuelgue real, que sigue fallando, sólo que unos segundos más tarde.
+     */
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
   },
 });

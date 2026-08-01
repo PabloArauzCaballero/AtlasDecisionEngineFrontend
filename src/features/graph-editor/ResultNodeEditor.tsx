@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { ConfirmButton } from '../../components/ConfirmButton';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { CodeEditor } from './CodeEditor';
 import { ReferenceNodeEditor } from './ReferenceNodeEditor';
@@ -165,10 +166,17 @@ export function ResultNodeEditor({
                     />
                   </label>
                 ) : null}
-                <button
+                <ConfirmButton
                   className="button button-danger full-width"
-                  type="button"
-                  onClick={() =>
+                  title="¿Quitar esta asignación del resultado?"
+                  confirmLabel="Quitar la asignación"
+                  description={
+                    <p>
+                      Este paso dejará de escribir esa salida. Si nadie más la escribe, la decisión
+                      devolverá el campo vacío.
+                    </p>
+                  }
+                  onConfirm={() =>
                     onChange({
                       ...config,
                       assignments: assignments.filter((_, itemIndex) => itemIndex !== index),
@@ -176,7 +184,7 @@ export function ResultNodeEditor({
                   }
                 >
                   <Trash2 size={13} /> Quitar asignación
-                </button>
+                </ConfirmButton>
               </div>
             );
           })}

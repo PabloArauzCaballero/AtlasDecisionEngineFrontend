@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Plus, Target, Trash2, X } from 'lucide-react';
+import { Target, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { ObjectivePolicyFields } from './ObjectivePolicyFields';
 import {
   buildObjectivePayload,
   createPolicyDraft,
@@ -18,6 +20,7 @@ type ObjectiveCreateDialogProps = { onClose: () => void };
 export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const dialog = useRef<HTMLElement>(null);
   const codeInput = useRef<HTMLInputElement>(null);
   const [objectiveCode, setObjectiveCode] = useState('');
   const [name, setName] = useState('');
@@ -49,8 +52,9 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
     },
   });
 
+  useDialogFocus(dialog, codeInput);
+
   useEffect(() => {
-    codeInput.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !create.isPending) onClose();
     };
@@ -83,6 +87,7 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
       }}
     >
       <section
+        ref={dialog}
         className="objective-create-dialog"
         role="dialog"
         aria-modal="true"
@@ -192,96 +197,14 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
                 </label>
               </div>
             </section>
-            <section className="objective-form-section">
-              <div className="objective-section-heading objective-policies-heading">
-                <span>3</span>
-                <div>
-                  <strong>Políticas asociadas</strong>
-                  <small>Puedes agregarlas ahora o vincular evidencia más adelante.</small>
-                </div>
-                <button className="button" type="button" onClick={addPolicy}>
-                  <Plus size={14} /> Agregar política
-                </button>
-              </div>
-              {!policies.length ? (
-                <div className="objective-policies-empty">
-                  <CheckCircle2 size={17} />
-                  <span>El objetivo puede crearse sin políticas iniciales.</span>
-                </div>
-              ) : null}
-              <div className="objective-policy-list">
-                {policies.map((policy, index) => (
-                  <article className="objective-policy-card" key={`policy-${index + 1}`}>
-                    <header>
-                      <strong>Política {index + 1}</strong>
-                      <button
-                        type="button"
-                        aria-label={`Eliminar política ${index + 1}`}
-                        onClick={() =>
-                          setPolicies((current) =>
-                            current.filter((_, policyIndex) => policyIndex !== index),
-                          )
-                        }
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </header>
-                    <div className="objective-form-grid">
-                      <label className="field">
-                        <span>Código</span>
-                        <input
-                          required
-                          minLength={2}
-                          maxLength={100}
-                          pattern="[A-Z0-9_-]{2,100}"
-                          placeholder="POL_FRAUDE_01"
-                          value={policy.policyCode}
-                          onChange={(event) =>
-                            updatePolicy(index, {
-                              policyCode: normalizeObjectiveCode(event.target.value),
-                            })
-                          }
-                        />
-                      </label>
-                      <label className="field">
-                        <span>Severidad</span>
-                        <select
-                          value={policy.severity}
-                          onChange={(event) =>
-                            updatePolicy(index, { severity: event.target.value })
-                          }
-                        >
-                          <option value="INFO">Informativa</option>
-                          <option value="WARNING">Advertencia</option>
-                          <option value="BLOCKING">Bloqueante</option>
-                        </select>
-                      </label>
-                      <label className="field">
-                        <span>Responsable</span>
-                        <input
-                          required
-                          placeholder="Compliance"
-                          value={policy.owner}
-                          onChange={(event) => updatePolicy(index, { owner: event.target.value })}
-                        />
-                      </label>
-                      <label className="field objective-field-wide">
-                        <span>Justificación</span>
-                        <textarea
-                          required
-                          rows={2}
-                          placeholder="Describe por qué esta política soporta el objetivo."
-                          value={policy.rationale}
-                          onChange={(event) =>
-                            updatePolicy(index, { rationale: event.target.value })
-                          }
-                        />
-                      </label>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+            <ObjectivePolicyFields
+              policies={policies}
+              onAdd={addPolicy}
+              onUpdate={updatePolicy}
+              onRemove={(index) =>
+                setPolicies((current) => current.filter((_, policyIndex) => policyIndex !== index))
+              }
+            />
           </div>
           <footer className="dialog-actions">
             <button className="button" type="button" disabled={create.isPending} onClick={onClose}>

@@ -3,6 +3,7 @@ import {
   Activity,
   Boxes,
   Braces,
+  Calculator,
   ClipboardCheck,
   Database,
   FileCode2,
@@ -12,6 +13,7 @@ import {
   Goal,
   History,
   Layers,
+  Library,
   ListChecks,
   Play,
   Radio,
@@ -19,6 +21,7 @@ import {
   ScanSearch,
   ScrollText,
   ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
 
@@ -56,6 +59,18 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.catalogRead,
       },
       {
+        label: 'Campos Calculados',
+        path: '/calculated-fields',
+        icon: Calculator,
+        roles: accessPolicies.calculatedFields,
+      },
+      {
+        label: 'Librerías Autorizadas',
+        path: '/libraries',
+        icon: Library,
+        roles: accessPolicies.libraryRegistry,
+      },
+      {
         label: 'Reason Codes',
         path: '/reason-codes',
         icon: Braces,
@@ -80,6 +95,12 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.graphAuthoring,
       },
       {
+        label: 'Acciones',
+        path: '/actions',
+        icon: Zap,
+        roles: accessPolicies.graphAuthoring,
+      },
+      {
         label: 'Importar Código',
         path: '/code-import',
         icon: FileCode2,
@@ -101,6 +122,12 @@ export const navigation: readonly NavigationSection[] = [
         path: '/test-cases',
         icon: ListChecks,
         roles: accessPolicies.qualityAuthoring,
+      },
+      {
+        label: 'QA Lab',
+        path: '/qa-lab',
+        icon: ScanSearch,
+        roles: accessPolicies.qaLab,
       },
       {
         label: 'Cobertura',

@@ -132,25 +132,58 @@ export async function apiEventStream(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-  for (;;) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    let boundary = buffer.indexOf('\n\n');
-    while (boundary !== -1) {
-      const frame = buffer.slice(0, boundary);
-      buffer = buffer.slice(boundary + 2);
-      const type = /^event: (.+)$/m.exec(frame)?.[1] ?? 'message';
-      const dataLine = /^data: (.+)$/m.exec(frame)?.[1];
-      if (dataLine !== undefined) {
-        try {
-          onEvent({ type, data: JSON.parse(dataLine) });
-        } catch {
-          // A malformed frame must not kill the whole stream — skip it.
-        }
-      }
-      boundary = buffer.indexOf('\n\n');
+
+  /** Emite un marco completo. Uno mal formado se salta, no tumba el flujo. */
+  const emit = (frame: string) => {
+    const type = /^event: (.+)$/m.exec(frame)?.[1] ?? 'message';
+    const dataLine = /^data: (.+)$/m.exec(frame)?.[1];
+    if (dataLine === undefined) return;
+    try {
+      onEvent({ type, data: JSON.parse(dataLine) });
+    } catch {
+      // A malformed frame must not kill the whole stream — skip it.
     }
+  };
+
+  /*
+   * Cancelar en cuanto llega la señal, sin esperar al siguiente fragmento.
+   *
+   * No basta con pasársela a `fetch`: para cuando llega la respuesta, la lectura
+   * del cuerpo ya es asunto aparte, y un `read()` pendiente sobre una ejecución
+   * que aún no ha terminado se quedaría esperando para siempre. Atarlo aquí,
+   * además, no depende de qué haga cada implementación de `fetch` con la señal.
+   */
+  const onAbort = () => void reader.cancel().catch(() => undefined);
+  options.signal?.addEventListener('abort', onAbort, { once: true });
+
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let boundary = buffer.indexOf('\n\n');
+      while (boundary !== -1) {
+        emit(buffer.slice(0, boundary));
+        buffer = buffer.slice(boundary + 2);
+        boundary = buffer.indexOf('\n\n');
+      }
+    }
+    // Un servidor que cierra sin la línea en blanco final dejaba su último
+    // evento —normalmente el `execution_completed`— sin entregar.
+    if (buffer.trim()) emit(buffer);
+  } catch (error) {
+    // Cancelar es una forma normal de terminar: quien abandona la página o
+    // lanza otra ejecución no está viendo un fallo, y tratarlo como tal le
+    // pintaría un error rojo por haber hecho lo correcto.
+    if (!options.signal?.aborted) throw error;
+  } finally {
+    options.signal?.removeEventListener('abort', onAbort);
+    /*
+     * Cierra la conexión de verdad. Sin esto, el cuerpo sigue llegando aunque
+     * nadie lo lea: pedir una segunda ejecución dejaba la primera drenando
+     * contra el motor, y salir de la página no cerraba ninguna.
+     */
+    await reader.cancel().catch(() => undefined);
   }
 }
 

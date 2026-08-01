@@ -75,6 +75,59 @@ export const variablesCreateFields: readonly CreateField[] = [
     defaultValue: false,
     help: 'Márcalo si el valor puede llegar vacío/nulo sin que la decisión falle.',
   },
+  // --- Contrato de §1.1 en el ALTA, no sólo al crear versiones después ---
+  // Sin estos campos la variable nace sin mensaje de validación, sin ejemplos y
+  // sin origen esperado, y hay que volver a editarla. Todos son opcionales: el
+  // alta rápida sigue siendo posible, pero el contrato completo ya cabe aquí.
+  {
+    key: 'initialVersion.constraints',
+    label: 'Restricciones (JSON, opcional)',
+    kind: 'json',
+    placeholder: '{ "min": 0, "max": 100000, "scale": 2 }',
+    help: 'Límites que el valor debe cumplir: min/max, minLength/maxLength, allowedValues, pattern, scale… El motor SIEMPRE las reevalúa en el servidor antes de ejecutar, así que son la regla de verdad y no una ayuda del formulario.',
+  },
+  {
+    key: 'initialVersion.validationMessage',
+    label: 'Mensaje de validación (opcional)',
+    placeholder: 'El ingreso mensual debe estar entre 0 y 100.000.',
+    help: 'Lo que se muestra cuando el valor incumple las restricciones. Escrito para quien lo va a leer: si lo dejas vacío, verá un mensaje genérico que no dice qué corregir.',
+  },
+  {
+    key: 'initialVersion.exampleValid',
+    label: 'Ejemplo válido (opcional)',
+    kind: 'json',
+    placeholder: '2500.50',
+    help: 'Un valor que SÍ cumple el contrato. Se escribe con su tipo real: 2500.5 para un número, true para un booleano, texto suelto para una cadena.',
+  },
+  {
+    key: 'initialVersion.exampleInvalid',
+    label: 'Ejemplo inválido (opcional)',
+    kind: 'json',
+    placeholder: '-100',
+    help: 'Un valor que el contrato DEBE rechazar. Sirve de prueba viva: si algún día deja de rechazarse, el contrato se aflojó sin que nadie lo notara.',
+  },
+  {
+    key: 'initialVersion.expectedOrigin',
+    label: 'Origen esperado (opcional)',
+    kind: 'select',
+    // Enumeración cerrada del contrato del backend (VariableVersionDto), no un
+    // catálogo de base de datos: un select libre dejaría escribir un valor que
+    // el backend rechaza con 422 después de rellenar todo el formulario.
+    options: [
+      { value: 'REQUEST', label: 'REQUEST — llega en la petición' },
+      { value: 'PROVIDER', label: 'PROVIDER — la resuelve un proveedor externo' },
+      { value: 'DERIVED', label: 'DERIVED — se deriva de otras variables' },
+      { value: 'CALCULATED_FIELD', label: 'CALCULATED_FIELD — la produce un campo calculado' },
+      { value: 'GRAPH_NODE', label: 'GRAPH_NODE — la escribe un nodo del grafo' },
+    ],
+    help: 'De dónde se espera que venga el valor. Cuando llega de otro sitio, el motor lo registra en la traza y la desviación se ve en auditoría.',
+  },
+  {
+    key: 'initialVersion.unitCode',
+    label: 'Unidad (opcional)',
+    placeholder: 'BOB',
+    help: 'Unidad en la que se expresa el valor (BOB, USD, MESES, %). Evita comparar importes de monedas distintas como si fueran el mismo número.',
+  },
 ];
 
 /** Required-but-constant parts of the variable payload (empty version arrays). */

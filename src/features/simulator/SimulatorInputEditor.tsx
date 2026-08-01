@@ -5,28 +5,30 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { JsonTextarea } from '../../components/JsonTextarea';
-import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { isOutput, VariableList } from '../../components/VariableIo';
+import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import type { ImportField } from './sample-import';
+import { FieldControl } from './SimulatorFieldControl';
+import { missingRequired, seedPayload } from './simulator-payload';
 import { PairsEditor } from './SimulatorPairsEditor';
+import { SimulatorSampleBar } from './SimulatorSampleBar';
 
 type View = 'form' | 'json' | 'pairs';
 
 interface Props {
   artifactCode: string;
+  environmentCode: string;
   value: string;
   onChange: (next: string) => void;
 }
-
-const NUMERIC = new Set(['NUMBER', 'INTEGER', 'INT', 'DECIMAL', 'FLOAT']);
-const STRUCTURED = new Set(['OBJECT', 'JSON', 'ARRAY', 'LIST']);
 
 /**
  * Dual input editor for the simulator: a typed form generated from the
  * artifact's declared INPUT contract, and a raw JSON view. Both edit the same
  * JSON payload string.
  */
-export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
-  const [view, setView] = useState<View>('json');
-  const autoSwitched = useRef(false);
+export function SimulatorInputEditor({ artifactCode, environmentCode, value, onChange }: Props) {
+  const [view, setView] = useState<View>('form');
   const contract = useQuery({
     queryKey: ['artifact-input-contract', artifactCode],
     enabled: artifactCode.trim() !== '',
@@ -35,16 +37,9 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
         `/v1/views/artifact-inputs?artifactCode=${encodeURIComponent(artifactCode.trim())}`,
       ),
   });
-  const inputs = asRows(contract.data?.variables).filter(
-    (variable) => !String(variable.usageType ?? 'INPUT').startsWith('OUTPUT'),
-  );
-
-  useEffect(() => {
-    if (inputs.length && !autoSwitched.current) {
-      autoSwitched.current = true;
-      setView('form');
-    }
-  }, [inputs.length]);
+  const variables = asRows(contract.data?.variables);
+  const inputs = variables.filter((variable) => !isOutput(variable.usageType));
+  const outputs = variables.filter((variable) => isOutput(variable.usageType));
 
   const parsed = useMemo<Record<string, unknown> | null>(() => {
     try {
@@ -57,6 +52,22 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
     }
   }, [value]);
 
+  // Al elegir un artefacto se siembra el formulario con SUS variables: antes se
+  // enviaba siempre el mismo ejemplo fijo y la simulación devolvía NO_DECISION.
+  const seededFor = useRef('');
+  useEffect(() => {
+    const code = artifactCode.trim();
+    if (!code || !inputs.length || seededFor.current === code) return;
+    seededFor.current = code;
+    onChange(JSON.stringify(seedPayload(inputs, parsed), null, 2));
+    setView('form');
+    // `inputs`/`parsed` se recalculan en cada render; la siembra depende sólo del
+    // artefacto y de que su contrato ya haya llegado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artifactCode, inputs.length]);
+
+  const missing = missingRequired(inputs, parsed);
+
   function setField(code: string, nextValue: unknown) {
     if (!parsed) return;
     const next = { ...parsed };
@@ -68,8 +79,23 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
   const knownCodes = new Set(inputs.map((variable) => display(variable, 'variableCode')));
   const extraKeys = parsed ? Object.keys(parsed).filter((key) => !knownCodes.has(key)) : [];
 
+  const importContract: ImportField[] = inputs.map((variable) => ({
+    code: display(variable, 'variableCode'),
+    dataType: display(variable, 'dataType'),
+    required: Boolean(variable.isRequired),
+  }));
+
   return (
     <div>
+      <SimulatorSampleBar
+        artifactCode={artifactCode}
+        environmentCode={environmentCode}
+        contract={importContract}
+        onLoad={(input) => {
+          onChange(JSON.stringify(input, null, 2));
+          setView('form');
+        }}
+      />
       <div className="view-tabs" role="tablist" aria-label="Modo de edición de variables">
         <button
           type="button"
@@ -130,11 +156,19 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
               El artefacto no declara variables de entrada; usa la vista JSON.
             </Alert>
           ) : null}
+          {missing.length ? (
+            <Alert tone="warning">
+              Faltan {missing.length} variables obligatorias para poder decidir:{' '}
+              <strong>{missing.join(', ')}</strong>.
+            </Alert>
+          ) : null}
           {parsed !== null
             ? inputs.map((variable) => {
                 const code = display(variable, 'variableCode');
                 const dataType = display(variable, 'dataType').toUpperCase();
                 const required = Boolean(variable.isRequired);
+                const schema = asRecord(variable.validationSchema);
+                const allowed = Array.isArray(schema.enum) ? schema.enum : [];
                 const current = parsed[code];
                 return (
                   <label className="field" key={code}>
@@ -142,14 +176,31 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
                       {code}
                       {required ? ' *' : ''}
                     </span>
-                    <FieldControl
-                      dataType={dataType}
-                      value={current}
-                      onCommit={(next) => setField(code, next)}
-                    />
+                    {allowed.length ? (
+                      <select
+                        value={current === undefined || current === null ? '' : String(current)}
+                        onChange={(event) =>
+                          setField(code, event.target.value === '' ? undefined : event.target.value)
+                        }
+                      >
+                        <option value="">Sin valor</option>
+                        {allowed.map((option) => (
+                          <option key={String(option)} value={String(option)}>
+                            {String(option)}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <FieldControl
+                        dataType={dataType}
+                        value={current}
+                        onCommit={(next) => setField(code, next)}
+                      />
+                    )}
                     <small className="field-meta">
                       {dataType}
                       {variable.canonicalName ? ` · ${display(variable, 'canonicalName')}` : ''}
+                      {rangeHint(schema)}
                     </small>
                   </label>
                 );
@@ -161,73 +212,25 @@ export function SimulatorInputEditor({ artifactCode, value, onChange }: Props) {
               {extraKeys.join(', ')}
             </small>
           ) : null}
+          {outputs.length ? (
+            <VariableList
+              title="Salidas que devolverá"
+              hint="Resultados que produce esta decisión; no se rellenan aquí."
+              tone="out"
+              variables={outputs}
+            />
+          ) : null}
         </div>
       )}
     </div>
   );
 }
 
-function FieldControl({
-  dataType,
-  value,
-  onCommit,
-}: {
-  dataType: string;
-  value: unknown;
-  onCommit: (next: unknown) => void;
-}) {
-  if (NUMERIC.has(dataType)) {
-    return (
-      <input
-        type="number"
-        value={value === undefined || value === null ? '' : String(value)}
-        onChange={(event) => {
-          const raw = event.target.value;
-          onCommit(raw === '' ? undefined : Number(raw));
-        }}
-      />
-    );
-  }
-  if (dataType === 'BOOLEAN' || dataType === 'BOOL') {
-    return (
-      <select
-        value={value === true ? 'true' : value === false ? 'false' : ''}
-        onChange={(event) => {
-          const raw = event.target.value;
-          onCommit(raw === '' ? undefined : raw === 'true');
-        }}
-      >
-        <option value="">Sin valor</option>
-        <option value="true">Verdadero</option>
-        <option value="false">Falso</option>
-      </select>
-    );
-  }
-  if (STRUCTURED.has(dataType)) {
-    return (
-      <textarea
-        rows={3}
-        className="code-input"
-        defaultValue={value === undefined ? '' : JSON.stringify(value, null, 2)}
-        onBlur={(event) => {
-          const raw = event.target.value.trim();
-          if (raw === '') return onCommit(undefined);
-          try {
-            onCommit(JSON.parse(raw));
-          } catch {
-            onCommit(raw);
-          }
-        }}
-      />
-    );
-  }
-  return (
-    <input
-      value={value === undefined || value === null ? '' : String(value)}
-      onChange={(event) => {
-        const raw = event.target.value;
-        onCommit(raw === '' ? undefined : raw);
-      }}
-    />
-  );
+/** Rango admitido de una variable numérica, para que se vea qué es válido. */
+function rangeHint(schema: UnknownRecord): string {
+  const min = schema.minimum ?? schema.exclusiveMinimum;
+  const max = schema.maximum ?? schema.exclusiveMaximum;
+  if (typeof min !== 'number' && typeof max !== 'number') return '';
+  if (typeof min === 'number' && typeof max === 'number') return ` · entre ${min} y ${max}`;
+  return typeof min === 'number' ? ` · mínimo ${min}` : ` · máximo ${max}`;
 }

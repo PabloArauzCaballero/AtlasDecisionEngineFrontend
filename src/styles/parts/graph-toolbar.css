@@ -5,8 +5,8 @@
   justify-content: space-between;
   gap: 18px;
   padding: 12px 16px;
-  border-bottom: 1px solid #dbe3ec;
-  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-live);
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
 }
 .editor-toolbar-primary,
@@ -34,8 +34,8 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 10px;
-  background: #e6fffb;
-  color: #00796f;
+  background: var(--accent-wash);
+  color: var(--accent);
   box-shadow: inset 0 0 0 1px #b7eee7;
 }
 .editor-identity strong,
@@ -44,12 +44,12 @@
   display: block;
 }
 .editor-identity strong {
-  color: #172033;
+  color: var(--ink-strong);
   font-size: 13px;
 }
 .editor-identity small {
   margin-top: 2px;
-  color: #64748b;
+  color: var(--muted);
   font-size: 9px;
   font-weight: 650;
   text-transform: uppercase;
@@ -57,7 +57,7 @@
 }
 .editor-version-control label {
   margin-bottom: 4px;
-  color: #667085;
+  color: var(--faint);
   font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
@@ -76,9 +76,9 @@
 .editor-tool-group {
   gap: 1px;
   padding: 2px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f8fafc;
+  background: var(--canvas);
 }
 .editor-tool-group .icon-button {
   width: 30px;
@@ -96,21 +96,21 @@
   padding: 0 5px;
   border: 0;
   background: transparent;
-  color: #475467;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 800;
   cursor: pointer;
 }
 .editor-connect-button.active {
-  border-color: #00796f;
-  background: #d8fbf5;
-  color: #006a61;
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent);
   box-shadow: 0 0 0 2px rgba(0, 121, 111, 0.1);
 }
 .editor-actions-separator {
   width: 1px;
   height: 28px;
-  background: #e2e8f0;
+  background: var(--line);
 }
 .graph-editor-statusbar {
   min-height: 46px;
@@ -119,8 +119,8 @@
   justify-content: space-between;
   gap: 20px;
   padding: 8px 16px;
-  border-bottom: 1px solid #dbe3ec;
-  background: #fff;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
 }
 .graph-authoring-steps,
 .graph-editor-counts {
@@ -134,7 +134,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #98a2b3;
+  color: var(--faint);
   font-size: 10px;
   font-weight: 700;
 }
@@ -143,41 +143,41 @@
   width: clamp(18px, 3vw, 42px);
   height: 1px;
   margin: 0 8px;
-  background: #dbe3ec;
+  background: var(--line);
 }
 .graph-authoring-steps b {
   width: 21px;
   height: 21px;
   display: grid;
   place-items: center;
-  border: 1px solid #d0d5dd;
+  border: 1px solid var(--line-strong);
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface);
   font-size: 9px;
 }
 .graph-authoring-steps .current {
-  color: #344054;
+  color: var(--text);
 }
 .graph-authoring-steps .current b {
-  border-color: #00796f;
-  color: #00796f;
-  box-shadow: 0 0 0 3px #e6fffb;
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
 }
 .graph-authoring-steps .complete {
-  color: #00796f;
+  color: var(--accent);
 }
 .graph-authoring-steps .complete b {
-  border-color: #00796f;
-  background: #00796f;
-  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--surface);
 }
 .graph-editor-counts {
   gap: 12px;
-  color: #667085;
+  color: var(--faint);
   white-space: nowrap;
   font-size: 10px;
 }
 .graph-editor-counts strong {
-  color: #172033;
+  color: var(--ink-strong);
   font-size: 12px;
 }

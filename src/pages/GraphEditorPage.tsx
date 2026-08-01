@@ -1,8 +1,10 @@
-import { AlertCircle } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { AlertCircle, GraduationCap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
+import { useAmbientState } from '../components/ambient/useAmbientState';
 import { ModalDialog } from '../components/ModalDialog';
+import { ActionCatalogPanel } from '../features/graph-editor/ActionCatalogPanel';
 import { EdgeProperties } from '../features/graph-editor/EdgeProperties';
 import { GraphCanvas } from '../features/graph-editor/GraphCanvas';
 import { GraphEditorToolbar } from '../features/graph-editor/GraphEditorToolbar';
@@ -13,11 +15,13 @@ import { NodeLibrary } from '../features/graph-editor/NodeLibrary';
 import { NodeProperties } from '../features/graph-editor/NodeProperties';
 import { InputVariableManager } from '../features/graph-editor/InputVariableManager';
 import { OutputVariableManager } from '../features/graph-editor/OutputVariableManager';
+import { IntermediateVariableManager } from '../features/graph-editor/IntermediateVariableManager';
+import { OutputContractPanel } from '../features/graph-editor/OutputContractPanel';
 import { useGraphEditor } from '../features/graph-editor/useGraphEditor';
-import { notifyApiError } from '../features/tutorial/error-tutorial';
+import { tutorialCodeFor } from '../features/tutorial/error-tutorial';
+import { errorTutorial } from '../features/tutorial/interactive-catalog';
 import { TutorialMenu } from '../features/tutorial/TutorialMenu';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
-import { useNotifications } from '../notifications/useNotifications';
 import { useUnsavedChangesGuard } from '../shared/navigation/unsaved-changes';
 import { asRecord, display } from '../utils/records';
 
@@ -28,6 +32,9 @@ interface GraphEditorPageProps {
 export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps) {
   const editor = useGraphEditor(initialVersionId);
   const [validationOpen, setValidationOpen] = useState(false);
+  // Detalle activado por defecto: quien abre el editor quiere entender el flujo
+  // antes que verlo compacto. Se puede apagar para grafos con muchos nodos.
+  const [detailed, setDetailed] = useState(true);
   const [dismissedError, setDismissedError] = useState<unknown>(null);
 
   // Fase 3 QA fix: opening this page by URL (e.g. the artifact detail "View Graph"
@@ -58,18 +65,15 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
   );
   const selectedEdgeSourceType = selectedEdgeSource ? display(selectedEdgeSource, 'type') : '';
 
-  // Un error real al guardar no queda en un mensaje opaco: se notifica con una
-  // acción "Ver tutorial guiado" que abre el tutorial que explica cómo corregirlo.
-  const { notify } = useNotifications();
+  // Un fallo del motor no queda en un mensaje técnico opaco: el diálogo usa la
+  // explicación del catálogo y ofrece el recorrido que enseña a corregirlo.
   const { startForError } = useInteractiveTutorial();
-  const saveError = editor.save.error;
-  const notifiedError = useRef<unknown>(null);
-  useEffect(() => {
-    if (saveError && saveError !== notifiedError.current) {
-      notifiedError.current = saveError;
-      notifyApiError(saveError, notify, startForError);
-    }
-  }, [saveError, notify, startForError]);
+  const errorTutorialCode = tutorialCodeFor(blockingError);
+  const errorTutorialLink = errorTutorialCode ? errorTutorial(errorTutorialCode) : null;
+
+  // Guardar y validar son viajes reales al motor: el fondo lo refleja mientras
+  // duran, y sólo mientras duran.
+  useAmbientState(editor.save.isPending || editor.validate.isPending ? 'running' : 'idle');
 
   return (
     <div className="graph-editor-page">
@@ -90,6 +94,8 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         onZoomIn={editor.zoomIn}
         onResetZoom={editor.resetZoom}
         onAutoLayout={editor.autoLayout}
+        detailed={detailed}
+        onToggleDetail={() => setDetailed((value) => !value)}
         onToggleConnect={editor.toggleConnectMode}
         onValidate={() => {
           setValidationOpen(true);
@@ -109,22 +115,39 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       ) : null}
       {showErrorModal ? (
         <ModalDialog
-          title="No se pudo completar la operación"
+          title={errorTutorialLink ? errorTutorialLink.title : 'No se pudo completar la operación'}
           subtitle={editor.save.error ? 'Al guardar el algoritmo' : 'Al cargar la versión'}
           tone="danger"
           icon={<AlertCircle size={20} />}
           onClose={() => setDismissedError(blockingError)}
           actions={
-            <button
-              type="button"
-              className="button button-primary"
-              onClick={() => setDismissedError(blockingError)}
-            >
-              Cerrar
-            </button>
+            <>
+              {/* El recorrido guiado va DENTRO del diálogo: antes el mismo fallo
+                  llegaba además como aviso, y era ahí donde estaba la única forma
+                  de llegar al tutorial. */}
+              {errorTutorialLink ? (
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => {
+                    setDismissedError(blockingError);
+                    startForError(errorTutorialCode as string);
+                  }}
+                >
+                  <GraduationCap size={16} /> Ver tutorial guiado
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={() => setDismissedError(blockingError)}
+              >
+                Cerrar
+              </button>
+            </>
           }
         >
-          <p>{errorMessage(blockingError)}</p>
+          <p>{errorTutorialLink ? errorTutorialLink.description : errorMessage(blockingError)}</p>
         </ModalDialog>
       ) : null}
       <div className="graph-editor-statusbar">
@@ -156,6 +179,23 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
       </div>
       <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
       <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
+      <IntermediateVariableManager
+        intermediates={editor.intermediates}
+        nodes={editor.nodes}
+        onChange={editor.changeIntermediates}
+      />
+      <OutputContractPanel
+        variables={editor.variables}
+        intermediates={editor.intermediates}
+        nodes={editor.nodes}
+        outputContract={editor.outputContract}
+        onChange={editor.changeOutputContract}
+      />
+      <ActionCatalogPanel
+        actions={editor.actions}
+        nodes={editor.nodes}
+        onChange={editor.changeActions}
+      />
       <FlowChecklist
         nodes={editor.nodes}
         edges={editor.edges}
@@ -169,6 +209,11 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         <GraphCanvas
           nodes={editor.nodes}
           edges={editor.edges}
+          conditions={editor.conditions}
+          actions={editor.actions}
+          variables={editor.variables}
+          loading={editor.load.isPending}
+          detailed={detailed}
           selectedKey={editor.selectedKey}
           selectedEdgeKey={editor.selectedEdgeKey}
           pendingFrom={editor.pendingFrom}
@@ -200,10 +245,15 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
             node={asRecord(editor.selected)}
             outputs={editor.outputs}
             inputs={editor.inputs}
+            conditions={editor.conditions}
+            actions={editor.actions}
+            variables={editor.variables}
+            intermediates={editor.intermediates}
             condition={asRecord(editor.selectedCondition)}
             branchCount={selectedNodeBranchCount}
             versionId={editor.versionId}
             onConditionChange={editor.updateSelectedCondition}
+            onCreateCondition={editor.createSelectedNodeCondition}
             onChange={editor.updateSelectedNode}
             onDelete={editor.deleteSelectedNode}
           />

@@ -29,6 +29,7 @@ export function NotificationCenter() {
   const [open, setOpen] = useState(false);
   const [ringing, setRinging] = useState(false);
   const container = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   // The unread badge always polls; the (heavier) list query only runs once the panel opens.
   const { items, unreadCount, isLoading, isError, markRead, markAllRead } =
     useNotificationInbox(open);
@@ -49,7 +50,16 @@ export function NotificationCenter() {
       if (!container.current?.contains(event.target as Node)) setOpen(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      /*
+       * Devuelve el foco a la campana. No es un adorno: al cerrarse el panel
+       * sus nodos desaparecen y el foco cae al `<body>`, así que quien cerró con
+       * Escape se queda al principio del documento y tiene que volver a tabular
+       * media página. Sólo se hace con Escape — quien cierra pulsando fuera ya
+       * ha decidido dónde quiere estar.
+       */
+      trigger.current?.focus();
     };
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
@@ -71,6 +81,7 @@ export function NotificationCenter() {
   return (
     <div className="notification-center" ref={container} data-unread={ringing ? 'true' : undefined}>
       <button
+        ref={trigger}
         className={open ? 'icon-button active' : 'icon-button'}
         type="button"
         onClick={() => setOpen((value) => !value)}

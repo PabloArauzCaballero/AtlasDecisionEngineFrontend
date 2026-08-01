@@ -1,0 +1,296 @@
+/**
+ * Modo de reproducción de una ejecución.
+ *
+ * Tres zonas: controles arriba, grafo en el centro y línea de tiempo + detalle
+ * abajo. La animación se limita al nodo activo y al camino recorrido; el resto
+ * de la vista permanece quieto para que se pueda leer mientras avanza.
+ */
+
+.playback {
+  display: grid;
+  gap: 14px;
+}
+
+/* ------------------------------------------------------------ controles */
+
+.playback-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-inset);
+}
+.playback-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+/* 36px de lado: por encima del mínimo cómodo de pulsación en pantalla táctil. */
+.playback-buttons .icon-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.playback-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.playback-speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.playback-speed > div {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.speed-option {
+  min-height: 30px;
+  padding: 5px 11px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.speed-option:last-child {
+  border-right: 0;
+}
+.speed-option:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+.speed-option.active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.playback-position {
+  margin: 0 0 0 auto;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.playback-position strong {
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------- grafo */
+
+.playback-stage {
+  position: relative;
+}
+.playback-canvas {
+  height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.playback-canvas .graph-node {
+  cursor: pointer;
+}
+.playback-no-graph {
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* -------------------------------------------------------- línea de tiempo */
+
+.playback-timeline {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 2px 10px;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.playback-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.playback-event:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+.playback-event b {
+  color: var(--muted);
+  font-weight: 600;
+}
+.playback-event.current {
+  border-color: var(--info);
+  color: var(--info);
+  background: var(--info-wash);
+  box-shadow: 0 0 0 3px rgba(21, 112, 239, 0.12);
+}
+.playback-event.run-error {
+  border-color: var(--danger-line);
+  color: var(--danger);
+}
+.playback-event.run-warning {
+  border-color: var(--warning-line);
+  color: var(--warning);
+}
+.playback-event.run-skipped {
+  color: var(--faint);
+  text-decoration: line-through;
+}
+
+/* -------------------------------------------------------------- detalle */
+
+.playback-detail {
+  display: grid;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-inset);
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.playback-detail header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.playback-detail-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--node-soft, var(--line-soft));
+  color: var(--node-color, var(--muted));
+}
+.playback-detail header strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+}
+.playback-detail header small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.playback-detail header .status-badge {
+  margin-left: auto;
+}
+.playback-detail-what,
+.playback-detail-flow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.playback-detail-flow {
+  color: var(--muted);
+}
+.playback-facts {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.playback-facts li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+}
+.playback-facts span {
+  color: var(--muted);
+}
+.playback-facts b {
+  color: var(--ink);
+  font-weight: 700;
+}
+.playback-fact-review {
+  border-color: var(--warning-line) !important;
+  background: var(--warning-wash) !important;
+  color: var(--warning);
+}
+.playback-reference {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--warning-line);
+  border-radius: 9px;
+  background: var(--warning-wash);
+  color: var(--warning-strong);
+  text-decoration: none;
+}
+.playback-reference strong {
+  display: block;
+  font-size: 12px;
+}
+.playback-reference small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  opacity: 0.85;
+}
+.playback-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-line);
+  border-radius: 9px;
+  background: var(--danger-wash);
+  color: var(--danger);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .playback-position {
+    margin-left: 0;
+    width: 100%;
+  }
+  .playback-canvas {
+    height: 320px;
+  }
+}

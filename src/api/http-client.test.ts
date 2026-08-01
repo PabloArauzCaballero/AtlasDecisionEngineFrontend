@@ -205,4 +205,66 @@ describe('apiEventStream (Fase 8 — live execution)', () => {
     expect(events).toEqual([{ type: 'node_step', data: { nodeKey: 'OK' } }]);
     cleanup();
   });
+
+  it('entrega el último evento aunque el servidor cierre sin la línea en blanco', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      // Sin el `\n\n` final: es justo el `execution_completed`, el evento que
+      // trae el resultado, el que se perdía.
+      sseResponse('event: execution_completed\ndata: {"outcome":"APPROVED"}'),
+    );
+    const { cleanup } = configureAuthenticatedClient();
+    const events: Array<{ type: string; data: unknown }> = [];
+
+    await apiEventStream('/v1/live-executions/stream', (event) => events.push(event));
+
+    expect(events).toEqual([{ type: 'execution_completed', data: { outcome: 'APPROVED' } }]);
+    cleanup();
+  });
+
+  it('cierra la conexión abierta en vez de dejarla drenando', async () => {
+    let cancelled = false;
+    const abort = new AbortController();
+    // Un flujo que NO se cierra solo: es el caso que importa, el de una
+    // ejecución en curso que alguien abandona. Sobre uno ya cerrado, cancelar
+    // es inerte por especificación y no probaría nada.
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('event: node_step\ndata: {"nodeKey":"A"}\n\n'));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(stream, { status: 200 }));
+    const { cleanup } = configureAuthenticatedClient();
+
+    await apiEventStream('/v1/live-executions/stream', () => abort.abort(), {
+      signal: abort.signal,
+    });
+
+    expect(cancelled).toBe(true);
+    cleanup();
+  });
+
+  it('tratar la cancelación como un final normal, no como un error', async () => {
+    const controller = new AbortController();
+    const stream = new ReadableStream({
+      start(streamController) {
+        streamController.enqueue(
+          new TextEncoder().encode('event: node_step\ndata: {"nodeKey":"A"}\n\n'),
+        );
+        // Nunca se cierra: se queda esperando, como una ejecución en curso.
+      },
+    });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(stream, { status: 200 }));
+    const { cleanup } = configureAuthenticatedClient();
+
+    const done = apiEventStream('/v1/live-executions/stream', () => controller.abort(), {
+      signal: controller.signal,
+    });
+
+    // Abandonar la vista o relanzar no es un fallo: no debe pintar un error.
+    await expect(done).resolves.toBeUndefined();
+    cleanup();
+  });
 });

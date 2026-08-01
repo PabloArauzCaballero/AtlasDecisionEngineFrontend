@@ -1,5 +1,6 @@
 'use client';
 
+import type { LucideIcon } from 'lucide-react';
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 
 export interface TabDefinition {
@@ -8,6 +9,13 @@ export interface TabDefinition {
   /** Contador opcional que se muestra como badge junto al título. */
   count?: number;
   disabled?: boolean;
+  /**
+   * Icono del concepto de la pestaña. Es decorativo: la etiqueta de texto sigue
+   * siendo el nombre accesible, el icono sólo acelera el reconocimiento.
+   */
+  icon?: LucideIcon;
+  /** Explicación de qué contiene la pestaña, como tooltip. */
+  hint?: string;
 }
 
 interface TabsProps {
@@ -81,8 +89,10 @@ export function Tabs({
               tabIndex={selected ? 0 : -1}
               disabled={tab.disabled}
               className={selected ? 'tabs-tab active' : 'tabs-tab'}
+              title={tab.hint}
               onClick={() => onChange(tab.id)}
             >
+              {tab.icon ? <tab.icon size={15} aria-hidden="true" /> : null}
               {tab.label}
               {typeof tab.count === 'number' ? (
                 <span className="tabs-count">{tab.count}</span>

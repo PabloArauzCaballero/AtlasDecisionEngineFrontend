@@ -1,5 +1,7 @@
 import type { UnknownRecord } from '../../utils/records';
 import { display } from '../../utils/records';
+import { detailedEdgeLabel, edgeLabel, edgeTooltip } from './edge-explanations';
+import type { EdgeRuntimeMap } from './node-runtime';
 
 export interface PlacedGraphNode {
   node: UnknownRecord;
@@ -16,6 +18,13 @@ interface GraphEdgesProps {
   nodeHeight: number;
   markerId: string;
   onEdgeClick: (key: string) => void;
+  /** Caminos tomados y descartados de una ejecución real. */
+  edgeRuntime?: EdgeRuntimeMap;
+  /**
+   * Resumen de la regla del nodo de origen, por clave de nodo. Con él, la
+   * etiqueta de la flecha dice `si score_buro ≥ 700` en lugar de sólo `Sí`.
+   */
+  rulesByNode?: Record<string, string | null>;
 }
 
 export function GraphEdges({
@@ -26,6 +35,8 @@ export function GraphEdges({
   nodeHeight,
   markerId,
   onEdgeClick,
+  edgeRuntime,
+  rulesByNode,
 }: GraphEdgesProps) {
   return (
     <>
@@ -50,13 +61,23 @@ export function GraphEdges({
           const edgeKey = display(edge, 'key');
           if (!from || !to) return null;
           const path = edgePath(from, to, nodeWidth, nodeHeight);
+          const status = edgeRuntime?.[edgeKey];
+          const tooltip = edgeTooltip(edge, display(from.node, 'type'), status);
           return (
-            <g key={edgeKey} className={selectedEdgeKey === edgeKey ? 'selected' : ''}>
+            <g
+              key={edgeKey}
+              className={[
+                selectedEdgeKey === edgeKey ? 'selected' : '',
+                status ? `edge-${status}` : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
               <path className="graph-edge-hit" d={path} onClick={() => onEdgeClick(edgeKey)} />
               <path
                 role="button"
                 tabIndex={0}
-                aria-label={`Editar conexión ${edgeKey}`}
+                aria-label={`Conexión ${edgeKey}. ${tooltip.replace(/\n/g, ' ')}`}
                 className="graph-edge-line"
                 d={path}
                 markerEnd={`url(#${markerId})`}
@@ -68,8 +89,11 @@ export function GraphEdges({
                   }
                 }}
               >
-                <title>Editar conexión {edgeKey}</title>
+                <title>{tooltip}</title>
               </path>
+              {/* Sólo el camino realmente recorrido lleva el trazo animado: la
+                  animación indica flujo, nunca decora una rama descartada. */}
+              {status === 'taken' ? <path className="graph-edge-flow" d={path} /> : null}
             </g>
           );
         })}
@@ -79,21 +103,29 @@ export function GraphEdges({
         const to = nodesByKey.get(display(edge, 'to'));
         if (!from || !to) return null;
         const sourceType = display(from.node, 'type');
-        let label = 'Continuar';
-        if (sourceType === 'CONDITION') label = edge.default ? 'No / defecto' : 'Sí';
-        else if (sourceType === 'SWITCH') label = edge.default ? 'Defecto' : 'Caso';
+        const key = display(edge, 'key');
+        const status = edgeRuntime?.[key];
         return (
           <button
-            key={`label-${display(edge, 'key')}`}
+            key={`label-${key}`}
             type="button"
-            className={`graph-edge-label ${selectedEdgeKey === display(edge, 'key') ? 'selected' : ''}`}
+            title={edgeTooltip(edge, sourceType, status)}
+            className={[
+              'graph-edge-label',
+              selectedEdgeKey === key ? 'selected' : '',
+              status ? `edge-${status}` : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
             style={{
               left: `${(from.x + to.x + nodeWidth) / 2}%`,
               top: `${(from.y + to.y + nodeHeight) / 2}%`,
             }}
-            onClick={() => onEdgeClick(display(edge, 'key'))}
+            onClick={() => onEdgeClick(key)}
           >
-            {label}
+            {rulesByNode
+              ? detailedEdgeLabel(edge, sourceType, rulesByNode[display(edge, 'from')] ?? null)
+              : edgeLabel(edge, sourceType)}
           </button>
         );
       })}

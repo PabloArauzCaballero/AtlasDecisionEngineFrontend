@@ -12,7 +12,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   background: var(--ink);
-  color: #fff;
+  color: var(--surface);
   font-size: 0.74rem;
   font-weight: 500;
   white-space: nowrap;
@@ -30,6 +30,27 @@
 .tooltip-wrap:focus-within .tooltip-bubble {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* Un globo centrado sobre un control pegado al borde derecho se sale de la
+   ventana: aunque sea invisible, cuenta para el ancho desplazable y hacía que la
+   página entera se moviese en horizontal —el síntoma era una vista recortada—.
+   Donde el control vive en el extremo derecho, el globo se ancla a ese borde y
+   crece hacia dentro. */
+.table-toolbar .tooltip-bubble,
+.page-header .tooltip-bubble,
+.action-row .tooltip-bubble {
+  left: auto;
+  right: 0;
+  transform: translateY(4px);
+}
+.table-toolbar .tooltip-wrap:hover .tooltip-bubble,
+.table-toolbar .tooltip-wrap:focus-within .tooltip-bubble,
+.page-header .tooltip-wrap:hover .tooltip-bubble,
+.page-header .tooltip-wrap:focus-within .tooltip-bubble,
+.action-row .tooltip-wrap:hover .tooltip-bubble,
+.action-row .tooltip-wrap:focus-within .tooltip-bubble {
+  transform: translateY(0);
 }
 
 .action-row {
@@ -84,6 +105,6 @@
 }
 
 .action-icon-danger:hover {
-  background: #fdeceb;
+  background: var(--danger-wash);
   color: var(--danger);
 }

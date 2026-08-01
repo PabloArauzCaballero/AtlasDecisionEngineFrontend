@@ -16,11 +16,13 @@ import {
   queuedTestRunSchema,
   testCasesSchema,
 } from '../testing/testing.schemas';
-import { display } from '../utils/records';
+import { asRecord, asRows, display } from '../utils/records';
 
 interface TestCasesPageProps {
   initialSuiteId?: string;
 }
+
+const SUITE_PICKER_ENDPOINT = '/v1/views/pickers/test-suites';
 
 function displayJson(value: unknown): string {
   if (value === null || value === undefined) return '—';
@@ -46,6 +48,22 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
       }),
     enabled: Boolean(suiteId),
   });
+  // La versión que la suite prueba, para poder generar una entrada de ejemplo con SU
+  // contrato. Se lee de la misma consulta que alimenta el selector —misma clave, así que
+  // es un acierto de caché— y no de la opción elegida: la suite puede venir fijada por la
+  // URL sin que nadie haya tocado el selector.
+  const suitePicker = useQuery({
+    queryKey: ['picker', 'test-suites', SUITE_PICKER_ENDPOINT],
+    queryFn: () => apiRequest<unknown>(SUITE_PICKER_ENDPOINT),
+    staleTime: 60_000,
+  });
+  const suiteRows = Array.isArray(suitePicker.data)
+    ? asRows(suitePicker.data)
+    : asRows(asRecord(suitePicker.data).items);
+  const artifactVersionId = suiteRows.find(
+    (row) => display(row, 'id') === suiteId,
+  )?.artifactVersionId;
+
   const run = useMutation({
     mutationFn: () =>
       apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/runs`, {
@@ -178,7 +196,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
             label="Suite de pruebas"
             value={draftId}
             onChange={setDraftId}
-            endpoint="/v1/views/pickers/test-suites"
+            endpoint={SUITE_PICKER_ENDPOINT}
             queryKey="test-suites"
             placeholder="Elegir suite…"
             mapOption={(row) => ({
@@ -193,6 +211,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
         {showCreate && suiteId ? (
           <CreateTestCaseForm
             suiteId={suiteId}
+            artifactVersionId={artifactVersionId ? String(artifactVersionId) : undefined}
             onCancel={() => setShowCreate(false)}
             onCreated={(testCase) => {
               setShowCreate(false);

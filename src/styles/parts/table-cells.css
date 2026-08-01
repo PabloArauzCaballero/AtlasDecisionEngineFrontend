@@ -1,0 +1,27 @@
+/**
+ * Anchos de celda.
+ *
+ * Vive aparte de `table-tools.css` sólo por el límite de 299 líneas por fichero
+ * que aplica `verify-source`; conceptualmente es la misma hoja.
+ */
+
+/* Columna de prosa: envuelve en dos o tres líneas en lugar de exigir 320 px en
+   una sola. Es lo que permite que una tabla de muchas columnas quepa sin
+   desplazarse; el resto de celdas siguen siendo de una línea para que las filas
+   se comparen de un vistazo. */
+.data-table td.table-wrap-cell {
+  max-width: 220px;
+  white-space: normal;
+  line-height: 1.45;
+}
+/* El código es un identificador largo y sin espacios: en una sola línea empuja
+   la columna hasta 312 px, y partiéndolo por cualquier sitio queda ilegible
+   («EMIT_AFF_DISPOSA / BLE»). Un cuerpo un punto menor deja que los códigos
+   reales quepan enteros, y `anywhere` sólo actúa en los excepcionalmente
+   largos. */
+.data-table td.table-identity.mono {
+  max-width: 232px;
+  font-size: 11px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

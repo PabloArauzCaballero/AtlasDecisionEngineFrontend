@@ -9,7 +9,8 @@ import {
   Lightbulb,
   X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { CONCEPTS, conceptTutorials } from './tutorial-content-concepts';
 import type { Tutorial } from './tutorial.types';
 
@@ -27,6 +28,8 @@ interface TutorialDrawerProps {
  * concept explainer (for analysts), and "Volver" returns to the tool tutorial.
  */
 export function TutorialDrawer({ tutorial, onClose, onStartTour }: TutorialDrawerProps) {
+  const drawer = useRef<HTMLElement>(null);
+  useDialogFocus(drawer);
   const [active, setActive] = useState<Tutorial>(tutorial);
   const [index, setIndex] = useState(0);
   const isConcept = active !== tutorial;
@@ -62,6 +65,7 @@ export function TutorialDrawer({ tutorial, onClose, onStartTour }: TutorialDrawe
       }}
     >
       <aside
+        ref={drawer}
         className="tutorial-drawer"
         role="dialog"
         aria-modal="true"

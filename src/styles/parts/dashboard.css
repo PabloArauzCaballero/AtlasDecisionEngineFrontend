@@ -1,0 +1,269 @@
+/**
+ * Panel de inicio.
+ *
+ * El fondo ambiental vive en una capa propia detrás del contenido; todo lo que
+ * lleva texto (tarjetas, paneles) se apoya sobre una superficie opaca para que
+ * el contraste no dependa de lo que ocurra detrás.
+ */
+
+/**
+ * Fondo ambiental del marco.
+ *
+ * El portal monta un único fondo, hermano de `.app-main` dentro de `.app-shell`.
+ * Va `fixed` a propósito: no crece con la altura del contenido —una lista larga
+ * no multiplica el área que el navegador compone— y se queda quieto mientras se
+ * hace scroll, que es como se comporta un fondo de verdad.
+ *
+ * `.app-main` necesita posición y `z-index` explícitos: un elemento absoluto
+ * pinta por encima del contenido en flujo que no esté posicionado, así que sin
+ * esto el fondo taparía la aplicación entera.
+ */
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+.app-shell > .ambient-bg {
+  position: fixed;
+}
+.app-main {
+  position: relative;
+  z-index: 1;
+}
+/* Las superficies con texto se apoyan en fondo opaco: el contraste no puede
+   depender de lo que se mueva por detrás. */
+.content > .route-view {
+  position: relative;
+}
+
+/* --------------------------------------------------------- tarjetas */
+
+.dash-grid {
+  display: grid;
+  /* 300px de mínimo: en el ancho habitual del marco caben tres columnas, así
+     las seis tarjetas forman dos filas completas en lugar de dejar un hueco. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.dash-card {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--panel-live);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard);
+}
+.dash-card:hover,
+.dash-card:focus-within {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  box-shadow: var(--lift-shadow);
+}
+.dash-card header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.dash-card header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.dash-card > strong {
+  color: var(--ink);
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.dash-card > small {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.dash-card.is-unavailable > strong {
+  color: var(--faint);
+}
+/* La acción aparece al pasar el cursor, pero también al enfocarla con el
+   teclado: nunca queda accesible sólo con ratón. */
+.dash-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.dash-card:hover .dash-card-action,
+.dash-card-action:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+.dash-card:hover .concept-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+.dash-danger {
+  border-color: var(--danger-line);
+}
+.dash-warning {
+  border-color: var(--warning-line);
+}
+.dash-success {
+  border-color: var(--success-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Sin movimiento la acción se muestra siempre: no puede depender de una
+     transición que no va a ocurrir. */
+  .dash-card-action {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -------------------------------------------------------- actividad */
+
+.dash-activity {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.dash-feed,
+.dash-attention {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dash-feed li,
+.dash-attention li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-out);
+}
+.dash-attention li {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+.dash-feed li:hover,
+.dash-attention li:hover {
+  border-color: var(--line-strong);
+  transform: translateX(2px);
+}
+.dash-feed strong,
+.dash-attention strong {
+  display: block;
+  color: var(--ink);
+  font-size: 12.5px;
+}
+.dash-feed small,
+.dash-attention small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.dash-feed-link {
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.dash-feed-link:hover {
+  text-decoration: underline;
+}
+.dash-feed-failed {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+.dash-attention-danger {
+  border-color: var(--danger-line);
+}
+.dash-attention-warning {
+  border-color: var(--warning-line);
+}
+
+/* --------------------------------------------------- accesos rápidos */
+
+.dash-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+.dash-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-out);
+}
+.dash-shortcut:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  transform: translateY(-1px);
+}
+.dash-shortcut:hover .concept-icon {
+  transform: scale(1.08);
+}
+
+@media (max-width: 980px) {
+  .dash-activity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .ambient-surface {
+    margin: -20px -16px -40px;
+    padding: 20px 16px 40px;
+  }
+  .dash-feed li,
+  .dash-attention li {
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 6px;
+  }
+  .dash-feed li > .status-badge,
+  .dash-feed-link {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .dash-attention li > .button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

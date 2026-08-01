@@ -1,6 +1,7 @@
 import { GitBranch, History, Pencil, TerminalSquare, Workflow } from 'lucide-react';
 import Link from 'next/link';
 import { Alert } from '../components/Alert';
+import { CONCEPTS } from '../components/concept-icons';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { DataInspector } from '../components/DataInspector';
@@ -82,9 +83,25 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
       ) : null}
       <Tabs
         tabs={[
-          { id: 'summary', label: 'Resumen' },
-          { id: 'versions', label: 'Versiones', count: versions.length },
-          { id: 'data', label: 'Datos' },
+          {
+            id: 'summary',
+            label: 'Resumen',
+            icon: CONCEPTS.artifact.icon,
+            hint: 'Qué decide este artefacto y cómo está configurado.',
+          },
+          {
+            id: 'versions',
+            label: 'Versiones',
+            count: versions.length,
+            icon: CONCEPTS.version.icon,
+            hint: 'Cada versión es una fotografía inmutable del algoritmo.',
+          },
+          {
+            id: 'data',
+            label: 'Datos',
+            icon: CONCEPTS.variableCatalog.icon,
+            hint: 'La respuesta cruda del backend, para depurar.',
+          },
         ]}
         active={activeTab}
         onChange={setActiveTab}

@@ -1,31 +1,33 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import type { DragEvent, KeyboardEvent, PointerEvent } from 'react';
-import { Link2, MousePointer2, Plus, Square, X } from 'lucide-react';
+import { Link2, Plus, X } from 'lucide-react';
+import { Illustration } from '../../components/Illustration';
+import { clamp } from '../../utils/numbers';
 import type { UnknownRecord } from '../../utils/records';
 import { display } from '../../utils/records';
+import { NODE_HEIGHT, NODE_WIDTH, positionOf, worldSize } from './canvas-world';
 import type { ConnectionNotice } from './connection-feedback';
 import { GraphEdges } from './GraphEdges';
-import { icons } from './node-types';
-
-const NODE_WIDTH = 182;
-const NODE_HEIGHT = 66;
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function positionOf(node: UnknownRecord, index: number) {
-  const fallbackX = 8 + (index % 3) * 29;
-  const fallbackY = 12 + Math.floor(index / 3) * 27;
-  return {
-    x: clamp(typeof node.x === 'number' ? node.x : fallbackX, 0, 96),
-    y: clamp(typeof node.y === 'number' ? node.y : fallbackY, 0, 96),
-  };
-}
+import { GraphNodeCard } from './GraphNodeCard';
+import { nodeIo } from './node-io';
+import { nodeBadges, nodeSummary } from './node-summary';
+import { CanvasLegend } from './CanvasLegend';
 
 interface GraphCanvasProps {
   nodes: UnknownRecord[];
   edges: UnknownRecord[];
+  /** Catálogos del grafo: permiten decir qué lee y qué escribe cada nodo. */
+  conditions?: UnknownRecord[];
+  actions?: UnknownRecord[];
+  variables?: UnknownRecord[];
+  /** Muestra el lienzo en estado de carga mientras llega el grafo. */
+  loading?: boolean;
+  /**
+   * Modo detallado: cada nodo muestra su regla y sus marcas, y las conexiones
+   * llevan la condición que las gobierna. Se puede apagar para recuperar la
+   * vista de conjunto en grafos grandes.
+   */
+  detailed?: boolean;
   selectedKey?: string;
   selectedEdgeKey?: string;
   pendingFrom?: string | null;
@@ -45,6 +47,11 @@ interface GraphCanvasProps {
 export function GraphCanvas({
   nodes,
   edges,
+  conditions = [],
+  actions = [],
+  variables = [],
+  loading = false,
+  detailed = true,
   selectedKey,
   selectedEdgeKey,
   pendingFrom,
@@ -60,29 +67,15 @@ export function GraphCanvas({
   onCancelConnection,
   onAddStart,
 }: GraphCanvasProps) {
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const worldRef = useRef<HTMLDivElement>(null);
   const dragKey = useRef<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const moved = useRef(false);
-  const [canvasSize, setCanvasSize] = useState({ width: 900, height: 650 });
   const markerId = `graph-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const updateSize = () => {
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width && rect.height) setCanvasSize({ width: rect.width, height: rect.height });
-    };
-    updateSize();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(updateSize);
-    observer.observe(canvas);
-    return () => observer.disconnect();
-  }, []);
-
-  const nodeWidth = (NODE_WIDTH / canvasSize.width) * 100;
-  const nodeHeight = (NODE_HEIGHT / canvasSize.height) * 100;
+  const world = worldSize(nodes.map((node, index) => positionOf(node, index)));
+  const nodeWidth = (NODE_WIDTH / world.width) * 100;
+  const nodeHeight = (NODE_HEIGHT / world.height) * 100;
   const maxNodeX = Math.max(0, 99 - nodeWidth);
   const maxNodeY = Math.max(0, 99 - nodeHeight);
   const placed = nodes.map((node, index) => {
@@ -95,20 +88,22 @@ export function GraphCanvas({
     };
   });
   const byKey = new Map(placed.map((item) => [item.key, item]));
+  const catalogs = { conditions, actions, variables };
+  const rulesByNode = Object.fromEntries(
+    placed.map((item) => [item.key, nodeSummary(item.node, catalogs)]),
+  );
 
   function toPercent(clientX: number, clientY: number, includeDragOffset = false) {
-    const canvas = canvasRef.current;
-    const rect = canvas?.getBoundingClientRect();
-    if (!canvas || !rect) return { x: 0, y: 0 };
+    const rect = worldRef.current?.getBoundingClientRect();
+    if (!rect || !rect.width || !rect.height) return { x: 0, y: 0 };
     const offsetX = includeDragOffset ? dragOffset.current.x : 0;
     const offsetY = includeDragOffset ? dragOffset.current.y : 0;
-    // The canvas is scrollable: getBoundingClientRect gives the visible viewport
-    // origin, so add the internal scroll offset to land in the scaled content space.
-    const contentX = clientX - rect.left + canvas.scrollLeft - offsetX;
-    const contentY = clientY - rect.top + canvas.scrollTop - offsetY;
+    // El rect del mundo ya viene desplazado por el scroll y escalado por el zoom,
+    // así que basta con la posición relativa: arrastrar y soltar caen donde toca
+    // aunque el lienzo esté desplazado o con zoom.
     return {
-      x: clamp((contentX / (rect.width * zoom)) * 100, 0, maxNodeX),
-      y: clamp((contentY / (rect.height * zoom)) * 100, 0, maxNodeY),
+      x: clamp(((clientX - offsetX - rect.left) / rect.width) * 100, 0, maxNodeX),
+      y: clamp(((clientY - offsetY - rect.top) / rect.height) * 100, 0, maxNodeY),
     };
   }
 
@@ -166,18 +161,86 @@ export function GraphCanvas({
     onDragEnd(true);
   }
 
+  // El mundo es más grande que la ventana visible, así que un nodo seleccionado
+  // desde fuera del lienzo (checklist de flujo, búsqueda) puede quedar fuera de
+  // pantalla: se trae a la vista sin mover el resto de la página.
+  useEffect(() => {
+    if (!selectedKey) return;
+    const element = worldRef.current?.querySelector('.graph-node.selected');
+    if (element instanceof HTMLElement && typeof element.scrollIntoView === 'function') {
+      element.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    }
+  }, [selectedKey]);
+
   return (
     <div
-      className={`graph-canvas ${connectMode ? 'is-connecting' : ''}`}
-      ref={canvasRef}
-      onDragOver={(event) => {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'copy';
-      }}
-      onDrop={handleDrop}
-      aria-label="Lienzo del algoritmo de decisión"
+      className={[
+        'graph-canvas',
+        connectMode ? 'is-connecting' : '',
+        detailed ? 'is-detailed' : 'is-compact',
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
-      <div className="canvas-grid" />
+      <div
+        className="graph-canvas-viewport"
+        onDragOver={(event) => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'copy';
+        }}
+        onDrop={handleDrop}
+        aria-label="Lienzo del algoritmo de decisión"
+      >
+        {/* Reserva el espacio del mundo ya escalado para que el contenedor genere
+            barras de desplazamiento horizontal y vertical de verdad. */}
+        <div
+          className="graph-canvas-scroll"
+          style={{ width: world.width * zoom, height: world.height * zoom }}
+        >
+          <div
+            className="graph-canvas-world"
+            ref={worldRef}
+            style={{
+              width: world.width,
+              height: world.height,
+              transform: `scale(${zoom})`,
+            }}
+          >
+            <div className="canvas-grid" />
+            <GraphEdges
+              edges={edges}
+              nodesByKey={byKey}
+              selectedEdgeKey={selectedEdgeKey}
+              nodeWidth={nodeWidth}
+              nodeHeight={nodeHeight}
+              markerId={markerId}
+              rulesByNode={detailed ? rulesByNode : undefined}
+              onEdgeClick={onEdgeClick}
+            />
+            {placed.map(({ node, key, x, y }) => (
+              <GraphNodeCard
+                key={key}
+                name={display(node, 'label', 'key')}
+                type={display(node, 'type')}
+                selected={selectedKey === key}
+                connectSource={pendingFrom === key}
+                terminal={Boolean(node.terminal)}
+                // Variables, no conexiones: las conexiones ya se ven dibujadas,
+                // lo que no se veía era qué datos entran y salen de cada paso.
+                io={nodeIo(node, catalogs)}
+                summary={detailed ? nodeSummary(node, catalogs) : null}
+                badges={detailed ? nodeBadges(node, catalogs) : undefined}
+                style={{ left: `${x}%`, top: `${y}%` }}
+                onPointerDown={(event) => handlePointerDown(event, key)}
+                onPointerMove={handlePointerMove}
+                onPointerUp={() => finishPointer(node)}
+                onPointerCancel={() => finishPointer()}
+                onKeyDown={(event) => handleNodeKeyDown(event, node)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
       {connectMode ? (
         <div
           className={`canvas-connection-guide notice-${connectionNotice?.tone ?? 'info'}`}
@@ -200,88 +263,33 @@ export function GraphCanvas({
           ) : null}
         </div>
       ) : null}
-      {!nodes.length ? (
-        <div className="canvas-empty-state">
-          <span>
-            <MousePointer2 size={22} />
+      {/* Cargar un grafo tarda: sin este aviso el lienzo se queda en blanco y
+          se lee como "no hay nada" o como que la aplicación falló. */}
+      {loading ? (
+        <div className="canvas-loading" role="status">
+          <span className="canvas-loading-nodes" aria-hidden="true">
+            <i />
+            <i />
+            <i />
           </span>
+          <strong>Cargando el algoritmo…</strong>
+          <p>Estamos trayendo del motor los nodos, las condiciones y las acciones de la versión.</p>
+        </div>
+      ) : null}
+      {!loading && !nodes.length ? (
+        <div className="canvas-empty-state">
+          <Illustration name="graph" size={132} />
           <strong>Empieza a diseñar tu algoritmo</strong>
-          <p>Agrega el nodo inicial y construye el flujo de izquierda a derecha.</p>
+          <p>
+            Un algoritmo es un recorrido de bloques: empieza en Inicio, se bifurca según tus reglas
+            y termina en un Resultado. Agrega el nodo inicial y construye de izquierda a derecha.
+          </p>
           <button className="button button-primary" type="button" onClick={onAddStart}>
             <Plus size={16} /> Agregar inicio
           </button>
         </div>
       ) : null}
-      <div className="graph-canvas-zoom" style={{ transform: `scale(${zoom})` }}>
-        <GraphEdges
-          edges={edges}
-          nodesByKey={byKey}
-          selectedEdgeKey={selectedEdgeKey}
-          nodeWidth={nodeWidth}
-          nodeHeight={nodeHeight}
-          markerId={markerId}
-          onEdgeClick={onEdgeClick}
-        />
-        {placed.map(({ node, key, x, y }) => {
-          const type = display(node, 'type') as keyof typeof icons;
-          const Icon = icons[type] ?? Square;
-          return (
-            <button
-              key={key}
-              type="button"
-              className={[
-                'graph-node',
-                `node-${type.toLowerCase()}`,
-                selectedKey === key ? 'selected' : '',
-                pendingFrom === key ? 'connect-source' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              style={{ left: `${x}%`, top: `${y}%` }}
-              aria-label={`${display(node, 'label', 'key')}, nodo ${type}`}
-              onPointerDown={(event) => handlePointerDown(event, key)}
-              onPointerMove={handlePointerMove}
-              onPointerUp={() => finishPointer(node)}
-              onPointerCancel={() => finishPointer()}
-              onKeyDown={(event) => handleNodeKeyDown(event, node)}
-            >
-              <span className="graph-node-port graph-node-port-input" aria-hidden="true" />
-              <span className="graph-node-icon">
-                <Icon size={18} />
-              </span>
-              <span className="graph-node-copy">
-                <strong>{display(node, 'label', 'key')}</strong>
-                <small>{nodeTypeLabel(type)}</small>
-              </span>
-              {!node.terminal ? (
-                <span className="graph-node-port graph-node-port-output" aria-hidden="true" />
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
-      <div className="canvas-legend" aria-hidden="true">
-        <span>
-          <i className="legend-condition" /> Condición
-        </span>
-        <span>
-          <i className="legend-result" /> Resultado
-        </span>
-        <span>
-          <i className="legend-terminal" /> Terminal
-        </span>
-      </div>
+      <CanvasLegend />
     </div>
   );
-}
-
-function nodeTypeLabel(type: keyof typeof icons): string {
-  const labels: Partial<Record<keyof typeof icons, string>> = {
-    START: 'Inicio',
-    CONDITION: 'Condición',
-    MANUAL_REVIEW: 'Revisión manual',
-    RESULT: 'Resultado',
-    END: 'Fin del flujo',
-  };
-  return labels[type] ?? String(type).replace(/_/g, ' ');
 }

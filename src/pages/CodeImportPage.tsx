@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { FileCode2, GitBranch, Save, ShieldCheck, XCircle } from 'lucide-react';
+import { FileCode2, GitBranch, Save, ShieldCheck, Wand2, XCircle } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
@@ -7,16 +7,37 @@ import { Alert } from '../components/Alert';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { GeneratedGraphPreview } from '../components/GeneratedGraphPreview';
 import { CodeImportIssuesList, type CodeImportIssue } from '../components/CodeImportIssuesList';
+import { ImportBankPanel } from '../features/actions/ImportBankPanel';
+import { localPythonIssues, stripUppercaseAccents } from '../components/code-import-issues';
 import { JsonTextarea } from '../components/JsonTextarea';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { VariableList } from '../components/VariableIo';
 import { asRecord, asRows, display } from '../utils/records';
 
+// Ejemplo con una cadena if/else if/else: es la forma que el analizador convierte
+// en un ÁRBOL de condiciones y resultados, no en un único nodo de script.
 const SAMPLE_SOURCE = `// @atlas-contract
 // { "contractVersion": "1",
-//   "inputs": [{ "id": "age", "name": "Age", "type": "INTEGER", "required": true }],
-//   "outputs": [{ "id": "riskLevel", "name": "Risk Level", "type": "STRING", "required": true }] }
-return { riskLevel: variables.age >= 21 ? 'LOW' : 'HIGH' };
+//   "inputs": [
+//     { "id": "edad", "name": "Edad", "type": "INTEGER", "required": true },
+//     { "id": "score_buro", "name": "Score de buró", "type": "INTEGER", "required": true },
+//     { "id": "ingreso_mensual", "name": "Ingreso mensual", "type": "NUMBER", "required": true }],
+//   "outputs": [
+//     { "id": "decision", "name": "Decisión", "type": "STRING", "required": true },
+//     { "id": "motivo", "name": "Motivo", "type": "STRING", "required": true },
+//     { "id": "limite", "name": "Límite aprobado", "type": "NUMBER", "required": true }],
+//   "primaryOutputId": "decision",
+//   "reasonOutputId": "motivo" }
+if (variables.edad < 18) {
+  return { decision: 'RECHAZADO', motivo: 'AGE_NOT_ELIGIBLE', limite: 0 };
+} else if (variables.score_buro < 550) {
+  return { decision: 'RECHAZADO', motivo: 'BUREAU_SCORE_TOO_LOW', limite: 0 };
+} else if (variables.score_buro >= 700) {
+  return { decision: 'APROBADO', motivo: 'APPROVED_POLICY', limite: variables.ingreso_mensual * 0.35 };
+} else {
+  return { decision: 'REVISION', motivo: 'SCORE_BAND_BORDERLINE', limite: 0 };
+}
 `;
 
 /**
@@ -36,12 +57,24 @@ export function CodeImportPage() {
       apiRequest<unknown>('/v1/code-imports', { method: 'POST', body: { language, sourceCode } }),
   });
   const result = asRecord(analyze.data);
-  const issues = asRows(result.issues) as unknown as CodeImportIssue[];
+  // La revisión local se antepone a la del motor: cuando detecta un carácter que
+  // el analizador de Python rechaza, señala la línea real en lugar de dejar que
+  // el motor culpe a la línea 1.
+  const localIssues = language === 'PYTHON' ? localPythonIssues(sourceCode) : [];
+  const issues = [...localIssues, ...(asRows(result.issues) as unknown as CodeImportIssue[])];
   const generatedGraph = asRecord(result.generatedGraph);
   const dependencies = asRows(generatedGraph.dependencies);
   const nodes = asRows(generatedGraph.nodes);
+  const edges = asRows(generatedGraph.edges);
   const hasBlockingIssues = issues.some((issue) => issue.severity === 'ERROR');
   const importId = display(result, 'id');
+  const conditionCount = nodes.filter((node) => display(node, 'type') === 'CONDITION').length;
+  const inputs = dependencies.filter(
+    (dependency) => !display(dependency, 'usageType').startsWith('OUTPUT'),
+  );
+  const outputs = dependencies.filter((dependency) =>
+    display(dependency, 'usageType').startsWith('OUTPUT'),
+  );
 
   const write = useMutation({
     mutationFn: (action: 'save-draft' | 'confirm') =>
@@ -66,7 +99,11 @@ export function CodeImportPage() {
       />
       <div className="code-import-layout">
         <Panel title="Código fuente" meta={language}>
-          <form className="code-import-form" onSubmit={submitAnalysis}>
+          <form
+            className="code-import-form"
+            onSubmit={submitAnalysis}
+            data-tutorial-id="code-import-form"
+          >
             <label className="field">
               <span>Lenguaje</span>
               <select
@@ -84,7 +121,12 @@ export function CodeImportPage() {
               onChange={setSourceCode}
               rows={16}
             />
-            <button className="button button-primary" type="submit" disabled={analyze.isPending}>
+            <button
+              className="button button-primary"
+              type="submit"
+              data-tutorial-id="code-import-analyze"
+              disabled={analyze.isPending}
+            >
               <FileCode2 size={16} /> Analizar
             </button>
             {analyze.isError ? <Alert tone="error">{errorMessage(analyze.error)}</Alert> : null}
@@ -95,28 +137,51 @@ export function CodeImportPage() {
           title="Resultado del análisis"
           meta={issues.length ? `${issues.length} observaciones` : 'Sin observaciones'}
         >
-          {analyze.isSuccess ? (
+          {/* La revisión local no espera a pulsar "Analizar": avisar antes de
+              enviar ahorra el viaje y un error que culpa a la línea 1. */}
+          {analyze.isSuccess || localIssues.length ? (
             <>
               <CodeImportIssuesList issues={issues} />
+              {localIssues.length ? (
+                <button
+                  className="button button-primary code-import-autofix"
+                  type="button"
+                  onClick={() => setSourceCode(stripUppercaseAccents(sourceCode))}
+                >
+                  <Wand2 size={15} /> Quitar las tildes de las mayúsculas ({localIssues.length})
+                </button>
+              ) : null}
               {!hasBlockingIssues && nodes.length ? (
-                <div className="code-import-preview">
+                <div className="code-import-preview" data-tutorial-id="code-import-preview">
                   <h4>
                     <GitBranch size={14} aria-hidden="true" /> Grafo generado
                   </h4>
                   <p className="muted-text">
-                    {nodes.length} nodos · {dependencies.length} variables
+                    {conditionCount
+                      ? `Árbol de decisión: ${conditionCount} ${
+                          conditionCount === 1 ? 'condición' : 'condiciones'
+                        } · ${nodes.length} nodos`
+                      : `${nodes.length} nodos · el código se importa como un único nodo de script`}
                   </p>
-                  <GeneratedGraphPreview nodes={nodes} />
-                  <ul className="dependency-list">
-                    {dependencies.map((dependency, index) => (
-                      <li key={index}>
-                        <span className="dependency-node-key">
-                          {display(dependency, 'usageType')}
-                        </span>
-                        {display(dependency, 'variableCode')}
-                      </li>
-                    ))}
-                  </ul>
+                  <GeneratedGraphPreview nodes={nodes} edges={edges} />
+                  <VariableList
+                    title="Entradas"
+                    hint="Datos que la decisión necesita recibir"
+                    tone="in"
+                    variables={inputs}
+                  />
+                  <VariableList
+                    title="Salidas"
+                    hint="Resultados que la decisión devuelve"
+                    tone="out"
+                    variables={outputs}
+                  />
+                  <ImportBankPanel
+                    nodes={nodes}
+                    emittedReasonCodes={asRows(generatedGraph.actions).map((action) =>
+                      display(action, 'reasonCode'),
+                    )}
+                  />
                 </div>
               ) : null}
             </>
@@ -128,7 +193,7 @@ export function CodeImportPage() {
 
       {analyze.isSuccess && !hasBlockingIssues ? (
         <Panel title="Guardar en un artefacto" meta={`Import #${importId}`}>
-          <div className="code-import-form">
+          <div className="code-import-form" data-tutorial-id="code-import-save">
             <ArtifactVersionPicker
               versionId={artifactVersionId}
               onVersionChange={setArtifactVersionId}

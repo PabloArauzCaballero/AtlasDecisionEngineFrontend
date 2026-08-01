@@ -2,6 +2,11 @@ import { Copy, GitBranch } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert } from '../components/Alert';
+import type { AmbientState } from '../components/AmbientBackground';
+import { useAmbientState } from '../components/ambient/useAmbientState';
+import { ExecutionPlayback } from '../features/execution-playback/ExecutionPlayback';
+import { normalizeTrace } from '../features/execution-playback/execution-trace';
+import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
@@ -25,6 +30,15 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const trace = asRows(execution.traceSteps ?? execution.trace);
   const versionId = display(execution, 'artifactVersionId', 'versionId');
   const router = useRouter();
+  // El grafo de la versión ejecutada es lo que da forma a la reproducción. Se
+  // pide sólo cuando la ejecución referencia una versión; si falla, el modo de
+  // reproducción sigue funcionando con su línea de tiempo.
+  const graphQuery = useDetailQuery<unknown>(
+    'execution-version-graph',
+    versionId !== '—' ? `/v1/artifact-versions/${encodeURIComponent(versionId)}/graph` : null,
+  );
+  const graph = asRecord(graphQuery.data);
+  const steps = normalizeTrace(execution);
 
   /**
    * Hands the original input to the simulator through sessionStorage — the
@@ -41,6 +55,17 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
     );
     router.push('/simulator');
   };
+
+  // El fondo toma la temperatura del desenlace real de la ejecución.
+  const outcome = display(execution, 'status', 'outcome').toUpperCase();
+  const ambient: AmbientState = steps.some((step) => step.status === 'error')
+    ? 'error'
+    : /FAIL|ERROR|REJECT/.test(outcome)
+      ? 'error'
+      : query.data
+        ? 'success'
+        : 'idle';
+  useAmbientState(ambient);
 
   return (
     <>
@@ -98,6 +123,9 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           ]}
         />
       </Panel>
+      <Panel title="Reproducción de la decisión" meta={`${steps.length} pasos trazados`}>
+        <ExecutionPlayback steps={steps} nodes={asRows(graph.nodes)} edges={asRows(graph.edges)} />
+      </Panel>
       <div className="execution-detail-grid">
         <main>
           <JsonPanel
@@ -134,6 +162,9 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           </Panel>
         </main>
         <aside>
+          <Panel title="Estado de variables por nodo" meta="entradas · intermedias · salidas">
+            <NodeVariableStatePanel trace={trace} />
+          </Panel>
           <Panel title="Timeline de Ejecución" meta={`${trace.length} steps`}>
             <Timeline
               items={trace.map((item) => ({

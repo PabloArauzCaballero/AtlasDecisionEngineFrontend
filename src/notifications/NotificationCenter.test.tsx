@@ -113,3 +113,21 @@ describe('NotificationCenter (persistent inbox)', () => {
     SLOW,
   );
 });
+
+describe('cierre con teclado del centro de notificaciones', () => {
+  it('devuelve el foco a la campana al cerrar con Escape', async () => {
+    mockBackend(3);
+    renderCenter();
+    const bell = await screen.findByRole('button', { name: /Notificaciones/ });
+
+    bell.focus();
+    fireEvent.click(bell);
+    await screen.findByRole('dialog', { name: /Centro de notificaciones/ });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    // Sin esto el foco cae al <body> y hay que volver a tabular media página.
+    expect(document.activeElement).toBe(bell);
+  });
+});

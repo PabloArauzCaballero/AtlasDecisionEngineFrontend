@@ -5,16 +5,16 @@
   text-align: center;
 }
 .algo-row.open > td {
-  background: #f6f9ff;
+  background: var(--info-wash);
 }
 .algo-row-detail > td {
   padding: 0;
-  background: #f8fafc;
+  background: var(--canvas);
   border-top: 0;
 }
 .algo-empty {
   text-align: center;
-  color: #94a3b8;
+  color: var(--faint);
   padding: 22px 0;
 }
 .algo-versions {
@@ -25,15 +25,15 @@
 .algo-versions-note {
   padding: 14px 18px;
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--muted);
 }
 .algo-versions-note.error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 .algo-version {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   padding: 12px 14px;
   display: grid;
   gap: 10px;
@@ -60,12 +60,12 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--faint);
 }
 .algo-version-meta dd {
   margin: 0;
   font-size: 0.82rem;
-  color: #334155;
+  color: var(--text);
 }
 .algo-version-actions {
   display: flex;

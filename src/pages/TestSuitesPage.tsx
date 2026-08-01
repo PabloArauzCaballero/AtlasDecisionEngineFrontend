@@ -6,7 +6,10 @@ import { useState } from 'react';
 import { ApiError, errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
+import { useAmbientState } from '../components/ambient/useAmbientState';
+import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
+import { TutorialMenu } from '../features/tutorial/TutorialMenu';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
@@ -47,6 +50,8 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
       }),
   });
   const rows = query.data?.items ?? [];
+  // El fondo se tiñe mientras el worker tiene suites encoladas de verdad.
+  useAmbientState(run.isPending || batchPending ? 'running' : 'idle');
 
   const runSuite = async (suiteId: string) => {
     try {
@@ -164,7 +169,39 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
       ) : query.isError || run.isError ? (
         <Alert tone="error">{errorMessage(query.error ?? run.error)}</Alert>
       ) : null}
-      <section className="panel">
+      {!versionId ? (
+        <section className="panel">
+          <EmptyState
+            illustration="graph"
+            title="Elige una versión para ver sus pruebas"
+            description="Las suites pertenecen a una versión concreta del algoritmo: así se sabe exactamente qué comportamiento se está verificando."
+            example="Selecciona arriba el artefacto y su versión, y pulsa «Load suites»."
+          />
+        </section>
+      ) : null}
+      {versionId && !query.isLoading && !rows.length ? (
+        <section className="panel">
+          <EmptyState
+            illustration="tests"
+            title="Todavía no existen suites de prueba"
+            description="Una suite permite agrupar varios casos relacionados y ejecutarlos juntos."
+            example="Puedes crear, por ejemplo, una suite para verificar todo el proceso de inicio de sesión de la plataforma."
+            actions={
+              <>
+                <button
+                  className="button button-primary"
+                  type="button"
+                  onClick={() => setShowCreate(true)}
+                >
+                  <Plus size={16} /> Crear primera suite
+                </button>
+                <TutorialMenu />
+              </>
+            }
+          />
+        </section>
+      ) : null}
+      <section className="panel" hidden={!rows.length}>
         <div className="table-wrap">
           <table>
             <thead>

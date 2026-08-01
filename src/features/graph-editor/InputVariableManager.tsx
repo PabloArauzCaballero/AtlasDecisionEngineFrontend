@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { LogIn, Trash2 } from 'lucide-react';
+import { ConfirmButton } from '../../components/ConfirmButton';
 import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
@@ -127,9 +128,21 @@ export function InputVariableManager({ variables, onChange }: Props) {
                 </button>
                 <b>{inputCode}</b>
                 <small>{display(item, 'dataType')}</small>
-                <button type="button" title="Quitar entrada" onClick={() => removeInput(inputCode)}>
+                <ConfirmButton
+                  className=""
+                  label={`Quitar la entrada ${inputCode}`}
+                  title={`¿Quitar «${inputCode}» del contrato de entrada?`}
+                  confirmLabel="Quitar la entrada"
+                  description={
+                    <p>
+                      El algoritmo dejará de pedir este dato. Cualquier condición o acción que lo
+                      lea se quedará sin valor, y las pruebas que lo envíen empezarán a fallar.
+                    </p>
+                  }
+                  onConfirm={() => removeInput(inputCode)}
+                >
                   <Trash2 size={12} />
-                </button>
+                </ConfirmButton>
               </span>
             );
           })}

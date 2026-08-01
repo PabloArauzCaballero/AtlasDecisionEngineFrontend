@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   AlignHorizontalSpaceAround,
+  Eye,
+  EyeOff,
   Link2,
   Redo2,
   Save,
@@ -30,6 +32,9 @@ interface GraphEditorToolbarProps {
   onZoomIn: () => void;
   onResetZoom: () => void;
   onAutoLayout: () => void;
+  /** Nivel de detalle del lienzo: reglas y marcas visibles en cada nodo. */
+  detailed: boolean;
+  onToggleDetail: () => void;
   onToggleConnect: () => void;
   onValidate: () => void;
   onSave: () => void;
@@ -156,8 +161,23 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
           <AlignHorizontalSpaceAround size={16} /> Ordenar
         </button>
         <button
+          className={`button editor-detail-button ${props.detailed ? 'active' : ''}`}
+          type="button"
+          aria-pressed={props.detailed}
+          title={
+            props.detailed
+              ? 'Ocultar la regla de cada nodo para ver el grafo de un vistazo'
+              : 'Mostrar en cada nodo la regla que aplica y qué variables usa'
+          }
+          onClick={props.onToggleDetail}
+        >
+          {props.detailed ? <Eye size={16} /> : <EyeOff size={16} />}
+          {props.detailed ? 'Detallado' : 'Compacto'}
+        </button>
+        <button
           className={`button editor-connect-button ${props.connectMode ? 'active' : ''}`}
           type="button"
+          data-tutorial-id="graph-connect"
           title="Conectar nodos"
           aria-label="Alternar modo de conexión"
           aria-pressed={props.connectMode}
@@ -169,6 +189,7 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
         <button
           className="button"
           type="button"
+          data-tutorial-id="graph-validate"
           disabled={!props.versionId || props.validating}
           onClick={props.onValidate}
         >

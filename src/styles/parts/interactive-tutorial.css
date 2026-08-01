@@ -19,7 +19,7 @@
 .tutorial-spotlight {
   position: absolute;
   border-radius: 10px;
-  border: 2px solid var(--accent, #1d4ed8);
+  border: 2px solid var(--accent, var(--info));
   box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
   pointer-events: none;
   transition:
@@ -33,7 +33,13 @@
   z-index: 1001;
   width: 340px;
   max-width: calc(100vw - 24px);
-  background: #fff;
+  /* Un paso con texto largo no puede desbordar la pantalla y dejar los botones
+     fuera de alcance: la tarjeta se limita al alto de la ventana y hace scroll
+     dentro de sí misma. */
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.32);
   padding: 16px 18px;
@@ -51,7 +57,7 @@
 .tutorial-tooltip > p {
   margin: 0;
   font-size: 0.86rem;
-  color: #334155;
+  color: var(--text);
   line-height: 1.5;
 }
 .tutorial-progress {
@@ -59,7 +65,7 @@
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #94a3b8;
+  color: var(--faint);
 }
 .tutorial-close {
   position: absolute;
@@ -72,6 +78,37 @@
   align-items: center;
   gap: 8px;
   margin-top: 14px;
+}
+
+/* Qué se va a aprender en este recorrido, sólo en el primer paso. */
+.tutorial-intro {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+/* Aviso de contexto: por qué el paso no puede completarse ahora mismo. */
+.tutorial-note {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--warning);
+  border-radius: 0 6px 6px 0;
+  background: var(--warning-wash);
+  color: var(--warning);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.tutorial-skip {
+  min-height: 30px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+.tutorial-actions {
+  flex-wrap: wrap;
 }
 
 .tutorial-tip {
@@ -135,8 +172,8 @@
   display: grid;
   gap: 2px;
   padding: 6px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
 }
@@ -151,10 +188,10 @@
   background: none;
   text-align: left;
   cursor: pointer;
-  color: #1e293b;
+  color: var(--ink);
 }
 .tutorial-menu-pop button:hover {
-  background: #f1f5f9;
+  background: var(--surface-hover);
 }
 .tutorial-menu-pop strong {
   display: block;
@@ -162,6 +199,21 @@
 }
 .tutorial-menu-pop small {
   display: block;
-  color: #64748b;
+  color: var(--muted);
   font-size: 0.7rem;
+}
+/* Barra de avance del recorrido guiado: cuántos pasos quedan de un vistazo. */
+.tutorial-progress-bar {
+  height: 4px;
+  margin: 6px 0 10px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.tutorial-progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.2s ease-out;
 }

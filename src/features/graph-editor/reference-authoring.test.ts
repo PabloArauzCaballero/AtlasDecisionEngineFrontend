@@ -9,6 +9,7 @@ import {
 
 function validForm(): ReferenceFormState {
   return {
+    ...emptyReferenceForm(),
     childArtifactId: 'art_child',
     childArtifactVersionId: 'ver_child',
     inputMappings: [{ childVariableCode: 'income', source: 'VARIABLE', path: 'monthlyIncome' }],
@@ -91,5 +92,78 @@ describe('reference-authoring', () => {
       source: 'LITERAL',
       value: 700,
     });
+  });
+
+  // --- §9: el resto de la política de la referencia ---
+
+  it('por defecto fija la versión exacta y no reintenta', () => {
+    // Reintentar por defecto haría que una decisión repitiera sola algo que puede
+    // tener efectos; y resolver «la activa» rompería la reproducibilidad.
+    const form = emptyReferenceForm();
+    expect(form.versionSelection).toBe('EXACT');
+    expect(form.maxRetries).toBe(0);
+    expect(form.isRequired).toBe(true);
+    expect(form.tracePolicy).toBe('FULL');
+  });
+
+  it('rechaza resolver la versión activa cuando el ambiente es PROD', () => {
+    const form = {
+      ...validForm(),
+      versionSelection: 'ACTIVE_IN_ENVIRONMENT' as const,
+      environmentCode: 'prod',
+    };
+    expect(referenceErrors('RESULT_1', form).join(' ')).toContain('versión exacta');
+  });
+
+  it('permite resolver la versión activa fuera de PROD', () => {
+    const form = {
+      ...validForm(),
+      versionSelection: 'ACTIVE_IN_ENVIRONMENT' as const,
+      environmentCode: 'SANDBOX',
+    };
+    expect(referenceErrors('RESULT_1', form)).toEqual([]);
+  });
+
+  it('rechaza una referencia opcional que igualmente falla la decisión', () => {
+    const form = { ...validForm(), isRequired: false, onErrorPolicy: 'FAIL' as const };
+    expect(referenceErrors('RESULT_1', form).join(' ')).toContain('no puede fallar la decisión');
+  });
+
+  it('acepta una referencia opcional con salida de reserva', () => {
+    const form = { ...validForm(), isRequired: false, onErrorPolicy: 'FALLBACK' as const };
+    expect(referenceErrors('RESULT_1', form)).toEqual([]);
+  });
+
+  it('rechaza una condición de ejecución que no es JSON', () => {
+    const form = { ...validForm(), executionCondition: '{ esto no es json' };
+    expect(referenceErrors('RESULT_1', form).join(' ')).toContain('JSON válido');
+  });
+
+  it('envía la política completa al backend', () => {
+    const body = buildReferenceBody('RESULT_1', {
+      ...validForm(),
+      environmentCode: 'SANDBOX',
+      maxRetries: 2,
+      retryDelayMs: 250,
+      executionCondition: '{"op":"gt","left":{"var":"score"},"right":{"value":600}}',
+      isRequired: false,
+      onErrorPolicy: 'SKIP',
+      tracePolicy: 'MASKED',
+    });
+    expect(body).toMatchObject({
+      environmentCode: 'SANDBOX',
+      versionSelection: 'EXACT',
+      maxRetries: 2,
+      retryDelayMs: 250,
+      isRequired: false,
+      tracePolicy: 'MASKED',
+      executionCondition: { op: 'gt', left: { var: 'score' }, right: { value: 600 } },
+    });
+  });
+
+  it('omite el ambiente y la condición cuando se dejan en blanco', () => {
+    const body = buildReferenceBody('RESULT_1', validForm());
+    expect(body.environmentCode).toBeUndefined();
+    expect(body.executionCondition).toBeUndefined();
   });
 });

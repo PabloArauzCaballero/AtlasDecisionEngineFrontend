@@ -34,14 +34,42 @@ se mantiene al día solo. Si necesitas frescura inmediata dentro de un turno
 
 - Máximo 299 líneas por archivo fuente (incluye CSS) — `scripts/verify-source.mjs`.
 - Todo HTTP pasa por `src/api/http-client.ts`; `fetch()` directo está prohibido.
+- **Toda ruta de `(portal)` necesita su patrón en `src/auth/route-access.ts`.** La
+  lista se deriva del árbol de páginas (`scripts/verify-conventions.mjs`), no de
+  un inventario a mano: una vista sin regla no da error de permisos, desaparece.
+- **Todo `var(--token)` sin respaldo debe existir.** Si no, el navegador descarta
+  la declaración entera y el estilo no se aplica sin avisar. Mismo script.
+- **Ningún color escrito a mano fuera de `theme.css`.** Sólo se admiten la
+  identidad por tipo (`--node-color`) y los adornos (degradados, máscaras,
+  sombras). Mismo script.
 - Gate completo: `yarn verify` (format:check, lint, verify:source, typecheck,
   test, build). Córrelo antes de dar por cerrado un cambio.
+- E2E: `yarn test:e2e` corre contra el servidor de desarrollo;
+  **`yarn test:e2e:prod` (tras `yarn build`) contra el artefacto que se
+  despliega**, que es la corrida canónica y la que usa la CI — sin compilación al
+  vuelo, un fallo significa siempre un defecto. `yarn test:e2e:tools` son los
+  generadores de evidencia y huellas, que no afirman nada y van aparte.
+  **No corras `yarn build` con el servidor de desarrollo levantado**: la build
+  reescribe `.next` y el servidor en marcha se queda con módulos que ya no
+  existen (rutas dando 404, «module factory is not available»). Se cura parando
+  el servidor, borrando `.next` y arrancando de nuevo.
+- Para probar algo que sólo se ve con datos, usa `e2e/support/dense-backend.ts`:
+  el motor simulado normal devuelve listados VACÍOS, así que una prueba escrita
+  contra él mide cabeceras y estados vacíos creyendo que mide la vista entera.
 
 ## Convenciones clave
 
 - Notificaciones: `useNotifications()` — los errores de mutaciones se reportan
   globalmente vía `MutationCache` en `src/app/QueryProvider.tsx`; las páginas
   solo añaden toasts de éxito.
+- Diálogos: todo lo que declare `role="dialog"` + `aria-modal="true"` usa
+  `useDialogFocus()` (`src/hooks/useDialogFocus.ts`), que lleva el foco dentro,
+  lo atrapa y lo devuelve al cerrar. Un overlay que exija pulsar la página de
+  detrás (los recorridos guiados) NO lleva `aria-modal`: sería mentira.
+- Seguridad de cabeceras: la CSP con nonce por petición la emite
+  `src/middleware.next.ts` (se llama así por el `pageExtensions` del proyecto;
+  con el nombre `middleware.ts` Next NO lo carga). El resto de cabeceras están
+  en `next.config.ts`.
 - Navegación con feedback: usa `NavLink` (`src/navigation/NavLink.tsx`), no
   `next/link` directo, para alimentar la barra de progreso de rutas.
 - Rutas nuevas: registra el patrón en `src/auth/route-access.ts` — las rutas
@@ -49,3 +77,56 @@ se mantiene al día solo. Si necesitas frescura inmediata dentro de un turno
 - Editores de nodos del grafo: `src/features/graph-editor/NodeProperties.tsx`
   despacha un editor dedicado por tipo de nodo; los nodos de código comparten
   el contrato `config.script = { language, source }` y `script-lint.ts`.
+
+## Sistema visual
+
+- **Colores por token**: `src/styles/parts/theme.css` define el mismo juego de
+  nombres (`--surface`, `--text`, `--line`, `--danger-wash`…) para claro y
+  oscuro. En hojas nuevas usa tokens, no hex: un color escrito a mano queda
+  ilegible al conmutar el tema y obliga a parchearlo en `theme-dark-*.css`.
+- **Espaciado, radios y monoespaciada** (`--space-*`, `--radius-*`, `--font-mono`)
+  y los alias semánticos (`--text-muted`, `--surface-muted`, `--danger-text`…)
+  viven en `parts/foundation.css`, no en `theme.css`: no dependen de la luz.
+- **Contraste**: `src/theme/theme-contrast.test.ts` mide cada token de texto
+  sobre cada superficie y exige AA (4,5:1); `e2e/contrast.spec.ts` mide lo mismo
+  sobre el DOM ya pintado, en 24 rutas y en **los dos temas**. Aclarar un gris
+  rompe el gate. Si migras un color a token, migra la pareja entera (letra Y
+  fondo): dejar una mitad literal es peor que dejar las dos.
+- **Tema**: lo resuelve un script en línea del `layout` antes del primer pintado
+  y lo conmuta `src/theme/ThemeToggle.tsx`. Las reglas oscuras van todas
+  acotadas a `[data-theme='dark']`; `src/theme/theme.test.tsx` lo verifica.
+- **Iconos**: `components/concept-icons.ts` (conceptos del dominio) y
+  `components/action-catalog.ts` (acciones). Un concepto se dibuja siempre con
+  el mismo icono; no crees uno nuevo sin añadirlo al catálogo.
+- **Nodos del grafo**: `features/graph-editor/node-catalog.ts` es la única
+  verdad de icono, forma, trama y explicación por tipo. El grafo debe leerse sin
+  color.
+- **Movimiento**: duraciones y curvas en `styles/motion-tokens.ts` (espejo de
+  `parts/motion.css`, con prueba de sincronía). Nada debe animarse si el backend
+  no está haciendo algo de verdad: el fondo ambiental se alimenta de
+  `components/ambient/useAmbientState.ts`.
+
+## Contratos en el editor (§1–§4 de la ampliación)
+
+- `src/contracts/` — espejo del catálogo de tipos y de las restricciones del backend.
+  Sirve para pintar selectores y dar feedback inmediato; **no es autoritativo**, el
+  backend revalida siempre. `contracts.test.ts` fija la equivalencia.
+- Editor de restricciones: `features/graph-editor/ConstraintEditor.tsx` (solo muestra las
+  restricciones que aplican al tipo, y permite probar un valor).
+- Variables intermedias: `features/graph-editor/IntermediateVariableManager.tsx`.
+  Se declaran junto al grafo que las crea, nunca en el catálogo de variables.
+- Contrato de salida: `features/graph-editor/OutputContractPanel.tsx`.
+- Estado por nodo (§3.1): `features/graph-editor/NodeVariableStatePanel.tsx`, usado en
+  el detalle de ejecución. Enmascara los datos sensibles también en cliente.
+
+## Vistas nuevas
+
+| Ruta                           | Página                                | Roles                             |
+| ------------------------------ | ------------------------------------- | --------------------------------- |
+| `/calculated-fields`           | `pages/CalculatedFieldsPage.tsx`      | `accessPolicies.calculatedFields` |
+| `/calculated-fields/[fieldId]` | `pages/CalculatedFieldDetailPage.tsx` | idem                              |
+| `/libraries`                   | `pages/LibrariesPage.tsx`             | `accessPolicies.libraryRegistry`  |
+| `/qa-lab`                      | `pages/QaLabPage.tsx`                 | `accessPolicies.qaLab`            |
+
+Estilos nuevos: `styles/parts/contracts.css`, `calculated-fields.css`, `libraries-qa.css`
+(solo tokens, nunca hex).

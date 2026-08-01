@@ -1,0 +1,35 @@
+/**
+ * Superficies que dejan pasar el fondo.
+ *
+ * El fondo ambiental se mueve solo, pero en una vista con datos no había dónde
+ * verlo: los paneles opacos cubren casi todo el lienzo y sólo quedaban unos
+ * milímetros de margen. Dando a las superficies grandes un punto de
+ * translucidez, la deriva de la aurora las atraviesa y toda la página respira,
+ * no sólo los bordes.
+ *
+ * Es translucidez, no desenfoque: `backdrop-filter` obligaría al navegador a
+ * rasterizar de nuevo lo que hay detrás de cada panel en cada fotograma, y
+ * detrás sólo hay un degradado suave —no hay nada que desenfocar—.
+ *
+ * El 8 % elegido es deliberadamente corto: sobre la aurora más saturada el
+ * fondo efectivo no baja de ~#f4f7f7, así que el texto conserva de sobra su
+ * relación de contraste. La prueba de contraste en tema oscuro
+ * (`e2e/theme-ambient.spec.ts`) lo verifica en cada ejecución.
+ *
+ * Carga después del tema oscuro a propósito: éste reasigna el fondo de `.panel`
+ * y hay que ganarle en ambos temas con la misma regla.
+ */
+
+.route-view > .panel,
+.route-view > .filter-bar,
+.route-view > .view-explainer,
+.view-explainer,
+.dash-card {
+  background: var(--panel-live);
+}
+
+/* Las tarjetas del panel de inicio son la superficie más grande de la vista más
+   vacía: es donde el movimiento del fondo mejor se aprecia. */
+.dash-card {
+  backdrop-filter: none;
+}

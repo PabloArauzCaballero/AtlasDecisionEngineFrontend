@@ -1,0 +1,192 @@
+/**
+ * Tema oscuro — capa estructural (marco, superficies, controles, datos).
+ *
+ * Se carga al final y sólo actúa bajo `[data-theme='dark']`, así que el tema
+ * claro queda exactamente como estaba: ni un píxel cambia si nadie enciende el
+ * oscuro. Reasigna a tokens los colores que las hojas de componentes tenían
+ * escritos a mano; las hojas nuevas ya usan tokens y no necesitan aparecer aquí.
+ *
+ * Contraste: los pares texto/fondo de este archivo se eligieron para superar
+ * 4.5:1 en texto normal y 3:1 en texto grande e iconos.
+ */
+
+[data-theme='dark'] body,
+[data-theme='dark'] .graph-canvas,
+[data-theme='dark'] .graph-editor-page {
+  background: var(--canvas);
+}
+
+/* ------------------------------------------------------------- barra lateral */
+
+[data-theme='dark'] .sidebar {
+  background: var(--surface-sunken);
+  border-right-color: var(--line);
+}
+[data-theme='dark'] .brand-row,
+[data-theme='dark'] .sidebar-foot {
+  border-color: var(--line);
+}
+[data-theme='dark'] .brand-mark {
+  background: var(--accent);
+  color: #06231f;
+}
+[data-theme='dark'] .brand-row strong {
+  color: var(--ink);
+}
+[data-theme='dark'] .nav-section > p {
+  color: var(--faint);
+}
+[data-theme='dark'] .nav-link {
+  color: var(--text);
+}
+[data-theme='dark'] .nav-link.active {
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+[data-theme='dark'] .quick-action,
+[data-theme='dark'] .quick-action-menu {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ barra superior */
+
+[data-theme='dark'] .topbar {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-bottom-color: var(--line);
+}
+[data-theme='dark'] .top-links a,
+[data-theme='dark'] .user-summary strong {
+  color: var(--text);
+}
+[data-theme='dark'] .user-summary {
+  border-left-color: var(--line);
+}
+[data-theme='dark'] .icon-button {
+  color: var(--text);
+}
+[data-theme='dark'] .icon-button.active {
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+[data-theme='dark'] .environment-chip {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+[data-theme='dark'] .top-action {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+/* ------------------------------------------------------ paneles y encabezados */
+
+[data-theme='dark'] .panel,
+[data-theme='dark'] .editor-panel,
+[data-theme='dark'] .json-panel,
+[data-theme='dark'] .filter-bar,
+[data-theme='dark'] .metric-card,
+[data-theme='dark'] .modal-card,
+[data-theme='dark'] .alert-card,
+[data-theme='dark'] .system-summary {
+  background: var(--surface);
+  border-color: var(--line);
+}
+[data-theme='dark'] .panel-title,
+[data-theme='dark'] .page-header h1,
+[data-theme='dark'] .panel-title span,
+[data-theme='dark'] h1,
+[data-theme='dark'] h2,
+[data-theme='dark'] h3,
+[data-theme='dark'] h4 {
+  color: var(--ink);
+}
+[data-theme='dark'] .button {
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
+}
+[data-theme='dark'] .button:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--faint);
+}
+[data-theme='dark'] .button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #06231f;
+}
+[data-theme='dark'] .button-primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+[data-theme='dark'] input,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+  background: var(--surface-inset);
+  border-color: var(--line-strong);
+}
+[data-theme='dark'] .field,
+[data-theme='dark'] .filter-bar label {
+  color: var(--text);
+}
+[data-theme='dark'] .field > small,
+[data-theme='dark'] .filter-bar label > small {
+  color: var(--muted);
+}
+[data-theme='dark'] .code-input {
+  background: #0a1020;
+  border-color: var(--line-strong);
+  color: #dbe6f7;
+}
+[data-theme='dark'] button:focus-visible,
+[data-theme='dark'] a:focus-visible,
+[data-theme='dark'] input:focus-visible,
+[data-theme='dark'] textarea:focus-visible {
+  outline-color: var(--focus-ring);
+}
+
+/* ------------------------------------------------------------------ tablas */
+
+[data-theme='dark'] th {
+  background: var(--surface-sunken);
+  color: var(--muted);
+}
+[data-theme='dark'] td {
+  border-top-color: var(--line-soft);
+}
+[data-theme='dark'] tbody tr:hover {
+  background: var(--surface-hover);
+}
+[data-theme='dark'] .pagination {
+  border-top-color: var(--line);
+}
+[data-theme='dark'] .status-neutral {
+  color: var(--text);
+}
+[data-theme='dark'] .status-inout {
+  color: #c7b9ff;
+  background: #201b3d;
+}
+[data-theme='dark'] .alert-success {
+  color: var(--success);
+}
+[data-theme='dark'] .alert-warning {
+  color: var(--warning);
+}
+
+/* ------------------------------------------------ diálogos y superposiciones */
+
+[data-theme='dark'] .modal-backdrop,
+[data-theme='dark'] .tutorial-overlay-backdrop {
+  background: rgba(3, 7, 18, 0.72);
+}
+[data-theme='dark'] .tooltip-bubble,
+[data-theme='dark'] .info-hint-bubble {
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+[data-theme='dark'] .skip-link {
+  background: var(--accent);
+  color: #06231f;
+}

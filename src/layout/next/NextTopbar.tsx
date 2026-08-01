@@ -4,10 +4,12 @@ import { Boxes, LogOut, Menu, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAuth } from '../../auth/useAuth';
+import { env } from '../../config/env';
 import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
 import { NavLink } from '../../navigation/NavLink';
 import { NotificationCenter } from '../../notifications/NotificationCenter';
 import { useNotifications } from '../../notifications/useNotifications';
+import { ThemeToggle } from '../../theme/ThemeToggle';
 
 interface NextTopbarProps {
   onMenu: () => void;
@@ -54,12 +56,26 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
         <NavLink href="/coverage-matrix">Analytics</NavLink>
       </nav>
       <div className="topbar-spacer" />
-      <div className="environment-chip">
-        <span /> Production
-      </div>
+      {/* Antes decía "Production" siempre, incluso corriendo contra sandbox.
+          Ahora se muestra el ambiente declarado en la configuración y, si no
+          hay ninguno declarado, no se muestra nada: mejor un hueco que una
+          afirmación falsa sobre dónde está trabajando el usuario. */}
+      {env.environmentLabel ? (
+        <div
+          className={`environment-chip ${env.environmentLabel === 'PRODUCTION' ? '' : 'environment-nonprod'}`}
+          title={
+            env.environmentLabel === 'PRODUCTION'
+              ? 'Estás trabajando contra el ambiente productivo.'
+              : `Estás trabajando contra ${env.environmentLabel}, no contra producción.`
+          }
+        >
+          <span /> {env.environmentLabel}
+        </div>
+      ) : null}
       <NavLink className="top-action" href="/simulator">
         <Boxes size={15} /> Simulate
       </NavLink>
+      <ThemeToggle />
       <NotificationCenter />
       <div className="security-label">
         <ShieldCheck size={15} /> Verified

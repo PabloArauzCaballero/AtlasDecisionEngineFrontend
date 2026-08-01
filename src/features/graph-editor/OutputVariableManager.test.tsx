@@ -40,7 +40,9 @@ describe('OutputVariableManager', () => {
 
   it('adds an output from the catalog using the picker version id', async () => {
     const onChange = renderManager();
-    await screen.findByRole('option', { name: /scoring/ });
+    // Espera larga a propósito: el desplegable depende de una consulta y el
+    // segundo por defecto se queda corto cuando la suite corre en paralelo.
+    await screen.findByRole('option', { name: /scoring/ }, { timeout: 5000 });
     fireEvent.change(screen.getByLabelText(/Variable del catálogo/), {
       target: { value: 'def-1' },
     });

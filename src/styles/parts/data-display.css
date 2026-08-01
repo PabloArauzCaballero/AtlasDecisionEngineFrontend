@@ -8,8 +8,10 @@ table {
   font-size: 12px;
 }
 th {
-  background: #f8fafc;
-  color: #667085;
+  /* Por token, no literal: la cabecera anclada de las tablas anchas repite este
+     fondo y tiene que coincidir exactamente para no dejar costura. */
+  background: var(--surface-sunken);
+  color: var(--faint);
   padding: 10px 14px;
   text-align: left;
   font-size: 10px;
@@ -19,15 +21,15 @@ th {
 }
 td {
   padding: 12px 14px;
-  border-top: 1px solid #eaecf0;
-  color: #344054;
+  border-top: 1px solid var(--line-soft);
+  color: var(--text);
   max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 tbody tr:hover {
-  background: #fcfcfd;
+  background: var(--surface-inset);
 }
 .status-badge {
   display: inline-flex;
@@ -38,20 +40,33 @@ tbody tr:hover {
   letter-spacing: 0.05em;
 }
 .status-success {
-  color: #067647;
-  background: #dcfae6;
+  color: var(--success);
+  background: var(--success-wash);
 }
 .status-danger {
-  color: #b42318;
-  background: #fee4e2;
+  color: var(--danger);
+  background: var(--danger-wash);
 }
 .status-warning {
-  color: #b54708;
-  background: #fef0c7;
+  color: var(--warning);
+  background: var(--warning-wash);
 }
 .status-neutral {
-  color: #475467;
-  background: #f2f4f7;
+  color: var(--muted);
+  background: var(--surface-hover);
+}
+/* Sentido de una variable: mismos colores que los distintivos del editor. */
+.status-in {
+  color: var(--success);
+  background: var(--success-wash);
+}
+.status-out {
+  color: var(--info);
+  background: var(--info-wash);
+}
+.status-inout {
+  color: var(--highlight);
+  background: var(--info-wash);
 }
 .pagination {
   display: flex;
@@ -85,24 +100,24 @@ tbody tr:hover {
   line-height: 1.45;
 }
 .alert-error {
-  color: #912018;
-  background: #fff4f2;
-  border-color: #fecdca;
+  color: var(--danger);
+  background: var(--danger-wash);
+  border-color: var(--danger-line);
 }
 .alert-success {
-  color: #05603a;
-  background: #ecfdf3;
-  border-color: #abefc6;
+  color: var(--success-strong);
+  background: var(--success-wash);
+  border-color: var(--success-line);
 }
 .alert-info {
-  color: #1849a9;
-  background: #eff8ff;
-  border-color: #b2ddff;
+  color: var(--info);
+  background: var(--info-wash);
+  border-color: var(--info-line);
 }
 .alert-warning {
-  color: #93370d;
-  background: #fffaeb;
-  border-color: #fedf89;
+  color: var(--warning-strong);
+  background: var(--warning-wash);
+  border-color: var(--warning-line);
 }
 .json-panel {
   margin-top: 16px;
@@ -113,8 +128,8 @@ tbody tr:hover {
   overflow: auto;
   margin: 0;
   padding: 18px;
-  background: #101828;
-  color: #d6e0f0;
+  background: var(--code-surface);
+  color: var(--code-ink);
   font-size: 11px;
   line-height: 1.55;
 }
@@ -166,15 +181,15 @@ tbody tr:hover {
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
-  color: #344054;
+  background: var(--surface);
+  color: var(--text);
   text-align: left;
   cursor: pointer;
 }
 .action-card:hover:not(:disabled),
 .action-card.featured {
-  border-color: #85d8ce;
-  background: #f0fcfa;
+  border-color: var(--accent-soft);
+  background: var(--success-wash);
 }
 .action-card svg {
   color: var(--accent);

@@ -8,8 +8,8 @@
   padding: 9px 12px;
   border: 0;
   border-radius: 4px;
-  background: #000;
-  color: #fff;
+  background: var(--navy);
+  color: var(--surface);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -45,7 +45,7 @@
   border: 0;
   border-radius: 5px;
   background: none;
-  color: #344054;
+  color: var(--text);
   font-size: 12.5px;
   font-weight: 650;
   text-align: left;
@@ -55,7 +55,7 @@
     color var(--dur-fast) var(--ease-standard);
 }
 .quick-action-menu button:hover {
-  background: #f2f4f7;
+  background: var(--surface-hover);
   color: var(--ink);
 }
 .quick-action-menu button svg {
@@ -71,11 +71,11 @@
   top: 50%;
   width: 16px;
   transform: translateY(-50%);
-  color: #64748b;
+  color: var(--muted);
 }
 .global-search input {
   padding: 7px 10px 7px 31px;
-  background: #f8fafc;
+  background: var(--canvas);
   font-size: 11px;
 }
 .top-links {
@@ -84,14 +84,14 @@
 }
 .top-links a,
 .top-action {
-  color: #64748b;
+  color: var(--muted);
   text-decoration: none;
   font-size: 11px;
   font-weight: 700;
 }
 .top-links a:hover,
 .top-action:hover {
-  color: #111827;
+  color: var(--ink);
 }
 .top-action {
   display: inline-flex;
@@ -103,12 +103,12 @@
   place-items: center;
   width: 28px;
   height: 28px;
-  color: #475467;
-  border: 1px solid #e2e8f0;
+  color: var(--muted);
+  border: 1px solid var(--line);
   border-radius: 4px;
 }
 .filter-icon {
-  border: 1px solid #cfd6df;
+  border: 1px solid var(--line-strong);
 }
 .inline-actions {
   display: flex;
@@ -122,10 +122,10 @@
   min-width: 28px;
   height: 28px;
   padding: 0 7px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: #fff;
-  color: #475467;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 10px;
   text-decoration: none;
   cursor: pointer;
@@ -134,9 +134,9 @@
   width: 100%;
 }
 .button-danger {
-  color: #b42318;
-  border-color: #fecdca;
-  background: #fff4f2;
+  color: var(--danger);
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
 }
 
 .definition-grid {
@@ -146,10 +146,10 @@
 }
 .definition-grid > div {
   padding: 11px 13px;
-  border-bottom: 1px solid #eef2f6;
+  border-bottom: 1px solid var(--line-soft);
 }
 .definition-grid dt {
-  color: #64748b;
+  color: var(--muted);
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -157,7 +157,7 @@
 }
 .definition-grid dd {
   margin: 5px 0 0;
-  color: #1b1b1d;
+  color: var(--ink);
   font-size: 12px;
   font-weight: 650;
   overflow-wrap: anywhere;
@@ -166,22 +166,22 @@
   height: 6px;
   overflow: hidden;
   border-radius: 99px;
-  background: #e8edf3;
+  background: var(--line-soft);
 }
 .progress span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #16a34a;
+  background: var(--success);
 }
 .progress-warning span {
-  background: #d97706;
+  background: var(--warning);
 }
 .progress-danger span {
-  background: #dc2626;
+  background: var(--danger);
 }
 .progress-info span {
-  background: #2563eb;
+  background: var(--info);
 }
 .coverage-cell {
   min-width: 130px;
@@ -208,11 +208,11 @@
   gap: 10px;
   align-items: center;
   padding: 13px 0;
-  border-bottom: 1px solid #eef2f6;
+  border-bottom: 1px solid var(--line-soft);
 }
 .check-list svg {
   width: 18px;
-  color: #16a34a;
+  color: var(--success);
 }
 .check-list span,
 .check-list small {
@@ -223,12 +223,12 @@
   font-weight: 650;
 }
 .check-list small {
-  color: #64748b;
+  color: var(--muted);
   font-size: 10px;
   font-weight: 400;
 }
 .check-list code {
-  color: #067647;
+  color: var(--success);
   font-size: 10px;
   font-weight: 800;
 }
@@ -236,9 +236,9 @@
   display: flex;
   gap: 12px;
   padding: 13px;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: var(--warning-wash);
+  color: var(--warning);
+  border: 1px solid var(--warning-line);
 }
 .alert-card svg {
   flex: 0 0 auto;
@@ -257,7 +257,7 @@
   grid-template-columns: 1fr auto;
   gap: 9px;
   margin-top: 16px;
-  color: #64748b;
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -277,7 +277,7 @@
 }
 .current-version p {
   margin: 0;
-  color: #64748b;
+  color: var(--muted);
   font-size: 10px;
   overflow-wrap: anywhere;
 }

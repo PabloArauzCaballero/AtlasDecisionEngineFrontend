@@ -1,8 +1,15 @@
+'use client';
+
+import { ChevronDown, ChevronRight, ChevronsUpDown, SortAsc, SortDesc } from 'lucide-react';
+import { Fragment, useState } from 'react';
 import { resolvePath } from '../utils/records';
 import { ActionIcon } from './ActionIcon';
 import type { ActionKey } from './action-catalog';
+import { DataTableToolbar, type TableDensity } from './DataTableToolbar';
 import { InfoHint } from './InfoHint';
 import { StatusBadge } from './StatusBadge';
+import { formatCell } from './table-format';
+import { nextSort, quickFilterRows, sortRows, type SortState } from './table-tools';
 
 export interface TableColumn<T> {
   key: keyof T & string;
@@ -17,6 +24,22 @@ export interface TableColumn<T> {
   path?: string;
   /** Plain-language explanation of the column, shown as a ? in the header. */
   hint?: string;
+  /**
+   * Sólo en la fila desplegada. Para valores largos —una expresión, una lista de
+   * pasos— que ensanchan la tabla hasta empujar fuera de la vista la columna que
+   * identifica la fila. Siguen siendo buscables y ordenables. Sin barra de
+   * herramientas no hay despliegue, así que se muestran como una columna más.
+   */
+  detail?: boolean;
+  /**
+   * Deja que la celda ocupe varias líneas en vez de recortarse en una.
+   *
+   * Por defecto una celda es una línea con puntos suspensivos, que es lo que
+   * mantiene las filas comparables. Para una columna de prosa —una explicación,
+   * un nombre largo— eso obliga a reservar 320 px de ancho y a desplazar la
+   * tabla; envolviendo cabe entera en la mitad.
+   */
+  wrap?: boolean;
 }
 
 export interface RowAction {
@@ -35,16 +58,42 @@ interface DataTableProps<T extends Record<string, unknown>> {
   detailPath?: (row: T) => string;
   /** Acciones por fila con iconos del catálogo. Tiene prioridad sobre detailPath. */
   rowActions?: (row: T) => RowAction[];
+  /** Desactiva barra de herramientas, orden y filas expandibles (tablas breves). */
+  tools?: boolean;
 }
 
+/**
+ * Tabla de datos del portal.
+ *
+ * Sobre la tabla plana original añade lo que faltaba para trabajar de verdad con
+ * ella: ordenar por cualquier columna, buscar dentro de lo ya cargado y desplegar
+ * una fila para leer sus valores completos —las celdas se recortan con puntos
+ * suspensivos, así que un identificador o un JSON largo era ilegible sin salir
+ * de la vista—.
+ *
+ * Orden y búsqueda actúan sobre la página cargada y la barra lo dice: el filtrado
+ * contra el backend sigue estando arriba, en la barra de filtros.
+ */
 export function DataTable<T extends Record<string, unknown>>({
   rows,
   columns,
   getRowKey,
   detailPath,
   rowActions,
+  tools = true,
 }: DataTableProps<T>) {
+  const [sort, setSort] = useState<SortState | null>(null);
+  const [query, setQuery] = useState('');
+  const [density, setDensity] = useState<TableDensity>('comfortable');
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   const hasActions = Boolean(rowActions) || Boolean(detailPath);
+  const sortable = columns.map((column) => ({ key: column.key, path: column.path }));
+  const inRow = tools ? columns.filter((column) => !column.detail) : columns;
+  const visible = tools ? sortRows(quickFilterRows(rows, query, sortable), sort, sortable) : rows;
+  const sortedColumn = columns.find((column) => column.key === sort?.key);
+  const span = inRow.length + (tools ? 1 : 0) + (hasActions ? 1 : 0);
+
   if (!rows.length) {
     return (
       <div className="empty-state">
@@ -54,70 +103,157 @@ export function DataTable<T extends Record<string, unknown>>({
   }
 
   return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column.key} scope="col">
-                {column.label}
-                {column.hint ? (
-                  <InfoHint text={column.hint} label={`Qué es: ${column.label}`} />
-                ) : null}
-              </th>
-            ))}
-            {hasActions ? <th scope="col">Acciones</th> : null}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={getRowKey(row)}>
-              {columns.map((column) => {
-                const value = column.path ? resolvePath(row, column.path) : row[column.key];
-                return (
-                  <td key={column.key} className={column.mono ? 'mono' : undefined}>
-                    {column.status ? <StatusBadge value={value} /> : formatValue(value)}
-                  </td>
-                );
-              })}
-              {hasActions ? (
-                <td>
-                  <div className="action-row">
-                    {rowActions ? (
-                      rowActions(row).map((rowAction, index) => (
-                        <ActionIcon key={`${rowAction.action}-${index}`} {...rowAction} />
-                      ))
-                    ) : detailPath ? (
-                      <ActionIcon action="view" href={detailPath(row)} />
-                    ) : null}
-                  </div>
-                </td>
-              ) : null}
+    <div className={`data-table density-${density}${tools ? ' has-expander' : ''}`}>
+      {tools ? (
+        <DataTableToolbar
+          query={query}
+          onQueryChange={setQuery}
+          density={density}
+          onDensityChange={setDensity}
+          shown={visible.length}
+          total={rows.length}
+          sortLabel={
+            sortedColumn && sort
+              ? `${sortedColumn.label} ${sort.direction === 'asc' ? '↑' : '↓'}`
+              : undefined
+          }
+          onClearSort={() => setSort(null)}
+        />
+      ) : null}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              {tools ? <th scope="col" className="table-expander-head" /> : null}
+              {inRow.map((column, index) => (
+                <TableHead
+                  key={column.key}
+                  column={column}
+                  identity={index === 0}
+                  sort={sort}
+                  sortable={tools}
+                  onSort={() => setSort((current) => nextSort(current, column.key))}
+                />
+              ))}
+              {hasActions ? <th scope="col">Acciones</th> : null}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {visible.map((row) => {
+              const key = getRowKey(row);
+              const open = expanded === key;
+              return (
+                <Fragment key={key}>
+                  <tr className={open ? 'is-expanded' : undefined}>
+                    {tools ? (
+                      <td className="table-expander">
+                        <button
+                          type="button"
+                          aria-expanded={open}
+                          aria-label={open ? 'Ocultar el detalle' : 'Ver el detalle completo'}
+                          onClick={() => setExpanded(open ? null : key)}
+                        >
+                          {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+                        </button>
+                      </td>
+                    ) : null}
+                    {inRow.map((column, index) => {
+                      const value = column.path ? resolvePath(row, column.path) : row[column.key];
+                      const classes = [
+                        column.mono ? 'mono' : '',
+                        column.wrap ? 'table-wrap-cell' : '',
+                        index === 0 ? 'table-identity' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ');
+                      return (
+                        <td key={column.key} className={classes || undefined}>
+                          {column.status ? <StatusBadge value={value} /> : formatCell(value)}
+                        </td>
+                      );
+                    })}
+                    {hasActions ? (
+                      <td>
+                        <div className="action-row">
+                          {rowActions ? (
+                            rowActions(row).map((rowAction, index) => (
+                              <ActionIcon key={`${rowAction.action}-${index}`} {...rowAction} />
+                            ))
+                          ) : detailPath ? (
+                            <ActionIcon action="view" href={detailPath(row)} />
+                          ) : null}
+                        </div>
+                      </td>
+                    ) : null}
+                  </tr>
+                  {open ? (
+                    <tr className="table-detail-row">
+                      <td colSpan={span}>
+                        <dl className="table-detail row-expand">
+                          {columns.map((column) => (
+                            <div key={column.key}>
+                              <dt>{column.label}</dt>
+                              <dd>
+                                {formatCell(
+                                  column.path ? resolvePath(row, column.path) : row[column.key],
+                                )}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </td>
+                    </tr>
+                  ) : null}
+                </Fragment>
+              );
+            })}
+            {!visible.length ? (
+              <tr>
+                <td colSpan={span} className="table-no-match">
+                  Ninguna fila de esta página coincide con «{query}». Otras páginas pueden
+                  contenerla: usa los filtros de arriba para buscar en todo el catálogo.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
+interface TableHeadProps<T> {
+  column: TableColumn<T>;
+  /** Primera columna de la fila: es la que ancla el nombre del registro. */
+  identity: boolean;
+  sort: SortState | null;
+  sortable: boolean;
+  onSort: () => void;
+}
 
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined || value === '') return '—';
-  if (typeof value === 'boolean') return value ? 'Sí' : 'No';
-  if (typeof value === 'object') return JSON.stringify(value);
-  if (typeof value === 'string' && ISO_DATETIME.test(value)) {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleString('es', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
-  }
-  return String(value);
+function TableHead<T>({ column, identity, sort, sortable, onSort }: TableHeadProps<T>) {
+  const active = sort?.key === column.key;
+  const Icon = !active ? ChevronsUpDown : sort.direction === 'asc' ? SortAsc : SortDesc;
+  return (
+    <th
+      scope="col"
+      className={identity ? 'table-identity' : undefined}
+      aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+    >
+      {sortable ? (
+        <button
+          type="button"
+          className={active ? 'table-sort active' : 'table-sort'}
+          title={`Ordenar por ${column.label}. Afecta a las filas de esta página.`}
+          onClick={onSort}
+        >
+          {column.label}
+          <Icon size={13} aria-hidden="true" />
+        </button>
+      ) : (
+        column.label
+      )}
+      {column.hint ? <InfoHint text={column.hint} label={`Qué es: ${column.label}`} /> : null}
+    </th>
+  );
 }

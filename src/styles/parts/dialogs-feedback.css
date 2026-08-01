@@ -7,7 +7,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
   animation: dialog-enter 0.18s ease-out;
 }
@@ -17,12 +17,13 @@
   gap: 14px;
   align-items: center;
   padding: 18px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fbfcfe;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-inset);
 }
 .modal-dialog.modal-danger .modal-heading {
   background:
-    radial-gradient(circle at 85% 0%, rgba(248, 113, 113, 0.16), transparent 40%), #fbfcfe;
+    radial-gradient(circle at 85% 0%, rgba(248, 113, 113, 0.16), transparent 40%),
+    var(--surface-inset);
 }
 .modal-heading-icon {
   width: 42px;
@@ -30,12 +31,12 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: #eef2ff;
-  color: #4338ca;
+  background: var(--info-wash);
+  color: var(--highlight);
 }
 .modal-danger .modal-heading-icon {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--danger-wash);
+  color: var(--danger);
 }
 .modal-heading h2 {
   margin: 0;
@@ -43,13 +44,13 @@
 }
 .modal-heading span {
   font-size: 0.78rem;
-  color: #64748b;
+  color: var(--muted);
 }
 .modal-body {
   padding: 18px 20px;
   overflow: auto;
   font-size: 0.86rem;
-  color: #334155;
+  color: var(--text);
 }
 .modal-body p {
   margin: 0 0 8px;
@@ -59,8 +60,8 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 14px 20px;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border-top: 1px solid var(--line);
+  background: var(--canvas);
 }
 
 /* Structured validation report inside the modal. */
@@ -77,38 +78,38 @@
   gap: 10px;
   align-items: start;
   padding: 10px 12px;
-  border: 1px solid #fecaca;
+  border: 1px solid var(--danger-line);
   border-radius: 10px;
-  background: #fef2f2;
+  background: var(--danger-wash);
 }
 .validation-issue-list li.warning {
-  border-color: #fde68a;
-  background: #fffbeb;
+  border-color: var(--warning-line);
+  background: var(--warning-wash);
 }
 .validation-issue-list li strong {
   display: block;
   font-size: 0.74rem;
   letter-spacing: 0.04em;
-  color: #b91c1c;
+  color: var(--danger);
 }
 .validation-issue-list li.warning strong {
-  color: #92400e;
+  color: var(--warning);
 }
 .validation-issue-list li span {
   font-size: 0.82rem;
-  color: #334155;
+  color: var(--text);
 }
 .validation-issue-list li small {
   display: block;
   margin-top: 2px;
-  color: #64748b;
+  color: var(--muted);
   font-size: 0.72rem;
 }
 .validation-ok {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #047857;
+  color: var(--success);
   font-weight: 600;
 }
 
@@ -117,7 +118,7 @@
   display: grid;
   gap: 8px;
   padding: 12px 0;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid var(--line-soft);
 }
 .export-section:first-child {
   border-top: 0;
@@ -128,13 +129,13 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--muted);
 }
 .export-label small {
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
-  color: #94a3b8;
+  color: var(--faint);
 }
 .export-scope {
   display: flex;
@@ -151,18 +152,18 @@
 .export-chip {
   padding: 3px 9px;
   border-radius: 999px;
-  background: #eef2ff;
-  color: #4338ca;
+  background: var(--info-wash);
+  color: var(--highlight);
   font-size: 0.75rem;
   font-weight: 500;
 }
 .export-hint {
   margin: 0;
   font-size: 0.8rem;
-  color: #94a3b8;
+  color: var(--faint);
 }
 .export-hint-warn {
-  color: #b45309;
+  color: var(--warning);
 }
 .export-columns {
   display: grid;

@@ -1,0 +1,287 @@
+/**
+ * Herramientas de tabla: barra de búsqueda rápida, cabeceras ordenables, filas
+ * expandibles y chips de filtros aplicados.
+ *
+ * Todo se apoya en los tokens de tema, así que funciona igual en claro y oscuro
+ * sin reglas específicas.
+ */
+
+/* --------------------------------------------------- barra de la tabla */
+
+.table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.table-quick-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 220px;
+  max-width: 340px;
+}
+.table-quick-search svg {
+  position: absolute;
+  left: 10px;
+  color: var(--faint);
+  pointer-events: none;
+}
+.table-quick-search input {
+  padding-left: 32px;
+  padding-right: 30px;
+  min-height: 34px;
+  font-size: 12px;
+}
+.table-quick-search button {
+  position: absolute;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.table-quick-search button:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+.table-toolbar-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+.table-toolbar-count strong {
+  color: var(--ink);
+}
+.table-sort-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid var(--info-line);
+  border-radius: 99px;
+  background: var(--info-wash);
+  color: var(--info);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.table-toolbar > .tooltip-wrap {
+  margin-left: auto;
+}
+
+/* ------------------------------------------------- cabeceras ordenables */
+
+.table-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.table-sort svg {
+  opacity: 0.35;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+.table-sort:hover svg {
+  opacity: 0.8;
+}
+.table-sort.active {
+  color: var(--accent);
+}
+.table-sort.active svg {
+  opacity: 1;
+}
+.table-sort:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* -------------------------------------------------- filas expandibles */
+
+.table-expander-head {
+  width: 34px;
+}
+.table-expander button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.table-expander button:hover {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+tr.is-expanded {
+  background: var(--surface-inset);
+}
+
+/* -------------------------------------------------- columna de identidad
+
+   Una tabla ancha se desplaza en horizontal y, al hacerlo, la primera columna
+   —la que dice de qué registro se trata— desaparecía por la izquierda: quedaban
+   celdas sueltas sin saber a quién pertenecen. Se ancla junto al desplegable.
+
+   El fondo se repite estado por estado porque una celda pegajosa que herede
+   `transparent` deja ver pasar por debajo el resto de la fila. */
+.data-table .table-expander-head,
+.data-table .table-expander,
+.data-table th.table-identity,
+.data-table td.table-identity {
+  position: sticky;
+  z-index: 1;
+  left: 0;
+}
+.data-table.has-expander th.table-identity,
+.data-table.has-expander td.table-identity {
+  left: 34px;
+}
+.data-table th.table-identity,
+.data-table .table-expander-head {
+  z-index: 3;
+}
+.data-table .table-expander,
+.data-table td.table-identity {
+  background: var(--panel);
+}
+.data-table tbody tr:hover > .table-expander,
+.data-table tbody tr:hover > .table-identity {
+  background: var(--surface-hover);
+}
+.data-table tr.is-expanded > .table-expander,
+.data-table tr.is-expanded > .table-identity {
+  background: var(--surface-inset);
+}
+.table-detail-row > td {
+  padding: 0 14px 14px;
+  background: var(--surface-inset);
+  /* El detalle es texto largo a propósito: aquí no se recorta nada. */
+  max-width: none;
+  white-space: normal;
+}
+.table-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+.table-detail div {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.table-detail dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.table-detail dd {
+  margin: 3px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.table-no-match {
+  padding: 22px 14px !important;
+  color: var(--muted);
+  text-align: center;
+  white-space: normal !important;
+  max-width: none !important;
+}
+
+/* --------------------------------------------------------- densidad */
+
+.density-compact td {
+  padding: 6px 14px;
+}
+.density-compact th {
+  padding: 7px 14px;
+}
+.density-compact .table-expander button {
+  width: 22px;
+  height: 22px;
+}
+
+/* ------------------------------------------------ filtros aplicados */
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.active-filters-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 11px;
+  border: 1px solid var(--accent-soft);
+  border-radius: 99px;
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-standard);
+}
+.filter-chip b {
+  font-weight: 800;
+}
+.filter-chip:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.filter-chip-clear {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .table-toolbar > .tooltip-wrap {
+    margin-left: 0;
+  }
+  .table-quick-search {
+    max-width: none;
+  }
+}

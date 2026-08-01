@@ -62,7 +62,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: #fff;
+  color: var(--surface);
 }
 
 .toast-copy {

@@ -1,0 +1,133 @@
+/**
+ * Fondo ambiental — red de nodos y viñeta.
+ *
+ * Continúa `ambient-background.css`; van en archivos separados por el límite de
+ * 299 líneas del repositorio.
+ */
+
+/* ------------------------------------------------------- red de nodos */
+
+/**
+ * La red se revela alrededor del cursor.
+ *
+ * La máscara tiene dos partes: una base tenue que mantiene la red presente en
+ * toda la escena, y un círculo anclado al puntero que la destapa donde está la
+ * mano. Recorrer la pantalla "enciende" el grafo a su paso, que es la reacción
+ * más clara que puede dar un fondo sin robar atención.
+ */
+.ambient-network {
+  mask-image:
+    radial-gradient(
+      22vmax 22vmax at calc(var(--ambient-px) * 100%) calc(var(--ambient-py) * 100%),
+      #000 0%,
+      rgba(0, 0, 0, 0.25) 70%,
+      transparent 100%
+    ),
+    radial-gradient(76% 76% at 50% 46%, rgba(0, 0, 0, 0.4) 12%, transparent 82%);
+  transform: translate3d(
+    calc(var(--ambient-x) * var(--par-network) * -1),
+    calc(var(--ambient-y) * var(--par-network) * -1),
+    0
+  );
+  transition: transform 260ms var(--ease-out);
+}
+/* Sin reacción al puntero, la red se muestra entera y homogénea: la máscara que
+   sigue al cursor no debe esconder nada cuando no hay cursor que seguir. */
+.is-static .ambient-network {
+  mask-image: radial-gradient(76% 76% at 50% 46%, #000 12%, transparent 82%);
+}
+.ambient-network svg {
+  width: 100%;
+  height: 100%;
+}
+.ambient-links line {
+  stroke: rgba(var(--accent-rgb), 0.3);
+  stroke-width: 1;
+}
+/* El destello recorre la red de un extremo a otro: el mismo gesto que hace la
+   reproducción sobre un grafo real, en versión decorativa. */
+.ambient-pulse {
+  fill: none;
+  stroke: rgba(var(--state-rgb), 0.95);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 14 320;
+  opacity: 0;
+}
+.is-animated .ambient-pulse {
+  opacity: 0.75;
+  animation: ambient-flow 9s linear infinite;
+}
+
+@keyframes ambient-flow {
+  from {
+    stroke-dashoffset: 334;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ambient-network i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.85);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.14);
+  opacity: 0.6;
+}
+.ambient-network i.is-anchor {
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  background: rgba(var(--state-rgb), 0.9);
+  box-shadow: 0 0 0 6px rgba(var(--state-rgb), 0.12);
+}
+.is-animated .ambient-network i {
+  animation: ambient-node 7.5s var(--ease-standard) infinite;
+}
+/* Tres anillos de retardo: la red late desacompasada y parece viva sin que
+   ninguna pulsación concreta llame la atención. */
+.is-animated .ambient-network i[data-ring='2'] {
+  animation-delay: -2.5s;
+  animation-duration: 9.5s;
+}
+.is-animated .ambient-network i[data-ring='3'] {
+  animation-delay: -5s;
+  animation-duration: 11.5s;
+}
+
+@keyframes ambient-node {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.22);
+  }
+}
+
+/* --------------------------------------------------------------- viñeta */
+
+/**
+ * Enmarca la escena: un velo suave en el centro y un cierre oscuro en los
+ * bordes.
+ *
+ * El velo era antes casi opaco y apagaba la aurora entera; la lección es que el
+ * contraste del texto no se sostiene lavando el fondo, sino apoyando el
+ * contenido en superficies opacas —que es lo que ya hacen paneles y tarjetas—.
+ * Así el fondo puede tener color de verdad sin restar legibilidad.
+ */
+.ambient-vignette {
+  /* El velo central se mantiene bajo: subirlo apaga el foco que sigue al cursor
+     justo donde más se mira, que era lo que hacía parecer el fondo inerte. */
+  background:
+    radial-gradient(80% 62% at 50% 42%, rgba(255, 255, 255, 0.14), transparent 60%),
+    radial-gradient(140% 120% at 50% 50%, transparent 52%, rgba(15, 23, 42, 0.14));
+  pointer-events: none;
+}

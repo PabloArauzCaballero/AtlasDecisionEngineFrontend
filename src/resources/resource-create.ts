@@ -43,6 +43,41 @@ function setPath(target: Record<string, unknown>, path: string, value: unknown):
 }
 
 /**
+ * Interpreta el texto de un campo `json` como valor tipado.
+ *
+ * Una cadena suelta (`aprobado`) no es JSON válido pero es exactamente lo que un
+ * analista escribe como ejemplo de una variable de texto, así que se acepta tal
+ * cual en vez de obligarle a entrecomillar. Lo que NO se acepta es un JSON a
+ * medias (`{"min":`), porque ahí la intención era claramente estructurada y
+ * mandarlo como cadena lo convertiría en un 422 sin explicación.
+ */
+export function parseJsonFieldValue(text: string): { valid: boolean; value: unknown } {
+  try {
+    return { valid: true, value: JSON.parse(text) };
+  } catch {
+    const looksStructured = /^[[{]|^-?\d/.test(text);
+    return { valid: !looksStructured, value: text };
+  }
+}
+
+/** Campos `json` cuyo texto está a medias, por clave. Vacío = se puede enviar. */
+export function jsonFieldErrors(
+  fields: readonly CreateField[],
+  values: Record<string, FieldValue>,
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  for (const field of fields) {
+    if (field.kind !== 'json') continue;
+    const text = String(values[field.key] ?? '').trim();
+    if (!text) continue;
+    if (!parseJsonFieldValue(text).valid) {
+      errors[field.key] = `«${field.label}» no es un JSON válido.`;
+    }
+  }
+  return errors;
+}
+
+/**
  * Builds the POST body from the declared fields. Field keys mirror the resource
  * DTO (dot-notation nests, e.g. `initialVersion.dataType`); optional empty text
  * fields are omitted so the backend applies its own defaults. `staticBody`
@@ -62,7 +97,7 @@ export function buildPayload(
     }
     const text = String(value).trim();
     if (!text && !field.required) continue;
-    setPath(payload, field.key, text);
+    setPath(payload, field.key, field.kind === 'json' ? parseJsonFieldValue(text).value : text);
   }
   return payload;
 }

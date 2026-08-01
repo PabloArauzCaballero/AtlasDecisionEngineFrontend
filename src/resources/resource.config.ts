@@ -18,15 +18,35 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     description: 'Definiciones versionadas utilizadas por reglas, modelos y decisiones.',
     hint: 'Catálogo de los datos (edad, ingreso, score…) que tus decisiones pueden usar. Cada variable tiene un código estable, un tipo y una versión.',
     endpoint: '/v1/variables',
+    // El detalle abre el contrato completo: restricciones, ejemplos, versiones y quién
+    // usa la variable. Sin él, el catálogo solo dejaba ver el resumen de una fila.
+    detailPath: (row) => `/variables/${String(row.id ?? '')}`,
     filterParam: 'search',
     filterLabel: 'Buscar variables',
     filterPlaceholder: 'Código o nombre',
     primaryAction: 'Add Variable',
     createFields: variablesCreateFields,
     createStaticBody: variablesCreateStaticBody,
+    filters: [
+      {
+        param: 'usage',
+        label: 'Entrada / Salida',
+        options: [
+          { value: 'INPUT', label: 'Entradas (datos que se aportan)' },
+          { value: 'OUTPUT', label: 'Salidas (resultados que devuelve)' },
+        ],
+        placeholder: 'Cualquier sentido',
+      },
+    ],
     columns: [
       { key: 'variableCode', label: 'Code', mono: true },
       { key: 'name', label: 'Name' },
+      {
+        key: 'usage',
+        label: 'Uso',
+        status: true,
+        hint: 'Si los algoritmos la usan como ENTRADA (dato que hay que aportar) o como SALIDA (resultado que el motor produce).',
+      },
       { key: 'category', label: 'Category' },
       {
         key: 'dataType',

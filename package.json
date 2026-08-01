@@ -18,6 +18,8 @@
     "format:check": "prettier --check .",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:tools": "playwright test --config playwright.tools.config.ts",
+    "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
     "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build"
   },
   "dependencies": {

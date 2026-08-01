@@ -58,6 +58,30 @@ function toNotification(error: unknown): NotificationInput | null {
 }
 
 /**
+ * Fallos que reintentar no arregla.
+ *
+ * Sólo merece un segundo intento lo que pudo fallar por el camino: un corte de
+ * red, un tiempo agotado, un 5xx. Un 404 seguirá sin existir y un 422 seguirá
+ * siendo inválido, así que repetirlos sólo dobla la espera del operador antes
+ * de ver el error. El 401 lo resuelve `apiRequest` renovando el token, y el 429
+ * empeora al insistir.
+ */
+const NON_RETRYABLE: ReadonlySet<ApiErrorKind> = new Set<ApiErrorKind>([
+  'validation',
+  'unauthorized',
+  'forbidden',
+  'not-found',
+  'conflict',
+  'rate-limit',
+  'cancelled',
+]);
+
+export function shouldRetryQuery(failureCount: number, error: unknown): boolean {
+  if (failureCount >= 1) return false;
+  return !(error instanceof ApiError && NON_RETRYABLE.has(error.kind));
+}
+
+/**
  * Owns the React Query client and reports every failed mutation as a toast.
  *
  * Centralising this in the cache means each new mutation gets error feedback by
@@ -77,7 +101,12 @@ export function QueryProvider({ children }: PropsWithChildren) {
     () =>
       new QueryClient({
         mutationCache: new MutationCache({
-          onError: (error) => {
+          onError: (error, _variables, _context, mutation) => {
+            // Una vista puede declarar que ELLA muestra el fallo (`meta.handled`),
+            // p. ej. con un diálogo que además ofrece el tutorial para corregirlo.
+            // Sin esto el mismo error se anunciaba dos veces: el aviso global y la
+            // superficie propia de la vista.
+            if (mutation.meta?.handled) return;
             const notification = toNotification(error);
             if (notification) notifyRef.current(notification);
           },
@@ -85,8 +114,7 @@ export function QueryProvider({ children }: PropsWithChildren) {
         defaultOptions: {
           queries: {
             staleTime: 30_000,
-            retry: (count, error) =>
-              !(error instanceof Error && 'status' in error && error.status === 403) && count < 1,
+            retry: shouldRetryQuery,
           },
           mutations: { retry: false },
         },

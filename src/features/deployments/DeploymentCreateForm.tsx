@@ -2,11 +2,12 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Rocket, X } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { PickerSelect } from '../../components/PickerSelect';
+import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { useNotifications } from '../../notifications/useNotifications';
 import { display, type UnknownRecord } from '../../utils/records';
 import { TrafficRulesEditor, trafficRulesValid, type TrafficRuleDraft } from './TrafficRulesEditor';
@@ -25,6 +26,8 @@ const MODES = ['DIRECT', 'CANARY', 'CHAMPION_CHALLENGER'] as const;
 export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
   const queryClient = useQueryClient();
   const { notify } = useNotifications();
+  const dialog = useRef<HTMLElement>(null);
+  useDialogFocus(dialog);
   const [versionId, setVersionId] = useState('');
   const [environmentCode, setEnvironmentCode] = useState('');
   const [deploymentMode, setDeploymentMode] = useState<string>('DIRECT');
@@ -79,6 +82,7 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
       }}
     >
       <section
+        ref={dialog}
         className="objective-create-dialog"
         role="dialog"
         aria-modal="true"

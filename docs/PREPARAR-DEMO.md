@@ -30,6 +30,22 @@ npx ts-node --transpile-only prisma/deploy-demo-all-envs.ts
 
 (En bases nuevas ya no hace falta: el seeder ahora despliega en sandbox/test/prod.)
 
+## 2-bis. Refrescar una demo sembrada por un seeder viejo
+
+La siembra de demostración era «crear si no existe», así que una base sembrada
+hace tiempo se quedaba con los datos antiguos (grafo en línea recta, sin
+variables de salida, casos de prueba que el motor no podía cumplir) por más
+veces que se re-ejecutara el seeder. Ahora la demo lleva versión: si la base
+tiene una anterior, se borra y se rehace sola al arrancar el backend o al correr
+
+```bash
+npx prisma migrate deploy   # con ADMIN_DATABASE_URL/DATABASE_URL del rol atlas
+npx ts-node --transpile-only prisma/seed.ts
+```
+
+Al cambiar lo que se siembra hay que subir `DEMO_SEMANTIC_VERSION`
+(`src/modules/seeding/data/demo-artifact.ts`), que es lo que dispara el refresco.
+
 ## 3. Importar el algoritmo Python
 
 En **Importar Código**, pega [`algoritmo-python-listo.py`](algoritmo-python-listo.py).

@@ -1,5 +1,10 @@
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 
+/** Separación por defecto entre columnas y entre filas, en % del mundo del lienzo
+ *  (ver WORLD_WIDTH/WORLD_HEIGHT en GraphCanvas): ~235 px y ~133 px. */
+const COLUMN_PITCH = 14;
+const ROW_PITCH = 13;
+
 /**
  * Layout determinista de izquierda a derecha para grafos de decisión.
  *
@@ -92,12 +97,22 @@ export function layoutGraphNodes(nodes: UnknownRecord[], edges: UnknownRecord[])
     column.forEach((key, row) => rowOf.set(key, { row, size: column.length }));
   }
 
+  const maxRows = Math.max(1, ...[...columns.values()].map((column) => column.length));
+  // El lienzo es un "mundo" de ~1680x1020 px y estas coordenadas son porcentajes
+  // suyos: se usa un paso fijo (que sólo se comprime cuando el grafo es muy
+  // profundo o muy ancho) para que las tarjetas nunca se solapen y el usuario
+  // recorra el flujo con el scroll en vez de verlo apelmazado.
+  const columnPitch = maxLevel ? Math.min(COLUMN_PITCH, 84 / maxLevel) : 0;
+  const rowPitch = maxRows > 1 ? Math.min(ROW_PITCH, 80 / (maxRows - 1)) : 0;
+
   return nodes.map((node) => {
     const key = display(node, 'key');
     const level = levels.get(key) ?? 0;
     const placement = rowOf.get(key) ?? { row: 0, size: 1 };
-    const x = maxLevel ? 5 + (level / maxLevel) * 72 : 38;
-    const y = placement.size === 1 ? 43 : 8 + (placement.row / (placement.size - 1)) * 76;
+    const x = maxLevel ? 4 + level * columnPitch : 38;
+    // Cada columna se centra verticalmente respecto de la más poblada.
+    const columnHeight = (placement.size - 1) * rowPitch;
+    const y = 8 + ((maxRows - 1) * rowPitch - columnHeight) / 2 + placement.row * rowPitch;
     return { ...node, x: +x.toFixed(2), y: +y.toFixed(2) };
   });
 }

@@ -1,0 +1,201 @@
+/**
+ * Tema oscuro — capa de superficie (panel de inicio, acceso, datos).
+ *
+ * Continúa `theme-dark-features.css`. Van en archivos separados por el límite
+ * de 299 líneas del repositorio, no por diferencia conceptual.
+ */
+
+/* ------------------------------------------------------------------ panel */
+
+[data-theme='dark'] .dash-card,
+[data-theme='dark'] .dash-feed li,
+[data-theme='dark'] .dash-attention li,
+[data-theme='dark'] .dash-shortcut,
+[data-theme='dark'] .check-list li {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+/* ----------------------------------------------- lenguaje visual compartido */
+
+[data-theme='dark'] .concept-icon {
+  --concept-soft: var(--surface-hover);
+}
+[data-theme='dark'] .concept-chip {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] .concept-accent {
+  --concept-soft: var(--accent-wash);
+}
+[data-theme='dark'] .concept-success {
+  --concept-soft: var(--success-wash);
+}
+[data-theme='dark'] .concept-warning {
+  --concept-soft: var(--warning-wash);
+}
+[data-theme='dark'] .concept-danger {
+  --concept-soft: var(--danger-wash);
+}
+[data-theme='dark'] .concept-info {
+  --concept-soft: var(--info-wash);
+}
+[data-theme='dark'] .rich-empty-example {
+  background: var(--surface-inset);
+  border-left-color: var(--accent);
+  color: var(--text) !important;
+}
+
+/* ------------------------------------------------------------------ acceso */
+
+[data-theme='dark'] .login-page {
+  background: linear-gradient(160deg, #0b1120 0%, #101a2d 45%, #0b1120 100%);
+}
+[data-theme='dark'] .login-panel {
+  border-color: var(--line);
+}
+[data-theme='dark'] .login-mark {
+  background: var(--accent);
+  color: #06231f;
+}
+[data-theme='dark'] .login-rotator {
+  color: var(--text);
+}
+[data-theme='dark'] .login-highlights li {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] .login-graph-node circle {
+  fill: var(--surface-raised);
+}
+[data-theme='dark'] .login-notice {
+  border-color: var(--info-line);
+}
+[data-theme='dark'] .login-problem {
+  border-color: var(--danger-line);
+}
+[data-theme='dark'] .login-problem-warning {
+  color: var(--warning);
+}
+[data-theme='dark'] .login-environment {
+  border-color: var(--warning-line);
+}
+[data-theme='dark'] .login-remember {
+  color: var(--text);
+}
+[data-theme='dark'] .login-security {
+  border-top-color: var(--line);
+}
+
+/* ------------------------------------------------ datos, JSON y cronologías */
+
+[data-theme='dark'] .json-table-wrap,
+[data-theme='dark'] .json-tree,
+[data-theme='dark'] .timeline-card,
+[data-theme='dark'] .live-node-step,
+[data-theme='dark'] .tabs-panel .panel {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] pre {
+  background: #0a1020;
+  color: #dbe6f7;
+}
+[data-theme='dark'] .tabs-list {
+  border-bottom-color: var(--line);
+}
+/**
+ * Fondo ambiental en oscuro.
+ *
+ * La viñeta en claro ACLARA el centro con blanco; en oscuro hay que hacer lo
+ * contrario —oscurecer los bordes— o el fondo se vuelve un halo lechoso detrás
+ * del contenido. El acento se aclara para que la red siga viéndose.
+ */
+[data-theme='dark'] .ambient-bg {
+  --accent-rgb: 45, 212, 191;
+}
+[data-theme='dark'] .ambient-bg[data-state='running'] {
+  --state-rgb: 132, 202, 255;
+}
+[data-theme='dark'] .ambient-bg[data-state='success'] {
+  --state-rgb: 108, 233, 166;
+}
+[data-theme='dark'] .ambient-bg[data-state='warning'] {
+  --state-rgb: 253, 176, 34;
+}
+[data-theme='dark'] .ambient-bg[data-state='error'] {
+  --state-rgb: 253, 162, 155;
+}
+[data-theme='dark'] .ambient-vignette {
+  background:
+    radial-gradient(120% 90% at 50% 40%, rgba(11, 17, 32, 0.55), transparent 62%),
+    linear-gradient(to bottom, transparent 45%, rgba(3, 7, 18, 0.55));
+}
+[data-theme='dark'] .ambient-aurora {
+  opacity: 0.4;
+}
+[data-theme='dark'] .ambient-beam {
+  background: linear-gradient(
+    104deg,
+    transparent 38%,
+    rgba(148, 200, 255, 0.16) 47%,
+    rgba(var(--state-rgb), 0.1) 50%,
+    transparent 60%
+  );
+}
+[data-theme='dark'] .ambient-grid {
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+}
+
+/* Explicador de vista: dos tarjetas con fondo teñido que en claro son casi
+   blancas. Sobre oscuro necesitan su propio lavado o el texto desaparece. */
+[data-theme='dark'] .ve-card {
+  background: var(--surface-inset);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] .ve-card p {
+  color: var(--text);
+}
+[data-theme='dark'] .ve-business {
+  border-color: var(--warning-line);
+  /* Repite el valor de la hoja clara, y aun así hace falta: sin ella gana
+     `[data-theme='dark'] .ve-card`, que va antes con la misma especificidad, y
+     la tarjeta de negocio pierde su tinte ámbar. */
+  background: var(--warning-wash);
+}
+[data-theme='dark'] .ve-systems {
+  background: var(--accent-wash);
+  border-color: var(--accent-soft);
+}
+[data-theme='dark'] .view-explainer-head:hover {
+  background: var(--surface-hover);
+}
+[data-theme='dark'] .check-list li {
+  border-bottom-color: var(--line-soft);
+}
+[data-theme='dark'] .check-list li code,
+[data-theme='dark'] .system-summary code,
+[data-theme='dark'] .environment-card code,
+[data-theme='dark'] code {
+  color: var(--muted);
+}
+[data-theme='dark'] .check-list span {
+  color: var(--ink);
+}
+
+[data-theme='dark'] .toast,
+[data-theme='dark'] .notification-panel,
+[data-theme='dark'] .tutorial-drawer,
+[data-theme='dark'] .tutorial-tooltip,
+[data-theme='dark'] .view-explainer {
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
+  color: var(--text);
+}

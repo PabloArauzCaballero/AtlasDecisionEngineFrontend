@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
+import { ConfirmButton } from '../../components/ConfirmButton';
 
 export interface TrafficRuleDraft {
   segmentKey: string;
@@ -71,14 +72,21 @@ export function TrafficRulesEditor({ rules, onChange }: TrafficRulesEditorProps)
                 onChange={(event) => update(index, { priority: event.target.value })}
               />
             </label>
-            <button
-              type="button"
+            <ConfirmButton
               className="button button-danger"
-              aria-label={`Quitar regla ${index + 1}`}
-              onClick={() => onChange(rules.filter((_, ruleIndex) => ruleIndex !== index))}
+              label={`Quitar regla ${index + 1}`}
+              title={`¿Quitar la regla de tráfico ${index + 1}?`}
+              confirmLabel="Quitar la regla"
+              description={
+                <p>
+                  El tráfico que hoy encaja en esta regla pasará a la siguiente por prioridad. Si no
+                  queda ninguna que le corresponda, irá al destino por defecto del despliegue.
+                </p>
+              }
+              onConfirm={() => onChange(rules.filter((_, ruleIndex) => ruleIndex !== index))}
             >
               <Trash2 size={14} />
-            </button>
+            </ConfirmButton>
           </div>
         </div>
       ))}

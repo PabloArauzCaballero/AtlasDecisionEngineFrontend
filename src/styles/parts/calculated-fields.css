@@ -1,0 +1,177 @@
+/*
+ * Campos calculados, registro de librerías y QA Lab (§5–§7, §10).
+ * Solo tokens: estas vistas se leen igual en claro y en oscuro.
+ */
+
+/* --- Campos calculados -------------------------------------------------------- */
+
+.calculated-field-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.calculated-field-form fieldset {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.calculated-field-form legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.implementation-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.implementation-choices label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.implementation-choices label.is-active {
+  border-color: var(--accent);
+  background: var(--accent-wash, var(--surface-muted));
+}
+
+.calculated-input-list,
+.calculated-version-list,
+.qa-counterexamples {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.calculated-input-list > li,
+.calculated-version-list > li,
+.qa-counterexample {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.calculated-version-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.calculated-version-head > button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: start;
+}
+
+.calculated-version-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.calculated-version-body {
+  margin-top: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.code-editor {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.code-block {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.line-budget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+
+.line-budget.is-over {
+  color: var(--danger-text, var(--text));
+  font-weight: 600;
+}
+
+.calculated-try {
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-3);
+}
+
+.calculated-test-report ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: grid;
+  gap: 4px;
+  font-size: 0.82rem;
+}
+
+.calculated-test-report li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.calculated-test-report .is-fail {
+  color: var(--danger-text, var(--text));
+}
+
+/* --- Constructor visual de operaciones ---------------------------------------- */
+
+.operation-builder {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.operation-node {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.operation-node-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.operation-args {
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+}

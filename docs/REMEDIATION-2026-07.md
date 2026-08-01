@@ -87,13 +87,15 @@ Fuente de negocio: `AtlasDecisionEngine/docs/AtlasDecisionEngineContext.docx` (B
 - **#4 Ya implementado y verificado (código):** `SeedingService` corre en el arranque
   (`OnApplicationBootstrap`) antes de servir, con **upserts idempotentes**, lock advisory entre
   réplicas, separación BOOTSTRAP (todos los entornos) vs MOCKUP (solo dev), log de resumen y
-  fallo ruidoso que aborta el arranque. El seeder demo **omite** si ya hay versión, así que **no
-  acumula versiones antiguas**.
-- **#8 Limpieza destructiva:** al no haber acumulación por parte del seeder, no hay basura
-  generada por él. No se ejecutó borrado destructivo: Prisma no logró conectar a la BD
-  (`P1001` en localhost:55432) desde este entorno, y no se borran datos sin inspeccionar en vivo.
-  Recomendación: correr `prisma migrate status` + una inspección de conteos antes de cualquier
-  migración destructiva.
+  fallo ruidoso que aborta el arranque.
+- **#8 Corregido el 2026-07-27 (esta nota estaba equivocada).** Se afirmaba aquí que «el seeder
+  demo omite si ya hay versión, así que no acumula versiones antiguas». Omitir era justamente el
+  problema: una base sembrada por un seeder anterior se quedaba **para siempre** con los datos
+  viejos (grafo en línea recta fuera del lienzo, sin variables de salida, casos de prueba que el
+  motor no podía cumplir) y ninguna mejora del seeder llegaba a verse. Ahora la demo lleva
+  `DEMO_SEMANTIC_VERSION`: si la base tiene otra, se borra en orden de FK (`demo-reset.ts`) y se
+  rehace. Ejecutado en local con respaldo previo (`pg_dump` completo) y verificado en la BD:
+  32 nodos en coordenadas de árbol, 56 entradas + 27 salidas, suite de 8 casos, corrida PASSED.
 
 ## Método (#15)
 

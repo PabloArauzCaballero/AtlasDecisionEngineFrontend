@@ -1,0 +1,164 @@
+/**
+ * Formulario de acceso premium.
+ *
+ * Vive aparte de `login-premium.css` (composición y zona visual) para que
+ * ninguno de los dos archivos supere el límite de 299 líneas del repositorio.
+ * Se carga inmediatamente después, así que comparte su lugar en la cascada.
+ */
+
+/* -------------------------------------------------------- formulario */
+
+.login-panel {
+  padding: 28px 30px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 24px 60px -24px rgba(16, 24, 40, 0.22);
+}
+.login-panel-head h1 {
+  margin: 4px 0 6px;
+  color: var(--ink);
+  font-size: 23px;
+  letter-spacing: -0.01em;
+}
+.login-panel-head > p:last-of-type,
+.login-panel-head > p:nth-of-type(2) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.login-environment {
+  display: inline-block;
+  margin-top: 10px !important;
+  padding: 5px 11px;
+  border: 1px solid var(--warning-line);
+  border-radius: 99px;
+  background: var(--warning-wash);
+  color: var(--warning) !important;
+  font-size: 11px !important;
+  font-weight: 700;
+}
+.login-notice {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--info-line);
+  border-radius: 9px;
+  background: var(--info-wash);
+  color: var(--info);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.login-problem {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 13px;
+  border: 1px solid var(--danger-line);
+  border-radius: 10px;
+  background: var(--danger-wash);
+  color: var(--danger);
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.login-problem-warning {
+  border-color: var(--warning-line);
+  background: var(--warning-wash);
+  color: var(--warning-strong);
+}
+.login-problem strong {
+  display: block;
+  font-size: 13px;
+}
+.login-problem p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.login-problem-action {
+  opacity: 0.85;
+}
+
+.login-field {
+  display: grid;
+  gap: 5px;
+}
+.login-help {
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.input-with-icon.has-error input {
+  border-color: var(--danger);
+}
+/* El estado del campo se comunica con icono además de color: el rojo por sí
+   solo no es un mensaje para quien no lo distingue. */
+.field-status {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.field-status.is-valid {
+  color: var(--success);
+}
+.field-status.is-invalid {
+  color: var(--danger);
+}
+
+.login-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.login-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.login-recover {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.login-recover:hover {
+  text-decoration: underline;
+}
+.login-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+}
+.login-security {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.login-foot {
+  position: relative;
+  z-index: 1;
+  margin: 26px auto 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}

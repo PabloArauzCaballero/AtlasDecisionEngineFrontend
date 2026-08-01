@@ -1,0 +1,217 @@
+/**
+ * Acceso premium — composición en dos zonas.
+ *
+ * Izquierda: identidad, mensaje y para qué sirve la plataforma. Derecha: el
+ * formulario, sobre una superficie opaca. El fondo ambiental queda por debajo
+ * de ambas, así que ni el contraste del texto ni la usabilidad del formulario
+ * dependen de lo que se mueva detrás.
+ *
+ * Carga después de `auth-feedback.css`, de modo que redefine el centrado
+ * anterior sin necesidad de subir la especificidad.
+ */
+
+.login-page {
+  display: grid;
+  /* La composición ocupa la primera fila y se centra en ella; el pie de
+     seguridad queda siempre abajo, sin dejar un hueco muerto en pantallas
+     altas. */
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+  padding: 40px 24px 28px;
+  /* Base algo más profunda que el gris del portal: el acceso es una portada, y
+     el fondo ambiental necesita un lienzo con algo de color debajo para que sus
+     capas se distingan en lugar de disolverse en blanco. */
+  background: linear-gradient(155deg, #e8f1f2 0%, #eef4f6 38%, #f4f8f9 72%, #eaf2f3 100%);
+}
+.login-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  gap: 32px;
+  align-items: center;
+  align-self: center;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  animation: fade-rise var(--dur-slow) var(--ease-out) both;
+}
+
+.login-theme {
+  position: absolute;
+  z-index: 2;
+  top: 18px;
+  right: 20px;
+}
+.login-theme .icon-button {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+/* ------------------------------------------------------ zona visual */
+
+.login-showcase {
+  display: grid;
+  gap: 26px;
+  padding: 8px 12px;
+}
+.login-identity {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.login-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--navy);
+  color: var(--surface);
+  font-size: 24px;
+  font-weight: 900;
+}
+.login-identity strong {
+  display: block;
+  color: var(--ink);
+  font-size: 21px;
+  letter-spacing: 0.1em;
+}
+/* Acotado al bloque de texto: un `.login-identity span` genérico también
+   alcanzaría al distintivo de la marca —que es un span— y le robaría el color
+   y el tamaño de letra. */
+.login-identity > div span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.login-pitch h2 {
+  margin: 0 0 10px;
+  max-width: 16ch;
+  color: var(--ink);
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+.login-rotator {
+  margin: 0;
+  min-height: 26px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
+  animation: fade-rise var(--dur-slow) var(--ease-out) both;
+}
+
+/* Grafo ilustrativo */
+.login-graph {
+  width: min(320px, 100%);
+  height: auto;
+}
+.login-graph-track {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+.login-graph-pulse {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 16 200;
+  opacity: 0;
+}
+.login-graph.is-animated .login-graph-pulse {
+  opacity: 1;
+  animation: login-pulse 3.4s linear infinite;
+}
+.login-graph-node circle {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 2;
+}
+.login-graph-node .login-graph-core {
+  fill: var(--accent);
+  stroke: none;
+}
+.login-graph.is-animated .login-graph-node {
+  animation: login-node 3.4s var(--ease-standard) infinite;
+}
+
+@keyframes login-pulse {
+  from {
+    stroke-dashoffset: 216;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes login-node {
+  0%,
+  70%,
+  100% {
+    opacity: 0.75;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+.login-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.login-highlights li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  backdrop-filter: blur(4px);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-out);
+}
+.login-highlights li:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  /* Composición simplificada en móvil: identidad y mensaje arriba, formulario
+     debajo. Se conservan marca y mensaje; se retiran grafo y bloques, que
+     empujarían el formulario fuera de la primera pantalla. */
+  .login-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+  .login-showcase {
+    gap: 16px;
+    text-align: center;
+    justify-items: center;
+  }
+  .login-identity {
+    justify-content: center;
+  }
+  .login-pitch h2 {
+    max-width: none;
+    font-size: 26px;
+  }
+  .login-graph,
+  .login-highlights {
+    display: none;
+  }
+  .login-panel {
+    padding: 22px 18px 18px;
+  }
+}

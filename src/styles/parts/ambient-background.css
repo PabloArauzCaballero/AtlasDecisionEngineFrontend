@@ -1,0 +1,191 @@
+/**
+ * Fondo ambiental — capas y profundidad.
+ *
+ * Cinco capas superpuestas: aurora, haz de luz, malla técnica, red de nodos y
+ * viñeta. Cada una se desplaza con el cursor a un ritmo distinto (`--par-*`), y
+ * de ese desfase sale la profundidad: sin él, moverse sería sólo desplazar una
+ * imagen plana.
+ *
+ * Sólo se animan `transform` y `opacity`, que el navegador compone en la GPU.
+ * No hay imágenes ni canvas, así que el coste de descarga es cero.
+ */
+
+.ambient-bg {
+  /* Posición absoluta del cursor (0…1) y su desvío respecto al centro. */
+  --ambient-px: 0.5;
+  --ambient-py: 0.4;
+  --ambient-x: 0;
+  --ambient-y: 0;
+  /* Avance de la lectura de la página (0…1). */
+  --ambient-scroll: 0;
+  /* Recorrido máximo del paralaje, en píxeles, por capa. Generoso a propósito:
+     con recorridos de 20-40 px el movimiento existe pero no se percibe, y el
+     fondo se lee como una imagen fija. */
+  --par-aurora: 110px;
+  --par-grid: 38px;
+  --par-network: 72px;
+  --accent-rgb: 0, 106, 97;
+  --state-rgb: 0, 106, 97;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+.ambient-bg > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transition: opacity var(--dur-slow) var(--ease-standard);
+}
+
+/* Estados reales de la plataforma: el color cambia, la geometría no. */
+.ambient-bg[data-state='running'] {
+  --state-rgb: 21, 112, 239;
+}
+.ambient-bg[data-state='success'] {
+  --state-rgb: 6, 118, 71;
+}
+.ambient-bg[data-state='warning'] {
+  --state-rgb: 181, 71, 8;
+}
+.ambient-bg[data-state='error'] {
+  --state-rgb: 180, 35, 24;
+}
+
+/* ---------------------------------------------------------------- aurora */
+
+/**
+ * Tres manchas de luz de tamaños muy distintos. La primera responde al estado
+ * de la plataforma; las otras dos sostienen el color de marca, así que el fondo
+ * cambia de temperatura sin cambiar de identidad.
+ *
+ * El contenedor lleva el paralaje del cursor y cada mancha su propia deriva:
+ * separarlos es lo que permite que ambas cosas ocurran a la vez —una animación
+ * sobre `transform` gana siempre al `transform` de la regla, así que en un solo
+ * elemento el paralaje se perdía—.
+ *
+ * La deriva es atmósfera, no señal: mueve luz, no informa de nada. Lo que dice
+ * si la plataforma está trabajando sigue siendo el color (`data-state`), que
+ * sólo cambia cuando el backend está haciendo algo de verdad.
+ */
+.ambient-aurora {
+  opacity: 0.72;
+  transform: translate3d(
+    calc(var(--ambient-x) * var(--par-aurora)),
+    calc(var(--ambient-y) * var(--par-aurora)),
+    0
+  );
+  /* Amortiguación corta: por encima de ~350 ms el fondo va detrás del cursor y
+     se percibe como retardo, no como inercia. */
+  transition:
+    transform 320ms var(--ease-out),
+    opacity var(--dur-slow) var(--ease-standard);
+}
+
+/* ------------------------------------------------------------------ foco */
+
+/**
+ * Luz anclada al cursor.
+ *
+ * A diferencia de las demás capas, ésta no se desplaza un poco: su centro ES la
+ * posición del puntero. Es lo que convierte "un fondo que se mueve" en "un
+ * fondo que responde", y sólo cuesta recalcular un degradado.
+ */
+.ambient-spotlight {
+  background: radial-gradient(
+    26vmax 26vmax at calc(var(--ambient-px) * 100%) calc(var(--ambient-py) * 100%),
+    rgba(var(--state-rgb), 0.3),
+    rgba(var(--accent-rgb), 0.12) 42%,
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-standard);
+}
+.is-animated .ambient-spotlight {
+  opacity: 1;
+}
+
+/* Onda al pulsar: confirma el gesto desde el propio fondo. */
+.ambient-ripple {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid rgba(var(--state-rgb), 0.55);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ambient-ripple 620ms var(--ease-out) forwards;
+}
+
+@keyframes ambient-ripple {
+  to {
+    opacity: 0;
+    transform: scale(16);
+  }
+}
+
+/* ------------------------------------------------------------------ haz */
+
+/**
+ * Barrido diagonal de luz. Cruza la pantalla cada 18 s: lo justo para que el
+ * fondo respire sin que nadie mire el reloj esperándolo.
+ */
+.ambient-beam {
+  background: linear-gradient(
+    104deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.5) 47%,
+    rgba(var(--state-rgb), 0.12) 50%,
+    transparent 60%
+  );
+  opacity: 0;
+}
+.is-animated .ambient-beam {
+  animation: ambient-sweep 18s ease-in-out infinite;
+}
+
+@keyframes ambient-sweep {
+  0%,
+  72%,
+  100% {
+    opacity: 0;
+    transform: translate3d(-28%, 0, 0);
+  }
+  80% {
+    opacity: 0.55;
+  }
+  99% {
+    opacity: 0;
+    transform: translate3d(28%, 0, 0);
+  }
+}
+
+/* ------------------------------------------------------------ cuadrícula */
+
+.ambient-grid {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.15) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(74% 74% at 50% 42%, #000 20%, transparent 80%);
+  opacity: 0.75;
+  /* La malla también se desplaza con la lectura: al bajar por una página larga
+     el fondo acompaña, y eso funciona igual en táctil, donde no hay cursor. */
+  transform: translate3d(
+    calc(var(--ambient-x) * var(--par-grid)),
+    calc(var(--ambient-y) * var(--par-grid) - var(--ambient-scroll) * 60px),
+    0
+  );
+  transition: transform 420ms var(--ease-out);
+}
+.is-animated .ambient-grid {
+  animation: ambient-pan 44s linear infinite;
+}
+
+@keyframes ambient-pan {
+  to {
+    background-position: 46px 46px;
+  }
+}

@@ -6,6 +6,7 @@ import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
 import { FilterSelect } from '../components/FilterSelect';
 import { PageHeader } from '../components/PageHeader';
+import { ActiveFilterChips } from '../resources/ActiveFilterChips';
 import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
 import { ResourceCreateForm } from '../resources/ResourceCreateForm';
@@ -109,6 +110,19 @@ export function ResourceListPage({
     setPage(1);
   };
 
+  /** Quita un filtro concreto desde su chip; `null` es el filtro principal. */
+  const removeFilter = (param: string | null) => {
+    setPage(1);
+    if (param === null) {
+      setDraftFilter('');
+      setFilter('');
+      return;
+    }
+    const next = { ...extraFilters, [param]: '' };
+    setDraftExtra((current) => ({ ...current, [param]: '' }));
+    setExtraFilters(next);
+  };
+
   // A dropdown reads as "apply now"; commit it to the query immediately.
   const applySelectFilter = (param: string, value: string) => {
     const next = { ...draftExtra, [param]: value };
@@ -140,6 +154,7 @@ export function ResourceListPage({
               <button
                 className="button button-primary"
                 type="button"
+                data-tutorial-id="resource-create"
                 disabled={primaryActionDisabled || !openPrimary}
                 title={
                   primaryActionTitle ??
@@ -154,7 +169,7 @@ export function ResourceListPage({
         }
       />
       {config.filterParam ? (
-        <form className="filter-bar" onSubmit={submit}>
+        <form className="filter-bar" onSubmit={submit} data-tutorial-id="resource-filters">
           {config.filterPicker ? (
             <FilterSelect
               label={config.filterLabel ?? 'Filtro'}
@@ -203,6 +218,7 @@ export function ResourceListPage({
                   : 'icon-button filter-icon'
               }
               type="button"
+              data-tutorial-id="resource-more-filters"
               aria-label={
                 activeExtraCount ? `Más filtros (${activeExtraCount} activos)` : 'Más filtros'
               }
@@ -215,6 +231,14 @@ export function ResourceListPage({
           ) : null}
         </form>
       ) : null}
+      <ActiveFilterChips
+        filter={filter}
+        filterLabel={config.filterLabel ?? 'Filtro'}
+        extraFilters={extraFilters}
+        filters={config.filters ?? []}
+        onRemove={removeFilter}
+        onClearAll={clearFilters}
+      />
       {creating && hasInlineCreate ? (
         <ResourceCreateForm config={config} onClose={() => setCreating(false)} />
       ) : null}
@@ -228,7 +252,7 @@ export function ResourceListPage({
         />
       ) : null}
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
-      <section className="panel">
+      <section className="panel" data-tutorial-id="resource-table">
         <div className="panel-title">
           <span>{query.data?.total ?? 0} registros</span>
           <small>{query.isFetching ? 'Actualizando…' : 'Datos en vivo'}</small>

@@ -10,7 +10,7 @@
   .node-properties {
     grid-column: 1 / -1;
     max-height: 460px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--line);
     border-left: 0;
   }
   .editor-toolbar {
@@ -60,7 +60,7 @@
     display: block;
     max-height: 320px;
     border-right: 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--line);
   }
   .graph-canvas {
     min-width: 0;

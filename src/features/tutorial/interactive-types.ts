@@ -1,4 +1,5 @@
-export type RequiredAction = 'click';
+/** Acción real que el paso espera del usuario antes de avanzar. */
+export type RequiredAction = 'click' | 'input' | 'submit';
 
 export interface InteractiveStep {
   id: string;

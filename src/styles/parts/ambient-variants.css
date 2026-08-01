@@ -1,0 +1,127 @@
+/**
+ * Fondo ambiental — ajuste por zona, versión estática y adaptación a móvil.
+ *
+ * Continúa `ambient-background.css`; van en archivos separados por el límite de
+ * 299 líneas del repositorio. Cada zona de la plataforma pide un fondo distinto:
+ * el acceso puede permitirse presencia, y una herramienta de trabajo no.
+ */
+
+/* El acceso no compite con ninguna tabla: es donde el fondo puede lucirse. */
+.ambient-auth .ambient-aurora {
+  opacity: 0.95;
+}
+.ambient-auth .ambient-network {
+  opacity: 1;
+}
+.ambient-auth .ambient-links line {
+  stroke: rgba(var(--accent-rgb), 0.42);
+}
+.ambient-auth .ambient-vignette {
+  background:
+    radial-gradient(80% 60% at 68% 45%, rgba(255, 255, 255, 0.42), transparent 62%),
+    radial-gradient(150% 130% at 50% 50%, transparent 52%, rgba(15, 23, 42, 0.13));
+}
+
+/* Paneles y tarjetas: presencia media, la justa para dar profundidad.
+   Al 0.34 la deriva de las manchas ocurría pero no se veía —el fondo se leía
+   como una imagen fija—; el texto no sufre porque vive sobre superficies
+   opacas, así que el color puede subir sin restar legibilidad. */
+.ambient-dashboard .ambient-aurora,
+.ambient-results .ambient-aurora {
+  opacity: 0.52;
+}
+.ambient-dashboard .ambient-network,
+.ambient-results .ambient-network {
+  opacity: 0.75;
+}
+
+/* Laboratorio y despliegues: la red se ve algo más, evocan flujo y tuberías. */
+.ambient-lab .ambient-network,
+.ambient-deploy .ambient-network {
+  opacity: 0.9;
+}
+.ambient-lab .ambient-aurora,
+.ambient-deploy .ambient-aurora {
+  opacity: 0.56;
+}
+
+/**
+ * El editor de grafos tiene su propio grafo en pantalla, así que su red de
+ * fondo se retira —dos redes confundirían qué nodos son reales— pero el resto
+ * del fondo se mantiene bien visible: quitarlo entero dejaba el editor plano y
+ * parecía que el fondo reactivo había desaparecido de la aplicación.
+ */
+.ambient-editor .ambient-network {
+  display: none;
+}
+.ambient-editor .ambient-aurora {
+  opacity: 0.5;
+}
+.ambient-editor .ambient-beam {
+  opacity: 0;
+}
+.is-animated.ambient-editor .ambient-beam {
+  /* Barrido más espaciado y tenue: recuerda que la superficie está viva sin
+     competir con el trabajo de diseñar el algoritmo. */
+  animation: ambient-sweep 34s ease-in-out infinite;
+}
+.ambient-editor .ambient-grid {
+  opacity: 0.6;
+}
+
+/**
+ * Versión estática: conserva color, composición y profundidad; retira todo el
+ * movimiento. Es lo que ven la gama baja, la pestaña en segundo plano y quien
+ * pide movimiento reducido. La información nunca vive dentro de la animación,
+ * así que no se pierde nada al apagarla.
+ */
+.ambient-bg.is-static .ambient-aurora,
+.ambient-bg.is-static .ambient-aurora i,
+.ambient-bg.is-static .ambient-grid,
+.ambient-bg.is-static .ambient-network i,
+.ambient-bg.is-static .ambient-pulse,
+.ambient-bg.is-static .ambient-beam {
+  animation: none;
+}
+.ambient-bg.is-static .ambient-pulse {
+  opacity: 0.4;
+  stroke-dasharray: none;
+}
+.ambient-bg.is-static .ambient-network i {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-bg *,
+  .ambient-bg {
+    animation: none !important;
+    transition: none !important;
+  }
+  .ambient-bg .ambient-pulse {
+    stroke-dasharray: none;
+    opacity: 0.35;
+  }
+}
+
+@media (max-width: 720px) {
+  /* En móvil el fondo se simplifica: malla más grande, sin haz ni paralaje, y
+     la red más tenue. Menos elementos compuestos por píxel en la pantalla que
+     menos potencia tiene. */
+  .ambient-bg {
+    --par-aurora: 0px;
+    --par-grid: 0px;
+    --par-network: 0px;
+  }
+  .ambient-grid {
+    background-size: 34px 34px;
+  }
+  .ambient-beam {
+    display: none;
+  }
+  .ambient-network {
+    opacity: 0.5;
+  }
+  .ambient-aurora {
+    opacity: 0.36;
+  }
+}

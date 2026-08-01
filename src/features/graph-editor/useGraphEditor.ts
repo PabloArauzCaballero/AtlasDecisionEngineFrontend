@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
-import { updateSiblingEdge } from './graph-edge-update';
 import { createEdgeDraft, createNodeDraft, edgeCreationError } from './graph-authoring';
+import { applyEdgePatch } from './edge-patch';
 import { connectionErrorNotice, type ConnectionNotice } from './connection-feedback';
 import { layoutGraphNodes, normalizeLoadedGraph } from './graph-layout';
-import { withEdges, withNewNodeCondition, withNodes } from './graph-snapshot';
+import { withEdges, withNewNodeCondition, withNodes, withoutNode } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
 
 const ZOOM_MIN = 0.5;
@@ -27,19 +27,27 @@ export function useGraphEditor(initialVersionId = '') {
   const nodes = asRows(history.snapshot.nodes);
   const edges = asRows(history.snapshot.edges);
   const variables = asRows(history.snapshot.variables);
+  /** Variables INTERMEDIAS del grafo (§2): viven solo dentro de una ejecución. */
+  const intermediates = asRows(history.snapshot.intermediates);
+  /** Contrato de salida explícito (§4): de dónde sale cada campo publicado. */
+  const outputContract = asRows(history.snapshot.outputContract);
   const conditions = asRows(history.snapshot.conditions);
-  const outputs = variables.filter((variable) =>
-    String(variable.usageType ?? '').startsWith('OUTPUT'),
-  );
-  const inputs = variables.filter(
-    (variable) => !String(variable.usageType ?? 'INPUT').startsWith('OUTPUT'),
-  );
+  /** Catálogo de acciones: dice qué EJECUTA un nodo de acción, no sólo su tipo. */
+  const actions = asRows(history.snapshot.actions);
+  const isOutput = (variable: UnknownRecord) =>
+    String(variable.usageType ?? 'INPUT').startsWith('OUTPUT');
+  const outputs = variables.filter(isOutput);
+  const inputs = variables.filter((variable) => !isOutput(variable));
   const selected = nodes.find((node) => display(node, 'key') === selectedKey) ?? {};
   const selectedEdge = edges.find((edge) => display(edge, 'key') === selectedEdgeKey) ?? {};
   const selectedConditionCode = String(asRecord(selected.config).conditionCode ?? '');
   const selectedCondition =
     conditions.find((condition) => display(condition, 'code') === selectedConditionCode) ?? {};
+  // `handled`: el propio editor muestra estos fallos en su diálogo, con acceso al
+  // tutorial que enseña a corregirlos, así que el aviso global sobra (ver
+  // QueryProvider). Sin esto el mismo error aparecía por duplicado.
   const load = useMutation({
+    meta: { handled: true },
     mutationFn: async (targetVersionId?: string) => {
       const encodedVersionId = encodeURIComponent(targetVersionId ?? versionId);
       return Promise.all([
@@ -59,6 +67,7 @@ export function useGraphEditor(initialVersionId = '') {
     },
   });
   const save = useMutation({
+    meta: { handled: true },
     mutationFn: () =>
       apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodeURIComponent(versionId)}/graph`, {
         method: 'PUT',
@@ -125,46 +134,22 @@ export function useGraphEditor(initialVersionId = '') {
   };
 
   const updateSelectedEdge = (patch: UnknownRecord) => {
-    if (!selectedEdgeKey) return;
-    const current = edges.find((edge) => display(edge, 'key') === selectedEdgeKey);
-    if (!current) return;
-
-    const sourceKey = display(current, 'from');
-    const siblings = edges.filter(
-      (edge) => display(edge, 'from') === sourceKey && display(edge, 'key') !== selectedEdgeKey,
-    );
-    if (patch.default === false && current.default && !siblings.length) return;
-
-    const source = nodes.find((node) => display(node, 'key') === sourceKey);
-    const sourceConditionCode = String(asRecord(source?.config).conditionCode ?? '');
-    if (patch.default === true && siblings.some((edge) => edge.default) && !sourceConditionCode) {
-      return;
-    }
-
-    history.commit(
-      withEdges(
-        history.snapshot,
-        edges.map((edge) =>
-          updateSiblingEdge({
-            edge,
-            current,
-            patch,
-            selectedEdgeKey,
-            sourceKey,
-            sourceConditionCode,
-            firstSibling: siblings[0],
-          }),
-        ),
-      ),
-    );
+    const next = applyEdgePatch({
+      snapshot: history.snapshot,
+      nodes,
+      edges,
+      selectedEdgeKey,
+      patch,
+    });
+    if (next) history.commit(next);
   };
 
   const deleteSelectedNode = () => {
-    const remainingNodes = nodes.filter((node) => display(node, 'key') !== selectedKey);
-    const remainingEdges = edges.filter(
-      (edge) => display(edge, 'from') !== selectedKey && display(edge, 'to') !== selectedKey,
-    );
-    history.commit(withEdges(withNodes(history.snapshot, remainingNodes), remainingEdges));
+    // `withoutNode` se lleva también la condición que sólo usaba este nodo y
+    // desengancha el campo del contrato que salía de él: si no, viajan al
+    // backend en el siguiente guardado y la versión archivada describe un grafo
+    // que ya no existe.
+    history.commit(withoutNode(history.snapshot, selectedKey));
     setSelectedKey('');
     setSelectedEdgeKey('');
   };
@@ -237,7 +222,10 @@ export function useGraphEditor(initialVersionId = '') {
     nodes,
     edges,
     variables,
+    intermediates,
+    outputContract,
     conditions,
+    actions,
     outputs,
     inputs,
     selected,
@@ -270,14 +258,20 @@ export function useGraphEditor(initialVersionId = '') {
     closeEdge: () => setSelectedEdgeKey(''),
     changeVariables: (nextVariables: UnknownRecord[]) =>
       history.commit({ ...history.snapshot, variables: nextVariables }),
+    changeIntermediates: (next: UnknownRecord[]) =>
+      history.commit({ ...history.snapshot, intermediates: next }),
+    changeOutputContract: (next: UnknownRecord[]) =>
+      history.commit({ ...history.snapshot, outputContract: next }),
+    changeActions: (nextActions: UnknownRecord[]) =>
+      history.commit({ ...history.snapshot, actions: nextActions }),
     beginDrag: history.beginDrag,
     endDrag: history.endDrag,
     undo: history.undo,
     redo: history.redo,
     canUndo: history.canUndo,
     canRedo: history.canRedo,
-    zoomOut: () => setZoom((value) => Math.max(ZOOM_MIN, +(value - ZOOM_STEP).toFixed(2))),
-    zoomIn: () => setZoom((value) => Math.min(ZOOM_MAX, +(value + ZOOM_STEP).toFixed(2))),
+    zoomOut: () => setZoom((v) => Math.max(ZOOM_MIN, +(v - ZOOM_STEP).toFixed(2))),
+    zoomIn: () => setZoom((v) => Math.min(ZOOM_MAX, +(v + ZOOM_STEP).toFixed(2))),
     resetZoom: () => setZoom(1),
     autoLayout,
     cancelConnection: () => {
@@ -287,11 +281,8 @@ export function useGraphEditor(initialVersionId = '') {
     toggleConnectMode: () => {
       const next = !connectMode;
       setConnectMode(next);
-      setConnectionNotice(
-        next
-          ? { tone: 'info', text: 'Selecciona primero el nodo de origen y luego el destino.' }
-          : null,
-      );
+      const text = 'Selecciona primero el nodo de origen y luego el destino.';
+      setConnectionNotice(next ? { tone: 'info', text } : null);
       setPendingFrom(null);
     },
   };

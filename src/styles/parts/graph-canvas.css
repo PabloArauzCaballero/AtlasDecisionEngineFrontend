@@ -1,44 +1,54 @@
+/* Marco fijo: los avisos, la leyenda y el estado vacío se anclan aquí para que
+   no se desplacen con el contenido del lienzo. */
 .graph-canvas {
   position: relative;
-  /* Scrollable en ambos ejes: al acercar el zoom (o con grafos grandes) el
-     contenido excede el lienzo y hay que poder desplazarse para verlo todo.
-     La aritmética de toPercount usa getBoundingClientRect (que ya refleja el
-     scroll), así que arrastrar/soltar nodos sigue cayendo en el punto correcto. */
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow: hidden;
   min-width: 500px;
   isolation: isolate;
   background:
-    radial-gradient(circle at 50% 0%, rgba(216, 251, 245, 0.36), transparent 38%), #f8fafc;
+    radial-gradient(circle at 50% 0%, rgba(216, 251, 245, 0.36), transparent 38%), var(--canvas);
 }
-.graph-canvas::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+/* Ventana desplazable en ambos ejes sobre un "mundo" mayor que la pantalla. */
+.graph-canvas-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
-.graph-canvas::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border: 3px solid #f8fafc;
+.graph-canvas-scroll {
+  position: relative;
+}
+.graph-canvas-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transition: transform 0.14s ease-out;
+}
+.graph-canvas-viewport::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+.graph-canvas-viewport::-webkit-scrollbar-track {
+  background: var(--surface-hover);
+}
+.graph-canvas-viewport::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid var(--line-soft);
   border-radius: 999px;
 }
-.graph-canvas::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+.graph-canvas-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 .canvas-grid {
   position: absolute;
   inset: 0;
   background-image: radial-gradient(rgba(148, 163, 184, 0.46) 0.8px, transparent 0.8px);
   background-size: 22px 22px;
-  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-}
-.graph-canvas-zoom {
-  position: absolute;
-  inset: 0;
-  transform-origin: 0 0;
-  transition: transform 0.14s ease-out;
 }
 .graph-node {
   --node-color: #64748b;
-  --node-soft: #eef2f6;
+  --node-soft: var(--line-soft);
   position: absolute;
   z-index: 3;
   width: 182px;
@@ -48,11 +58,11 @@
   gap: 10px;
   align-items: center;
   padding: 11px 13px;
-  border: 1px solid #d7dee8;
+  border: 1px solid var(--line);
   border-left: 3px solid var(--node-color);
   border-radius: 9px;
-  background: rgba(255, 255, 255, 0.98);
-  color: #334155;
+  background: var(--panel-live);
+  color: var(--text);
   text-align: left;
   cursor: grab;
   touch-action: none;
@@ -65,7 +75,7 @@
     transform 0.15s ease;
 }
 .graph-node:hover {
-  border-color: #aeb9c7;
+  border-color: var(--line-strong);
   border-left-color: var(--node-color);
   box-shadow:
     0 2px 4px rgba(15, 23, 42, 0.08),
@@ -96,13 +106,13 @@
   white-space: nowrap;
 }
 .graph-node-copy strong {
-  color: #253047;
+  color: var(--text);
   font-size: 11px;
   line-height: 1.35;
 }
 .graph-node-copy small {
   margin-top: 3px;
-  color: #7a8699;
+  color: var(--faint);
   font-size: 8px;
   font-weight: 750;
   text-transform: uppercase;
@@ -114,7 +124,7 @@
   width: 10px;
   height: 10px;
   display: block !important;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   border-radius: 50%;
   background: var(--node-color);
   box-shadow: 0 0 0 1px var(--node-color);
@@ -127,15 +137,15 @@
   right: -6px;
 }
 .graph-node.selected {
-  border-color: #00796f;
-  border-left-color: #00796f;
+  border-color: var(--accent);
+  border-left-color: var(--accent);
   box-shadow:
     0 0 0 3px rgba(0, 121, 111, 0.13),
     0 10px 24px rgba(15, 23, 42, 0.1);
 }
 .graph-node.connect-source {
-  border-color: #2563eb;
-  border-left-color: #2563eb;
+  border-color: var(--info);
+  border-left-color: var(--info);
   box-shadow:
     0 0 0 4px rgba(37, 99, 235, 0.15),
     0 10px 24px rgba(37, 99, 235, 0.12);
@@ -144,8 +154,8 @@
   cursor: crosshair;
 }
 .is-connecting .graph-node:hover {
-  border-color: #2563eb;
-  border-left-color: #2563eb;
+  border-color: var(--info);
+  border-left-color: var(--info);
 }
 .node-start {
   --node-color: #2563eb;
@@ -160,7 +170,7 @@
   --node-soft: #e7f8ef;
 }
 .node-manual_review {
-  --node-color: #b54708;
+  --node-color: var(--warning);
   --node-soft: #fff4e5;
 }
 .node-end {
@@ -177,7 +187,7 @@
   pointer-events: none;
 }
 .graph-edges marker path {
-  fill: #94a3b8;
+  fill: var(--line-strong);
 }
 .graph-edge-line,
 .graph-edge-hit {
@@ -185,7 +195,7 @@
   vector-effect: non-scaling-stroke;
 }
 .graph-edge-line {
-  stroke: #94a3b8;
+  stroke: var(--line-strong);
   stroke-width: 1.6;
   pointer-events: stroke;
   cursor: pointer;
@@ -202,7 +212,7 @@
 .graph-edges g:hover .graph-edge-line,
 .graph-edges g.selected .graph-edge-line,
 .graph-edge-line:focus-visible {
-  stroke: #2563eb;
+  stroke: var(--info);
   stroke-width: 2.4;
   outline: none;
 }
@@ -211,10 +221,10 @@
   z-index: 2;
   min-height: 20px;
   padding: 3px 7px;
-  border: 1px solid #dbe3ec;
+  border: 1px solid var(--line);
   border-radius: 99px;
-  background: rgba(255, 255, 255, 0.96);
-  color: #667085;
+  background: var(--panel-live);
+  color: var(--faint);
   font-size: 8px;
   font-weight: 800;
   white-space: nowrap;
@@ -224,13 +234,13 @@
 }
 .graph-edge-label:hover,
 .graph-edge-label.selected {
-  border-color: #2563eb;
-  color: #1d4ed8;
-  background: #eff6ff;
+  border-color: var(--info);
+  color: var(--info);
+  background: var(--info-wash);
 }
 .condition-node-editor,
 .edge-properties section {
-  background: #f8fafc;
+  background: var(--canvas);
 }
 .edge-properties-heading {
   grid-template-columns: 1fr auto;

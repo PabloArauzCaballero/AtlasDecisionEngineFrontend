@@ -1,0 +1,275 @@
+/*
+ * Contratos de variables, intermedias y campos calculados (§1–§7).
+ *
+ * Todo el color sale de tokens de theme.css: estas vistas muestran estados (válido,
+ * inválido, sensible, bloqueado) y un hex escrito a mano quedaría ilegible al conmutar
+ * a oscuro.
+ */
+
+/* --- Editor de restricciones ------------------------------------------------ */
+
+.constraint-editor {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.constraint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.constraint-field {
+  display: grid;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.constraint-field > span {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.constraint-field input,
+.constraint-field select,
+.constraint-field textarea {
+  width: 100%;
+}
+
+.constraint-wide {
+  grid-column: 1 / -1;
+}
+
+.constraint-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.constraint-checkbox input {
+  width: auto;
+}
+
+.constraint-preview {
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-3);
+  display: grid;
+  gap: 6px;
+}
+
+.constraint-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.constraint-valid {
+  color: var(--success-text, var(--text));
+}
+
+.constraint-invalid {
+  color: var(--danger-text, var(--text));
+}
+
+.contract-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-2) 0 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash, var(--surface-muted));
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+/* --- Variables intermedias --------------------------------------------------- */
+
+.intermediate-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.intermediate-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.intermediate-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 8px 12px;
+}
+
+.intermediate-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: start;
+  flex: 1;
+}
+
+.intermediate-producer {
+  color: var(--text-muted);
+}
+
+.intermediate-form {
+  padding: 0 12px 12px;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.intermediate-consumers {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.consumer-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.consumer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.consumer-chip.is-on {
+  border-color: var(--accent);
+  background: var(--accent-wash, var(--surface-muted));
+}
+
+/* La badge de intermedia comparte forma con entrada/salida pero no su color. */
+.io-badge.io-mid {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  border: 1px dashed var(--line);
+}
+
+/* --- Contrato de salida ------------------------------------------------------ */
+
+.output-contract-list {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.output-contract-row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.output-contract-row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* --- Estado de variables por nodo -------------------------------------------- */
+
+.node-state-tabs {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+
+.node-state-tabs button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.node-state-tabs button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-wash, var(--surface-muted));
+}
+
+.node-state-group + .node-state-group {
+  margin-top: var(--space-3);
+}
+
+.node-state-group h4 {
+  margin: 0 0 2px;
+  font-size: 0.9rem;
+}
+
+.node-state-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+.node-state-table th,
+.node-state-table td {
+  text-align: start;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.node-state-value {
+  font-family: var(--font-mono, monospace);
+  word-break: break-word;
+}
+
+.state-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.state-computed,
+.state-valid,
+.state-available {
+  border-color: var(--success-line, var(--line));
+  background: var(--success-wash, var(--surface-muted));
+}
+
+.state-invalid,
+.state-error {
+  border-color: var(--danger-line, var(--line));
+  background: var(--danger-wash, var(--surface-muted));
+}
+
+.state-not_available,
+.state-skipped,
+.state-redacted {
+  color: var(--text-muted);
+}

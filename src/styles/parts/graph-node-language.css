@@ -1,0 +1,295 @@
+/**
+ * Lenguaje visual de los nodos del grafo.
+ *
+ * Cuatro señales redundantes distinguen un tipo de otro: icono, forma de la
+ * portada, trama del fondo y color. Quitando el color —impresión en gris,
+ * daltonismo— el grafo sigue siendo legible, que es justo el requisito.
+ *
+ * La forma se aplica a la portada del icono y no al contorno de la tarjeta:
+ * recortar el rectángulo entero en rombo dejaría el nombre del nodo fuera del
+ * área visible.
+ */
+
+/* --------------------------------------------------- formas de portada */
+
+.graph-node.shape-capsule .graph-node-icon,
+.legend-mark.shape-capsule {
+  border-radius: 99px;
+}
+.graph-node.shape-diamond .graph-node-icon,
+.legend-mark.shape-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  border-radius: 3px;
+}
+.graph-node.shape-hexagon .graph-node-icon,
+.legend-mark.shape-hexagon {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+.graph-node.shape-shield .graph-node-icon,
+.legend-mark.shape-shield {
+  clip-path: polygon(50% 0%, 100% 20%, 100% 62%, 50% 100%, 0% 62%, 0% 20%);
+}
+.graph-node.shape-flag .graph-node-icon,
+.legend-mark.shape-flag {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 74%, 50% 100%, 0% 74%);
+}
+/* Las formas recortadas comen esquina: el icono se encoge para no perder trazo. */
+.graph-node.shape-diamond .graph-node-icon svg,
+.graph-node.shape-hexagon .graph-node-icon svg,
+.graph-node.shape-shield .graph-node-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* ---------------------------------------------------- tramas de fondo */
+
+.graph-node.pattern-dots {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--node-color) 13%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 7px 7px;
+}
+.graph-node.pattern-lines {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--node-color) 9%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+}
+.graph-node.pattern-grid {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--node-color) 10%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--node-color) 10%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 9px 9px;
+}
+
+/* ------------------------------------------- tonos por tipo adicionales */
+
+.node-switch {
+  --node-color: #6941c6;
+  --node-soft: #f4ebff;
+}
+.node-expression,
+.node-score {
+  --node-color: var(--info);
+  --node-soft: #eaf2ff;
+}
+.node-decision_table {
+  --node-color: #0e7090;
+  --node-soft: #e0f6fb;
+}
+.node-reference {
+  --node-color: #9a3412;
+  --node-soft: #fff1e6;
+}
+.node-error {
+  --node-color: var(--danger);
+  --node-soft: #fff0ef;
+}
+
+/* ------------------------------------------ resumen de entradas/salidas */
+
+.graph-node-io {
+  position: absolute;
+  right: 9px;
+  bottom: 5px;
+  display: flex;
+  gap: 6px;
+  color: var(--faint);
+  font-size: 8px;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+.graph-node-io i {
+  font-style: normal;
+}
+
+/* --------------------------------------------- estado de ejecución */
+
+.graph-node-run {
+  position: absolute;
+  top: -9px;
+  left: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  background: var(--surface);
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.graph-node-run b {
+  font-weight: 700;
+  opacity: 0.75;
+}
+.graph-node-run.run-pending {
+  color: var(--faint);
+}
+.graph-node-run.run-running {
+  color: var(--info);
+}
+.graph-node-run.run-done {
+  color: var(--success);
+}
+.graph-node-run.run-skipped {
+  color: var(--faint);
+}
+.graph-node-run.run-warning {
+  color: var(--warning);
+}
+.graph-node-run.run-error {
+  color: var(--danger);
+}
+
+.graph-node.run-pending {
+  opacity: 0.55;
+}
+/* El nodo omitido se distingue por trama y trazo discontinuo, no sólo por
+   opacidad: en una captura impresa la opacidad no se nota. */
+.graph-node.run-skipped {
+  opacity: 0.6;
+  border-style: dashed;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(148, 163, 184, 0.16) 0 6px,
+    transparent 6px 12px
+  );
+}
+.graph-node.run-done {
+  border-color: var(--success-line);
+  animation: node-settle var(--dur-slow) var(--ease-out) both;
+}
+.graph-node.run-warning {
+  border-color: var(--warning-line);
+  box-shadow: 0 0 0 3px rgba(181, 71, 8, 0.12);
+}
+.graph-node.run-error {
+  border-color: var(--danger-line);
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.14);
+}
+.graph-node.run-running {
+  border-color: var(--info-line);
+  animation: node-pulse 1.7s var(--ease-standard) infinite;
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(21, 112, 239, 0.34),
+      0 6px 18px rgba(15, 23, 42, 0.08);
+  }
+  55% {
+    box-shadow:
+      0 0 0 9px rgba(21, 112, 239, 0),
+      0 8px 22px rgba(15, 23, 42, 0.12);
+  }
+}
+@keyframes node-settle {
+  from {
+    transform: scale(0.97);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------- caminos de ejecución */
+
+.graph-edges g.edge-discarded .graph-edge-line {
+  stroke: var(--line-strong);
+  stroke-dasharray: 3 4;
+}
+.graph-edges g.edge-taken .graph-edge-line {
+  stroke: var(--info);
+  stroke-width: 2.4;
+}
+/* Trazo que recorre el camino tomado: sólo `stroke-dashoffset`, que el
+   navegador anima sin recalcular diseño. */
+.graph-edge-flow {
+  fill: none;
+  stroke: var(--info-line);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 22;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  animation: edge-flow 1.5s linear infinite;
+}
+@keyframes edge-flow {
+  to {
+    stroke-dashoffset: -27;
+  }
+}
+.graph-edge-label.edge-taken {
+  border-color: var(--info-line);
+  color: var(--info);
+  background: var(--info-wash);
+}
+.graph-edge-label.edge-discarded {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* -------------------------------------------------------------- leyenda */
+
+.canvas-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.canvas-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Gana a `.canvas-legend i` (el punto de color de la leyenda anterior), que
+   tiene la misma especificidad pero se carga antes. */
+.canvas-legend .legend-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  color: var(--node-color, var(--muted));
+  background: var(--node-soft, var(--line-soft));
+}
+.canvas-empty-state .illustration {
+  margin-bottom: 4px;
+}
+.canvas-empty-state p {
+  max-width: 300px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-node.run-running,
+  .graph-edge-flow {
+    animation: none;
+  }
+  /* Sin animación, el nodo activo se marca con un aro fijo: la información
+     nunca vive sólo dentro del movimiento. */
+  .graph-node.run-running {
+    box-shadow: 0 0 0 4px rgba(21, 112, 239, 0.3);
+  }
+  .graph-edge-flow {
+    stroke-dasharray: none;
+    opacity: 0.5;
+  }
+}

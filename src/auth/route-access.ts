@@ -9,7 +9,7 @@ interface RouteAccessRule {
 const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/platform-health\/?$/, roles: accessPolicies.platformHealth },
   { pattern: /^\/search\/?$/, roles: accessPolicies.globalSearch },
-  { pattern: /^\/variables\/?$/, roles: accessPolicies.catalogRead },
+  { pattern: /^\/variables(?:\/[^/]+)?\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/reason-codes\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/artifacts(?:\/[^/]+)?\/?$/, roles: accessPolicies.artifacts },
   { pattern: /^\/algorithms\/?$/, roles: accessPolicies.artifacts },
@@ -18,6 +18,9 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     roles: accessPolicies.nestedTrees,
   },
   { pattern: /^\/graph-editor\/?$/, roles: accessPolicies.graphAuthoring },
+  // Editar acciones cambia lo que el algoritmo hace, así que pide el mismo rol
+  // que diseñar el grafo, no el de solo lectura del catálogo.
+  { pattern: /^\/actions\/?$/, roles: accessPolicies.graphAuthoring },
   { pattern: /^\/code-import\/?$/, roles: accessPolicies.codeImport },
   {
     pattern: /^\/artifact-versions\/[^/]+\/graph\/?$/,
@@ -32,6 +35,12 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     roles: accessPolicies.qualityAuthoring,
   },
   { pattern: /^\/test-suites\/?$/, roles: accessPolicies.qualityAuthoring },
+  { pattern: /^\/qa-lab\/?$/, roles: accessPolicies.qaLab },
+  {
+    pattern: /^\/calculated-fields(?:\/[^/]+)?\/?$/,
+    roles: accessPolicies.calculatedFields,
+  },
+  { pattern: /^\/libraries\/?$/, roles: accessPolicies.libraryRegistry },
   {
     pattern: /^\/test-suites\/[^/]+\/cases\/?$/,
     roles: accessPolicies.qualityAuthoring,

@@ -11,7 +11,14 @@ export interface PagedResponse<T> {
   hasNextPage: boolean;
 }
 
-export type CreateFieldKind = 'text' | 'textarea' | 'select' | 'checkbox';
+/**
+ * `json` es un valor tipado, no texto: el campo se envía como el JSON que el
+ * analista escribe (`1500` → número, `{"min":0}` → objeto) y cae a cadena cuando
+ * no es JSON válido. Hace falta porque partes del contrato de variable —los
+ * ejemplos y las restricciones de §1.1— no son cadenas y mandarlas como tales
+ * haría que el backend rechazara un ejemplo correcto por tipo.
+ */
+export type CreateFieldKind = 'text' | 'textarea' | 'select' | 'checkbox' | 'json';
 
 export interface CreateFieldOption {
   value: string;

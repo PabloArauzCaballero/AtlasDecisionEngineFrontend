@@ -75,7 +75,7 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 14px 16px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .ve-card header {
@@ -98,7 +98,7 @@
 
 .ve-business {
   border-left: 3px solid var(--warning);
-  background: #fff8f0;
+  background: var(--warning-wash);
 }
 
 .ve-business header {
@@ -107,7 +107,7 @@
 
 .ve-systems {
   border-left: 3px solid var(--accent);
-  background: #eef7f5;
+  background: var(--success-wash);
 }
 
 .ve-systems header {

@@ -1,7 +1,8 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useEffect, useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useDialogFocus } from '../hooks/useDialogFocus';
 
 interface ModalDialogProps {
   title: string;
@@ -28,6 +29,8 @@ export function ModalDialog({
   onClose,
 }: ModalDialogProps) {
   const titleId = useId();
+  const dialog = useRef<HTMLElement>(null);
+  useDialogFocus(dialog);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -45,6 +48,7 @@ export function ModalDialog({
       }}
     >
       <section
+        ref={dialog}
         className={tone === 'danger' ? 'modal-dialog modal-danger' : 'modal-dialog'}
         role="dialog"
         aria-modal="true"

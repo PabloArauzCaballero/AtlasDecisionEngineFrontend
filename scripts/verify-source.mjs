@@ -1,6 +1,11 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 import process from 'node:process';
+import {
+  verifyColorTokens,
+  verifyCustomProperties,
+  verifyRouteAccess,
+} from './verify-conventions.mjs';
 
 const root = process.cwd();
 const codeExtensions = new Set(['.ts', '.tsx', '.js', '.mjs', '.css']);
@@ -9,33 +14,14 @@ const authorizedFetchFiles = new Set([
   'src/api/http-client.ts',
   'src/server/decision-engine-proxy.ts',
 ]);
+/**
+ * Vistas cuya ausencia rompe la navegación del portal aunque nada falle al
+ * compilar. La lista completa de rutas ya no se escribe a mano —la deriva
+ * `verifyRouteAccess` del árbol de páginas—; aquí sólo quedan las de entrada.
+ */
 const requiredRoutes = [
   'src/app/(auth)/login/page.next.tsx',
   'src/app/(portal)/platform-health/page.next.tsx',
-  'src/app/(portal)/variables/page.next.tsx',
-  'src/app/(portal)/reason-codes/page.next.tsx',
-  'src/app/(portal)/artifacts/page.next.tsx',
-  'src/app/(portal)/artifacts/[artifactId]/page.next.tsx',
-  'src/app/(portal)/artifact-versions/[versionId]/graph/page.next.tsx',
-  'src/app/(portal)/artifact-versions/[versionId]/compile/page.next.tsx',
-  'src/app/(portal)/artifact-versions/[versionId]/test-suites/page.next.tsx',
-  'src/app/(portal)/test-suites/[suiteId]/cases/page.next.tsx',
-  'src/app/(portal)/test-runs/[runId]/page.next.tsx',
-  'src/app/(portal)/test-runs/[runId]/coverage/page.next.tsx',
-  'src/app/(portal)/reviews/page.next.tsx',
-  'src/app/(portal)/approval-requests/[requestId]/page.next.tsx',
-  'src/app/(portal)/environments/page.next.tsx',
-  'src/app/(portal)/deployments/page.next.tsx',
-  'src/app/(portal)/simulator/page.next.tsx',
-  'src/app/(portal)/search/page.next.tsx',
-  'src/app/(portal)/manual-reviews/page.next.tsx',
-  'src/app/(portal)/manual-reviews/[caseId]/page.next.tsx',
-  'src/app/(portal)/executions/page.next.tsx',
-  'src/app/(portal)/executions/[executionId]/page.next.tsx',
-  'src/app/(portal)/audit-events/page.next.tsx',
-  'src/app/(portal)/objectives/page.next.tsx',
-  'src/app/(portal)/objectives/[objectiveId]/page.next.tsx',
-  'src/app/(portal)/coverage-matrix/page.next.tsx',
 ];
 
 function collectFiles(directory) {
@@ -74,13 +60,18 @@ for (const file of sourceFiles) {
   }
 }
 
-if (requiredRoutes.length !== 26) {
-  failures.push('The required route inventory must contain exactly 26 views');
-}
+failures.push(
+  ...verifyRouteAccess(root),
+  ...verifyCustomProperties(root),
+  ...verifyColorTokens(root),
+);
 
 if (failures.length) {
   console.error(failures.map((failure) => `- ${failure}`).join('\n'));
   process.exit(1);
 }
 
-console.log(`Source verification passed for ${sourceFiles.length} files and 26 routes.`);
+console.log(
+  `Source verification passed for ${sourceFiles.length} files: ` +
+    `every portal route has an access rule and every CSS token resolves.`,
+);

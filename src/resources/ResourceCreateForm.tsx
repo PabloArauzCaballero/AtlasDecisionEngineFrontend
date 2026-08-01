@@ -10,7 +10,13 @@ import { InfoHint } from '../components/InfoHint';
 import { Panel } from '../components/Panel';
 import { useNotifications } from '../notifications/useNotifications';
 import { display, type UnknownRecord } from '../utils/records';
-import { buildPayload, initialValues, normalizeCode, type FieldValue } from './resource-create';
+import {
+  buildPayload,
+  initialValues,
+  jsonFieldErrors,
+  normalizeCode,
+  type FieldValue,
+} from './resource-create';
 import type { CreateField, ResourceConfig } from './resource.types';
 
 interface FieldControlProps {
@@ -68,7 +74,16 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
         {field.label}
         {field.help ? <InfoHint text={field.help} label={`Qué es: ${field.label}`} /> : null}
       </span>
-      {field.kind === 'textarea' ? (
+      {field.kind === 'json' ? (
+        <textarea
+          rows={3}
+          spellCheck={false}
+          required={field.required}
+          placeholder={field.placeholder}
+          value={stringValue}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      ) : field.kind === 'textarea' ? (
         <textarea
           rows={3}
           required={field.required}
@@ -136,8 +151,14 @@ export function ResourceCreateForm({ config, onClose }: ResourceCreateFormProps)
   const setField = (key: string, value: FieldValue) =>
     setValues((current) => ({ ...current, [key]: value }));
 
+  // Un JSON a medias se detecta ANTES de enviar: el backend respondería 422 sin
+  // decir qué campo lo rompió, y el analista perdería todo lo escrito.
+  const jsonErrors = jsonFieldErrors(fields, values);
+  const jsonErrorMessages = Object.values(jsonErrors);
+
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    if (jsonErrorMessages.length) return;
     create.mutate();
   };
 
@@ -152,9 +173,16 @@ export function ResourceCreateForm({ config, onClose }: ResourceCreateFormProps)
             onChange={(value) => setField(field.key, value)}
           />
         ))}
+        {jsonErrorMessages.length ? (
+          <Alert tone="error">{jsonErrorMessages.join(' ')}</Alert>
+        ) : null}
         {create.isError ? <Alert tone="error">{errorMessage(create.error)}</Alert> : null}
         <div className="inline-actions">
-          <button className="button button-primary" type="submit" disabled={create.isPending}>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={create.isPending || jsonErrorMessages.length > 0}
+          >
             {create.isPending ? 'Creando…' : (config.primaryAction ?? 'Crear')}
           </button>
           <button className="button" type="button" disabled={create.isPending} onClick={onClose}>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { AlertTriangle, GitBranch, Play } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
@@ -10,22 +10,19 @@ import { Panel } from '../components/Panel';
 import { PickerSelect } from '../components/PickerSelect';
 import { StatusBadge } from '../components/StatusBadge';
 import { SimulatorInputEditor } from '../features/simulator/SimulatorInputEditor';
+import { useSafeEnvironments } from '../features/simulator/useSafeEnvironments';
 import { useNotifications } from '../notifications/useNotifications';
-import {
-  environmentsSchema,
-  simulationResponseSchema,
-  type Environment,
-  type SimulationResponse,
-} from '../testing/testing.schemas';
+// La consulta de ambientes y su tipo se mudaron a `useSafeEnvironments`; aquí
+// sólo queda lo que la vista sigue usando de verdad.
+import { simulationResponseSchema, type SimulationResponse } from '../testing/testing.schemas';
 import { parseJsonObject } from '../utils/json';
-import { display } from '../utils/records';
+import { asRecord, asRows, display } from '../utils/records';
 
-const initialPayload = JSON.stringify(
-  { requestedAmount: 1500, monthlyIncome: 5000, daysPastDue: 0, customerSegment: 'NEW' },
-  null,
-  2,
-);
-const noEnvironments: Environment[] = [];
+// El payload arranca VACÍO: en cuanto se elige un artefacto, el editor lo siembra
+// con las variables que ese artefacto declara (features/simulator/simulator-payload.ts).
+// El ejemplo fijo que había antes pertenecía a otro artefacto y hacía que toda
+// simulación terminara en NO_DECISION · VARIABLE_MISSING_OR_INVALID.
+const initialPayload = '{}';
 
 function formatValue(value: unknown, fallback = '—'): string {
   if (value === null || value === undefined || value === '') return fallback;
@@ -34,23 +31,13 @@ function formatValue(value: unknown, fallback = '—'): string {
 
 export function SimulatorPage() {
   const [artifactCode, setArtifactCode] = useState('');
-  const [environmentCode, setEnvironmentCode] = useState('SANDBOX');
+  // Vacío a propósito: lo rellena el primer ambiente que declare el motor.
+  const [environmentCode, setEnvironmentCode] = useState('');
   const [variables, setVariables] = useState(initialPayload);
   const [showTrace, setShowTrace] = useState(false);
   const { notify } = useNotifications();
-  const environments = useQuery({
-    queryKey: ['simulation-environments'],
-    queryFn: ({ signal }) =>
-      apiRequest('/v1/environments', { signal, responseSchema: environmentsSchema }),
-    select: (items) =>
-      items.filter(
-        (environment) =>
-          environment.status === 'ACTIVE' &&
-          !environment.isProduction &&
-          environment.code.toUpperCase() !== 'PROD',
-      ),
-  });
-  const safeEnvironments = environments.data ?? noEnvironments;
+  const environments = useSafeEnvironments(environmentCode, setEnvironmentCode);
+  const safeEnvironments = environments.environments;
 
   // "Clonar" on an execution detail page leaves the original request here so
   // the operator can replay it as a dry run. Consumed once, then discarded.
@@ -77,15 +64,6 @@ export function SimulatorPage() {
     }
   }, [notify]);
 
-  useEffect(() => {
-    if (
-      safeEnvironments.length &&
-      !safeEnvironments.some((environment) => environment.code === environmentCode)
-    ) {
-      setEnvironmentCode(safeEnvironments[0]?.code ?? 'SANDBOX');
-    }
-  }, [environmentCode, safeEnvironments]);
-
   const simulation = useMutation({
     mutationFn: () => {
       const requestId = crypto.randomUUID();
@@ -111,6 +89,10 @@ export function SimulatorPage() {
   });
   const result: SimulationResponse | undefined = simulation.data;
   const primaryResult = result?.primaryResult;
+  // Un NO_DECISION trae el detalle de qué variable falló: se muestra en claro en
+  // vez de dejar sólo el código VARIABLE_MISSING_OR_INVALID.
+  const variableErrors = asRows(result?.errors);
+  const traceSteps = asRows(asRecord(result?.trace).nodes).length > 0;
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -134,7 +116,7 @@ export function SimulatorPage() {
       <div className="simulator-layout">
         <Panel title="Configuración" meta="Dry-run no persistente">
           <form className="simulator-form" onSubmit={submit} data-tutorial-id="simulator-form">
-            <div className="form-row">
+            <div className="form-row" data-tutorial-id="simulator-artifact">
               <PickerSelect
                 label="Artefacto"
                 value={artifactCode}
@@ -164,6 +146,7 @@ export function SimulatorPage() {
             </div>
             <SimulatorInputEditor
               artifactCode={artifactCode}
+              environmentCode={environmentCode}
               value={variables}
               onChange={setVariables}
             />
@@ -200,15 +183,34 @@ export function SimulatorPage() {
                 <p>{reason.message ?? reason.category ?? 'Sin mensaje público'}</p>
               </article>
             ))}
+            {variableErrors.length ? (
+              <Alert tone="warning">
+                No se pudo decidir porque faltan o no son válidas estas variables de entrada:
+                <ul className="simulator-error-list">
+                  {variableErrors.map((error, index) => (
+                    <li key={index}>
+                      <b>{display(error, 'variableCode', 'code')}</b>{' '}
+                      {display(error, 'message', 'errorCode')}
+                    </li>
+                  ))}
+                </ul>
+                Corrígelas en el formulario de la izquierda y vuelve a ejecutar.
+              </Alert>
+            ) : null}
             <button
               className="button"
               type="button"
-              disabled={!result}
+              disabled={!traceSteps}
               aria-expanded={showTrace}
               onClick={() => setShowTrace((visible) => !visible)}
             >
               <GitBranch size={16} /> {showTrace ? 'Ocultar traza' : 'Ver traza de ejecución'}
             </button>
+            {result && !traceSteps ? (
+              <small className="field-hint">
+                Esta ejecución no recorrió ningún nodo, así que no hay traza que mostrar.
+              </small>
+            ) : null}
             {showTrace && result ? <JsonPanel label="Traza dry-run" value={result.trace} /> : null}
           </div>
         </Panel>

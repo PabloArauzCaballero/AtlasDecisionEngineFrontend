@@ -1,0 +1,155 @@
+/*
+ * Registro de librerías autorizadas y QA Lab (§7, §10).
+ * Solo tokens: estas vistas se leen igual en claro y en oscuro.
+ */
+
+/* --- Librerías ----------------------------------------------------------------- */
+
+.library-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--surface);
+}
+
+.library-chip code {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.library-chip-language {
+  color: var(--text-muted);
+}
+
+.library-chip button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+}
+
+.library-restricted {
+  border-color: var(--warning-line, var(--line));
+  background: var(--warning-wash, var(--surface-muted));
+}
+
+.library-blocked {
+  border-color: var(--danger-line, var(--line));
+  background: var(--danger-wash, var(--surface-muted));
+  opacity: 0.75;
+}
+
+.library-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-2);
+}
+
+.library-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.library-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 8px;
+}
+
+.library-search input {
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  color: inherit;
+}
+
+.library-catalog {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.library-catalog label {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.library-catalog li.is-selected label {
+  border-color: var(--accent);
+  background: var(--accent-wash, var(--surface-muted));
+}
+
+.library-catalog small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.library-functions {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+}
+
+.library-risk,
+.library-risks {
+  color: var(--warning-text, var(--text-muted));
+}
+
+.library-risks {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0;
+  font-size: 0.82rem;
+  display: grid;
+  gap: 4px;
+}
+
+/* --- QA Lab --------------------------------------------------------------------- */
+
+.qa-config {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.qa-counterexample-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.qa-property {
+  font-weight: 600;
+}
+
+.qa-counterexample-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.qa-counterexample-body h5 {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}

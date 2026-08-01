@@ -21,13 +21,13 @@ th .info-hint {
   border: 0;
   border-radius: 50%;
   background: none;
-  color: #94a3b8;
+  color: var(--faint);
   cursor: help;
-  transition: color var(--dur-1, 0.12s) var(--ease-standard, ease);
+  transition: color var(--dur-fast) var(--ease-standard, ease);
 }
 .info-hint-trigger:hover,
 .info-hint-trigger:focus-visible {
-  color: #4338ca;
+  color: var(--highlight);
 }
 .info-hint-bubble {
   position: absolute;
@@ -39,8 +39,8 @@ th .info-hint {
   transform: translateX(-50%) translateY(4px);
   padding: 8px 10px;
   border-radius: 8px;
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--ink-strong);
+  color: var(--canvas);
   font-size: 0.74rem;
   font-weight: 400;
   line-height: 1.4;
@@ -50,8 +50,8 @@ th .info-hint {
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity var(--dur-1, 0.12s) var(--ease-standard, ease),
-    transform var(--dur-1, 0.12s) var(--ease-standard, ease);
+    opacity var(--dur-fast) var(--ease-standard, ease),
+    transform var(--dur-fast) var(--ease-standard, ease);
 }
 .info-hint-bubble::after {
   content: '';
@@ -60,7 +60,7 @@ th .info-hint {
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #0f172a;
+  border-top-color: var(--ink-strong);
 }
 .info-hint:hover .info-hint-bubble,
 .info-hint-trigger:focus-visible + .info-hint-bubble {

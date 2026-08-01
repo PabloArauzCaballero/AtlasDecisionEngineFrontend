@@ -7,6 +7,9 @@
 
 export type ReferenceSource = 'VARIABLE' | 'LITERAL';
 export type OnErrorPolicy = 'FAIL' | 'FALLBACK' | 'SKIP';
+/** §9.1 — cómo se elige la versión del hijo en cada ejecución. */
+export type VersionSelection = 'EXACT' | 'ACTIVE_IN_ENVIRONMENT';
+export type ReferenceTracePolicy = 'FULL' | 'MASKED' | 'REDACTED' | 'EXCLUDED';
 
 export interface InputMappingEntry {
   childVariableCode: string;
@@ -26,6 +29,13 @@ export interface CreateReferenceBody {
   inputMapping: InputMappingEntry[];
   outputMapping: OutputMappingEntry[];
   onErrorPolicy: OnErrorPolicy;
+  environmentCode?: string;
+  versionSelection: VersionSelection;
+  maxRetries: number;
+  retryDelayMs: number;
+  executionCondition?: Record<string, unknown>;
+  isRequired: boolean;
+  tracePolicy: ReferenceTracePolicy;
 }
 
 export interface ReferenceFormState {
@@ -35,6 +45,15 @@ export interface ReferenceFormState {
   /** parent output code -> child output code that feeds it. */
   outputMap: Record<string, string>;
   onErrorPolicy: OnErrorPolicy;
+  /** Ambiente donde se resuelve el hijo. Vacío = el mismo que el padre. */
+  environmentCode: string;
+  versionSelection: VersionSelection;
+  maxRetries: number;
+  retryDelayMs: number;
+  /** Expresión JSON; si no se cumple, la referencia se omite sin invocar al hijo. */
+  executionCondition: string;
+  isRequired: boolean;
+  tracePolicy: ReferenceTracePolicy;
 }
 
 /** Same identifier shape the backend enforces on child variable/output codes. */
@@ -47,6 +66,13 @@ export function emptyReferenceForm(): ReferenceFormState {
     inputMappings: [],
     outputMap: {},
     onErrorPolicy: 'FAIL',
+    environmentCode: '',
+    versionSelection: 'EXACT',
+    maxRetries: 0,
+    retryDelayMs: 0,
+    executionCondition: '',
+    isRequired: true,
+    tracePolicy: 'FULL',
   };
 }
 
@@ -89,6 +115,31 @@ export function referenceErrors(nodeKey: string, state: ReferenceFormState): str
     }
   }
 
+  // §9.1: en PROD la versión debe ser exacta. El backend lo rechaza igualmente, pero
+  // decirlo aquí evita que el autor descubra el problema tras rellenar todo el mapeo.
+  if (
+    state.versionSelection === 'ACTIVE_IN_ENVIRONMENT' &&
+    state.environmentCode.trim().toUpperCase() === 'PROD'
+  ) {
+    errors.push(
+      'En PROD la referencia debe fijar una versión exacta: resolver la activa del ambiente haría la decisión irreproducible.',
+    );
+  }
+  // Una referencia opcional que igualmente tumba la decisión al fallar es una
+  // contradicción; la base de datos tiene la misma restricción.
+  if (!state.isRequired && state.onErrorPolicy === 'FAIL') {
+    errors.push(
+      'Una referencia opcional no puede fallar la decisión: elige «usar salida de reserva» u «omitir».',
+    );
+  }
+  if (state.executionCondition.trim()) {
+    try {
+      JSON.parse(state.executionCondition);
+    } catch {
+      errors.push('La condición de ejecución no es un JSON válido.');
+    }
+  }
+
   for (const entry of state.inputMappings) {
     if (!REFERENCE_CODE_RE.test(entry.childVariableCode)) {
       errors.push(
@@ -127,5 +178,23 @@ export function buildReferenceBody(
     ),
     outputMapping: outputCodes.map((childOutputCode) => ({ childOutputCode })),
     onErrorPolicy: state.onErrorPolicy,
+    environmentCode: state.environmentCode.trim() || undefined,
+    versionSelection: state.versionSelection,
+    maxRetries: state.maxRetries,
+    retryDelayMs: state.retryDelayMs,
+    executionCondition: parseCondition(state.executionCondition),
+    isRequired: state.isRequired,
+    tracePolicy: state.tracePolicy,
   };
+}
+
+/** La condición ya se validó en `referenceErrors`; aquí solo se interpreta. */
+function parseCondition(raw: string): Record<string, unknown> | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  try {
+    return JSON.parse(trimmed) as Record<string, unknown>;
+  } catch {
+    return undefined;
+  }
 }

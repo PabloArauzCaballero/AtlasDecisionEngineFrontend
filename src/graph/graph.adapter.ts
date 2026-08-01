@@ -11,6 +11,10 @@ export function snapshotToEditableGraph(snapshot: Row): Row {
         variable.dependencyPath ?? `input.${String(variable.code ?? variable.variableVersionId)}`,
       ),
     })),
+    // Intermedias y contrato de salida viajan tal cual: el backend es quien valida su
+    // coherencia con el grafo, y recortarlos aquí solo escondería el error hasta publicar.
+    intermediates: rows(snapshot.intermediates).map(omitId),
+    outputContract: rows(snapshot.outputContract).map(omitId),
     conditions: rows(snapshot.conditions).map(omitId),
     actions: rows(snapshot.actions).map((action) => ({
       code: action.code,
@@ -39,6 +43,15 @@ export function snapshotToEditableGraph(snapshot: Row): Row {
       actions: rows(node.actions).map((binding) => ({
         actionCode: binding.code,
         order: binding.order,
+      })),
+      // `contractInputs` y `fieldCode` son ayudas del editor: el backend resuelve la
+      // definición ejecutable desde su propio registro y no acepta que se la dicten.
+      calculatedFieldCalls: rows(node.calculatedFieldCalls).map((call) => ({
+        callKey: call.callKey,
+        calculatedFieldVersionId: String(call.calculatedFieldVersionId),
+        inputMapping: call.inputMapping ?? {},
+        targetKind: call.targetKind,
+        targetCode: call.targetCode,
       })),
     })),
     edges: rows(snapshot.edges).map((edge) => ({

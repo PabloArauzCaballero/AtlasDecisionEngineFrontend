@@ -1,4 +1,5 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { ConfirmButton } from '../../components/ConfirmButton';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
 
 interface Props {
@@ -96,15 +97,23 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
               onBlur={(event) => commitJson(index, 'result', event.target.value)}
             />
           </label>
-          <button
+          <ConfirmButton
             className="button button-danger full-width"
-            type="button"
-            onClick={() =>
+            title={`¿Quitar la regla ${index + 1} de la tabla?`}
+            confirmLabel="Quitar la regla"
+            description={
+              <p>
+                Los casos que hoy resuelve esta fila pasarán a la siguiente que coincida, o al
+                resultado por defecto si no coincide ninguna. Revisa que ese cambio sea el que
+                quieres antes de guardar.
+              </p>
+            }
+            onConfirm={() =>
               onChange({ ...config, rules: rules.filter((_, ruleIndex) => ruleIndex !== index) })
             }
           >
             <Trash2 size={13} /> Quitar regla
-          </button>
+          </ConfirmButton>
         </div>
       ))}
       <button

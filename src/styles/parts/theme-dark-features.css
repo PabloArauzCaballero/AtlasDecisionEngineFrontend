@@ -1,0 +1,160 @@
+/**
+ * Tema oscuro — capa de funcionalidades (grafo y reproducción).
+ *
+ * Continúa `theme-dark-base.css` y sigue en `theme-dark-surfaces.css`. Van en
+ * archivos separados por el límite de 299 líneas del repositorio, no por
+ * diferencia conceptual.
+ */
+
+/* ------------------------------------------------------------------- grafo */
+
+[data-theme='dark'] .canvas-grid {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.28) 0.8px, transparent 0.8px);
+}
+/**
+ * Los tonos por tipo de nodo (`--node-color`) se conservan: son parte del
+ * lenguaje visual y el usuario ya los asocia a cada familia. Lo que cambia es
+ * el relleno, que se calcula mezclando ese mismo tono con la superficie oscura
+ * en vez de con blanco. Una sola regla cubre los doce tipos, presentes y
+ * futuros, sin repetir un bloque por cada uno.
+ */
+[data-theme='dark'] .graph-node,
+[data-theme='dark'] .library-node,
+[data-theme='dark'] .canvas-legend .legend-mark,
+[data-theme='dark'] .playback-detail-icon {
+  --node-soft: color-mix(in srgb, var(--node-color) 24%, var(--surface));
+}
+[data-theme='dark'] .graph-node {
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
+}
+[data-theme='dark'] .graph-node-copy strong {
+  color: var(--ink);
+}
+[data-theme='dark'] .graph-node-copy small,
+[data-theme='dark'] .graph-node-io {
+  color: var(--muted);
+}
+[data-theme='dark'] .graph-node-port {
+  border-color: var(--surface);
+}
+[data-theme='dark'] .graph-node.selected {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+[data-theme='dark'] .graph-edges .graph-edge-line {
+  stroke: #64748b;
+}
+[data-theme='dark'] .graph-edges marker path {
+  fill: #64748b;
+}
+[data-theme='dark'] .graph-edge-label {
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
+  color: var(--muted);
+}
+[data-theme='dark'] .graph-edge-label:hover,
+[data-theme='dark'] .graph-edge-label.selected,
+[data-theme='dark'] .graph-edge-label.edge-taken {
+  border-color: var(--info-line);
+}
+[data-theme='dark'] .canvas-legend,
+[data-theme='dark'] .canvas-connection-guide,
+[data-theme='dark'] .canvas-empty-state {
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+[data-theme='dark'] .canvas-empty-state strong,
+[data-theme='dark'] .workbench-heading strong,
+[data-theme='dark'] .library-node strong {
+  color: var(--ink);
+}
+[data-theme='dark'] .canvas-empty-state p,
+[data-theme='dark'] .workbench-heading small,
+[data-theme='dark'] .library-node small {
+  color: var(--muted);
+}
+[data-theme='dark'] .graph-workbench,
+[data-theme='dark'] .node-library,
+[data-theme='dark'] .node-properties,
+[data-theme='dark'] .graph-toolbar {
+  background: var(--surface);
+  border-color: var(--line);
+}
+[data-theme='dark'] .library-node {
+  background: var(--surface-raised);
+  border-color: var(--line);
+}
+[data-theme='dark'] .library-node:hover {
+  background: var(--surface-hover);
+}
+[data-theme='dark'] .library-tip {
+  background: var(--accent-wash);
+  border-color: var(--accent-soft);
+  color: var(--accent-strong);
+}
+[data-theme='dark'] .condition-node-editor,
+[data-theme='dark'] .edge-properties section,
+[data-theme='dark'] .workbench-heading,
+[data-theme='dark'] .output-contract-panel,
+[data-theme='dark'] .result-node-editor {
+  background: var(--surface-inset);
+  border-color: var(--line);
+}
+[data-theme='dark'] .output-chip,
+[data-theme='dark'] .result-assignment,
+[data-theme='dark'] .output-create-form,
+[data-theme='dark'] .library-node-icon {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] .script-warning {
+  border-color: var(--warning-line);
+}
+/* Los distintivos de familia de la biblioteca de bloques se recalculan igual
+   que los nodos: el tono se conserva, el relleno se mezcla con la superficie. */
+[data-theme='dark'] .library-node-start .library-node-icon,
+[data-theme='dark'] .library-node-condition .library-node-icon,
+[data-theme='dark'] .library-node-switch .library-node-icon,
+[data-theme='dark'] .library-node-expression .library-node-icon,
+[data-theme='dark'] .library-node-score .library-node-icon,
+[data-theme='dark'] .library-node-manual_review .library-node-icon,
+[data-theme='dark'] .library-node-result .library-node-icon,
+[data-theme='dark'] .library-node-end .library-node-icon {
+  background: color-mix(in srgb, currentColor 22%, var(--surface));
+}
+
+/* ------------------------------------------------------------ reproducción */
+
+[data-theme='dark'] .playback-controls,
+[data-theme='dark'] .playback-detail,
+[data-theme='dark'] .playback-no-graph {
+  background: var(--surface-inset);
+  border-color: var(--line);
+}
+[data-theme='dark'] .playback-buttons .icon-button,
+[data-theme='dark'] .playback-speed > div,
+[data-theme='dark'] .playback-event,
+[data-theme='dark'] .playback-facts li {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+[data-theme='dark'] .speed-option {
+  color: var(--text);
+  border-right-color: var(--line);
+}
+[data-theme='dark'] .speed-option.active {
+  background: var(--accent-wash);
+}
+[data-theme='dark'] .playback-event.current {
+  border-color: var(--info-line);
+}
+[data-theme='dark'] .playback-reference {
+  border-color: var(--warning-line);
+  color: var(--warning);
+}
+[data-theme='dark'] .playback-error {
+  border-color: var(--danger-line);
+}

@@ -5,8 +5,8 @@
   z-index: 100;
   padding: 9px 12px;
   border-radius: 5px;
-  background: #111827;
-  color: #fff;
+  background: var(--ink);
+  color: var(--surface);
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
@@ -60,7 +60,7 @@
 .skeleton-card,
 .skeleton-table {
   border-radius: 6px;
-  background: linear-gradient(90deg, #eef2f6 25%, #f8fafc 50%, #eef2f6 75%);
+  background: linear-gradient(90deg, var(--line-soft) 25%, var(--canvas) 50%, var(--line-soft) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }

@@ -5,7 +5,7 @@
   position: relative;
   padding: 28px 18px;
   overflow: hidden;
-  background: #f4f6f8;
+  background: var(--surface-hover);
 }
 .login-grid {
   position: absolute;
@@ -19,9 +19,9 @@
   position: relative;
   width: min(100%, 460px);
   padding: 30px;
-  border: 1px solid #d7dee7;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--panel-live);
   box-shadow: 0 18px 60px rgba(16, 24, 40, 0.11);
 }
 .login-brand {
@@ -36,7 +36,7 @@
   margin: 0 auto 10px;
   border-radius: 9px;
   background: var(--navy);
-  color: #fff;
+  color: var(--surface);
 }
 .login-brand h1 {
   margin: 0;
@@ -75,7 +75,7 @@
   left: 11px;
   top: 50%;
   width: 17px;
-  color: #98a2b3;
+  color: var(--faint);
   transform: translateY(-50%);
   pointer-events: none;
 }
@@ -93,7 +93,7 @@
   place-items: center;
   border: 0;
   background: transparent;
-  color: #667085;
+  color: var(--faint);
   cursor: pointer;
 }
 .input-with-icon button svg {
@@ -104,10 +104,10 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px;
-  border: 1px solid #d5dce5;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #f8fafc;
-  color: #475467;
+  background: var(--canvas);
+  color: var(--muted);
   font-size: 10px;
   line-height: 1.45;
 }
@@ -122,7 +122,7 @@
 }
 .login-foot {
   margin: 22px 0 0;
-  color: #98a2b3;
+  color: var(--faint);
   font-size: 9px;
   text-align: center;
   text-transform: uppercase;
@@ -146,7 +146,7 @@
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid #d0d5dd;
+  border: 3px solid var(--line-strong);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.75s linear infinite;

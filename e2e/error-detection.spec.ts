@@ -118,7 +118,7 @@ test('login page has no client-side runtime errors', async ({ page }) => {
   watch(page, where, problems);
 
   await page.goto('/login');
-  await expect(page.getByRole('heading', { name: /Inicia sesión/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Bienvenido nuevamente/i })).toBeVisible();
 
   expect(problems, report(problems)).toEqual([]);
 });
@@ -135,6 +135,11 @@ test('authenticated portal sweep has no client-side runtime errors', async ({ pa
   await page.goto('/platform-health', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
 
+  // Ninguna vista debe desplazarse en horizontal. Un globo de ayuda anclado
+  // junto al borde derecho ensanchaba el documento 51 px, y el síntoma era una
+  // pantalla recortada que parecía un fallo de datos.
+  const sideways: string[] = [];
+
   for (const route of PORTAL_ROUTES) {
     where.route = route;
     await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -142,9 +147,14 @@ test('authenticated portal sweep has no client-side runtime errors', async ({ pa
     // errors surface. networkidle is avoided: the dev HMR socket never idles.
     await page.locator('.app-main, .content, main').first().waitFor({ timeout: 30_000 });
     await page.waitForTimeout(250);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    if (overflow > 0) sideways.push(`${route} se desplaza ${overflow}px en horizontal`);
   }
 
   expect(problems, report(problems)).toEqual([]);
+  expect(sideways, sideways.join('\n')).toEqual([]);
 });
 
 test('real-backend portal sweep (opt-in via PW_EMAIL / PW_PASSWORD)', async ({ page }) => {
@@ -166,7 +176,7 @@ test('real-backend portal sweep (opt-in via PW_EMAIL / PW_PASSWORD)', async ({ p
   await page.getByLabel('Tenant').fill(process.env.PW_TENANT ?? '1');
   await page.locator('input[autocomplete="username"]').fill(email as string);
   await page.locator('input[autocomplete="current-password"]').fill(password as string);
-  await page.getByRole('button', { name: 'Autenticar' }).click();
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30_000 });
 
   for (const route of PORTAL_ROUTES) {

@@ -1,16 +1,43 @@
 'use client';
 
-import { Eye, EyeOff, KeyRound, Network, ShieldCheck, UserRound } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, type FormEvent } from 'react';
-import { errorMessage } from '../../../api/ApiError';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../../auth/useAuth';
-import { Alert } from '../../../components/Alert';
+import { AmbientBackground } from '../../../components/AmbientBackground';
 import { LoadingScreen } from '../../../components/LoadingScreen';
+import { ThemeToggle } from '../../../theme/ThemeToggle';
+import { LoginForm, type LoginCredentials } from './LoginForm';
+import { describeLoginError, sessionNotice, type LoginProblem } from './login-errors';
+import { LoginShowcase } from './LoginShowcase';
 
 function resolveDestination(value: string | null): string {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return '/platform-health';
   return value;
+}
+
+const REMEMBER_KEY = 'atlas.login.remember';
+
+interface RememberedIdentity {
+  tenantId: string;
+  email: string;
+}
+
+/**
+ * Sólo se recuerda el identificador de la organización y el correo, nunca la
+ * contraseña ni ningún token: es una comodidad de escritorio, no un mecanismo
+ * de sesión.
+ */
+function readRemembered(): RememberedIdentity | null {
+  try {
+    const raw = window.localStorage.getItem(REMEMBER_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== 'object') return null;
+    const record = parsed as Partial<RememberedIdentity>;
+    if (typeof record.email !== 'string') return null;
+    return { tenantId: String(record.tenantId ?? '1'), email: record.email };
+  } catch {
+    return null;
+  }
 }
 
 export function LoginClient() {
@@ -18,33 +45,51 @@ export function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const destination = resolveDestination(searchParams?.get('from') ?? null);
-  const [tenantId, setTenantId] = useState('1');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [visible, setVisible] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const notice = sessionNotice(searchParams?.get('reason') ?? null);
+  const [problem, setProblem] = useState<LoginProblem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [remembered, setRemembered] = useState<RememberedIdentity | null>(null);
+  const [restored, setRestored] = useState(false);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.replace(destination);
-    }
+    if (status === 'authenticated') router.replace(destination);
   }, [destination, router, status]);
 
-  if (status !== 'unauthenticated') {
+  // El formulario se monta con los valores por defecto y se rellena tras leer
+  // el almacenamiento: así el HTML del servidor y el primer render coinciden.
+  useEffect(() => {
+    setRemembered(readRemembered());
+    setRestored(true);
+  }, []);
+
+  if (status !== 'unauthenticated' || !restored) {
     return <LoadingScreen label="Recuperando sesión" />;
   }
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
+  const submit = async (credentials: LoginCredentials) => {
+    setProblem(null);
     setSubmitting(true);
-
     try {
-      await login({ tenantId, email, password });
+      await login({
+        tenantId: credentials.tenantId,
+        email: credentials.email,
+        password: credentials.password,
+      });
+      try {
+        if (credentials.remember) {
+          window.localStorage.setItem(
+            REMEMBER_KEY,
+            JSON.stringify({ tenantId: credentials.tenantId, email: credentials.email }),
+          );
+        } else {
+          window.localStorage.removeItem(REMEMBER_KEY);
+        }
+      } catch {
+        /* almacenamiento bloqueado (modo privado): no impide entrar */
+      }
       router.replace(destination);
     } catch (caught) {
-      setError(errorMessage(caught));
+      setProblem(describeLoginError(caught));
     } finally {
       setSubmitting(false);
     }
@@ -52,85 +97,30 @@ export function LoginClient() {
 
   return (
     <main className="login-page" id="main-content" tabIndex={-1}>
-      <div className="login-grid" aria-hidden="true" />
-      <section className="login-card" aria-labelledby="login-title">
-        <div className="login-brand">
-          <div>
-            <Network />
-          </div>
-          <h1>ATLAS</h1>
-          <p>Decision Engine</p>
-        </div>
-        <div className="login-intro">
-          <p className="eyebrow">Acceso corporativo</p>
-          <h2 id="login-title">Inicia sesión</h2>
-          <p>Las credenciales son verificadas por el proveedor central de identidad de ATLAS.</p>
-        </div>
-        {error ? <Alert tone="error">{error}</Alert> : null}
-        <form onSubmit={submit} className="login-form">
-          <label className="field">
-            <span>Tenant</span>
-            <input
-              inputMode="numeric"
-              pattern="[1-9][0-9]*"
-              required
-              value={tenantId}
-              onChange={(event) => setTenantId(event.target.value)}
-            />
-          </label>
-          <label className="field">
-            <span>Correo corporativo</span>
-            <div className="input-with-icon">
-              <UserRound />
-              <input
-                type="email"
-                autoComplete="username"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="usuario@atlas.bo"
-              />
-            </div>
-          </label>
-          <label className="field">
-            <span>Contraseña</span>
-            <div className="input-with-icon">
-              <KeyRound />
-              <input
-                type={visible ? 'text' : 'password'}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => setVisible((current) => !current)}
-                aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              >
-                {visible ? <EyeOff /> : <Eye />}
-              </button>
-            </div>
-          </label>
-          <div className="security-note">
-            <ShieldCheck />
-            <span>
-              Refresh token protegido con cookie HttpOnly. El access token no se persiste en el
-              navegador.
-            </span>
-          </div>
-          <button
-            className="button button-primary login-submit"
-            type="submit"
-            disabled={submitting}
-          >
-            {submitting ? 'Verificando…' : 'Autenticar'}
-          </button>
-        </form>
-        <p className="login-foot">
-          Acceso únicamente para personal autorizado · Todas las acciones son auditadas
-        </p>
-      </section>
+      <AmbientBackground variant="auth" state={problem ? 'error' : 'idle'} />
+      {/* El acceso queda fuera del marco del portal, así que lleva su propio
+          conmutador: quien usa tema oscuro no debería tener que autenticarse a
+          plena luz para poder cambiarlo. */}
+      <div className="login-theme">
+        <ThemeToggle />
+      </div>
+      <div className="login-layout">
+        <LoginShowcase />
+        <LoginForm
+          initial={{
+            tenantId: remembered?.tenantId ?? '1',
+            email: remembered?.email ?? '',
+            remember: Boolean(remembered),
+          }}
+          submitting={submitting}
+          problem={problem}
+          notice={notice}
+          onSubmit={(credentials) => void submit(credentials)}
+        />
+      </div>
+      <p className="login-foot">
+        Acceso únicamente para personal autorizado · Todas las acciones son auditadas
+      </p>
     </main>
   );
 }

@@ -71,7 +71,7 @@
   height: 42px;
   border-radius: 12px;
   background: var(--accent-soft);
-  color: #00544c;
+  color: var(--accent-strong);
 }
 .tutorial-head p {
   margin: 0;
@@ -104,7 +104,7 @@
   border: 1px solid var(--accent);
   border-radius: 10px;
   background: var(--accent-soft);
-  color: #00544c;
+  color: var(--accent-strong);
   font-size: 12.5px;
   font-weight: 750;
   text-align: left;
@@ -114,7 +114,7 @@
     transform var(--dur-instant) var(--ease-standard);
 }
 .tutorial-tour-cta:hover {
-  background: #a7f3e6;
+  background: var(--accent-soft);
 }
 .tutorial-tour-cta:active {
   transform: scale(0.99);
@@ -134,7 +134,7 @@
   padding: 0;
   border: 0;
   border-radius: 99px;
-  background: #e2e8f0;
+  background: var(--line);
   cursor: pointer;
   transition:
     background-color var(--dur-base) var(--ease-standard),
@@ -189,8 +189,8 @@
   padding: 5px 10px;
   border: 1px solid var(--line);
   border-radius: 99px;
-  background: #fff;
-  color: #475467;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
@@ -206,7 +206,7 @@
 .tutorial-concept-chips button.active {
   background: var(--accent-soft);
   border-color: var(--accent);
-  color: #00544c;
+  color: var(--accent-strong);
 }
 .tutorial-step-number {
   display: inline-grid;
@@ -215,7 +215,7 @@
   height: 30px;
   border-radius: 9px;
   background: var(--navy);
-  color: #fff;
+  color: var(--surface);
   font-size: 14px;
   font-weight: 800;
 }
@@ -227,7 +227,7 @@
 }
 .tutorial-step > p {
   margin: 0;
-  color: #475467;
+  color: var(--muted);
   font-size: 13.5px;
   line-height: 1.62;
 }
@@ -238,10 +238,10 @@
   align-items: flex-start;
   margin-top: 14px;
   padding: 11px 13px;
-  border: 1px solid #cdeee8;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #f0fdf9;
-  color: #22645c;
+  background: var(--success-wash);
+  color: var(--accent-strong);
   font-size: 12.5px;
   line-height: 1.5;
 }

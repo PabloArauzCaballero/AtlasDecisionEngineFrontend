@@ -1,9 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { LogOut, Plus, Star, Trash2 } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { ConfirmButton } from '../../components/ConfirmButton';
+import { useState } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { CatalogVariableForm, type CatalogVariableDraft } from './CatalogVariableForm';
 
 interface Props {
   variables: UnknownRecord[];
@@ -15,9 +17,6 @@ const NON_SCALAR = ['OBJECT', 'JSON', 'ARRAY', 'LIST'];
 export function OutputVariableManager({ variables, onChange }: Props) {
   const [catalogId, setCatalogId] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [code, setCode] = useState('scoring');
-  const [name, setName] = useState('Scoring');
-  const [dataType, setDataType] = useState('NUMBER');
   const outputs = variables.filter((item) => String(item.usageType ?? '').startsWith('OUTPUT'));
 
   // Same slim picker the InputVariableManager reads: it exposes `latestVersionId`
@@ -31,17 +30,25 @@ export function OutputVariableManager({ variables, onChange }: Props) {
   const pickerRows = asRows(catalog.data);
 
   const create = useMutation({
-    mutationFn: () =>
+    // Nada se rellena por cuenta del portal: equipo, clasificación y descripción
+    // los escribe quien crea la variable, porque son justamente lo que el
+    // catálogo existe para registrar.
+    mutationFn: (draft: CatalogVariableDraft) =>
       apiRequest<UnknownRecord>('/v1/variables', {
         method: 'POST',
         body: {
-          variableCode: code,
-          canonicalName: name,
-          businessDescription: `Variable de salida ${name}`,
-          dataClassification: 'INTERNAL',
-          ownerTeam: 'DECISION_ENGINE',
+          variableCode: draft.variableCode.trim(),
+          canonicalName: draft.canonicalName.trim(),
+          businessDescription: draft.businessDescription.trim(),
+          dataClassification: draft.dataClassification.trim(),
+          ownerTeam: draft.ownerTeam.trim(),
           isSensitive: false,
-          initialVersion: { dataType, nullable: false, sources: [], validationRules: [] },
+          initialVersion: {
+            dataType: draft.dataType,
+            nullable: false,
+            sources: [],
+            validationRules: [],
+          },
         },
       }),
     onSuccess: async (created) => {
@@ -49,7 +56,7 @@ export function OutputVariableManager({ variables, onChange }: Props) {
       // source of the version id, so refetch it and add the fresh row.
       const refreshed = await catalog.refetch();
       const match = asRows(refreshed.data).find(
-        (item) => display(item, 'variableCode') === String(created.variableCode ?? code),
+        (item) => display(item, 'variableCode') === display(created, 'variableCode'),
       );
       if (match) addFromPicker(match);
       setShowCreate(false);
@@ -130,11 +137,6 @@ export function OutputVariableManager({ variables, onChange }: Props) {
     }
   }
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    create.mutate();
-  };
-
   return (
     <section className="output-contract-panel">
       <div className="output-contract-heading">
@@ -195,13 +197,23 @@ export function OutputVariableManager({ variables, onChange }: Props) {
                 </button>
                 <b>{outputCode}</b>
                 <small>{display(item, 'dataType')}</small>
-                <button
-                  type="button"
-                  title="Quitar salida"
-                  onClick={() => removeOutput(outputCode)}
+                <ConfirmButton
+                  className=""
+                  label={`Quitar la salida ${outputCode}`}
+                  title={`¿Quitar «${outputCode}» del contrato de resultado?`}
+                  confirmLabel="Quitar la salida"
+                  description={
+                    <p>
+                      La decisión dejará de devolver este valor a quien la llame.
+                      {primary
+                        ? ' Es el resultado principal: se promoverá otra salida escalar en su lugar.'
+                        : ''}
+                    </p>
+                  }
+                  onConfirm={() => removeOutput(outputCode)}
                 >
                   <Trash2 size={12} />
-                </button>
+                </ConfirmButton>
               </span>
             );
           })}
@@ -213,38 +225,11 @@ export function OutputVariableManager({ variables, onChange }: Props) {
         </div>
       </div>
       {showCreate ? (
-        <form className="output-create-form" onSubmit={submit}>
-          <label>
-            <span>Código</span>
-            <input
-              required
-              pattern="[a-zA-Z][a-zA-Z0-9_.-]+"
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-            />
-          </label>
-          <label>
-            <span>Nombre</span>
-            <input required value={name} onChange={(event) => setName(event.target.value)} />
-          </label>
-          <label>
-            <span>Tipo</span>
-            <select value={dataType} onChange={(event) => setDataType(event.target.value)}>
-              <option>NUMBER</option>
-              <option>INTEGER</option>
-              <option>STRING</option>
-              <option>BOOLEAN</option>
-              <option>OBJECT</option>
-              <option>ARRAY</option>
-            </select>
-          </label>
-          <button className="button button-primary" disabled={create.isPending} type="submit">
-            Guardar y elegir
-          </button>
-          {create.isError ? (
-            <small className="field-error">{errorMessage(create.error)}</small>
-          ) : null}
-        </form>
+        <CatalogVariableForm
+          pending={create.isPending}
+          error={create.isError ? errorMessage(create.error) : null}
+          onSubmit={(draft) => create.mutate(draft)}
+        />
       ) : null}
     </section>
   );

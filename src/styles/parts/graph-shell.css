@@ -1,19 +1,19 @@
 .graph-editor-page {
   margin: -32px;
   min-height: calc(100vh - 64px);
-  background: #f8fafc;
+  background: var(--canvas);
 }
 .graph-workbench {
   display: grid;
   grid-template-columns: 250px minmax(520px, 1fr) 320px;
   height: calc(100vh - 274px);
   min-height: 620px;
-  border-top: 1px solid #edf1f5;
+  border-top: 1px solid var(--line-soft);
 }
 .output-contract-panel {
   padding: 12px 14px;
-  border-bottom: 1px solid #dbe3ec;
-  background: #f5f8fb;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-sunken);
 }
 .output-contract-heading,
 .output-contract-controls,
@@ -36,7 +36,7 @@
 }
 .output-contract-heading small,
 .field-hint {
-  color: #64748b;
+  color: var(--muted);
   font-size: 9px;
 }
 .output-contract-controls > select {
@@ -50,15 +50,15 @@
   align-items: center;
   gap: 5px;
   padding: 5px 7px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--line-strong);
   border-radius: 99px;
-  background: #fff;
+  background: var(--surface);
   font-size: 10px;
 }
 .output-chip.primary {
-  border-color: #006a61;
-  background: #ecfdf3;
-  color: #006a61;
+  border-color: var(--accent);
+  background: var(--success-wash);
+  color: var(--accent);
 }
 .output-chip button {
   display: grid;
@@ -69,18 +69,18 @@
   cursor: pointer;
 }
 .output-chip small {
-  color: #64748b;
+  color: var(--muted);
 }
 .output-create-form {
   align-items: end;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--line);
 }
 .output-create-form label {
   display: grid;
   gap: 4px;
-  color: #475467;
+  color: var(--muted);
   font-size: 9px;
 }
 .output-create-form input,
@@ -88,64 +88,64 @@
   width: 180px;
 }
 .result-node-editor {
-  background: #f8fafc;
+  background: var(--canvas);
 }
 .result-assignment {
   margin: 9px 0;
   padding: 10px;
-  border: 1px solid #dbe3ec;
-  background: #fff;
+  border: 1px solid var(--line);
+  background: var(--surface);
 }
 .script-warning {
   margin-bottom: 10px;
   padding: 8px;
-  border: 1px solid #fde68a;
-  background: #fffbeb;
-  color: #92400e;
+  border: 1px solid var(--warning-line);
+  background: var(--warning-wash);
+  color: var(--warning);
   font-size: 9px;
   line-height: 1.4;
 }
 .node-result {
-  border-color: #7c3aed;
+  border-color: var(--highlight);
 }
 .node-library,
 .node-properties {
   overflow: auto;
-  background: #fff;
+  background: var(--surface);
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
 .node-library {
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid var(--line);
 }
 .node-properties {
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid var(--line);
 }
 .workbench-heading {
   display: grid;
   gap: 2px;
   padding: 16px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #fbfcfe;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-inset);
 }
 .workbench-heading strong {
   font-size: 13px;
 }
 .workbench-heading small {
-  color: #64748b;
+  color: var(--muted);
   font-size: 9.5px;
   line-height: 1.4;
 }
 .node-library section,
 .node-properties section {
   padding: 14px;
-  border-bottom: 1px solid #eef2f6;
+  border-bottom: 1px solid var(--line-soft);
 }
 .node-library h3,
 .node-properties h3,
 .validation-group h3 {
   margin: 0 0 10px;
-  color: #475467;
+  color: var(--muted);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.07em;
@@ -158,10 +158,10 @@
   align-items: center;
   margin: 7px 0;
   padding: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
-  color: #344054;
+  background: var(--surface);
+  color: var(--text);
   text-align: left;
   font-size: 11px;
   cursor: grab;
@@ -171,7 +171,7 @@
     transform 0.15s ease;
 }
 .node-library .library-node:hover {
-  border-color: #aeb9c7;
+  border-color: var(--line-strong);
   box-shadow: 0 5px 14px rgba(15, 23, 42, 0.07);
   transform: translateY(-1px);
 }
@@ -181,8 +181,8 @@
   display: grid;
   place-items: center;
   border-radius: 7px;
-  background: #eef2f6;
-  color: #475467;
+  background: var(--line-soft);
+  color: var(--muted);
 }
 .library-node > span:nth-child(2) {
   min-width: 0;
@@ -192,60 +192,60 @@
   display: block;
 }
 .library-node strong {
-  color: #253047;
+  color: var(--text);
   font-size: 11px;
 }
 .library-node small {
   overflow: hidden;
   margin-top: 2px;
-  color: #7a8699;
+  color: var(--faint);
   font-size: 8.5px;
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .library-node b {
-  color: #98a2b3;
+  color: var(--faint);
   font-size: 15px;
 }
 .library-node-condition .library-node-icon {
-  background: #f3e8ff;
-  color: #7e22ce;
+  background: var(--highlight-wash);
+  color: var(--highlight);
 }
 .library-node-result .library-node-icon {
-  background: #e7f8ef;
-  color: #07834f;
+  background: var(--success-wash);
+  color: var(--success);
 }
 .library-node-manual_review .library-node-icon {
-  background: #fff4e5;
-  color: #b54708;
+  background: var(--warning-wash);
+  color: var(--warning);
 }
 .library-node-end .library-node-icon {
-  background: #fff0f0;
-  color: #c81e1e;
+  background: var(--danger-wash);
+  color: var(--danger-strong);
 }
 .library-node-expression .library-node-icon {
-  background: #e6f0fb;
-  color: #1d4ed8;
+  background: var(--info-wash);
+  color: var(--info);
 }
 .library-node-score .library-node-icon {
-  background: #e6f6f8;
-  color: #0e7490;
+  background: var(--info-wash);
+  color: var(--info);
 }
 .library-tip {
   display: grid;
   gap: 4px;
   margin: 14px;
   padding: 11px;
-  border: 1px solid #d5eee9;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f0fdf9;
-  color: #3f615d;
+  background: var(--success-wash);
+  color: var(--accent);
   font-size: 9px;
   line-height: 1.45;
 }
 .library-tip strong {
-  color: #006a61;
+  color: var(--accent);
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -253,7 +253,7 @@
 .properties-empty-state {
   display: grid;
   gap: 6px;
-  color: #667085;
+  color: var(--faint);
   line-height: 1.5;
 }
 .properties-empty-state strong,
@@ -261,7 +261,7 @@
   margin: 0;
 }
 .properties-empty-state strong {
-  color: #344054;
+  color: var(--text);
   font-size: 11px;
 }
 .properties-empty-state p {

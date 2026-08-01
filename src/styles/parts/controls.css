@@ -40,18 +40,18 @@
   justify-content: center;
   gap: 7px;
   padding: 8px 13px;
-  border: 1px solid #cfd6df;
+  border: 1px solid var(--line-strong);
   border-radius: 6px;
-  background: #fff;
-  color: #344054;
+  background: var(--surface);
+  color: var(--text);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
 }
 .button:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #aab4c2;
+  background: var(--canvas);
+  border-color: var(--line-strong);
 }
 .button:disabled {
   opacity: 0.55;
@@ -59,12 +59,12 @@
 }
 .button-primary {
   background: var(--navy);
-  color: #fff;
+  color: var(--surface);
   border-color: var(--navy);
 }
 .button-primary:hover:not(:disabled) {
-  background: #26344d;
-  border-color: #26344d;
+  background: var(--ink-strong);
+  border-color: var(--ink-strong);
 }
 
 .panel,
@@ -105,13 +105,22 @@
 }
 .filter-bar {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: flex-end;
   padding: 15px;
   margin-bottom: 16px;
 }
+/* `min-width: 0` es lo que hace usable una barra con varios filtros: sin él, un
+   desplegable con opciones de texto largo (el de artefacto) impone su ancho
+   intrínseco y deja a los demás en unos pocos píxeles. La base de 160px les da
+   un suelo común y `flex-wrap` los baja de línea antes de estrujarlos. */
 .filter-bar label {
-  flex: 1;
+  flex: 1 1 160px;
+  min-width: 0;
+}
+.filter-bar select {
+  text-overflow: ellipsis;
 }
 .filter-icon {
   position: relative;
@@ -126,8 +135,8 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: var(--accent, #006a61);
-  color: #fff;
+  background: var(--accent);
+  color: var(--surface);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
@@ -136,7 +145,7 @@
 .filter-bar label {
   display: grid;
   gap: 6px;
-  color: #475467;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 750;
 }
@@ -152,23 +161,23 @@
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
-  color: #667085;
+  color: var(--faint);
   line-height: 1.4;
 }
 input,
 textarea,
 select {
   width: 100%;
-  border: 1px solid #cdd5df;
+  border: 1px solid var(--line-strong);
   border-radius: 5px;
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   padding: 10px 11px;
   font-size: 13px;
 }
 input::placeholder,
 textarea::placeholder {
-  color: #98a2b3;
+  color: var(--faint);
 }
 textarea {
   resize: vertical;
@@ -180,8 +189,8 @@ pre {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 }
 .code-input {
-  background: #101828;
-  color: #e6edf7;
-  border-color: #344054;
+  background: var(--code-surface);
+  color: var(--code-ink);
+  border-color: var(--text);
   tab-size: 2;
 }

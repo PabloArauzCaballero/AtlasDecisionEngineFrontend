@@ -6,15 +6,23 @@ import { Alert } from '../components/Alert';
 import { JsonTextarea } from '../components/JsonTextarea';
 import { Panel } from '../components/Panel';
 import { parseJsonObject } from '../utils/json';
+import { GenerateCaseInputButton } from './GenerateCaseInputButton';
 import { testCaseSchema, type TestCase } from './testing.schemas';
 
 interface CreateTestCaseFormProps {
   suiteId: string;
+  /** Versión que prueba la suite; sin ella no se puede generar una entrada de ejemplo. */
+  artifactVersionId?: string;
   onCreated: (testCase: TestCase) => void;
   onCancel: () => void;
 }
 
-export function CreateTestCaseForm({ suiteId, onCreated, onCancel }: CreateTestCaseFormProps) {
+export function CreateTestCaseForm({
+  suiteId,
+  artifactVersionId,
+  onCreated,
+  onCancel,
+}: CreateTestCaseFormProps) {
   const [caseCode, setCaseCode] = useState('CASE_');
   const [testName, setTestName] = useState('');
   const [input, setInput] = useState('{}');
@@ -61,6 +69,12 @@ export function CreateTestCaseForm({ suiteId, onCreated, onCancel }: CreateTestC
             />
           </label>
         </div>
+        {artifactVersionId ? (
+          <GenerateCaseInputButton
+            artifactVersionId={artifactVersionId}
+            onGenerated={(generated) => setInput(JSON.stringify(generated, null, 2))}
+          />
+        ) : null}
         <JsonTextarea
           id="new-case-input"
           label="Entrada (JSON)"

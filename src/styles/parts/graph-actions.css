@@ -1,0 +1,270 @@
+/**
+ * Catálogo de acciones del algoritmo: lista de lo que el flujo hace al llegar a
+ * cada paso, y el formulario para dar de alta una acción nueva.
+ *
+ * El estado de carga del lienzo y la descripción del nodo continúan en
+ * `graph-canvas-states.css`.
+ */
+
+/* ------------------------------------------------- catálogo de acciones */
+
+.action-catalog {
+  margin: 0;
+  padding: 14px 22px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.action-catalog > header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 4px 14px;
+  align-items: center;
+}
+.action-catalog-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.action-catalog-toggle svg:nth-of-type(2) {
+  color: var(--warning);
+}
+.action-catalog-toggle span {
+  padding: 1px 8px;
+  border-radius: 99px;
+  background: var(--surface-hover);
+  color: var(--muted);
+  font-size: 10px;
+}
+.action-catalog > header p {
+  grid-column: 2;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.action-catalog-search {
+  margin-top: 12px;
+  max-width: 340px;
+  min-height: 34px;
+  font-size: 12px;
+}
+.action-catalog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  /* Con decenas de acciones, la lista se recorre dentro de su caja: sin este
+     tope el catálogo empujaba el lienzo del algoritmo fuera de la pantalla. */
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.action-catalog-empty {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.action-card {
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warning);
+  border-radius: 9px;
+  background: var(--surface-inset);
+}
+.action-card > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.action-card > header strong {
+  color: var(--ink);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 11.5px;
+}
+.action-type {
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--warning-wash);
+  color: var(--warning);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.action-terminal {
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--success-wash);
+  color: var(--success);
+  font-size: 9px;
+  font-weight: 800;
+}
+.action-card > header .icon-button {
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+}
+.action-implies {
+  margin: 7px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.action-expression {
+  margin: 6px 0 0;
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.action-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 9px 0 0;
+}
+.action-facts dt {
+  color: var(--faint);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.action-facts dd {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------- alta de acción */
+
+.action-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  animation: fade-rise var(--dur-base) var(--ease-out) both;
+}
+.action-form-modes {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+}
+.action-form-modes button {
+  min-height: 30px;
+  padding: 5px 13px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.action-form-modes button:last-child {
+  border-right: 0;
+}
+.action-form-modes button.active {
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+.action-preview {
+  margin: 0;
+  padding: 9px 11px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 7px 7px 0;
+  background: var(--surface-inset);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.action-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ------------------------------------------------- banco de acciones */
+
+/* Aplicar una acción del banco a un algoritmo: el selector de destino manda,
+   así que va separado del formulario que lo sigue. */
+.action-target {
+  display: grid;
+  gap: 14px;
+}
+.action-target > .field > select {
+  font-weight: 650;
+}
+.import-bank {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-inset);
+}
+.import-bank h4 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+.import-bank p {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.import-bank p:last-child {
+  margin-bottom: 0;
+}
+.import-bank-list {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.import-bank-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  font-size: 12px;
+}
+.import-bank-list code {
+  font-size: 11px;
+  color: var(--muted);
+}
+.import-bank-list small {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 11px;
+}

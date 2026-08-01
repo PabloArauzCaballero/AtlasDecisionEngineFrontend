@@ -1,15 +1,20 @@
 import { AlertTriangle, GitBranch, Play } from 'lucide-react';
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { apiEventStream } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
+import { useAmbientState } from '../components/ambient/useAmbientState';
+import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { LiveNodeStepList, type LiveNodeStep } from '../components/LiveNodeStepList';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
-import { PickerSelect } from '../components/PickerSelect';
 import { JsonPanel } from '../components/JsonPanel';
 import { JsonTextarea } from '../components/JsonTextarea';
-import { display } from '../utils/records';
+import { LiveGraph } from '../features/execution-playback/LiveGraph';
+import { versionIdFromEvent } from '../features/execution-playback/live-trace';
+import { useSafeEnvironments } from '../features/simulator/useSafeEnvironments';
+import { useDetailQuery } from '../hooks/useDetailQuery';
+import { asRecord, asRows } from '../utils/records';
 import { parseJsonObject } from '../utils/json';
 
 interface NestedExecutionEntry {
@@ -29,7 +34,10 @@ interface NestedExecutionEntry {
  */
 export function LiveExecutionPage() {
   const [artifactCode, setArtifactCode] = useState('');
-  const [environmentCode, setEnvironmentCode] = useState('SANDBOX');
+  const [versionId, setVersionId] = useState('');
+  // Vacío a propósito: el ambiente lo eligen los que el motor declara, no una
+  // lista escrita a mano en la vista.
+  const [environmentCode, setEnvironmentCode] = useState('');
   const [variables, setVariables] = useState('{}');
   const [steps, setSteps] = useState<LiveNodeStep[]>([]);
   const [nested, setNested] = useState<NestedExecutionEntry[]>([]);
@@ -37,10 +45,29 @@ export function LiveExecutionPage() {
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const generation = useRef(0);
+  /** Corta la conexión en vuelo: al relanzar y al abandonar la vista. */
+  const abort = useRef<AbortController | null>(null);
+
+  useEffect(() => () => abort.current?.abort(), []);
+
+  // El grafo que se ilumina es el de la versión elegida. Si el motor declara la
+  // versión en sus eventos, esa manda; si no, vale la que seleccionó el usuario.
+  const graphQuery = useDetailQuery<unknown>(
+    'live-version-graph',
+    versionId ? `/v1/artifact-versions/${encodeURIComponent(versionId)}/graph` : null,
+  );
+  const graph = asRecord(graphQuery.data);
+  const safeEnvironments = useSafeEnvironments(environmentCode, setEnvironmentCode);
+  useAmbientState(error ? 'error' : running ? 'running' : result ? 'success' : 'idle');
 
   const start = async (event: FormEvent) => {
     event.preventDefault();
     const currentGeneration = ++generation.current;
+    // La ejecución anterior se corta de verdad, no sólo se ignora: si no, su
+    // conexión seguía abierta contra el motor hasta que éste decidiera cerrarla.
+    abort.current?.abort();
+    const controller = new AbortController();
+    abort.current = controller;
     setSteps([]);
     setNested([]);
     setResult(null);
@@ -55,18 +82,26 @@ export function LiveExecutionPage() {
     });
 
     try {
-      await apiEventStream(`/v1/live-executions/stream?${query.toString()}`, (event) => {
-        if (currentGeneration !== generation.current) return; // a newer run started
-        if (event.type === 'node_step') {
-          setSteps((previous) => [...previous, event.data as LiveNodeStep]);
-        } else if (event.type === 'execution_completed') {
-          const data = event.data as { nestedExecutions?: NestedExecutionEntry[] };
-          setNested(data.nestedExecutions ?? []);
-          setResult(event.data);
-        } else if (event.type === 'execution_failed') {
-          setError(JSON.stringify(event.data));
-        }
-      });
+      await apiEventStream(
+        `/v1/live-executions/stream?${query.toString()}`,
+        (event) => {
+          if (currentGeneration !== generation.current) return; // a newer run started
+          // Si el motor declara la versión que está ejecutando, se adopta: es más
+          // fiable que la elegida a mano y corrige una selección desactualizada.
+          const declared = versionIdFromEvent(event.data);
+          if (declared) setVersionId((current) => (current === declared ? current : declared));
+          if (event.type === 'node_step') {
+            setSteps((previous) => [...previous, event.data as LiveNodeStep]);
+          } else if (event.type === 'execution_completed') {
+            const data = event.data as { nestedExecutions?: NestedExecutionEntry[] };
+            setNested(data.nestedExecutions ?? []);
+            setResult(event.data);
+          } else if (event.type === 'execution_failed') {
+            setError(JSON.stringify(event.data));
+          }
+        },
+        { signal: controller.signal },
+      );
     } catch (caught) {
       if (currentGeneration === generation.current) setError(errorMessage(caught));
     } finally {
@@ -87,33 +122,33 @@ export function LiveExecutionPage() {
       <div className="simulator-layout">
         <Panel title="Configuración" meta="Live request">
           <form className="simulator-form" onSubmit={start}>
-            <div className="form-row">
-              <PickerSelect
-                label="Artifact Code"
-                value={artifactCode}
-                onChange={setArtifactCode}
-                endpoint="/v1/views/pickers/artifacts"
-                queryKey="live-artifacts"
-                required
-                placeholder="Elegir artefacto…"
-                mapOption={(row) => {
-                  const code = display(row, 'artifactCode');
-                  return code === '—'
-                    ? null
-                    : { value: code, label: `${code} · ${display(row, 'name')}` };
-                }}
-              />
-              <label className="field">
-                <span>Environment</span>
-                <select
-                  value={environmentCode}
-                  onChange={(event) => setEnvironmentCode(event.target.value)}
-                >
-                  <option>SANDBOX</option>
-                  <option>TEST</option>
-                </select>
-              </label>
-            </div>
+            <ArtifactVersionPicker
+              versionId={versionId}
+              onVersionChange={setVersionId}
+              onArtifactChange={setArtifactCode}
+              versionLabel="Versión a dibujar"
+              required
+            />
+            <label className="field">
+              <span>Ambiente seguro</span>
+              <select
+                value={environmentCode}
+                disabled={safeEnvironments.isPending || !safeEnvironments.environments.length}
+                onChange={(event) => setEnvironmentCode(event.target.value)}
+              >
+                {safeEnvironments.environments.map((environment) => (
+                  <option key={environment.id} value={environment.code}>
+                    {environment.name} ({environment.code})
+                  </option>
+                ))}
+              </select>
+              {safeEnvironments.isEmpty ? (
+                <small className="field-hint">
+                  El motor no declara ningún ambiente activo fuera de producción, así que no hay
+                  dónde ensayar. Créalo en Ambientes.
+                </small>
+              ) : null}
+            </label>
             <JsonTextarea
               id="live-variables"
               label="Variables (JSON)"
@@ -121,13 +156,23 @@ export function LiveExecutionPage() {
               onChange={setVariables}
               rows={10}
             />
-            <button className="button button-primary" type="submit" disabled={running}>
+            <button
+              className="button button-primary"
+              type="submit"
+              disabled={running || !environmentCode}
+            >
               <Play size={17} /> {running ? 'Ejecutando…' : 'Iniciar ejecución en vivo'}
             </button>
             {error ? <Alert tone="error">{error}</Alert> : null}
           </form>
         </Panel>
         <Panel title="Progreso nodo por nodo" meta={`${steps.length} eventos`}>
+          <LiveGraph
+            events={steps}
+            nodes={asRows(graph.nodes)}
+            edges={asRows(graph.edges)}
+            running={running}
+          />
           <LiveNodeStepList steps={steps} />
           {nested.length ? (
             <div className="code-import-preview">

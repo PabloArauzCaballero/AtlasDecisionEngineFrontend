@@ -1,3 +1,5 @@
+/* Tokens de tema primero: todo lo demás lee sus colores de aquí. */
+@import './parts/theme.css';
 @import './parts/foundation.css';
 @import './parts/accessibility-feedback.css';
 @import './parts/controls.css';
@@ -37,3 +39,36 @@
 @import './parts/tabs.css';
 @import './parts/action-icons.css';
 @import './parts/interactive-tutorial.css';
+/* Lenguaje visual transversal: iconos de concepto, ilustraciones, estados
+   vacíos explicativos y fondos ambientales. Cargan al final para poder afinar
+   piezas anteriores sin subir la especificidad. */
+@import './parts/visual-language.css';
+@import './parts/ambient-background.css';
+@import './parts/ambient-aurora.css';
+@import './parts/ambient-network.css';
+@import './parts/ambient-variants.css';
+@import './parts/graph-node-language.css';
+@import './parts/node-io.css';
+@import './parts/contracts.css';
+@import './parts/contract-panels.css';
+@import './parts/calculated-fields.css';
+@import './parts/libraries-qa.css';
+@import './parts/simulator-samples.css';
+@import './parts/graph-actions.css';
+@import './parts/graph-canvas-states.css';
+@import './parts/table-tools.css';
+@import './parts/table-cells.css';
+@import './parts/execution-playback.css';
+/* El formulario primero y la composición después: el ajuste móvil de
+   `login-premium.css` afina reglas del formulario y debe ganar la cascada. */
+@import './parts/login-form.css';
+@import './parts/login-premium.css';
+@import './parts/dashboard.css';
+/* Tema oscuro al final de todo: sólo actúa bajo [data-theme='dark'] y debe
+   poder afinar cualquier hoja anterior sin subir la especificidad. */
+@import './parts/theme-dark-base.css';
+@import './parts/theme-dark-features.css';
+@import './parts/theme-dark-surfaces.css';
+/* Translucidez de las superficies grandes: después del tema oscuro porque debe
+   ganar a su reasignación del fondo de `.panel` en ambos temas. */
+@import './parts/surface-live.css';

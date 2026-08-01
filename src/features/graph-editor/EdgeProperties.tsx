@@ -1,4 +1,5 @@
 import { Trash2, X } from 'lucide-react';
+import { ConfirmButton } from '../../components/ConfirmButton';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 
 const operators = [
@@ -182,9 +183,21 @@ export function EdgeProperties({
         </label>
       </section>
       <section>
-        <button type="button" className="button button-danger full-width" onClick={onDelete}>
+        <ConfirmButton
+          className="button button-danger full-width"
+          title="¿Eliminar esta conexión?"
+          confirmLabel="Eliminar la conexión"
+          description={
+            <p>
+              El camino entre <b>{display(edge, 'fromNodeKey', 'from')}</b> y{' '}
+              <b>{display(edge, 'toNodeKey', 'to')}</b> desaparece. Si era la única salida del paso
+              de origen, el flujo se quedará sin continuación por ahí.
+            </p>
+          }
+          onConfirm={onDelete}
+        >
           <Trash2 size={14} /> Eliminar conexión
-        </button>
+        </ConfirmButton>
       </section>
     </aside>
   );

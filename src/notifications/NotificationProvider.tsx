@@ -35,6 +35,12 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const [history, setHistory] = useState<AppNotification[]>([]);
   const [paused, setPaused] = useState(false);
   const countdowns = useRef(new Map<string, Countdown>());
+  /**
+   * Temporizadores de salida en vuelo. Van aparte de `countdowns` porque no se
+   * pausan al pasar el ratón, pero sí tienen que cancelarse al desmontar: si no,
+   * disparan un `setState` sobre un provider que ya no existe.
+   */
+  const exits = useRef(new Set<ReturnType<typeof setTimeout>>());
   const sequence = useRef(0);
 
   const clearCountdown = useCallback((id: string) => {
@@ -59,7 +65,11 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       setToasts((current) =>
         current.map((toast) => (toast.id === id ? { ...toast, leaving: true } : toast)),
       );
-      setTimeout(() => remove(id), EXIT_MS);
+      const exitTimer = setTimeout(() => {
+        exits.current.delete(exitTimer);
+        remove(id);
+      }, EXIT_MS);
+      exits.current.add(exitTimer);
     },
     [clearCountdown, remove],
   );
@@ -109,6 +119,13 @@ export function NotificationProvider({ children }: PropsWithChildren) {
     [clearCountdown, startCountdown],
   );
 
+  /**
+   * Congela las cuentas atrás. Tiene que ser idempotente: el visor pausa tanto
+   * al entrar el ratón como al recibir el foco, y pasar el ratón por encima de
+   * un aviso y luego tabular hasta él dispara las dos. Sin reponer `startedAt`,
+   * la segunda pausa volvería a descontar el mismo tiempo transcurrido y el
+   * aviso se desvanecería antes de que diera tiempo a leerlo.
+   */
   const pauseTimers = useCallback(() => {
     setPaused(true);
     const now = Date.now();
@@ -117,6 +134,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       countdowns.current.set(id, {
         ...countdown,
         remaining: Math.max(0, countdown.remaining - (now - countdown.startedAt)),
+        startedAt: now,
       });
     });
   }, []);
@@ -136,9 +154,12 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   // Timers outlive React state, so they need an explicit teardown.
   useEffect(() => {
     const pending = countdowns.current;
+    const pendingExits = exits.current;
     return () => {
       pending.forEach((countdown) => clearTimeout(countdown.timeoutId));
       pending.clear();
+      pendingExits.forEach((timer) => clearTimeout(timer));
+      pendingExits.clear();
     };
   }, []);
 

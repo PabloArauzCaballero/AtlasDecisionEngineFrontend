@@ -1,8 +1,13 @@
-import { Trash2 } from 'lucide-react';
+import { Pencil } from 'lucide-react';
+import { NodeDeleteButton } from './NodeDeleteButton';
 import { useEffect, useState } from 'react';
 import { InfoHint } from '../../components/InfoHint';
 import type { UnknownRecord } from '../../utils/records';
-import { asRecord, display } from '../../utils/records';
+import { asRecord, asRows, display } from '../../utils/records';
+import { CalculatedFieldCallsPanel } from './CalculatedFieldCallsPanel';
+import { dataFlowHint } from './node-data-flow';
+import { ActionNodeEditor } from './ActionNodeEditor';
+import { NodeIoPanel } from './NodeIoPanel';
 import { ConditionNodeEditor } from './ConditionNodeEditor';
 import { DecisionTableNodeEditor } from './DecisionTableNodeEditor';
 import { ExpressionNodeEditor } from './ExpressionNodeEditor';
@@ -16,34 +21,19 @@ interface NodePropertiesProps {
   onDelete: () => void;
   outputs?: UnknownRecord[];
   inputs?: UnknownRecord[];
+  /** Catálogo de condiciones del grafo: resuelve qué variable evalúa un nodo. */
+  conditions?: UnknownRecord[];
+  /** Catálogo de acciones del grafo: qué ejecuta un nodo de acción. */
+  actions?: UnknownRecord[];
+  /** Variables declaradas: son las que recibe el nodo de inicio. */
+  variables?: UnknownRecord[];
+  /** Variables intermedias del grafo: destinos y orígenes de un campo calculado. */
+  intermediates?: UnknownRecord[];
   condition?: UnknownRecord;
   branchCount?: number;
   versionId?: string;
   onConditionChange?: (patch: UnknownRecord) => void;
   onCreateCondition?: (variableCode: string) => void;
-}
-
-/** Plain-language input→output role of a node, so the data flow is obvious. */
-function dataFlowHint(type: string): string {
-  switch (type) {
-    case 'START':
-      return 'Entrada: recibe las variables de entrada de la decisión. No produce salida.';
-    case 'CONDITION':
-      return 'Entrada: lee variables para decidir el camino. Salida: la rama (sí / no) según su regla.';
-    case 'SWITCH':
-      return 'Entrada: lee una variable. Salida: la rama del caso que coincide.';
-    case 'EXPRESSION':
-    case 'SCORE':
-      return 'Entrada: variables que usa el cálculo. Salida: la variable destino que escribe.';
-    case 'RESULT':
-      return 'Entrada: variables del flujo. Salida: las variables de resultado (lo que devuelve la decisión).';
-    case 'MANUAL_REVIEW':
-      return 'Entrada: el caso y su evidencia. Salida: deriva a una persona (no decide automáticamente).';
-    case 'END':
-      return 'Cierra el flujo sin producir un resultado.';
-    default:
-      return 'Configura las entradas que lee y las salidas que escribe este paso.';
-  }
 }
 
 export function NodeProperties({
@@ -52,6 +42,10 @@ export function NodeProperties({
   onDelete,
   outputs = [],
   inputs = [],
+  conditions = [],
+  actions = [],
+  variables = [],
+  intermediates = [],
   condition = {},
   branchCount = 0,
   versionId = '',
@@ -63,12 +57,14 @@ export function NodeProperties({
   const [description, setDescription] = useState('');
   const [config, setConfig] = useState('{}');
   const [configError, setConfigError] = useState<string | null>(null);
+  const [editingDescription, setEditingDescription] = useState(false);
 
   useEffect(() => {
     setLabel(node.label !== undefined ? String(node.label) : '');
     setDescription(String(asRecord(node.config).description ?? ''));
     setConfig(JSON.stringify(node.config ?? {}, null, 2));
     setConfigError(null);
+    setEditingDescription(false);
     // Only reload the form when the selected node changes — re-running on every
     // node.label/config change would overwrite in-progress edits after each commit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,25 +115,53 @@ export function NodeProperties({
             onBlur={() => onChange({ label })}
           />
         </label>
-        <label className="field">
-          <span>
-            Descripción del paso
-            <InfoHint text="Explica en palabras simples QUÉ hace este paso y POR QUÉ, para que cualquier persona lo entienda sin ser técnica." />
-          </span>
-          <textarea
-            rows={3}
-            value={description}
-            placeholder="Ej.: Comprueba que el cliente pasó KYC y dio su consentimiento antes de evaluar el riesgo."
-            onChange={(event) => setDescription(event.target.value)}
-            onBlur={() => onChange({ config: { ...asRecord(node.config), description } })}
-          />
-        </label>
+        {/* Con descripción escrita, un cuadro de texto vacío pidiendo "añade una
+            descripción" contradice lo que el usuario ya hizo: se muestra lo
+            escrito y se edita con el lápiz. */}
+        {description.trim() && !editingDescription ? (
+          <div className="node-description-card">
+            <div>
+              <span>Descripción del paso</span>
+              <p>{description}</p>
+            </div>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Editar la descripción del paso"
+              title="Editar la descripción"
+              onClick={() => setEditingDescription(true)}
+            >
+              <Pencil size={14} />
+            </button>
+          </div>
+        ) : (
+          <label className="field">
+            <span>
+              Descripción del paso
+              <InfoHint text="Explica en palabras simples QUÉ hace este paso y POR QUÉ, para que cualquier persona lo entienda sin ser técnica." />
+            </span>
+            <textarea
+              rows={3}
+              autoFocus={editingDescription}
+              value={description}
+              placeholder="Ej.: Comprueba que el cliente pasó KYC y dio su consentimiento antes de evaluar el riesgo."
+              onChange={(event) => setDescription(event.target.value)}
+              onBlur={() => {
+                setEditingDescription(false);
+                onChange({ config: { ...asRecord(node.config), description } });
+              }}
+            />
+          </label>
+        )}
         <label className="field">
           <span>Tipo</span>
           <input readOnly value={display(node, 'type')} />
         </label>
         <p className="node-io-hint">{dataFlowHint(display(node, 'type'))}</p>
       </section>
+      {/* Vale para todos los tipos: antes había que leer el JSON de
+          configuración para saber qué hacía el paso y con qué datos. */}
+      <NodeIoPanel node={node} context={{ conditions, actions, variables }} />
       {display(node, 'type') === 'CONDITION' && onConditionChange ? (
         <ConditionNodeEditor
           key={display(condition, 'code')}
@@ -196,6 +220,14 @@ export function NodeProperties({
           onChange={(nextConfig) => onChange({ config: nextConfig })}
         />
       ) : null}
+      {display(node, 'type') === 'ACTION' ? (
+        <ActionNodeEditor
+          node={node}
+          config={asRecord(node.config)}
+          actions={actions}
+          onChange={onChange}
+        />
+      ) : null}
       {![
         'RESULT',
         'CONDITION',
@@ -204,6 +236,7 @@ export function NodeProperties({
         'SCORE',
         'MANUAL_REVIEW',
         'DECISION_TABLE',
+        'ACTION',
       ].includes(display(node, 'type')) ? (
         <section>
           <h3>Configuración</h3>
@@ -220,6 +253,13 @@ export function NodeProperties({
           {configError ? <small className="field-error">{configError}</small> : null}
         </section>
       ) : null}
+      <CalculatedFieldCallsPanel
+        calls={asRows(node.calculatedFieldCalls)}
+        inputs={inputs}
+        intermediates={intermediates}
+        outputs={outputs}
+        onChange={(calculatedFieldCalls) => onChange({ calculatedFieldCalls })}
+      />
       <section>
         <h3>Enrutamiento y salida</h3>
         <label className="field">
@@ -235,9 +275,7 @@ export function NodeProperties({
         </label>
       </section>
       <section>
-        <button type="button" className="button button-danger full-width" onClick={onDelete}>
-          <Trash2 size={14} /> Eliminar nodo
-        </button>
+        <NodeDeleteButton label={display(node, 'label', 'key')} onDelete={onDelete} />
       </section>
     </aside>
   );

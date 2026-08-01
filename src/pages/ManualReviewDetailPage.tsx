@@ -26,7 +26,10 @@ interface ManualReviewDetailPageProps {
 }
 
 export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) {
-  const [resolution, setResolution] = useState('APPROVE');
+  // Sin decisión previa: un caso de revisión manual no puede llegar con la
+  // respuesta ya puesta. Preseleccionar «Aprobar» convierte un descuido —pulsar
+  // sin leer— en una aprobación con nombre y apellidos en la auditoría.
+  const [resolution, setResolution] = useState('');
   const [comments, setComments] = useState('');
   const { notify } = useNotifications();
   const { startForError } = useInteractiveTutorial();
@@ -36,6 +39,9 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   );
   const review = asRecord(query.data);
   const resolve = useMutation({
+    // Esta vista muestra el fallo ella misma, con acceso al tutorial que enseña a
+    // corregirlo: sin `handled` el aviso global de QueryProvider lo repetiría.
+    meta: { handled: true },
     mutationFn: () =>
       apiRequest(`/v1/manual-reviews/${encodeURIComponent(caseId)}/resolve`, {
         method: 'POST',
@@ -116,6 +122,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             <label className="field">
               <span>Decision</span>
               <select value={resolution} onChange={(event) => setResolution(event.target.value)}>
+                <option value="">Elegir una decisión…</option>
                 <option value="APPROVE">Approve</option>
                 <option value="REJECT">Reject</option>
                 <option value="ESCALATE">Escalate</option>
@@ -131,7 +138,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             </label>
             <button
               className="button button-primary full-width"
-              disabled={!comments || !caseId || resolve.isPending}
+              disabled={!resolution || !comments || !caseId || resolve.isPending}
               onClick={() => resolve.mutate()}
               type="button"
             >

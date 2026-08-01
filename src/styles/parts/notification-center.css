@@ -16,7 +16,7 @@
   border-radius: 99px;
   border: 2px solid rgba(255, 255, 255, 0.97);
   background: var(--danger);
-  color: #fff;
+  color: var(--surface);
   font-size: 9px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -124,7 +124,7 @@
   transition: background-color var(--dur-fast) var(--ease-standard);
 }
 .notification-item:hover {
-  background: #f6f8fb;
+  background: var(--surface-sunken);
 }
 .notification-item[data-read='false'] {
   background: rgba(0, 106, 97, 0.05);
@@ -185,7 +185,7 @@
 .notification-item time {
   display: block;
   margin-top: 4px;
-  color: #98a2b3;
+  color: var(--faint);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -202,5 +202,5 @@
   font-size: 12px;
 }
 .notification-empty svg {
-  color: #cbd5e1;
+  color: var(--faint);
 }

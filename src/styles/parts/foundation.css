@@ -1,6 +1,11 @@
+/**
+ * Los colores viven en `parts/theme.css`, que se carga antes que esta hoja y
+ * define el mismo juego de tokens para claro y oscuro. Aquí sólo quedan la
+ * tipografía y el alias histórico `--panel`, que muchas hojas siguen usando.
+ */
 :root {
-  color: #172033;
-  background: #f8fafc;
+  color: var(--text);
+  background: var(--canvas);
   font-family:
     Inter,
     ui-sans-serif,
@@ -10,17 +15,45 @@
     'Segoe UI',
     sans-serif;
   font-synthesis: none;
-  --ink: #111827;
-  --muted: #64748b;
-  --line: #dbe2ea;
-  --panel: #ffffff;
-  --canvas: #f8fafc;
-  --accent: #006a61;
-  --accent-soft: #86f2e4;
-  --navy: #000000;
-  --danger: #b42318;
-  --warning: #b54708;
-  --success: #067647;
+  --panel: var(--surface);
+
+  /*
+   * Escala de espaciado, radios y tipografía monoespaciada.
+   *
+   * No están en `theme.css` porque no dependen de la luz: una separación mide
+   * lo mismo en claro y en oscuro. Los valores replican los que ya predominan
+   * en las hojas escritas a mano (8 px de separación, 6–10 px de radio), así
+   * que adoptar el token no mueve nada de sitio.
+   *
+   * Faltaban, y esto no era cosmético: `var(--space-3)` sin definir hace que el
+   * navegador DESCARTE la declaración entera. Las vistas de la ampliación de
+   * contratos (§1–§10) se pintaban sin separaciones ni esquinas redondeadas.
+   * `scripts/verify-conventions.mjs` impide que vuelva a pasar.
+   */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  /*
+   * Alias semánticos de color: nombres que las hojas nuevas ya usaban y que
+   * nunca llegaron a existir. Apuntan a los tokens de siempre —la indirección
+   * se resuelve en el punto de uso, así que cada tema da su propio valor—, de
+   * modo que sigue habiendo una única fuente de color.
+   */
+  --text-muted: var(--muted);
+  --surface-muted: var(--surface-sunken);
+  --danger-text: var(--danger);
+  --warning-text: var(--warning);
+  --success-text: var(--success);
 }
 
 * {
@@ -56,12 +89,19 @@ textarea:focus-visible {
 
 .app-shell {
   min-height: 100vh;
+  /* Red de seguridad: ningún adorno superpuesto —un globo de ayuda, una sombra—
+     debe poder hacer que la página entera se desplace en horizontal. `clip` y no
+     `hidden` a propósito: `hidden` crearía un contenedor de desplazamiento y
+     rompería las cabeceras y columnas ancladas con `position: sticky`. El
+     contenido que sí necesita desplazarse lo hace en su propio contenedor
+     (`.table-wrap`), no aquí. */
+  overflow-x: clip;
 }
 .sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   width: 280px;
-  background: #f6f3f5;
+  background: var(--surface-hover);
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -82,7 +122,7 @@ textarea:focus-visible {
   place-items: center;
   border-radius: 7px;
   background: var(--navy);
-  color: #fff;
+  color: var(--surface);
   font-weight: 900;
   font-size: 20px;
 }
@@ -109,7 +149,10 @@ textarea:focus-visible {
 }
 .nav-section > p {
   margin: 0 10px 6px;
-  color: #8993a4;
+  /* Era #8993a4: 2,81:1 sobre el fondo de la barra, por debajo del mínimo
+     legible, en rótulos de 10 px en versalitas. El tema oscuro ya usaba
+     `--faint` aquí; ahora lo usan los dos y sobra el parche. */
+  color: var(--faint);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.11em;
@@ -119,7 +162,7 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #475467;
+  color: var(--muted);
   text-decoration: none;
   padding: 9px 10px;
   border-radius: 7px;
@@ -128,12 +171,12 @@ textarea:focus-visible {
   margin: 2px 0;
 }
 .nav-link:hover {
-  background: #f2f4f7;
+  background: var(--surface-hover);
   color: var(--ink);
 }
 .nav-link.active {
   background: var(--accent-soft);
-  color: #00665e;
+  color: var(--accent);
 }
 .sidebar-foot {
   border-top: 1px solid var(--line);
@@ -147,7 +190,7 @@ textarea:focus-visible {
   display: inline-block;
   margin-right: 7px;
   border-radius: 50%;
-  background: #12b76a;
+  background: var(--success);
   box-shadow: 0 0 0 3px #d1fadf;
 }
 .sidebar-close,
@@ -168,7 +211,7 @@ textarea:focus-visible {
   align-items: center;
   gap: 14px;
   padding: 0 32px;
-  background: rgba(255, 255, 255, 0.97);
+  background: var(--panel-live);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(8px);
 }
@@ -182,12 +225,12 @@ textarea:focus-visible {
   place-items: center;
   border: 0;
   border-radius: 7px;
-  color: #475467;
+  color: var(--muted);
   background: transparent;
   cursor: pointer;
 }
 .icon-button:hover {
-  background: #f2f4f7;
+  background: var(--surface-hover);
   color: var(--ink);
 }
 .icon-button:disabled {
@@ -196,7 +239,7 @@ textarea:focus-visible {
 }
 .icon-button.active {
   background: var(--accent-soft);
-  color: #00665e;
+  color: var(--accent);
 }
 .icon-button svg {
   width: 19px;
@@ -205,10 +248,10 @@ textarea:focus-visible {
   display: inline-flex;
   gap: 8px;
   align-items: center;
-  border: 1px solid #d5dae1;
+  border: 1px solid var(--line);
   padding: 6px 10px;
   border-radius: 99px;
-  color: #475467;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -218,7 +261,7 @@ textarea:focus-visible {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #12b76a;
+  background: var(--success);
 }
 .topbar-spacer {
   flex: 1;

@@ -29,7 +29,9 @@ export function TutorialOverlay({ step }: TutorialOverlayProps) {
     : undefined;
 
   return (
-    <div className="tutorial-overlay" role="dialog" aria-modal="true" aria-label={step.title}>
+    // Sin `aria-modal`: señala una parte de la página que sigue siendo la
+    // protagonista, así que no la deja inerte.
+    <div className="tutorial-overlay" role="dialog" aria-label={step.title}>
       {rect ? (
         <div
           className="tutorial-spotlight"

@@ -1,4 +1,18 @@
 import '@testing-library/jest-dom/vitest';
+import { configure } from '@testing-library/react';
+
+/**
+ * El plazo por omisión de `findBy*`/`waitFor` es de 1 s, medido en reloj de pared. Con las
+ * 60+ suites corriendo a la vez, una espera perfectamente sana —montar el componente,
+ * resolver la consulta simulada, repintar— puede pasar de ese segundo por pura contención
+ * de CPU, y la suite falla por la carga de la máquina y no por el código. Eso es lo peor
+ * que puede hacer un gate: enseñar a desconfiar de sus propios fallos.
+ *
+ * Subirlo no puede convertir un fallo real en un aprobado; sólo evita declarar el fallo
+ * antes de tiempo. Lo único que cuesta es que una espera que de verdad no se cumple tarda
+ * más en informarse.
+ */
+configure({ asyncUtilTimeout: 5_000 });
 
 /**
  * jsdom debería exponer `localStorage`, pero el `localStorage` experimental de

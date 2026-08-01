@@ -1,0 +1,146 @@
+/*
+ * Paneles de contrato: invocación de campos calculados desde un nodo, estado por nodo
+ * con errores y avisos, y editor del contrato de una variable (§1, §3.1, §5.1).
+ * Solo tokens, para que se lean igual en claro y en oscuro.
+ */
+
+/* --- Invocación de campos calculados desde un nodo (§5.1) -------------------- */
+
+.calculated-calls {
+  border-top: 1px dashed var(--line);
+  padding-top: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.calculated-call-list {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.calculated-call-list > li {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.calculated-call-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.calculated-call-head b {
+  flex: 1;
+}
+
+.calculated-call-source {
+  display: flex;
+  gap: 6px;
+}
+
+.calculated-call-source select,
+.calculated-call-source input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* --- Estado por nodo: metadatos, errores y avisos ---------------------------- */
+
+.node-state-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 var(--space-2);
+}
+
+.node-state-errors,
+.node-state-warnings {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  display: grid;
+  gap: 4px;
+}
+
+.node-state-errors {
+  background: var(--danger-wash, var(--surface-muted));
+}
+
+.node-state-warnings {
+  background: var(--warning-wash, var(--surface-muted));
+}
+
+/* --- Contrato de variable ---------------------------------------------------- */
+
+.variable-contract-editor {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.contract-report,
+.contract-compat {
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.contract-compat {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+}
+
+.contract-compat p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.compat-breaking {
+  border-color: var(--danger-line, var(--line));
+  background: var(--danger-wash, var(--surface-muted));
+}
+
+.compat-widening {
+  border-color: var(--warning-line, var(--line));
+  background: var(--warning-wash, var(--surface-muted));
+}
+
+.contract-compat ul,
+.contract-samples {
+  list-style: none;
+  margin: 0;
+  padding-inline-start: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.contract-samples .is-fail {
+  color: var(--danger-text, var(--text));
+}
+
+/* --- Política de ejecución de una referencia (§9) ---------------------------- */
+
+.reference-policy {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-block: var(--space-2);
+}
+
+.reference-policy > summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.reference-policy .constraint-grid {
+  margin-top: var(--space-2);
+}
