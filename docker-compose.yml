@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atlas-decision-frontend:3.0.0
+    ports:
+      - '5173:3000'
+    environment:
+      DECISION_ENGINE_URL: ${DECISION_ENGINE_URL:-http://atlas-decision-backend:3000}
+      TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
+      NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-SANDBOX}
+    restart: unless-stopped
