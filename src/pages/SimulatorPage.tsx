@@ -5,6 +5,7 @@ import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
+import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { PickerSelect } from '../components/PickerSelect';
@@ -93,6 +94,13 @@ export function SimulatorPage() {
   // vez de dejar sólo el código VARIABLE_MISSING_OR_INVALID.
   const variableErrors = asRows(result?.errors);
   const traceSteps = asRows(asRecord(result?.trace).nodes).length > 0;
+  /*
+   * Recorrido con el estado de las variables en cada paso. El motor lo devuelve
+   * ahora también en simulación, y es lo que permite depurar: ver en qué nodo
+   * apareció cada variable intermedia y con qué valor llegó a cada decisión.
+   * Si faltara (artefacto compilado antes de §3), se cae al volcado JSON de antes.
+   */
+  const debugSteps = asRows(asRecord(result?.trace).steps);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -211,7 +219,20 @@ export function SimulatorPage() {
                 Esta ejecución no recorrió ningún nodo, así que no hay traza que mostrar.
               </small>
             ) : null}
-            {showTrace && result ? <JsonPanel label="Traza dry-run" value={result.trace} /> : null}
+            {showTrace && result ? (
+              debugSteps.length ? (
+                <div className="simulator-debug">
+                  <p className="field-hint">
+                    Recorrido paso a paso. Cada nodo muestra qué recibió, qué calculó y qué dejó
+                    disponible para los siguientes: así se ve dónde nació cada variable intermedia y
+                    con qué valor llegó a la decisión final.
+                  </p>
+                  <NodeVariableStatePanel trace={debugSteps} />
+                </div>
+              ) : (
+                <JsonPanel label="Traza dry-run" value={result.trace} />
+              )
+            ) : null}
           </div>
         </Panel>
       </div>

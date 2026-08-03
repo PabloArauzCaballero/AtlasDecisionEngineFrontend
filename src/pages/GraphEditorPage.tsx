@@ -9,6 +9,7 @@ import { EdgeProperties } from '../features/graph-editor/EdgeProperties';
 import { GraphCanvas } from '../features/graph-editor/GraphCanvas';
 import { GraphEditorToolbar } from '../features/graph-editor/GraphEditorToolbar';
 import { GraphNotesPanel } from '../features/graph-editor/GraphNotesPanel';
+import { FlowPathsPanel } from '../features/graph-editor/FlowPathsPanel';
 import { FlowChecklist } from '../features/graph-editor/FlowChecklist';
 import { GraphValidationModal } from '../features/graph-editor/GraphValidationModal';
 import { NodeLibrary } from '../features/graph-editor/NodeLibrary';
@@ -196,6 +197,10 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         nodes={editor.nodes}
         onChange={editor.changeActions}
       />
+      {/* Todas las posibilidades del árbol, en orden. Va junto a la revisión de
+          flujo porque responden a la misma pregunta desde dos ángulos: aquélla
+          dice qué está mal; ésta, qué le pasa a cada tipo de caso. */}
+      <FlowPathsPanel nodes={editor.nodes} edges={editor.edges} onSelectNode={editor.selectNode} />
       <FlowChecklist
         nodes={editor.nodes}
         edges={editor.edges}

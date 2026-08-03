@@ -13,6 +13,7 @@
 @import './parts/graph-canvas.css';
 @import './parts/graph-canvas-feedback.css';
 @import './parts/graph-flow.css';
+@import './parts/flow-paths.css';
 @import './parts/objective-authoring.css';
 @import './parts/dialogs-feedback.css';
 @import './parts/info-hint.css';

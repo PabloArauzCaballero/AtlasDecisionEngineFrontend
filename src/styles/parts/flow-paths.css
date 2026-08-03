@@ -1,0 +1,85 @@
+/**
+ * Recorridos posibles del árbol, en el editor de grafo.
+ *
+ * En archivo propio, y no dentro de `graph-flow.css`, por el límite de 299 líneas.
+ */
+
+/* Recorridos posibles: cada fila es un camino completo del inicio a su final. */
+.flow-paths {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.flow-paths-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.flow-paths-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--danger-text, var(--text));
+}
+.flow-paths-ok {
+  color: var(--muted);
+}
+.flow-paths-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding-inline-start: 1.2rem;
+}
+.flow-paths-list li.is-open {
+  border-inline-start: 2px solid var(--danger);
+  padding-inline-start: 8px;
+}
+.flow-path-trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.flow-path-node {
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  color: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.flow-path-node:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.flow-path-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.flow-path-end,
+.flow-path-warning {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 3px 0 0;
+  font-size: 0.72rem;
+}
+.flow-path-end {
+  color: var(--muted);
+}
+.flow-path-warning {
+  color: var(--danger-text, var(--text));
+}
