@@ -24,7 +24,18 @@ function toneOf(text: string): string {
   return 'neutral';
 }
 
-export function StatusBadge({ value }: { value: unknown }) {
+interface Props {
+  value: unknown;
+  /**
+   * Etiquetas legibles por valor crudo del backend (p. ej. `SENSITIVITY_LABELS`).
+   * Un valor sin entrada en el mapa se muestra tal cual: no es un error, solo
+   * algo que este catálogo todavía no traduce.
+   */
+  labels?: Record<string, string>;
+}
+
+export function StatusBadge({ value, labels }: Props) {
   const text = String(value ?? '—').toUpperCase();
-  return <span className={`status-badge status-${toneOf(text)}`}>{text}</span>;
+  const label = labels?.[text] ?? text;
+  return <span className={`status-badge status-${toneOf(text)}`}>{label}</span>;
 }

@@ -175,3 +175,70 @@
   gap: 6px;
   margin-top: 4px;
 }
+
+/* Alta en dos pasos: identidad y, después, qué calcula. La cabecera recuerda
+   qué campo se está creando para que el segundo paso no pierda el contexto. */
+.calculated-field-wizard {
+  display: grid;
+  gap: var(--space-3);
+}
+.wizard-recap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+/* Fórmula en la cabecera de la versión: identifica el cálculo sin desplegarlo.
+   Se recorta en una línea para no romper la fila cuando el árbol es profundo. */
+.version-formula {
+  max-width: 42ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+/* Editor Monaco: encaja en el alto del formulario y respeta el borde del panel. */
+.monaco-shell {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.code-variables {
+  display: grid;
+  gap: 4px;
+  margin-top: var(--space-2);
+}
+.code-variables-title {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.code-variables ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.code-variables li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: 0.72rem;
+}
+.code-variables small {
+  color: var(--muted);
+}

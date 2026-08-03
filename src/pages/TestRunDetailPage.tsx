@@ -117,11 +117,24 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
                     </td>
                     <td className="mono">{item.testCase?.caseCode ?? item.testCaseId}</td>
                     <td>
-                      {item.resultStatus === 'PASS'
-                        ? (item.testCase?.testName ?? 'Assertions passed')
-                        : describe(
-                            item.errorJson ?? item.assertions.filter((entry) => !entry.passed),
-                          )}
+                      {/* La descripción del caso se muestra SIEMPRE. Antes, al fallar,
+                          se sustituía por el JSON crudo de las aserciones: la columna
+                          dejaba de decir qué se probaba justo cuando más importaba. */}
+                      <div>{item.testCase?.testName ?? '—'}</div>
+                      {item.resultStatus !== 'PASS' ? (
+                        <ul className="assertion-failures">
+                          {item.assertions
+                            .filter((entry) => !entry.passed)
+                            .map((entry) => (
+                              <li key={entry.id}>
+                                <code>{entry.assertionPath}</code> esperaba{' '}
+                                <b>{describe(entry.expectedJson)}</b> y obtuvo{' '}
+                                <b>{describe(entry.actualJson, 'nada')}</b>
+                              </li>
+                            ))}
+                          {item.errorJson ? <li>{describe(item.errorJson)}</li> : null}
+                        </ul>
+                      ) : null}
                     </td>
                     <td>{item.durationMs} ms</td>
                   </tr>

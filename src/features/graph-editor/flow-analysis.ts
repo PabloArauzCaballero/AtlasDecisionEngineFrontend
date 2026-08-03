@@ -63,12 +63,35 @@ function canReachTerminal(nodes: UnknownRecord[], edges: UnknownRecord[]): Set<s
 }
 
 /** Output variable codes that at least one RESULT node writes to. */
+/**
+ * Códigos de salida que ALGÚN nodo produce.
+ *
+ * No sólo los nodos de resultado: una salida también se escribe desde una llamada
+ * a campo calculado con destino OUTPUT y desde una acción que escribe un campo.
+ * Mirar sólo los RESULT hacía que un algoritmo real —con etapas que van dejando
+ * su score y su decisión por el camino— acumulara un aviso por cada salida, todos
+ * falsos, y ninguno accionable.
+ */
 function assignedOutputCodes(nodes: UnknownRecord[]): { codes: Set<string>; hasScript: boolean } {
   const codes = new Set<string>();
   let hasScript = false;
   for (const node of nodes) {
-    if (display(node, 'type') !== 'RESULT') continue;
     const config = asRecord(node.config);
+
+    // Campos calculados invocados por el nodo, con destino en una salida.
+    for (const call of asRows(node.calculatedFieldCalls)) {
+      const target = asRecord(call.target);
+      if (display(target, 'kind') === 'OUTPUT') {
+        const code = display(target, 'code');
+        if (code !== '—') codes.add(code);
+      }
+    }
+
+    // Acción que escribe un campo: `payload.field` es el destino.
+    const field = display(config, 'field', 'targetCode');
+    if (field !== '—') codes.add(field);
+
+    if (display(node, 'type') !== 'RESULT') continue;
     const mode = String(config.mode ?? 'MAPPING');
     if (mode === 'SCRIPT') {
       hasScript = true;
@@ -115,12 +138,34 @@ export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowI
     });
   }
 
-  // Un árbol de decisión concluye en una sola variable de salida (la conclusión).
-  if (outputs.length > 1) {
+  /*
+   * Un árbol concluye en UNA sola conclusión, pero puede publicar cuantos datos de
+   * apoyo quiera (el score de cada etapa, el tramo de riesgo, el precio…). Lo que
+   * importa es que haya exactamente una salida PRINCIPAL, que es la que responde
+   * «¿qué se decidió?».
+   *
+   * Antes se contaba el total y se pedía «deja solo la principal»: sobre un
+   * algoritmo real con 27 salidas legítimas, el consejo era borrar 26 datos que
+   * alguien necesita.
+   */
+  const primaries = outputs.filter((output) =>
+    String(output.usageType ?? '').startsWith('OUTPUT_PRIMARY'),
+  );
+  if (outputs.length && !primaries.length) {
     issues.push({
-      code: 'MULTIPLE_OUTPUTS',
+      code: 'NO_PRIMARY_OUTPUT',
       severity: 'warning',
-      message: `Un árbol de decisión debería tener una sola variable de salida (la conclusión); hay ${outputs.length}. Deja solo la principal.`,
+      message:
+        'Ninguna salida está marcada como principal: quien consuma la decisión no sabrá cuál es la conclusión. Marca una con la estrella.',
+    });
+  }
+  if (primaries.length > 1) {
+    issues.push({
+      code: 'MULTIPLE_PRIMARY_OUTPUTS',
+      severity: 'error',
+      message: `Hay ${primaries.length} salidas marcadas como principales (${primaries
+        .map((output) => display(output, 'code'))
+        .join(', ')}). La conclusión sólo puede ser una.`,
     });
   }
 

@@ -6,6 +6,7 @@ import { ConfirmButton } from '../../components/ConfirmButton';
 import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { InputConstraintBadge } from './InputConstraintBadge';
 
 interface Props {
   variables: UnknownRecord[];
@@ -27,6 +28,13 @@ export function InputVariableManager({ variables, onChange }: Props) {
     queryFn: () => apiRequest<UnknownRecord[]>('/v1/views/pickers/variables'),
   });
   const options = asRows(catalog.data);
+  // El grafo guarda la VERSIÓN de la variable, no su definición; el enlace al
+  // contrato necesita la definición, así que se resuelve por código contra el
+  // mismo picker. Hacerlo aquí (y no al añadir) mantiene el badge también en los
+  // grafos cargados del backend, que llegan sin ese dato.
+  const definitionIdByCode = new Map(
+    options.map((item) => [display(item, 'variableCode'), String(item.definitionId ?? '')]),
+  );
 
   function addSelected() {
     const definition = options.find((item) => display(item, 'definitionId') === catalogId);
@@ -128,6 +136,10 @@ export function InputVariableManager({ variables, onChange }: Props) {
                 </button>
                 <b>{inputCode}</b>
                 <small>{display(item, 'dataType')}</small>
+                <InputConstraintBadge
+                  definitionId={definitionIdByCode.get(inputCode) ?? ''}
+                  version={Number(item.version) || undefined}
+                />
                 <ConfirmButton
                   className=""
                   label={`Quitar la entrada ${inputCode}`}

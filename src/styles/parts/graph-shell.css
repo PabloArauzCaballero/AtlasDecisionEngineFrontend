@@ -71,6 +71,26 @@
 .output-chip small {
   color: var(--muted);
 }
+/* Resumen de restricciones de una entrada: enlaza al contrato de la variable,
+   que es donde se editan (aquí sólo se leen). */
+.input-constraint-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 220px;
+  color: var(--muted);
+  font-size: 9px;
+  text-decoration: none;
+}
+.input-constraint-badge span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.input-constraint-badge:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
 .output-create-form {
   align-items: end;
   margin-top: 10px;

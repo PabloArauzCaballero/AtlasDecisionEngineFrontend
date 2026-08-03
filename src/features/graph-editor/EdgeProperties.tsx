@@ -1,6 +1,13 @@
 import { Trash2, X } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
+import { InfoHint } from '../../components/InfoHint';
+import { CONDITION_ORIGIN } from './node-tutorials';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+
+/** Fuera del JSX: el ejemplo lleva comillas y corchetes que allí habría que escapar. */
+const CASE_VALUE_HINT =
+  'El valor con el que se compara, escrito con su tipo real: 1500 para un número, ' +
+  'true para un booleano, «APROBADO» para un texto, ["A","B"] para una lista.';
 
 const operators = [
   ['eq', 'Igual a'],
@@ -91,15 +98,24 @@ export function EdgeProperties({
       <section>
         <h3>Ruta</h3>
         <label className="field">
-          <span>Desde</span>
+          <span>
+            Desde
+            <InfoHint text="Paso del que SALE esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo." />
+          </span>
           <input readOnly value={display(edge, 'from')} />
         </label>
         <label className="field">
-          <span>Hacia</span>
+          <span>
+            Hacia
+            <InfoHint text="Paso al que LLEGA esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo." />
+          </span>
           <input readOnly value={display(edge, 'to')} />
         </label>
         <label className="field">
-          <span>Tipo de rama</span>
+          <span>
+            Tipo de rama
+            <InfoHint text="«Cuando se cumple» recorre este camino sólo si su condición es cierta. «Default / caso contrario» es la salida de escape: la toma todo lo que no encajó en ninguna otra rama. Cada bifurcación necesita exactamente una por defecto, o un caso no contemplado dejaría la decisión sin camino." />
+          </span>
           <select
             value={isDefault ? 'DEFAULT' : 'CONDITIONAL'}
             onChange={(event) => setMode(event.target.value as 'DEFAULT' | 'CONDITIONAL')}
@@ -110,7 +126,10 @@ export function EdgeProperties({
         </label>
         {!isDefault && !isSwitchBranch ? (
           <label className="field">
-            <span>Condición</span>
+            <span>
+              Condición
+              <InfoHint text={CONDITION_ORIGIN} />
+            </span>
             <select
               value={selectedCondition}
               onChange={(event) =>
@@ -131,7 +150,10 @@ export function EdgeProperties({
         {!isDefault && isSwitchBranch && branchCondition && onEditCondition ? (
           <>
             <label className="field">
-              <span>Variable del caso</span>
+              <span>
+                Variable del caso
+                <InfoHint text="La variable que el Switch reparte. Sólo aparecen las declaradas en «Entradas · Variables a considerar»: si la que buscas no está, decláurala allí primero." />
+              </span>
               <select
                 value={String(expression.variable ?? '')}
                 onChange={(event) => updateCaseExpression({ variable: event.target.value })}
@@ -145,7 +167,10 @@ export function EdgeProperties({
               </select>
             </label>
             <label className="field">
-              <span>Operador</span>
+              <span>
+                Operador
+                <InfoHint text="Cómo se compara la variable con el valor del caso. Los de lista («Incluido en lista», «Contiene») esperan varios valores; el resto, uno solo." />
+              </span>
               <select
                 value={String(expression.operator ?? 'eq')}
                 onChange={(event) => updateCaseExpression({ operator: event.target.value })}
@@ -158,7 +183,10 @@ export function EdgeProperties({
               </select>
             </label>
             <label className="field">
-              <span>Valor del caso</span>
+              <span>
+                Valor del caso
+                <InfoHint text={CASE_VALUE_HINT} />
+              </span>
               <textarea
                 key={`${selectedCondition}-${JSON.stringify(expression.value)}`}
                 rows={2}
@@ -173,7 +201,10 @@ export function EdgeProperties({
           </>
         ) : null}
         <label className="field">
-          <span>Prioridad</span>
+          <span>
+            Prioridad
+            <InfoHint text="Orden en el que el motor prueba las salidas de un mismo paso: el número más BAJO se evalúa primero y gana la primera que se cumple. Dos ramas que puedan cumplirse a la vez con la misma prioridad harían la decisión no determinista." />
+          </span>
           <input
             type="number"
             min={0}

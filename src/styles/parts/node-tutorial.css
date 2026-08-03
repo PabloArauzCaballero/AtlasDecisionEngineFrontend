@@ -1,0 +1,42 @@
+/**
+ * Guía de configuración por tipo de nodo, en el panel de propiedades.
+ *
+ * En archivo propio, y no dentro de `graph-shell.css`, por el límite de 299
+ * líneas del repositorio.
+ */
+
+/* Guía del tipo de nodo: cerrada por defecto, para quien necesita saber de dónde
+   sale cada pieza que piden los campos de abajo. */
+.node-tutorial {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+.node-tutorial-toggle {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  text-align: left;
+}
+.node-tutorial-body {
+  margin-top: var(--space-2);
+  font-size: 0.76rem;
+  color: var(--text);
+}
+.node-tutorial-body ol {
+  margin: var(--space-2) 0;
+  padding-inline-start: 1.1rem;
+  display: grid;
+  gap: 4px;
+}
+.node-tutorial-flow,
+.node-tutorial-origin {
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.node-tutorial-pitfall {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: 0;
+  color: var(--danger-text, var(--text));
+}

@@ -3,6 +3,8 @@ import { analyzeFlow, type FlowInput } from './flow-analysis';
 
 const output = (code: string) => ({ code, usageType: 'OUTPUT_PRIMARY', dataType: 'NUMBER' });
 const input = (code: string) => ({ code, usageType: 'INPUT', dataType: 'NUMBER' });
+/** Salida de apoyo: dato publicado que no es la conclusión. */
+const secondary = (code: string) => ({ code, usageType: 'OUTPUT', dataType: 'NUMBER' });
 
 /** A minimal healthy flow: START → RESULT that assigns the single output from an input. */
 function healthy(): FlowInput {
@@ -130,16 +132,51 @@ describe('analyzeFlow', () => {
     expect(['A', 'B']).toContain(issue?.nodeKey);
   });
 
-  it('warns when more than one output variable is declared', () => {
+  it('rechaza dos conclusiones, que es lo que de verdad es ambiguo', () => {
     const graph = healthy();
     graph.outputs = [output('score'), output('riskBand')];
+    const issue = analyzeFlow(graph).find((entry) => entry.code === 'MULTIPLE_PRIMARY_OUTPUTS');
+    expect(issue?.severity).toBe('error');
+  });
+
+  it('NO se queja de salidas de apoyo junto a una única principal', () => {
+    // Un algoritmo real publica el score de cada etapa, el tramo de riesgo y el
+    // precio además de la decisión. Antes se pedía «deja solo la principal», es
+    // decir, borrar datos que alguien consume.
+    const graph = healthy();
+    graph.outputs = [output('score'), secondary('risk_band'), secondary('pricing_tier')];
     const codes = analyzeFlow(graph).map((issue) => issue.code);
-    expect(codes).toContain('MULTIPLE_OUTPUTS');
+    expect(codes).not.toContain('MULTIPLE_PRIMARY_OUTPUTS');
+    expect(codes).not.toContain('NO_PRIMARY_OUTPUT');
+  });
+
+  it('avisa cuando ninguna salida es la conclusión', () => {
+    const graph = healthy();
+    graph.outputs = [secondary('score'), secondary('risk_band')];
+    const codes = analyzeFlow(graph).map((issue) => issue.code);
+    expect(codes).toContain('NO_PRIMARY_OUTPUT');
+  });
+
+  it('cuenta como asignada la salida que escribe un campo calculado', () => {
+    // Se producen también fuera de un nodo Resultado; mirar sólo allí generaba un
+    // aviso falso por cada salida del algoritmo.
+    const graph = healthy();
+    graph.outputs = [output('score'), secondary('dti_publicado')];
+    graph.nodes.push({
+      key: 'CALC',
+      type: 'ACTION',
+      terminal: false,
+      calculatedFieldCalls: [{ target: { kind: 'OUTPUT', code: 'dti_publicado' } }],
+    });
+    graph.edges.push({ key: 'START__CALC', from: 'START', to: 'CALC' });
+    graph.edges.push({ key: 'CALC__RESULT', from: 'CALC', to: 'RESULT' });
+    const unassigned = analyzeFlow(graph).filter((entry) => entry.code === 'OUTPUT_UNASSIGNED');
+    expect(unassigned).toEqual([]);
   });
 
   it('does not flag a healthy single-output tree', () => {
     const codes = analyzeFlow(healthy()).map((issue) => issue.code);
-    expect(codes).not.toContain('MULTIPLE_OUTPUTS');
+    expect(codes).not.toContain('MULTIPLE_PRIMARY_OUTPUTS');
     expect(codes).not.toContain('NODE_NO_TERMINAL_PATH');
   });
 });

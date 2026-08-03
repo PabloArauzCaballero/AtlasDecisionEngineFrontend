@@ -194,3 +194,14 @@ pre {
   border-color: var(--text);
   tab-size: 2;
 }
+
+/* Fila de botones al pie de un panel o formulario.
+   La clase se usaba en cuatro vistas pero no estaba definida en ninguna hoja: los
+   botones salían pegados entre sí y contra el contenido de arriba. */
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}

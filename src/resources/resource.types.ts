@@ -18,7 +18,20 @@ export interface PagedResponse<T> {
  * ejemplos y las restricciones de §1.1— no son cadenas y mandarlas como tales
  * haría que el backend rechazara un ejemplo correcto por tipo.
  */
-export type CreateFieldKind = 'text' | 'textarea' | 'select' | 'checkbox' | 'json';
+export type CreateFieldKind =
+  | 'text'
+  | 'textarea'
+  | 'select'
+  | 'checkbox'
+  | 'json'
+  /**
+   * Restricciones de una variable (§1.1). Se editan campo a campo, con el nombre
+   * elegido de una lista cerrada y filtrado por el tipo de dato: escribirlas como
+   * JSON libre dejaba inventarse claves («máximo», «max_value») que el motor
+   * ignora en silencio. Guarda el mismo TEXTO JSON que `json`, así que el resto
+   * del formulario no cambia, y permite volver al JSON crudo cuando hace falta.
+   */
+  | 'constraints';
 
 export interface CreateFieldOption {
   value: string;
@@ -43,6 +56,20 @@ export interface CreateField {
   /** Uppercases and strips to [A-Z0-9_-] as the user types (stable resource codes). */
   code?: boolean;
   defaultValue?: string | boolean;
+  /**
+   * Clave del campo hermano que contiene el tipo de dato. La necesitan las
+   * restricciones (para ofrecer sólo las que aplican) y los ejemplos (para
+   * comprobarse contra el tipo). Sin ella ambos serían texto libre.
+   */
+  dataTypeKey?: string;
+  /** Clave del campo hermano con las restricciones, para validar un ejemplo. */
+  constraintsKey?: string;
+  /**
+   * Comprueba en vivo que el ejemplo hace lo que promete: `VALID` debe cumplir el
+   * contrato y `INVALID` debe incumplirlo. Un ejemplo que no lo hace documenta mal
+   * la variable, y el backend lo rechaza al guardar.
+   */
+  example?: 'VALID' | 'INVALID';
 }
 
 /**

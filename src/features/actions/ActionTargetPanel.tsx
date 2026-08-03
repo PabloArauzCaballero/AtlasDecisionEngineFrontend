@@ -40,7 +40,7 @@ export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
   return (
     <div className="action-target">
       <label className="field">
-        <span>Algoritmo destino</span>
+        <span>{entry ? 'Algoritmo destino' : 'Algoritmo inicial'}</span>
         <select value={versionId} onChange={(event) => setVersionId(event.target.value)}>
           {versions.map((version) => (
             <option key={version.versionId} value={version.versionId}>
@@ -52,7 +52,9 @@ export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
         <small className="field-hint">
           {exists
             ? 'La acción ya existe en este algoritmo: se reemplazará su definición.'
-            : 'La acción se añadirá al algoritmo; después podrás asignarla a un paso en el editor de grafo.'}
+            : entry
+              ? 'La acción se añadirá al algoritmo; después podrás asignarla a un paso en el editor de grafo.'
+              : 'El motor todavía guarda cada acción dentro de un algoritmo (no es un límite de este portal): elige uno para crearla y luego aplícala a los demás desde su fila en el banco.'}
         </small>
       </label>
 

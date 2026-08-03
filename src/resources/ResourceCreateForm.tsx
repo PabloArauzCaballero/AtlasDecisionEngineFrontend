@@ -18,14 +18,18 @@ import {
   type FieldValue,
 } from './resource-create';
 import type { CreateField, ResourceConfig } from './resource.types';
+import { VariableConstraintsField } from './VariableConstraintsField';
+import { ExampleCheckHint } from './ExampleCheckHint';
 
 interface FieldControlProps {
   field: CreateField;
   value: FieldValue;
   onChange: (value: FieldValue) => void;
+  /** Resto del formulario: las restricciones y los ejemplos dependen del tipo. */
+  siblings: Record<string, FieldValue>;
 }
 
-function FieldControl({ field, value, onChange }: FieldControlProps) {
+function FieldControl({ field, value, onChange, siblings }: FieldControlProps) {
   if (field.kind === 'checkbox') {
     return (
       <label className="field">
@@ -67,6 +71,19 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
 
   const stringValue = String(value);
   const handleText = (raw: string) => onChange(field.code ? normalizeCode(raw) : raw);
+  const sibling = (key?: string) => (key ? String(siblings[key] ?? '') : '');
+
+  if (field.kind === 'constraints') {
+    return (
+      <VariableConstraintsField
+        label={field.label}
+        help={field.help}
+        value={stringValue}
+        onChange={onChange}
+        dataType={sibling(field.dataTypeKey)}
+      />
+    );
+  }
 
   return (
     <label className="field">
@@ -112,6 +129,14 @@ function FieldControl({ field, value, onChange }: FieldControlProps) {
           onChange={(event) => handleText(event.target.value)}
         />
       )}
+      {field.example ? (
+        <ExampleCheckHint
+          value={stringValue}
+          dataType={sibling(field.dataTypeKey)}
+          constraints={sibling(field.constraintsKey)}
+          expects={field.example}
+        />
+      ) : null}
     </label>
   );
 }
@@ -171,6 +196,7 @@ export function ResourceCreateForm({ config, onClose }: ResourceCreateFormProps)
             field={field}
             value={values[field.key]}
             onChange={(value) => setField(field.key, value)}
+            siblings={values}
           />
         ))}
         {jsonErrorMessages.length ? (

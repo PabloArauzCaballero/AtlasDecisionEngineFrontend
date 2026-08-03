@@ -53,6 +53,20 @@
   transform: translateY(0);
 }
 
+/* Dentro de una fila de tabla el globo competía con la cabecera pegajosa
+   (`position: sticky`): al abrirse hacia arriba, en filas cercanas al borde
+   superior se pintaba encima del `<thead>` en vez de quedar oculto tras él.
+   Abrir hacia abajo evita el solape sin tocar el resto de usos del tooltip. */
+.table-wrap .action-row .tooltip-bubble {
+  bottom: auto;
+  top: calc(100% + 6px);
+  transform: translateY(-4px);
+}
+.table-wrap .action-row .tooltip-wrap:hover .tooltip-bubble,
+.table-wrap .action-row .tooltip-wrap:focus-within .tooltip-bubble {
+  transform: translateY(0);
+}
+
 .action-row {
   display: inline-flex;
   gap: 4px;

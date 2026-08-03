@@ -1,0 +1,110 @@
+/**
+ * Motivos estructurados de un campo del contrato de salida (§4).
+ *
+ * Van en su propio archivo, y no junto al resto de `contracts.css`, por el
+ * límite de 299 líneas del repositorio.
+ *
+ * El catálogo real ronda el centenar de códigos: la primera versión los pintaba
+ * todos como casillas en línea y se solapaban unas sobre otras dentro de la fila
+ * del contrato. Ahora sólo ocupan sitio los elegidos y las coincidencias de la
+ * búsqueda, así que el alto es acotado y predecible.
+ */
+.reason-code-picker {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.reason-code-legend {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* Elegidos: fichas que envuelven, cada una con su botón de quitar. */
+.reason-code-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reason-code-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px 3px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: 0.72rem;
+}
+.reason-code-chips code {
+  font-size: 0.72rem;
+}
+.reason-code-chips button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.reason-code-chips button:hover {
+  color: var(--danger);
+}
+
+.reason-code-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+}
+.reason-code-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+}
+.reason-code-search input:focus {
+  outline: none;
+}
+
+/* Coincidencias: lista corta y acotada; nunca crece con el catálogo entero. */
+.reason-code-matches {
+  display: grid;
+  gap: 2px;
+  max-height: 168px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.reason-code-matches li {
+  min-width: 0;
+}
+.reason-code-matches button {
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-align: left;
+  cursor: pointer;
+}
+.reason-code-matches button:hover {
+  background: var(--surface-hover);
+}
+.reason-code-matches .field-hint {
+  padding: 5px 8px;
+}

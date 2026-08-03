@@ -43,11 +43,11 @@ export function ActionNodeEditor({ node, config, actions, onChange }: ActionNode
 
   return (
     <section className="action-node-editor">
-      <h3>Acción que ejecuta</h3>
+      <h3>Efecto que ejecuta</h3>
       <label className="field">
         <span>
           Acción del catálogo
-          <InfoHint text="Las acciones se definen una vez por algoritmo y se reutilizan en los pasos que las necesiten. Aquí eliges cuál ejecuta este paso." />
+          <InfoHint text="Una acción es un EFECTO del paso: emitir un motivo o abrir una revisión manual. Se define una vez por algoritmo y se reutiliza en los pasos que la necesiten. Para CALCULAR un valor no uses una acción: declara un campo calculado y llámalo desde el panel de abajo." />
         </span>
         <select value={code} onChange={(event) => bind(event.target.value)}>
           <option value="">Sin acción asignada…</option>
@@ -70,6 +70,15 @@ export function ActionNodeEditor({ node, config, actions, onChange }: ActionNode
         <p className="field-error">
           El paso apunta a la acción «{code}», que no existe en este grafo. Elige una del catálogo o
           vuelve a importar el algoritmo.
+        </p>
+      ) : null}
+
+      {definition && display(definition, 'type') === 'SET_FIELD' ? (
+        <p className="field-hint action-legacy-note">
+          Esta acción <b>calcula</b> un valor. Los cálculos nuevos se declaran como{' '}
+          <b>campos calculados</b> —abajo, en «Campos calculados que invoca este paso»—, porque se
+          versionan, se prueban con ejemplos y se reutilizan entre algoritmos. Esta se conserva tal
+          cual: seguirá ejecutándose mientras el paso la use.
         </p>
       ) : null}
 

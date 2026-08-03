@@ -86,6 +86,7 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
         ) : (
           <CodeImplementationEditor
             language={draft.implementationKind}
+            inputs={draft.inputs}
             sourceCode={draft.sourceCode ?? ''}
             libraryIds={draft.libraryIds}
             environment={draft.environment}

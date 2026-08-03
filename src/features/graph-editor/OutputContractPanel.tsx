@@ -8,6 +8,8 @@ import {
   TRACE_POLICIES,
   TRACE_POLICY_LABELS,
 } from '../../contracts/data-types';
+import { OutputContractJsonPreview } from './OutputContractJsonPreview';
+import { OutputReasonCodesField } from './OutputReasonCodesField';
 
 interface Props {
   /** Variables del grafo; se usan las declaradas como salida. */
@@ -193,6 +195,14 @@ export function OutputContractPanel({
                     ))}
                   </select>
                 </label>
+                <div className="constraint-field constraint-wide">
+                  <OutputReasonCodesField
+                    selected={(Array.isArray(field?.reasonCodes) ? field.reasonCodes : []).map(
+                      String,
+                    )}
+                    onChange={(reasonCodes) => upsert(code, { reasonCodes })}
+                  />
+                </div>
                 {!required ? (
                   <label className="constraint-field constraint-wide">
                     <span>Motivos por los que puede faltar (uno por línea)</span>
@@ -217,6 +227,8 @@ export function OutputContractPanel({
           );
         })}
       </ul>
+
+      {outputs.length ? <OutputContractJsonPreview outputs={outputs} fields={fields} /> : null}
     </section>
   );
 }
@@ -229,6 +241,7 @@ function defaultField(code: string, firstNodeKey: string): UnknownRecord {
     sourceKind: 'NODE',
     sourceRef: firstNodeKey,
     absenceReasons: [],
+    reasonCodes: [],
     contractVersion: '1',
     sensitivityClass: 'INTERNAL',
     tracePolicy: 'FULL',

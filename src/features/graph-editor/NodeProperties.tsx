@@ -6,6 +6,7 @@ import type { UnknownRecord } from '../../utils/records';
 import { asRecord, asRows, display } from '../../utils/records';
 import { CalculatedFieldCallsPanel } from './CalculatedFieldCallsPanel';
 import { dataFlowHint } from './node-data-flow';
+import { NodeTypeTutorial } from './NodeTypeTutorial';
 import { ActionNodeEditor } from './ActionNodeEditor';
 import { NodeIoPanel } from './NodeIoPanel';
 import { ConditionNodeEditor } from './ConditionNodeEditor';
@@ -101,6 +102,9 @@ export function NodeProperties({
         <strong>Propiedades del nodo</strong>
         <small>{key}</small>
       </div>
+      {/* La guía del tipo va lo primero: explica de dónde sale cada pieza que los
+          campos de abajo piden, que es justo lo que no era evidente. */}
+      <NodeTypeTutorial nodeType={display(node, 'type')} />
       <section>
         <h3>General</h3>
         <label className="field">

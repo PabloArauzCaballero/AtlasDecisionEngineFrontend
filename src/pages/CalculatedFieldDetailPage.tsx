@@ -14,6 +14,7 @@ import { CalculatedFieldVersionForm } from '../features/calculated-fields/Calcul
 import { CalculatedFieldVersionList } from '../features/calculated-fields/CalculatedFieldVersionList';
 import {
   emptyDraft,
+  toVersionPayload,
   type CalculatedFieldDraft,
 } from '../features/calculated-fields/calculated-field.types';
 
@@ -41,7 +42,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
     mutationFn: () =>
       apiRequest<UnknownRecord>(`/v1/calculated-fields/${encodeURIComponent(fieldId)}/versions`, {
         method: 'POST',
-        body: toPayload(draft),
+        body: toVersionPayload(draft),
       }),
     onSuccess: async (created) => {
       setIssues([]);
@@ -91,7 +92,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
       />
 
       {display(field, 'rationale') ? (
-        <Panel title="Por qué existe">
+        <Panel title="Descripción">
           <p>{display(field, 'rationale')}</p>
         </Panel>
       ) : null}
@@ -149,19 +150,4 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
       </p>
     </>
   );
-}
-
-/** Traduce el borrador de la UI al cuerpo que espera la API. */
-function toPayload(draft: CalculatedFieldDraft): UnknownRecord {
-  return {
-    implementationKind: draft.implementationKind,
-    inputs: draft.inputs,
-    returns: draft.returns,
-    comments: draft.comments,
-    operation: draft.operation,
-    sourceCode: draft.sourceCode,
-    libraryIds: draft.libraryIds,
-    environment: draft.environment,
-    timeoutMs: draft.timeoutMs,
-  };
 }

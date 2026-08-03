@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
@@ -16,6 +16,7 @@ import {
   IMPLEMENTATION_LABELS,
   type ImplementationKind,
 } from '../features/calculated-fields/calculated-field.types';
+import { CalculatedFieldCreateWizard } from '../features/calculated-fields/CalculatedFieldCreateWizard';
 
 /**
  * Catálogo de campos calculados reutilizables (§5).
@@ -39,19 +40,15 @@ export function CalculatedFieldsPage() {
       ),
   });
 
-  const create = useMutation({
-    mutationFn: (body: UnknownRecord) =>
-      apiRequest<UnknownRecord>('/v1/calculated-fields', { method: 'POST', body }),
-    onSuccess: async (created) => {
-      notify({
-        tone: 'success',
-        title: `Campo calculado ${display(created, 'fieldCode')} creado`,
-        description: 'Añade una versión con su contrato de retorno para poder usarlo.',
-      });
-      setShowCreate(false);
-      await queryClient.invalidateQueries({ queryKey: ['calculated-fields'] });
-    },
-  });
+  const onCreated = async (created: UnknownRecord) => {
+    notify({
+      tone: 'success',
+      title: `Campo calculado ${display(created, 'fieldCode')} creado`,
+      description: 'Ya tiene su versión 1: pruébala y publícala cuando esté lista.',
+    });
+    setShowCreate(false);
+    await queryClient.invalidateQueries({ queryKey: ['calculated-fields'] });
+  };
 
   const rows = asRows(asRecord(query.data).items);
 
@@ -74,9 +71,9 @@ export function CalculatedFieldsPage() {
 
       {showCreate ? (
         <Panel title="Nuevo campo calculado">
-          <CreateCalculatedFieldForm
-            pending={create.isPending}
-            onSubmit={(body) => create.mutate(body)}
+          <CalculatedFieldCreateWizard
+            onCancel={() => setShowCreate(false)}
+            onCreated={onCreated}
           />
         </Panel>
       ) : null}
@@ -137,93 +134,5 @@ export function CalculatedFieldsPage() {
         )}
       </Panel>
     </>
-  );
-}
-
-function CreateCalculatedFieldForm({
-  pending,
-  onSubmit,
-}: {
-  pending: boolean;
-  onSubmit: (body: UnknownRecord) => void;
-}) {
-  // Todo vacío: una categoría y un equipo prerrellenados se envían tal cual si
-  // nadie los mira, y quedan en el catálogo como si alguien los hubiera elegido.
-  const [form, setForm] = useState({
-    fieldCode: '',
-    name: '',
-    description: '',
-    rationale: '',
-    category: '',
-    ownerTeam: '',
-  });
-  const patch = (change: Partial<typeof form>) => setForm((current) => ({ ...current, ...change }));
-
-  return (
-    <form
-      className="constraint-grid"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onSubmit(form);
-      }}
-    >
-      <label className="constraint-field">
-        <span>Código técnico</span>
-        <input
-          required
-          pattern="[a-z][a-z0-9_]{2,119}"
-          title="Minúsculas, números y guion bajo"
-          value={form.fieldCode}
-          onChange={(event) => patch({ fieldCode: event.target.value })}
-        />
-      </label>
-      <label className="constraint-field">
-        <span>Nombre visible</span>
-        <input
-          required
-          value={form.name}
-          onChange={(event) => patch({ name: event.target.value })}
-        />
-      </label>
-      <label className="constraint-field">
-        <span>Categoría</span>
-        <input
-          required
-          value={form.category}
-          onChange={(event) => patch({ category: event.target.value })}
-        />
-      </label>
-      <label className="constraint-field">
-        <span>Equipo responsable</span>
-        <input
-          required
-          value={form.ownerTeam}
-          onChange={(event) => patch({ ownerTeam: event.target.value })}
-        />
-      </label>
-      <label className="constraint-field constraint-wide">
-        <span>Descripción</span>
-        <textarea
-          required
-          rows={2}
-          value={form.description}
-          onChange={(event) => patch({ description: event.target.value })}
-        />
-      </label>
-      <label className="constraint-field constraint-wide">
-        <span>Justificación funcional: ¿por qué existe este cálculo?</span>
-        <textarea
-          required
-          rows={2}
-          value={form.rationale}
-          onChange={(event) => patch({ rationale: event.target.value })}
-        />
-      </label>
-      <div className="constraint-wide">
-        <button className="button button-primary" type="submit" disabled={pending}>
-          {pending ? 'Creando…' : 'Crear campo calculado'}
-        </button>
-      </div>
-    </form>
   );
 }

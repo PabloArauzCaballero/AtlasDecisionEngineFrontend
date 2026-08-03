@@ -1,13 +1,37 @@
+name: atlas-decision-frontend
+
 services:
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
     image: atlas-decision-frontend:3.0.0
+    # 5173 es el puerto del servidor de desarrollo (`yarn dev`). Publicar aquí el
+    # contenedor en el mismo número obligaba a adivinar cuál de los dos estabas
+    # mirando —y el navegador servía la versión cacheada del otro—. El contenedor
+    # vive en 5180 para que ambos puedan convivir sin ambigüedad.
     ports:
-      - '5173:3000'
+      - '${FRONTEND_PORT:-5180}:3000'
     environment:
-      DECISION_ENGINE_URL: ${DECISION_ENGINE_URL:-http://atlas-decision-backend:3000}
+      # `api` es el nombre del servicio del motor DENTRO de su propia red de
+      # Compose (proyecto `atlas-decision-engine`), a la que este contenedor se
+      # engancha abajo. No se usa `host.docker.internal` porque el motor publica
+      # su puerto solo en 127.0.0.1 del anfitrión: alcanzable desde el navegador,
+      # pero no desde otro contenedor. Contenedor a contenedor no depende de
+      # ninguna publicación de puertos.
+      DECISION_ENGINE_URL: ${DECISION_ENGINE_URL:-http://api:3000}
       TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
       NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-SANDBOX}
+    networks:
+      - default
+      - atlas-engine
     restart: unless-stopped
+
+networks:
+  # Red que crea el compose del motor (`name: atlas-decision-engine` → red
+  # `atlas-decision-engine_default`). Es EXTERNA a propósito: este proyecto no la
+  # gestiona, solo se conecta. Hay que levantar el motor primero; si no existe,
+  # Compose lo dice en vez de arrancar un frontend que no llega a ningún sitio.
+  atlas-engine:
+    external: true
+    name: atlas-decision-engine_default

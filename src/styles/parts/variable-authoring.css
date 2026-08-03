@@ -1,0 +1,39 @@
+/**
+ * Alta de una variable: restricciones por campos y coherencia de los ejemplos.
+ *
+ * En archivo propio, y no dentro de `contracts.css`, por el límite de 299 líneas
+ * del repositorio.
+ */
+
+/* Restricciones en el alta de una variable: cabecera con el conmutador a JSON. */
+.constraints-field-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.constraints-json-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--warning-line, var(--line));
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash, var(--surface-muted));
+  color: var(--text);
+  font-size: 0.74rem;
+}
+.example-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.example-ok {
+  color: var(--success-text, var(--text-muted));
+}
+.example-warn {
+  color: var(--danger-text, var(--text-muted));
+}

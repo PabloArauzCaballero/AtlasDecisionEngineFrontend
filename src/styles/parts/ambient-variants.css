@@ -55,7 +55,11 @@
   display: none;
 }
 .ambient-editor .ambient-aurora {
-  opacity: 0.5;
+  /* El propio lienzo del grafo ya aporta su lechada radial (`.graph-canvas`),
+     así que aquí se atenúa más que en el resto de zonas —a diferencia de la
+     red de nodos, no se retira del todo porque el resto de la pantalla, fuera
+     del lienzo, se quedaría plana. */
+  opacity: 0.28;
 }
 .ambient-editor .ambient-beam {
   opacity: 0;
@@ -65,8 +69,11 @@
      competir con el trabajo de diseñar el algoritmo. */
   animation: ambient-sweep 34s ease-in-out infinite;
 }
+/* El lienzo del grafo ya pinta su propia trama de puntos (`.canvas-grid`):
+   mantener también la de este fondo duplicaba la trama y sumaba la lechada de
+   ambas capas, dando el aspecto sucio reportado en el editor. */
 .ambient-editor .ambient-grid {
-  opacity: 0.6;
+  display: none;
 }
 
 /**

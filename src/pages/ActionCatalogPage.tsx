@@ -8,6 +8,7 @@ import { DataTable, type TableColumn } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { NavLink } from '../navigation/NavLink';
 import {
   bankOptions,
   EMPTY_BANK_FILTERS,
@@ -94,7 +95,7 @@ export function ActionCatalogPage() {
         eyebrow="F2 · Banco"
         title="Acciones y transformaciones"
         description="El repertorio de lo que las decisiones saben hacer: calcular un campo, emitir un motivo o abrir una revisión. Se define una vez y se aplica a los algoritmos que lo necesiten."
-        hint="El banco reúne las acciones de todos los algoritmos. Desde cada fila puedes aplicarla a otro algoritmo; asignarla a un paso concreto se hace después en el editor de grafo."
+        hint="El banco reúne las acciones de todos los algoritmos. Desde cada fila puedes aplicarla a otro algoritmo; asignarla a un paso concreto se hace después en el editor de grafo. Una acción se define igual para todos, pero el motor todavía la guarda dentro de un algoritmo, así que crear una obliga a elegir uno de partida (ver docs/banco-de-acciones.md)."
         actions={
           <button className="button button-primary" type="button" onClick={() => edit(null)}>
             <Plus size={16} /> Crear acción
@@ -182,6 +183,16 @@ export function ActionCatalogPage() {
         ) : null}
       </form>
 
+      {/* Reparto de competencias: aquí viven los EFECTOS; los cálculos son campos
+          calculados, que se versionan y se prueban con ejemplos. Sin decirlo, las
+          dos pantallas parecían resolver lo mismo de dos maneras distintas. */}
+      <Alert tone="info">
+        <b>¿Calcular un valor?</b> Eso no es una acción: declara un{' '}
+        <NavLink href="/calculated-fields">campo calculado</NavLink> y llámalo desde el paso que lo
+        necesite. Se versiona, se prueba con ejemplos y lo comparten varios algoritmos. Aquí se
+        definen los <b>efectos</b>: emitir un motivo o abrir una revisión manual.
+      </Alert>
+
       {bank.isError ? <Alert tone="error">{errorMessage(bank.error)}</Alert> : null}
       {divergent ? (
         <Alert tone="warning">
@@ -194,7 +205,7 @@ export function ActionCatalogPage() {
       ) : null}
 
       {open ? (
-        <Panel title={editing ? `Aplicar ${editing.code}` : 'Nueva acción'}>
+        <Panel title={editing ? `Aplicar ${editing.code}` : 'Nueva acción · elige dónde crearla'}>
           <ActionTargetPanel
             entry={editing}
             versions={bank.versions}

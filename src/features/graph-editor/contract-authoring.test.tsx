@@ -1,10 +1,15 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { apiRequest } from '../../api/http-client';
 import { ConstraintEditor } from './ConstraintEditor';
 import { IntermediateVariableManager } from './IntermediateVariableManager';
 import { OutputContractPanel } from './OutputContractPanel';
 import { NodeVariableStatePanel } from './NodeVariableStatePanel';
 import type { UnknownRecord } from '../../utils/records';
+
+vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
+const mockedApiRequest = vi.mocked(apiRequest);
 
 /**
  * Autoría de contratos en el editor (§1.2, §2, §3.1, §4).
@@ -111,30 +116,33 @@ describe('OutputContractPanel', () => {
     { code: 'motivo', usageType: 'OUTPUT', dataType: 'STRING', required: false },
   ];
 
-  it('avisa de las salidas sin origen declarado', () => {
+  /** El panel consulta el catálogo de reason codes, así que necesita cliente. */
+  function renderPanel(props: { outputContract: UnknownRecord[]; onChange: () => void }) {
+    mockedApiRequest.mockResolvedValue({ items: [{ reasonCode: 'DTI_TOO_HIGH' }] });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
     render(
-      <OutputContractPanel
-        variables={outputs}
-        intermediates={[]}
-        nodes={nodes}
-        outputContract={[]}
-        onChange={vi.fn()}
-      />,
+      <QueryClientProvider client={client}>
+        <OutputContractPanel
+          variables={outputs}
+          intermediates={[]}
+          nodes={nodes}
+          outputContract={props.outputContract}
+          onChange={props.onChange}
+        />
+      </QueryClientProvider>,
     );
+  }
+
+  it('avisa de las salidas sin origen declarado', () => {
+    renderPanel({ outputContract: [], onChange: vi.fn() });
     expect(screen.getByText(/2 salida\(s\) sin origen declarado/)).toBeInTheDocument();
   });
 
   it('declara de golpe las que faltan con un origen por defecto', () => {
     const onChange = vi.fn();
-    render(
-      <OutputContractPanel
-        variables={outputs}
-        intermediates={[]}
-        nodes={nodes}
-        outputContract={[]}
-        onChange={onChange}
-      />,
-    );
+    renderPanel({ outputContract: [], onChange });
     fireEvent.click(screen.getByRole('button', { name: /Declarar las 2 que faltan/ }));
     expect(onChange).toHaveBeenCalledWith([
       expect.objectContaining({ code: 'decision', sourceKind: 'NODE', sourceRef: 'START' }),
@@ -143,19 +151,42 @@ describe('OutputContractPanel', () => {
   });
 
   it('solo pide motivos de ausencia en los campos opcionales', () => {
-    render(
-      <OutputContractPanel
-        variables={outputs}
-        intermediates={[]}
-        nodes={nodes}
-        outputContract={[
-          { code: 'decision', sourceKind: 'NODE', sourceRef: 'FIN', absenceReasons: [] },
-          { code: 'motivo', sourceKind: 'NODE', sourceRef: 'FIN', absenceReasons: [] },
-        ]}
-        onChange={vi.fn()}
-      />,
-    );
+    renderPanel({
+      outputContract: [
+        { code: 'decision', sourceKind: 'NODE', sourceRef: 'FIN', absenceReasons: [] },
+        { code: 'motivo', sourceKind: 'NODE', sourceRef: 'FIN', absenceReasons: [] },
+      ],
+      onChange: vi.fn(),
+    });
     expect(screen.getAllByText('Motivos por los que puede faltar (uno por línea)')).toHaveLength(1);
+  });
+
+  it('adjunta un reason code al campo de salida elegido (§4)', async () => {
+    const onChange = vi.fn();
+    renderPanel({
+      outputContract: [{ code: 'decision', sourceKind: 'NODE', sourceRef: 'FIN' }],
+      onChange,
+    });
+    // El catálogo real ronda el centenar de códigos, así que se buscan en vez de
+    // listarse. Cada salida tiene su propio buscador; el primero es el de `decision`.
+    const [search] = await screen.findAllByLabelText('Buscar un reason code para añadirlo');
+    fireEvent.change(search!, { target: { value: 'dti' } });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'DTI_TOO_HIGH' }));
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({ code: 'decision', reasonCodes: ['DTI_TOO_HIGH'] }),
+    ]);
+  });
+
+  it('no vuelca el catálogo entero: sin búsqueda no lista ningún motivo', async () => {
+    renderPanel({
+      outputContract: [{ code: 'decision', sourceKind: 'NODE', sourceRef: 'FIN' }],
+      onChange: vi.fn(),
+    });
+    // La primera versión pintaba los ~96 códigos como casillas y se solapaban
+    // dentro de la fila del contrato.
+    await screen.findAllByLabelText('Buscar un reason code para añadirlo');
+    expect(screen.queryByRole('button', { name: 'DTI_TOO_HIGH' })).not.toBeInTheDocument();
   });
 });
 

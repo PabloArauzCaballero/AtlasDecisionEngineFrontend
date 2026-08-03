@@ -86,6 +86,27 @@ export function countExecutableLines(source: string, language: ImplementationKin
     .filter((line) => line.length > 0 && !line.startsWith(prefix)).length;
 }
 
+/**
+ * Traduce el borrador de la UI al cuerpo que espera la API al crear una versión.
+ *
+ * Vive aquí y no en una página porque lo usan los DOS caminos que publican una
+ * versión: el alta de un campo nuevo y la creación de versiones sobre uno que ya
+ * existe. Duplicarlo era garantizar que un día divergieran.
+ */
+export function toVersionPayload(draft: CalculatedFieldDraft): Record<string, unknown> {
+  return {
+    implementationKind: draft.implementationKind,
+    inputs: draft.inputs,
+    returns: draft.returns,
+    comments: draft.comments,
+    operation: draft.operation,
+    sourceCode: draft.sourceCode,
+    libraryIds: draft.libraryIds,
+    environment: draft.environment,
+    timeoutMs: draft.timeoutMs,
+  };
+}
+
 export function emptyDraft(): CalculatedFieldDraft {
   return {
     implementationKind: 'OPERATION',

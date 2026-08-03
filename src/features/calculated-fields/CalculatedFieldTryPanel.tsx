@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { CheckCircle2, Play, XCircle } from 'lucide-react';
+import { CheckCircle2, Play, Wand2, XCircle } from 'lucide-react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
@@ -30,6 +30,34 @@ export function CalculatedFieldTryPanel({ versionId, inputs, testCases }: Props)
       ),
   });
 
+  /**
+   * Rellena el formulario con valores derivados del contrato de la versión.
+   *
+   * Los genera el backend con el MISMO generador del QA Lab, no el navegador: así
+   * «válido» y «frontera» significan aquí lo mismo que allí, y el lote es
+   * reproducible por semilla. Se escriben en el formulario en vez de ejecutarse
+   * directamente, para poder revisarlos —o retocarlos— antes de probar.
+   */
+  const generate = useMutation({
+    mutationFn: (kind: 'VALID' | 'BOUNDARY' | 'INVALID') =>
+      apiRequest<UnknownRecord>(
+        `/v1/calculated-fields/versions/${encodeURIComponent(versionId)}/sample-inputs`,
+        { method: 'POST', body: { kind, count: 1 } },
+      ),
+    onSuccess: (batch) => {
+      const generated = asRecord(asRows(asRecord(batch).cases)[0]).input;
+      if (!generated) return;
+      setValues(
+        Object.fromEntries(
+          Object.entries(asRecord(generated)).map(([key, value]) => [
+            key,
+            typeof value === 'string' ? value : JSON.stringify(value),
+          ]),
+        ),
+      );
+    },
+  });
+
   const runTests = useMutation({
     mutationFn: () =>
       apiRequest<UnknownRecord>(
@@ -39,6 +67,7 @@ export function CalculatedFieldTryPanel({ versionId, inputs, testCases }: Props)
   });
 
   const report = asRecord(runTests.data);
+  const generatedSeed = display(asRecord(generate.data), 'seed');
 
   return (
     <div className="calculated-try">
@@ -73,6 +102,38 @@ export function CalculatedFieldTryPanel({ versionId, inputs, testCases }: Props)
         >
           <Play size={14} aria-hidden /> {tryRun.isPending ? 'Ejecutando…' : 'Ejecutar ejemplo'}
         </button>
+        {inputs.length ? (
+          <>
+            <button
+              type="button"
+              className="button"
+              disabled={generate.isPending}
+              title="Rellena el formulario con valores que cumplen el contrato"
+              onClick={() => generate.mutate('VALID')}
+            >
+              <Wand2 size={14} aria-hidden />{' '}
+              {generate.isPending ? 'Generando…' : 'Generar ejemplo'}
+            </button>
+            <button
+              type="button"
+              className="button"
+              disabled={generate.isPending}
+              title="Valores en el límite de las restricciones: es donde suelen aparecer los fallos"
+              onClick={() => generate.mutate('BOUNDARY')}
+            >
+              En el límite
+            </button>
+            <button
+              type="button"
+              className="button"
+              disabled={generate.isPending}
+              title="Valores que el contrato DEBE rechazar: comprueba que la política de error funciona"
+              onClick={() => generate.mutate('INVALID')}
+            >
+              Inválido
+            </button>
+          </>
+        ) : null}
         {testCases.length ? (
           <button
             type="button"
@@ -84,6 +145,18 @@ export function CalculatedFieldTryPanel({ versionId, inputs, testCases }: Props)
           </button>
         ) : null}
       </div>
+
+      {generate.isSuccess && generatedSeed !== '—' ? (
+        <small className="field-hint">
+          Valores generados del contrato · semilla <code>{generatedSeed}</code> — repítela para
+          reproducir exactamente este mismo lote.
+        </small>
+      ) : null}
+      {generate.isError ? (
+        <p className="constraint-result constraint-invalid">
+          <XCircle size={14} aria-hidden /> {errorMessage(generate.error)}
+        </p>
+      ) : null}
 
       {tryRun.isSuccess ? (
         <p className="constraint-result constraint-valid">

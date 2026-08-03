@@ -16,6 +16,8 @@ export interface TableColumn<T> {
   label: string;
   mono?: boolean;
   status?: boolean;
+  /** Con `status`, traduce valores crudos del backend a etiquetas legibles. */
+  labels?: Record<string, string>;
   /**
    * Dot-notation path into the row for nested or renamed backend fields, e.g.
    * 'artifactVersion.artifact.artifactCode'. When set it overrides `key` as the
@@ -168,7 +170,11 @@ export function DataTable<T extends Record<string, unknown>>({
                         .join(' ');
                       return (
                         <td key={column.key} className={classes || undefined}>
-                          {column.status ? <StatusBadge value={value} /> : formatCell(value)}
+                          {column.status ? (
+                            <StatusBadge value={value} labels={column.labels} />
+                          ) : (
+                            formatCell(value)
+                          )}
                         </td>
                       );
                     })}

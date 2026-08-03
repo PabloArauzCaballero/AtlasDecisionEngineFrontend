@@ -14,11 +14,26 @@ interface Props {
 
 type Mode = 'guided' | 'expression';
 
-const TYPES = [
+interface ActionTypeOption {
+  value: string;
+  label: string;
+  hint: string;
+  /** Sólo seleccionable al editar una acción que ya es de este tipo. */
+  legacy?: boolean;
+}
+
+const TYPES: readonly ActionTypeOption[] = [
   {
     value: 'SET_FIELD',
     label: 'Calcular y escribir un campo',
     hint: 'Escribe un valor que otros pasos podrán leer.',
+    /**
+     * Sólo al EDITAR una acción que ya es de este tipo. Calcular pasó a ser
+     * competencia de los campos calculados: son versionados, se prueban con
+     * ejemplos y se reutilizan entre algoritmos, cosas que una acción no hace.
+     * Se conserva para no romper las acciones existentes ni impedir corregirlas.
+     */
+    legacy: true,
   },
   {
     value: 'EMIT_REASON',
@@ -53,7 +68,7 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
   // traer un árbol que el modo guiado no puede representar sin perder detalle.
   const [mode, setMode] = useState<Mode>(seed.valueExpression ? 'expression' : 'guided');
   const [code, setCode] = useState(initial ? display(initial, 'code') : '');
-  const [type, setType] = useState<string>(initial ? display(initial, 'type') : 'SET_FIELD');
+  const [type, setType] = useState<string>(initial ? display(initial, 'type') : 'EMIT_REASON');
   const [field, setField] = useState(
     seed.field !== undefined ? String(seed.field) : String(seed.queueCode ?? ''),
   );
@@ -68,6 +83,10 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
       : '{\n  "var": "score_buro"\n}',
   );
   const [error, setError] = useState<string | null>(null);
+
+  // Al crear, «calcular un campo» ya no se ofrece: eso son campos calculados.
+  // Al editar una acción que ya lo es, sí, para poder arreglarla.
+  const selectableTypes = TYPES.filter((entry) => !entry.legacy || type === entry.value);
 
   const normalizedCode = code
     .trim()
@@ -148,7 +167,7 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
         <label className="field">
           <span>Qué hace</span>
           <select value={type} onChange={(event) => setType(event.target.value)}>
-            {TYPES.map((entry) => (
+            {selectableTypes.map((entry) => (
               <option key={entry.value} value={entry.value}>
                 {entry.label}
               </option>

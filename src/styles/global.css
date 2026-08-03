@@ -8,6 +8,7 @@
 @import './parts/auth-feedback.css';
 @import './parts/corporate.css';
 @import './parts/graph-shell.css';
+@import './parts/node-tutorial.css';
 @import './parts/graph-toolbar.css';
 @import './parts/graph-canvas.css';
 @import './parts/graph-canvas-feedback.css';
@@ -51,6 +52,8 @@
 @import './parts/node-io.css';
 @import './parts/contracts.css';
 @import './parts/contract-panels.css';
+@import './parts/variable-authoring.css';
+@import './parts/output-reason-codes.css';
 @import './parts/calculated-fields.css';
 @import './parts/libraries-qa.css';
 @import './parts/simulator-samples.css';

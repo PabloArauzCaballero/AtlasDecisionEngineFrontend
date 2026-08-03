@@ -23,8 +23,10 @@
     "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@tanstack/react-query": "^5.83.0",
     "lucide-react": "^0.468.0",
+    "monaco-editor": "^0.56.0",
     "next": "16.2.1",
     "react": "19.2.7",
     "react-dom": "19.2.7",

@@ -6,6 +6,7 @@ import {
   variablesCreateStaticBody,
 } from './resource.create-fields';
 import type { ResourceConfig } from './resource.types';
+import { SENSITIVITY_LABELS } from '../contracts/data-types';
 
 /** Enum values whose code is already a readable label. */
 const opts = (...values: string[]) => values.map((value) => ({ value, label: value }));
@@ -59,6 +60,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
         key: 'sensitivity',
         label: 'Sensitivity',
         status: true,
+        labels: SENSITIVITY_LABELS,
         hint: 'Si el dato es sensible (PII) y el motor debe tratarlo con controles reforzados.',
       },
       { key: 'status', label: 'Status', status: true },

@@ -5,7 +5,12 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { LibraryChip } from '../libraries/LibraryChip';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
 import { dataTypeLabel } from '../../contracts/data-types';
-import { IMPLEMENTATION_LABELS, type ImplementationKind } from './calculated-field.types';
+import {
+  IMPLEMENTATION_LABELS,
+  type ImplementationKind,
+  type OperationNode,
+} from './calculated-field.types';
+import { summarizeOperation } from './operation-summary';
 import { CalculatedFieldTryPanel } from './CalculatedFieldTryPanel';
 
 interface Props {
@@ -32,6 +37,22 @@ const STATUS_ACTION_LABEL: Record<string, string> = {
   RETIRED: 'Retirar',
 };
 
+/**
+ * Resumen de una línea de lo que calcula la versión, sea cual sea su modalidad.
+ * Para código se muestra la primera línea ejecutable: basta para reconocerlo sin
+ * abrir el detalle.
+ */
+function formulaOf(version: UnknownRecord): string {
+  if (version.operation) return summarizeOperation(version.operation as OperationNode);
+  const source = display(version, 'sourceCode');
+  if (source === '—') return '';
+  const first = source
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line && !line.startsWith('//') && !line.startsWith('#'));
+  return first ?? '';
+}
+
 export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
   const [openId, setOpenId] = useState('');
 
@@ -56,6 +77,12 @@ export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
                   ] ?? display(version, 'implementationKind')}
                 </small>
                 <small>devuelve {dataTypeLabel(returns?.dataType)}</small>
+                {/* La fórmula es el dato que define el campo: estaba sólo dentro
+                    del detalle desplegado, así que la lista no decía QUÉ calcula
+                    ninguna de sus versiones. */}
+                {formulaOf(version) ? (
+                  <code className="version-formula">{formulaOf(version)}</code>
+                ) : null}
               </button>
               <div className="calculated-version-actions">
                 {(NEXT_STATUS[status] ?? []).map((next) => (
@@ -81,6 +108,12 @@ export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
 
                 {display(version, 'sourceCode') ? (
                   <pre className="code-block">{display(version, 'sourceCode')}</pre>
+                ) : null}
+
+                {version.operation ? (
+                  <pre className="code-block">
+                    {summarizeOperation(version.operation as OperationNode)}
+                  </pre>
                 ) : null}
 
                 <dl className="definition-grid">
