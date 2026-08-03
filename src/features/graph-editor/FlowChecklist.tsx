@@ -7,6 +7,8 @@ interface FlowChecklistProps {
   edges: UnknownRecord[];
   inputs: UnknownRecord[];
   outputs: UnknownRecord[];
+  /** Catálogo de acciones: resuelve qué salida escribe cada paso de acción. */
+  actions?: UnknownRecord[];
   onSelectNode?: (key: string) => void;
 }
 
@@ -15,9 +17,16 @@ interface FlowChecklistProps {
  * consistency rules the compiler cares about — reachable terminal, produced
  * outputs, real input references — before the author hits Validar/Guardar.
  */
-export function FlowChecklist({ nodes, edges, inputs, outputs, onSelectNode }: FlowChecklistProps) {
+export function FlowChecklist({
+  nodes,
+  edges,
+  inputs,
+  outputs,
+  actions = [],
+  onSelectNode,
+}: FlowChecklistProps) {
   if (!nodes.length) return null;
-  const issues = analyzeFlow({ nodes, edges, inputs, outputs });
+  const issues = analyzeFlow({ nodes, edges, inputs, outputs, actions });
   const errors = issues.filter((issue) => issue.severity === 'error');
   const primary = outputs.find((output) => output.usageType === 'OUTPUT_PRIMARY');
   const primaryOutput = primary ? display(primary, 'code') : '';

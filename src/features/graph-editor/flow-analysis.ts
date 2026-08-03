@@ -13,6 +13,12 @@ export interface FlowInput {
   edges: UnknownRecord[];
   inputs: UnknownRecord[];
   outputs: UnknownRecord[];
+  /**
+   * Catálogo de acciones del grafo. Hace falta porque una acción que escribe un
+   * campo lleva el destino en SU definición (`payload.field`), no en el nodo que
+   * la ejecuta: sin esto no había forma de saber qué salidas quedan cubiertas.
+   */
+  actions?: UnknownRecord[];
 }
 
 const TERMINAL_TYPES = new Set(['RESULT', 'END', 'MANUAL_REVIEW']);
@@ -72,11 +78,28 @@ function canReachTerminal(nodes: UnknownRecord[], edges: UnknownRecord[]): Set<s
  * su score y su decisión por el camino— acumulara un aviso por cada salida, todos
  * falsos, y ninguno accionable.
  */
-function assignedOutputCodes(nodes: UnknownRecord[]): { codes: Set<string>; hasScript: boolean } {
+function assignedOutputCodes(
+  nodes: UnknownRecord[],
+  actions: UnknownRecord[] = [],
+): { codes: Set<string>; hasScript: boolean } {
   const codes = new Set<string>();
   let hasScript = false;
+
+  // Campo que escribe cada acción del catálogo, por código de acción.
+  const fieldByAction = new Map<string, string>();
+  for (const action of actions) {
+    const field = display(asRecord(action.payload), 'field');
+    if (field !== '—') fieldByAction.set(display(action, 'code'), field);
+  }
+
   for (const node of nodes) {
     const config = asRecord(node.config);
+
+    // Acciones que ejecuta el nodo: el destino está en la definición, no aquí.
+    for (const binding of asRows(node.actions)) {
+      const written = fieldByAction.get(display(binding, 'actionCode', 'code'));
+      if (written) codes.add(written);
+    }
 
     // Campos calculados invocados por el nodo, con destino en una salida.
     for (const call of asRows(node.calculatedFieldCalls)) {
@@ -113,7 +136,13 @@ function assignedOutputCodes(nodes: UnknownRecord[]): { codes: Set<string>; hasS
  * assignments referencing real inputs, and no orphan nodes. Pure and deterministic
  * so the editor can surface it live and tests can pin every rule.
  */
-export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowIssue[] {
+export function analyzeFlow({
+  nodes,
+  edges,
+  inputs,
+  outputs,
+  actions = [],
+}: FlowInput): FlowIssue[] {
   const issues: FlowIssue[] = [];
   if (!nodes.length) return issues;
 
@@ -215,7 +244,7 @@ export function analyzeFlow({ nodes, edges, inputs, outputs }: FlowInput): FlowI
   }
 
   // Every declared output should be produced by some RESULT node.
-  const { codes: assigned, hasScript } = assignedOutputCodes(nodes);
+  const { codes: assigned, hasScript } = assignedOutputCodes(nodes, actions);
   if (!hasScript) {
     for (const output of outputs) {
       const code = display(output, 'code');

@@ -1,6 +1,16 @@
 .table-wrap {
   width: 100%;
   overflow: auto;
+  /* `min-width: 0` rompe la regla por defecto de grid/flex, donde un ítem vale
+     `min-width: auto` y por tanto SE NIEGA a encogerse por debajo de su contenido.
+     Sin esto, una tabla con celdas largas (los payloads JSON de los casos de
+     prueba) no scrollea dentro de su caja: estira el layout entero y la página se
+     desplaza en horizontal, arrastrando incluso la barra lateral. */
+  min-width: 0;
+}
+/* Un panel que contiene tabla debe poder encogerse por el mismo motivo. */
+.panel {
+  min-width: 0;
 }
 table {
   width: 100%;

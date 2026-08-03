@@ -4,6 +4,7 @@ import { BookOpen, ChevronDown, Cpu, Landmark } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { resolveExplanation } from './view-explanations';
+import { viewExamples } from './view-examples';
 
 const STORAGE_KEY = 'de.viewExplainer.open';
 
@@ -15,6 +16,9 @@ const STORAGE_KEY = 'de.viewExplainer.open';
 export function ViewExplainer() {
   const pathname = usePathname() ?? '';
   const explanation = resolveExplanation(pathname);
+  // El ejemplo se resuelve con la MISMA clave que la explicación (primer segmento
+  // de la ruta), así que una vista de detalle hereda el de su sección.
+  const example = viewExamples[pathname.split('/').filter(Boolean)[0] ?? ''];
   const [open, setOpen] = useState(true);
 
   useEffect(() => {
@@ -53,6 +57,14 @@ export function ViewExplainer() {
               <Landmark size={16} aria-hidden /> Explicación de negocio
             </header>
             <p>{explanation.business}</p>
+            {/* Un caso concreto: la explicación dice PARA QUÉ sirve la pantalla,
+                y esto qué harías tú hoy con ella. Sin el ejemplo, quien no conoce
+                el dominio se queda con una definición que no sabe aplicar. */}
+            {example ? (
+              <p className="ve-example">
+                <b>Por ejemplo:</b> {example}
+              </p>
+            ) : null}
           </article>
           <article className="ve-card ve-systems">
             <header>

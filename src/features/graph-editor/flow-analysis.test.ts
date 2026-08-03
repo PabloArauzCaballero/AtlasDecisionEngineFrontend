@@ -174,6 +174,34 @@ describe('analyzeFlow', () => {
     expect(unassigned).toEqual([]);
   });
 
+  it('cuenta como asignada la salida que escribe una ACCIÓN del catálogo', () => {
+    // El destino vive en la definición de la acción (`payload.field`), no en el
+    // nodo. Sin resolverlo, un algoritmo real cuyas etapas escriben con acciones
+    // acumulaba un aviso falso por CADA salida: 26 de 27 en el demo.
+    const graph = healthy();
+    graph.outputs = [output('score'), secondary('kyc_decision')];
+    graph.actions = [{ code: 'SET_KYC', type: 'SET_FIELD', payload: { field: 'kyc_decision' } }];
+    graph.nodes.push({
+      key: 'KYC',
+      type: 'ACTION',
+      terminal: false,
+      config: {},
+      actions: [{ actionCode: 'SET_KYC', order: 1 }],
+    });
+    graph.edges.push({ key: 'START__KYC', from: 'START', to: 'KYC' });
+    graph.edges.push({ key: 'KYC__RESULT', from: 'KYC', to: 'RESULT' });
+    expect(analyzeFlow(graph).filter((i) => i.code === 'OUTPUT_UNASSIGNED')).toEqual([]);
+  });
+
+  it('sigue avisando de la salida que NADIE escribe', () => {
+    const graph = healthy();
+    graph.outputs = [output('score'), secondary('huerfana')];
+    const codes = analyzeFlow(graph)
+      .filter((i) => i.code === 'OUTPUT_UNASSIGNED')
+      .map((i) => i.message);
+    expect(codes.join(' ')).toContain('huerfana');
+  });
+
   it('does not flag a healthy single-output tree', () => {
     const codes = analyzeFlow(healthy()).map((issue) => issue.code);
     expect(codes).not.toContain('MULTIPLE_PRIMARY_OUTPUTS');

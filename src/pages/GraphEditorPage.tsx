@@ -201,6 +201,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         edges={editor.edges}
         inputs={editor.inputs}
         outputs={editor.outputs}
+        actions={editor.actions}
         onSelectNode={editor.selectNode}
       />
       {hasVersion ? <GraphNotesPanel versionId={editor.versionId} /> : null}

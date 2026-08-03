@@ -19,7 +19,16 @@ const VIEWPORTS = [
   { name: 'panorámico', width: 1920, height: 1080 },
 ] as const;
 
-const ROUTES = ['/variables', '/calculated-fields', '/action-catalog', '/graph-editor'] as const;
+const ROUTES = [
+  '/variables',
+  '/calculated-fields',
+  '/action-catalog',
+  '/graph-editor',
+  // Payloads y resultados esperados son JSON largo: es la tabla más ancha del
+  // portal y la primera que empuja la página entera si una celda no se recorta.
+  '/test-cases',
+  '/test-suites',
+] as const;
 
 for (const viewport of VIEWPORTS) {
   test.describe(`${viewport.name} · ${viewport.width}×${viewport.height}`, () => {
