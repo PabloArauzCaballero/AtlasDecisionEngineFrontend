@@ -9,6 +9,7 @@ import { LiveNodeStepList, type LiveNodeStep } from '../components/LiveNodeStepL
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { JsonPanel } from '../components/JsonPanel';
+import { LiveExecutionSampleBar } from '../features/live-execution/LiveExecutionSampleBar';
 import { JsonTextarea } from '../components/JsonTextarea';
 import { LiveGraph } from '../features/execution-playback/LiveGraph';
 import { versionIdFromEvent } from '../features/execution-playback/live-trace';
@@ -149,6 +150,17 @@ export function LiveExecutionPage() {
                 </small>
               ) : null}
             </label>
+            {/* Sin valores de prueba, la pantalla arrancaba con `{}` y lo único
+                que se podía obtener era VARIABLE_MISSING_OR_INVALID: para ver
+                una ejecución había que teclear a mano las decenas de variables
+                del contrato. El generador las deriva del contrato REALMENTE
+                desplegado, así que no puede quedarse desfasado como lo haría
+                una plantilla escrita en el navegador. */}
+            <LiveExecutionSampleBar
+              artifactCode={artifactCode}
+              environmentCode={environmentCode}
+              onLoad={(input) => setVariables(JSON.stringify(input, null, 2))}
+            />
             <JsonTextarea
               id="live-variables"
               label="Variables (JSON)"

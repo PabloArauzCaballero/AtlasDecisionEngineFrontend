@@ -23,10 +23,14 @@ test.describe('defectos visuales reportados', () => {
       .evaluate((node) => getComputedStyle(node).display);
     expect(gridDisplay).toBe('none');
 
-    const auroraOpacity = await page
+    // La aurora ya no se atenúa: se retira. Atenuarla (0.5 -> 0.28) dejaba el
+    // tinte más tenue pero seguía teñendo de verde los paneles blancos del
+    // editor, y se reportó tres veces. `editor-background.spec.ts` fija la
+    // decisión completa para las tres capas de color.
+    const auroraDisplay = await page
       .locator('.ambient-aurora')
-      .evaluate((node) => getComputedStyle(node).opacity);
-    expect(Number(auroraOpacity)).toBeCloseTo(0.28, 2);
+      .evaluate((node) => getComputedStyle(node).display);
+    expect(auroraDisplay).toBe('none');
   });
 
   test('el tooltip de una fila abre hacia abajo y no pisa la cabecera fija', async ({ page }) => {

@@ -54,12 +54,24 @@
 .ambient-editor .ambient-network {
   display: none;
 }
-.ambient-editor .ambient-aurora {
-  /* El propio lienzo del grafo ya aporta su lechada radial (`.graph-canvas`),
-     así que aquí se atenúa más que en el resto de zonas —a diferencia de la
-     red de nodos, no se retira del todo porque el resto de la pantalla, fuera
-     del lienzo, se quedaría plana. */
-  opacity: 0.28;
+/*
+ * El editor se queda SIN lechada ambiental, no atenuada.
+ *
+ * Se intentó primero bajarla (0.5 -> 0.28) razonando que sin ella el resto de la
+ * pantalla quedaría plano. Era el razonamiento equivocado: aquí la pantalla no
+ * es una portada, es una mesa de trabajo. El lienzo ya aporta su propia textura
+ * y su lechada, y encima de eso cualquier tinte de fondo compite con lo único
+ * que importa mirar —los nodos y sus conexiones— y tiñe de verde los paneles
+ * blancos que lo rodean. Atenuar sólo hacía el problema más tenue, no lo
+ * quitaba, y se reportó tres veces.
+ *
+ * En el resto del portal el fondo ambiental se conserva tal cual: allí sí hay
+ * superficie libre que ganar y nada con lo que competir.
+ */
+.ambient-editor .ambient-aurora,
+.ambient-editor .ambient-spotlight,
+.ambient-editor .ambient-vignette {
+  display: none;
 }
 .ambient-editor .ambient-beam {
   opacity: 0;
