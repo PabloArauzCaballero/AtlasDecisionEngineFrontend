@@ -156,25 +156,41 @@
   grid-template-columns: repeat(3, 1fr);
   margin: 0;
 }
+/* Los códigos de salida son largos y sin espacios (ADVERSE_ACTION_REASON_CODES,
+   KYC_OR_CONSENT_INVALID) y las celdas miden 110 px: sin permitir el corte, el
+   texto se salía de su recuadro y quedaba cortado a media palabra contra el
+   borde, que es exactamente lo que se veía en pantalla. */
 .simulation-result dt {
   color: var(--muted);
   font-size: 8px;
   text-transform: uppercase;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 .simulation-result dd {
   margin: 4px 0 0;
   font-size: 13px;
   font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+.simulation-result dl > div {
+  min-width: 0;
 }
 .primary-result-label {
   color: var(--muted);
   font-size: 10px;
 }
 .dynamic-output-grid {
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+  /* 150 px, no 110: por debajo de eso un código de motivo no cabe ni partido en
+     dos líneas legibles. */
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
   gap: 12px;
 }
 .dynamic-output-grid > div {
+  min-width: 0;
   padding: 9px;
   border: 1px solid var(--line);
   background: var(--canvas);

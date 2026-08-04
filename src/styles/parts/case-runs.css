@@ -1,0 +1,169 @@
+/**
+ * Casos de una corrida de pruebas, cada uno desplegable.
+ *
+ * En archivo propio por el límite de 299 líneas y porque son una unidad: la
+ * cabecera plegada, el cuerpo y la comparación esperado/obtenido se leen juntos.
+ */
+.case-run-list {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+.case-run {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+.case-run.is-open {
+  border-color: var(--accent-soft);
+}
+.case-run-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.case-run-head:hover {
+  background: var(--surface-hover);
+}
+.case-run-code {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+/* El nombre se lleva el espacio sobrante y se recorta antes de empujar la fila. */
+.case-run-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+.case-run-time {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.case-run-chevron {
+  flex: 0 0 auto;
+  color: var(--muted);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+.case-run-chevron.open {
+  transform: rotate(180deg);
+}
+.case-run-body {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-top: 1px solid var(--line);
+  background: var(--surface-inset);
+}
+.case-run-body h4 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.case-run-table {
+  width: 100%;
+  font-size: 0.72rem;
+}
+.case-run-table td,
+.case-run-table th {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+/* La fila que no coincide es la respuesta a «¿por qué falló?»: se marca. */
+.case-run-mismatch td {
+  background: var(--danger-wash);
+  color: var(--danger-text, var(--text));
+}
+.case-run-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case-run-path li {
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-size: 0.68rem;
+}
+.case-run-path li:not(:last-child)::after {
+  content: ' →';
+  color: var(--muted);
+}
+.case-run-terminal,
+.case-run-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: var(--space-2) 0 0;
+  font-size: 0.72rem;
+}
+.case-run-terminal {
+  color: var(--muted);
+}
+.case-run-error {
+  color: var(--danger-text, var(--text));
+  overflow-wrap: anywhere;
+}
+.case-run-inputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.case-run-inputs > div {
+  min-width: 0;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.case-run-inputs dt {
+  color: var(--muted);
+  font-size: 0.64rem;
+  overflow-wrap: anywhere;
+}
+.case-run-inputs dd {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+.case-run-assertions {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-inline-start: 1.1rem;
+  font-size: 0.72rem;
+}
+.case-run-assertions .is-pass {
+  color: var(--muted);
+}
+.case-run-assertions .is-fail {
+  color: var(--danger-text, var(--text));
+}

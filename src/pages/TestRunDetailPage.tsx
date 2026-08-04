@@ -6,18 +6,14 @@ import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
-import { StatusBadge } from '../components/StatusBadge';
+import { TestCaseRunDetail } from '../features/testing/TestCaseRunDetail';
+import type { UnknownRecord } from '../utils/records';
 import { Timeline } from '../components/Timeline';
 import { coveragePercentage, testRunSchema } from '../testing/testing.schemas';
 import { downloadJson } from '../utils/download';
 
 interface TestRunDetailPageProps {
   runId: string;
-}
-
-function describe(value: unknown, fallback = '—'): string {
-  if (value === null || value === undefined || value === '') return fallback;
-  return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
 export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
@@ -98,50 +94,20 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
         />
       </div>
       <div className="result-layout">
-        <Panel title="Assertions" meta={`${caseRuns.length} cases`}>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Status</th>
-                  <th>Case</th>
-                  <th>Description</th>
-                  <th>Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {caseRuns.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <StatusBadge value={item.resultStatus} />
-                    </td>
-                    <td className="mono">{item.testCase?.caseCode ?? item.testCaseId}</td>
-                    <td>
-                      {/* La descripción del caso se muestra SIEMPRE. Antes, al fallar,
-                          se sustituía por el JSON crudo de las aserciones: la columna
-                          dejaba de decir qué se probaba justo cuando más importaba. */}
-                      <div>{item.testCase?.testName ?? '—'}</div>
-                      {item.resultStatus !== 'PASS' ? (
-                        <ul className="assertion-failures">
-                          {item.assertions
-                            .filter((entry) => !entry.passed)
-                            .map((entry) => (
-                              <li key={entry.id}>
-                                <code>{entry.assertionPath}</code> esperaba{' '}
-                                <b>{describe(entry.expectedJson)}</b> y obtuvo{' '}
-                                <b>{describe(entry.actualJson, 'nada')}</b>
-                              </li>
-                            ))}
-                          {item.errorJson ? <li>{describe(item.errorJson)}</li> : null}
-                        </ul>
-                      ) : null}
-                    </td>
-                    <td>{item.durationMs} ms</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <Panel title="Casos de la corrida" meta={`${caseRuns.length} casos`}>
+          {/* Cada caso se abre: entradas, esperado contra obtenido y el camino
+              que recorrió. Antes sólo se veía el estado y, si fallaba, las
+              aserciones rotas; de un caso que PASA no se veía nada, así que no
+              había forma de revisar POR QUÉ aprobó — que es justo lo que
+              pregunta un auditor. Los datos ya venían en la respuesta. */}
+          <div className="case-run-list">
+            {caseRuns.map((item) => (
+              <TestCaseRunDetail key={item.id} caseRun={item as unknown as UnknownRecord} />
+            ))}
           </div>
+          {!caseRuns.length ? (
+            <div className="empty-state">Esta corrida no ejecutó ningún caso.</div>
+          ) : null}
         </Panel>
         <Panel title="Resumen de casos" meta="Trace">
           <Timeline
