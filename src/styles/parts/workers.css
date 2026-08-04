@@ -1,0 +1,178 @@
+/*
+ * Workers adicionales: análisis semántico y extractos bancarios (ADR-0026).
+ *
+ * Sólo tokens, ningún color escrito a mano: un hex aquí quedaría ilegible al
+ * conmutar a tema oscuro y habría que parchearlo en `theme-dark-*.css`.
+ */
+
+/* --- Encabezado: qué acepta el worker y con qué límites -------------------- */
+
+.worker-facts {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: var(--surface-muted);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+}
+
+.worker-facts.is-loading,
+.worker-facts.is-error {
+  color: var(--text-muted);
+}
+
+.worker-facts.is-error {
+  color: var(--danger-text);
+  background: var(--danger-wash);
+  border-color: var(--danger-line);
+}
+
+.worker-facts-description {
+  margin: 0 0 var(--space-2);
+  color: var(--text);
+}
+
+.worker-facts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* --- Elección de entrada --------------------------------------------------- */
+
+.worker-mode {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+}
+
+.worker-mode-option {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-2) 0;
+  cursor: pointer;
+}
+
+.worker-mode-option input:disabled {
+  cursor: not-allowed;
+}
+
+.worker-mode-option input:disabled + span {
+  color: var(--text-muted);
+}
+
+.worker-fixture-detail {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+}
+
+.worker-fixture-description {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.worker-fixture-preview pre {
+  margin: var(--space-1) 0 0;
+  padding: var(--space-2);
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.worker-textarea {
+  width: 100%;
+  padding: var(--space-2);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  resize: vertical;
+}
+
+/* --- Carga de archivo ------------------------------------------------------ */
+
+.worker-drop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-5) var(--space-3);
+  background: var(--surface-inset);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.worker-drop.is-dragging {
+  background: var(--surface-hover);
+  border-color: var(--text);
+}
+
+.worker-drop.is-disabled {
+  opacity: 0.6;
+}
+
+.worker-drop-hint {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/*
+ * El input queda fuera de la vista pero NO oculto con `display: none` ni
+ * `visibility: hidden`: eso lo sacaría del orden de tabulación y del árbol de
+ * accesibilidad, y entonces sólo se podría subir un archivo con el ratón.
+ */
+.worker-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.worker-file-chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.worker-file-name {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
+.worker-file-size {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.worker-privacy-note {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
