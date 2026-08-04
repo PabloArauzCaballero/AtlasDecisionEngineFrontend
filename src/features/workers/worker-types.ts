@@ -1,0 +1,138 @@
+/**
+ * Contrato de los workers adicionales, visto desde el portal.
+ *
+ * Espejo de lo que publica el Decision Engine en `/v1/workers` (ADR-0026 del
+ * motor). **No es autoritativo**: el backend revalida siempre. Sirve para
+ * pintar la vista y para dar respuesta inmediata antes de llamar.
+ */
+
+/** Estados que el backend asigna a una ejecución. */
+export const WORKER_RUN_STATUSES = [
+  'QUEUED',
+  'RUNNING',
+  'SUCCEEDED',
+  'SUCCEEDED_WITH_WARNINGS',
+  'FAILED',
+  'CANCELLED',
+] as const;
+
+export type WorkerRunStatus = (typeof WORKER_RUN_STATUSES)[number];
+
+/**
+ * Estados que sólo existen en el cliente.
+ *
+ * Describen el formulario ANTES de que exista ninguna ejecución, así que no
+ * tienen —ni deben tener— reflejo en el backend: `idle` es «no has elegido
+ * nada» y `submitting` es «la petición está en vuelo». Mezclarlos con los del
+ * servidor obligaría a inventar filas para estados que nunca se persisten.
+ */
+export type FormPhase =
+  'idle' | 'selecting-example' | 'uploading' | 'validating' | 'ready' | 'submitting';
+
+export interface WorkerRun {
+  requestId: string;
+  status: WorkerRunStatus;
+  progress: number;
+  inputSource: 'FIXTURE' | 'UPLOAD' | 'INLINE';
+  fixtureCode?: string | null;
+  attemptCount: number;
+  queuedAt: string;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  requestedBy: string;
+  correlationId: string;
+  result?: unknown;
+  warnings?: unknown;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+}
+
+export interface WorkerFixture {
+  code: string;
+  name: string;
+  description: string;
+  preview: string;
+  expectsFailure: boolean;
+}
+
+export interface WorkerDescriptor {
+  code: string;
+  name: string;
+  description: string;
+  acceptedInputs: string[];
+  limits: Record<string, number | string>;
+  available: boolean;
+  fixturesEnabled: boolean;
+}
+
+/** Una ejecución en estado terminal ya no cambia: deja de sondearse. */
+export function isTerminal(status: WorkerRunStatus): boolean {
+  return (
+    status === 'SUCCEEDED' ||
+    status === 'SUCCEEDED_WITH_WARNINGS' ||
+    status === 'FAILED' ||
+    status === 'CANCELLED'
+  );
+}
+
+/**
+ * Texto que ve el usuario para cada estado.
+ *
+ * En español y sin jerga: quien revisa un extracto no tiene por qué saber qué
+ * es una cola. «En cola» describe la espera, no el mecanismo.
+ */
+export const STATUS_LABEL: Record<WorkerRunStatus, string> = {
+  QUEUED: 'En cola',
+  RUNNING: 'Procesando',
+  SUCCEEDED: 'Completado',
+  SUCCEEDED_WITH_WARNINGS: 'Completado con advertencias',
+  FAILED: 'Falló',
+  CANCELLED: 'Cancelado',
+};
+
+/**
+ * Explica qué significa el estado y, cuando procede, qué se puede hacer.
+ *
+ * «Completado con advertencias» es el que más falta hace: sin esta frase, un
+ * usuario lo lee como un éxito y no mira el resultado, que es justo lo que hay
+ * que evitar.
+ */
+export const STATUS_HELP: Record<WorkerRunStatus, string> = {
+  QUEUED: 'Esperando a que un worker la tome. Puedes cancelarla mientras siga aquí.',
+  RUNNING: 'Un worker la está procesando ahora mismo.',
+  SUCCEEDED: 'Terminó sin incidencias.',
+  SUCCEEDED_WITH_WARNINGS:
+    'Hay resultado y es utilizable, pero algo quedó sin resolver del todo. Conviene revisarlo antes de darlo por bueno.',
+  FAILED: 'No se pudo completar. El código técnico y el identificador de correlación están abajo.',
+  CANCELLED: 'Se canceló antes de empezar a procesarse.',
+};
+
+/**
+ * Traduce el estado a un valor que `StatusBadge` ya sabe colorear.
+ *
+ * No se inventan tonos nuevos: la insignia deriva el color de un vocabulario
+ * cerrado (`PASSED`, `WARNING`, `FAILED`…), y un valor fuera de él cae en
+ * «neutral» sin avisar. `SUCCEEDED` viaja como `PASSED` justamente por eso —
+ * `COMPLETED` no está en ese vocabulario y saldría gris, que es el color de
+ * «no pasa nada aquí».
+ */
+export function statusTone(status: WorkerRunStatus): string {
+  if (status === 'SUCCEEDED') return 'PASSED';
+  if (status === 'SUCCEEDED_WITH_WARNINGS') return 'WARNING';
+  if (status === 'FAILED') return 'FAILED';
+  if (status === 'CANCELLED') return 'INACTIVE';
+  if (status === 'RUNNING') return 'RUNNING';
+  return 'QUEUED';
+}
+
+/** Duración legible entre dos instantes. `null` cuando aún no ha empezado. */
+export function elapsedLabel(from: string | null | undefined, to?: string | null): string | null {
+  if (!from) return null;
+  const start = Date.parse(from);
+  if (Number.isNaN(start)) return null;
+  const end = to ? Date.parse(to) : Date.now();
+  const seconds = Math.max(0, Math.round((end - start) / 1_000));
+  if (seconds < 60) return `${seconds} s`;
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes} min ${seconds % 60} s`;
+}

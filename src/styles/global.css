@@ -13,6 +13,8 @@
 @import './parts/auth-feedback.css';
 @import './parts/corporate.css';
 @import './parts/graph-shell.css';
+@import './parts/editor-sections.css';
+@import './parts/editor-rails.css';
 @import './parts/node-tutorial.css';
 @import './parts/graph-toolbar.css';
 @import './parts/graph-canvas.css';
@@ -27,6 +29,10 @@
 @import './parts/json-views.css';
 @import './parts/search-picking.css';
 @import './parts/quality.css';
+@import './parts/test-cases.css';
+/* Importación de código: el selector de destino (`.import-target`) y el
+   formulario con su lista de avisos, que antes vivía dentro de `quality.css`. */
+@import './parts/code-import.css';
 @import './parts/generated-graph.css';
 @import './parts/operations-governance.css';
 /* Carga después de operations-governance: reescribe `.gate-list` para el estado
@@ -68,12 +74,9 @@
 @import './parts/output-reason-codes.css';
 @import './parts/calculated-fields.css';
 @import './parts/libraries-qa.css';
+@import './parts/workers.css';
+@import './parts/workers-run.css';
 @import './parts/simulator-samples.css';
-/* Faltaba en la lista: `.import-target` se usaba en `ImportTargetPicker.tsx`
-   pero su hoja no se cargaba nunca, así que el selector de destino se pintaba
-   sin panel, sin separaciones y —lo que importa aquí— sin el `flex-wrap` que
-   baja de línea sus tres modos cuando no caben. */
-@import './parts/code-import.css';
 @import './parts/graph-actions.css';
 @import './parts/graph-canvas-states.css';
 @import './parts/table-tools.css';

@@ -82,6 +82,11 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     pattern: /^\/security-review\/[^/]+\/?$/,
     roles: accessPolicies.securityReview,
   },
+  // ADR-0026 — workers adicionales. Una regla por vista y no un comodín
+  // `/workers/...`: un comodín daría acceso a cualquier worker que se añada
+  // después, sin que nadie lo decida.
+  { pattern: /^\/workers\/semantic-analysis\/?$/, roles: accessPolicies.workers },
+  { pattern: /^\/workers\/bank-statement\/?$/, roles: accessPolicies.workers },
 ];
 
 /**

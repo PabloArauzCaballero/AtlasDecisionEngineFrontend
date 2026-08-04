@@ -8,6 +8,7 @@ import {
   Database,
   FileCode2,
   FileSearch,
+  FileSpreadsheet,
   FlaskConical,
   GitBranch,
   Goal,
@@ -23,6 +24,7 @@ import {
   ScrollText,
   Search,
   ShieldCheck,
+  Sparkles,
   Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
@@ -224,6 +226,32 @@ export const navigation: readonly NavigationSection[] = [
         path: '/audit-events',
         icon: ScrollText,
         roles: accessPolicies.auditEvents,
+      },
+    ],
+  },
+  {
+    /*
+     * ADR-0026 — workers adicionales.
+     *
+     * Una sección con dos entradas, y no dos entradas sueltas en la raíz: esta
+     * navegación agrupa por dominio (Diseño, Calidad, Gobierno, Operación,
+     * Auditoría), y dos workers colgando del primer nivel romperían esa lectura.
+     * Tampoco se meten en «Operación»: allí vive lo que actúa sobre decisiones
+     * en curso, y esto procesa documentos y textos que todavía no lo son.
+     */
+    label: 'Procesamiento',
+    items: [
+      {
+        label: 'Análisis Semántico',
+        path: '/workers/semantic-analysis',
+        icon: Sparkles,
+        roles: accessPolicies.workers,
+      },
+      {
+        label: 'Extractos Bancarios',
+        path: '/workers/bank-statement',
+        icon: FileSpreadsheet,
+        roles: accessPolicies.workers,
       },
     ],
   },

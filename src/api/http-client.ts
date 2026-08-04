@@ -203,10 +203,21 @@ async function send<T>(
   void responseSchema;
   void retryOnUnauthorized;
 
+  /*
+   * Un cuerpo `FormData` viaja tal cual: es la única forma de subir un archivo.
+   *
+   * Las dos reglas de abajo lo darían por perdido. `JSON.stringify(formData)`
+   * produce `"{}"` —FormData no tiene propiedades propias enumerables—, así que
+   * el archivo desaparecería sin error. Y fijar `content-type` a mano deja fuera
+   * el `boundary` que el navegador calcula para separar las partes, sin el cual
+   * el servidor no puede analizar el cuerpo aunque llegue entero.
+   */
+  const isMultipart = typeof FormData !== 'undefined' && body instanceof FormData;
+
   const headers = new Headers(requestInit.headers);
   headers.set('accept', 'application/json');
   if (token) headers.set('authorization', `Bearer ${token}`);
-  if (body !== undefined && !headers.has('content-type')) {
+  if (body !== undefined && !isMultipart && !headers.has('content-type')) {
     headers.set('content-type', 'application/json');
   }
 
@@ -218,7 +229,7 @@ async function send<T>(
       credentials: 'include',
       headers,
       signal: managedSignal.signal,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
     });
   } catch {
     if (managedSignal.didTimeout()) {

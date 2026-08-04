@@ -1,0 +1,214 @@
+/*
+ * Workers adicionales: seguimiento de la ejecución y resultados (ADR-0026).
+ *
+ * Separado de `workers.css` por el límite de 299 líneas del repositorio, y el
+ * corte va por responsabilidad y no por la mitad del archivo: aquí vive todo lo
+ * que se pinta DESPUÉS de enviar —progreso, intentos, errores y resultado—, y
+ * allí lo que se pinta antes.
+ *
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+/* --- Seguimiento de la ejecución ------------------------------------------- */
+
+.worker-run-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.worker-run-help {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.worker-run-progress {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.worker-progress-track {
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.worker-progress-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+/*
+ * El pulso sólo mientras hay trabajo de verdad. Nada se anima en este portal si
+ * el backend no está haciendo algo: una animación perpetua enseña a ignorarla.
+ */
+.worker-progress-fill.is-running {
+  animation: worker-pulse 1.6s var(--ease-standard) infinite;
+}
+
+@keyframes worker-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .worker-progress-fill {
+    transition: none;
+  }
+
+  .worker-progress-fill.is-running {
+    animation: none;
+  }
+}
+
+.worker-progress-value {
+  min-width: 3.5rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.worker-run-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+}
+
+.worker-run-facts dt {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.worker-run-facts dd {
+  margin: var(--space-1) 0 0;
+  word-break: break-all;
+}
+
+.worker-run-error {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--danger-wash);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius-md);
+}
+
+.worker-error-message {
+  margin: 0 0 var(--space-2);
+  color: var(--danger-text);
+  font-weight: 600;
+}
+
+.worker-error-detail,
+.worker-error-hint {
+  margin: 0 0 var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.worker-run-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-3);
+}
+
+/* --- Resultados ------------------------------------------------------------ */
+
+.worker-result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.worker-result-explain {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.worker-section-title {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.worker-match-list,
+.worker-entity-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worker-match {
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+}
+
+.worker-match-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.worker-match-confidence,
+.worker-match-flag {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.worker-match-flag {
+  color: var(--danger-text);
+}
+
+.worker-match-rationale {
+  margin: var(--space-2) 0 0;
+  font-size: 0.875rem;
+}
+
+.worker-evidence {
+  margin: var(--space-2) 0 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.worker-warnings {
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  background: var(--warning-wash);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md);
+}
+
+.worker-warnings ul {
+  margin: var(--space-2) 0 0 var(--space-4);
+  color: var(--warning-text);
+}
+
+/*
+ * La tabla se desplaza dentro de su caja. Sin esto, en un teléfono empuja el
+ * ancho del documento y se desplaza la página entera de lado.
+ */
+.worker-table-scroll {
+  overflow-x: auto;
+}

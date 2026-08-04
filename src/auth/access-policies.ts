@@ -45,4 +45,18 @@ export const accessPolicies = {
   ] as const,
   // §10 — QA Lab. Mismos roles que la autoría de calidad: una corrida ejecuta el motor.
   qaLab: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
+  // ADR-0026 — workers adicionales (análisis semántico y extractos bancarios).
+  //
+  // Es el permiso de VER la pestaña, y por eso es amplio: incluye a quien
+  // audita o cumple normativa, que necesita leer una ejecución sin poder
+  // lanzarla. Ejecutar y cargar archivos exigen más, y eso lo valida el backend
+  // con sus propios `@Roles` — ocultar un botón no es un control de acceso.
+  workers: [
+    'RISK_ANALYST',
+    'FRAUD_ANALYST',
+    'QA_ANALYST',
+    'OPERATIONS',
+    'COMPLIANCE',
+    'AUDITOR',
+  ] as const,
 } as const;
