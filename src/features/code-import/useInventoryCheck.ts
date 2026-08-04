@@ -42,18 +42,18 @@ const SEARCH = 'page=1&pageSize=25';
 /**
  * Comprueba el contrato del código importado contra los catálogos gobernados.
  *
- * Un artefacto normal sólo puede usar variables y motivos que ya existen en el
- * inventario. La importación de código no: el motor, al guardar, CREA sola
- * cualquier variable que el contrato mencione y no encuentre (sin dueño, sin
- * clasificación y sin restricciones), y deja como cadena suelta cualquier motivo
- * que no esté declarado. Eso convierte esta pantalla en la puerta por la que el
- * catálogo se llena de variables que nadie gobierna.
+ * Un artefacto sólo puede usar variables y motivos que ya existen en el
+ * inventario, y una importación de código no es una excepción: cada entrada y
+ * cada salida del contrato tienen que existir ya en el catálogo, con su tipo, y
+ * cada código de salida en el catálogo de motivos.
  *
- * Aquí se exige lo mismo que en el resto del portal: cada entrada y cada salida
- * del contrato tienen que existir ya en el catálogo, con su tipo, y cada código
- * de salida tiene que estar en el catálogo de motivos. Se consulta por código
- * exacto —una consulta por variable, no un volcado del catálogo— para que un
- * inventario grande no produzca falsos «no existe» por quedarse fuera de página.
+ * El motor lo exige también —responde `CODE_IMPORT_VARIABLE_NOT_IN_CATALOG` y
+ * rechaza la escritura—, pero lo dice en inglés, en la línea 1 y sólo al pulsar
+ * guardar. Esta comprobación lo adelanta al análisis, nombra el papel de la
+ * variable, señala su línea del contrato y enlaza al catálogo, que es lo que
+ * hace falta para arreglarlo. Se consulta por código exacto —una consulta por
+ * variable, no un volcado del catálogo— para que un inventario grande no
+ * produzca falsos «no existe» por quedarse fuera de página.
  */
 export function useInventoryCheck({
   enabled,

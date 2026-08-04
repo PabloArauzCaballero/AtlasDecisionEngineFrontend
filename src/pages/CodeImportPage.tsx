@@ -234,9 +234,9 @@ export function CodeImportPage() {
                 onChange={(event) => setExpectedLockVersion(event.target.value)}
               />
             </label>
-            {/* Guardar con el contrato fuera del inventario no falla: el motor CREA
-                sola cada variable que no encuentre, sin dueño ni clasificación. Por
-                eso se frena aquí, que es donde todavía se puede declarar bien. */}
+            {/* El motor también lo rechaza, pero con un 409 al pulsar. Frenarlo
+                aquí dice qué falta y dónde declararlo, que es lo que hace falta
+                para arreglarlo, en vez de un error después del viaje. */}
             {inventoryBlocked ? (
               <Alert tone="error">
                 <XCircle size={14} aria-hidden="true" /> El contrato usa variables o motivos que el

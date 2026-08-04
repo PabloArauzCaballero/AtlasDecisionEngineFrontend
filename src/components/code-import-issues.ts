@@ -46,7 +46,7 @@ const BY_CODE: Record<string, IssueExplanation> = {
   },
   CODE_IMPORT_VARIABLE_NOT_IN_CATALOG: {
     cause:
-      'El contrato declara una variable que el inventario no tiene. Al guardar, el motor la crea sola con lo mínimo para que el grafo cuadre: sin dueño, sin descripción de negocio y sin restricciones. Es la vía por la que un algoritmo importado se salta el catálogo que el resto de artefactos sí respeta.',
+      'El contrato declara una variable que el inventario no tiene. Un artefacto sólo puede usar variables ya declaradas —con su tipo, su dueño y su clasificación—, y una importación de código no es una excepción: el motor rechaza el guardado en lugar de crearla por su cuenta.',
     fix: 'Declárala primero en el catálogo de variables (con su tipo, dueño y clasificación) y luego usa ese mismo código en el contrato. Si ya existe con otro nombre, corrige el `id` del contrato.',
   },
   CODE_IMPORT_VARIABLE_CASE_MISMATCH: {
