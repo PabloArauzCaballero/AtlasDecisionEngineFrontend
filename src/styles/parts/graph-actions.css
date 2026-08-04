@@ -80,6 +80,12 @@
 }
 
 .action-card {
+  /* Un ítem de grid vale `min-width: auto`: se niega a encogerse por debajo de
+     su contenido. Las tarjetas llevan fórmulas y códigos largos sin espacios
+     (`identity_verification_score`, expresiones enteras), así que cada columna
+     crecía por encima del `minmax(280px, …)` de la rejilla y el catálogo se
+     desbordaba en horizontal, dejando las últimas tarjetas cortadas. */
+  min-width: 0;
   padding: 11px 13px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--warning);
@@ -124,7 +130,12 @@
   font-size: 12px;
   line-height: 1.5;
 }
+/* Las fórmulas son el contenido más largo de la tarjeta: se parten donde haga
+   falta en vez de estirar la columna. */
 .action-expression {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
   margin: 6px 0 0;
   padding: 7px 9px;
   border-radius: 7px;
@@ -267,4 +278,19 @@
   flex-basis: 100%;
   color: var(--muted);
   font-size: 11px;
+}
+
+/* Cabecera, resumen y fichas: mismo motivo, mismo remedio. Un código de motivo
+   largo (KYC_OR_CONSENT_INVALID) no debe decidir el ancho de la columna. */
+.action-card > header,
+.action-implies,
+.action-facts,
+.action-facts dd,
+.action-facts dt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.action-card > header strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
