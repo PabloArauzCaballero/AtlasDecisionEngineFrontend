@@ -65,12 +65,35 @@
  * blancos que lo rodean. Atenuar sólo hacía el problema más tenue, no lo
  * quitaba, y se reportó tres veces.
  *
- * En el resto del portal el fondo ambiental se conserva tal cual: allí sí hay
+ * El mismo criterio vale para `lab`, `deploy` y `results`: son tablas y detalles
+ * de ejecución, es decir, contenido denso sobre fondo blanco. La lechada verde
+ * se veía a través de los huecos entre paneles y teñía sus bordes.
+ *
+ * Se conserva en `dashboard` y en `auth`, que sí son pantallas de portada: hay
  * superficie libre que ganar y nada con lo que competir.
  */
 .ambient-editor .ambient-aurora,
 .ambient-editor .ambient-spotlight,
-.ambient-editor .ambient-vignette {
+.ambient-editor .ambient-vignette,
+.ambient-lab .ambient-aurora,
+.ambient-lab .ambient-spotlight,
+.ambient-lab .ambient-vignette,
+.ambient-deploy .ambient-aurora,
+.ambient-deploy .ambient-spotlight,
+.ambient-deploy .ambient-vignette,
+.ambient-results .ambient-aurora,
+.ambient-results .ambient-spotlight,
+.ambient-results .ambient-vignette,
+/* La red y la trama tampoco: son líneas y puntos que cruzan por detrás de tablas
+   y paneles, y en una pantalla densa se leen como suciedad, no como profundidad. */
+.ambient-editor .ambient-network,
+.ambient-editor .ambient-grid,
+.ambient-lab .ambient-network,
+.ambient-lab .ambient-grid,
+.ambient-deploy .ambient-network,
+.ambient-deploy .ambient-grid,
+.ambient-results .ambient-network,
+.ambient-results .ambient-grid {
   display: none;
 }
 .ambient-editor .ambient-beam {

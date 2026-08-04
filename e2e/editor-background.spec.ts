@@ -54,20 +54,51 @@ async function mockPortal(page: import('@playwright/test').Page) {
 
 const COLOUR_LAYERS = ['.ambient-aurora', '.ambient-spotlight', '.ambient-vignette'];
 
-test('el editor no pinta ninguna capa de color del fondo ambiental', async ({ page }) => {
+/* Una ruta por cada variante de superficie de trabajo. */
+const WORK_SURFACES = [
+  { route: '/graph-editor', variant: 'ambient-editor' },
+  { route: '/test-cases', variant: 'ambient-lab' },
+  { route: '/deployments', variant: 'ambient-deploy' },
+];
+
+for (const surface of WORK_SURFACES) {
+  test(`${surface.route} no pinta ninguna capa de color del fondo`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await mockPortal(page);
+    await page.goto(surface.route, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator(`.ambient-bg.${surface.variant}`)).toBeAttached({ timeout: 30_000 });
+
+    for (const selector of COLOUR_LAYERS) {
+      const shown = await page.evaluate(
+        ([variant, target]) => {
+          const layer = document.querySelector(`.${variant} ${target}`);
+          return layer ? getComputedStyle(layer).display !== 'none' : false;
+        },
+        [surface.variant, selector],
+      );
+      expect(shown, `${selector} no debe pintarse en ${surface.route}`).toBe(false);
+    }
+  });
+}
+
+test('el carril de filtros no se sale de su columna ni pisa la barra lateral', async ({ page }) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await mockPortal(page);
-  await page.goto('/graph-editor', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.ambient-bg.ambient-editor')).toBeAttached({ timeout: 30_000 });
+  await page.goto('/test-cases', { waitUntil: 'domcontentloaded' });
+  const filters = page.locator('.filters-panel');
+  await expect(filters).toBeVisible({ timeout: 30_000 });
 
-  for (const selector of COLOUR_LAYERS) {
-    const shown = await page.evaluate((target) => {
-      const layer = document.querySelector(`.ambient-editor ${target}`);
-      return layer ? getComputedStyle(layer).display !== 'none' : false;
-    }, selector);
-    expect(shown, `${selector} no debe pintarse en el editor`).toBe(false);
-  }
+  // Llevaba `margin: -32px 0 -56px -32px` para sangrar al borde de la página: eso
+  // lo sacaba de su celda y lo montaba sobre la barra lateral, quedando como una
+  // tarjeta blanca flotando y cortada en seco.
+  const escapes = await filters.evaluate((element) => {
+    const own = element.getBoundingClientRect();
+    const parent = element.parentElement!.getBoundingClientRect();
+    return { fuera: own.left < parent.left - 1, arriba: own.top < parent.top - 1 };
+  });
+  expect(escapes).toEqual({ fuera: false, arriba: false });
 });
 
 test('fuera de las superficies de trabajo el fondo ambiental sí se conserva', async ({ page }) => {

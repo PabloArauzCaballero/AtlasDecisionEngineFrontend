@@ -5,8 +5,13 @@
   overflow: hidden;
   min-width: 500px;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(216, 251, 245, 0.36), transparent 38%), var(--canvas);
+  /* Sin degradado: el lienzo pintaba encima de `--canvas` una lechada verde menta
+     propia, aparte de la ambiental. Es una mesa de trabajo, y cualquier tinte
+     compite con lo único que hay que mirar aquí —los nodos y sus conexiones— y
+     además tiñe los paneles blancos que la rodean. La trama de puntos se queda:
+     no es adorno, es la referencia espacial que dice que esto se puede arrastrar
+     y hasta dónde llega el mundo. */
+  background: var(--canvas);
 }
 /* Ventana desplazable en ambos ejes sobre un "mundo" mayor que la pantalla. */
 .graph-canvas-viewport {

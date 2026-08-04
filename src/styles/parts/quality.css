@@ -86,10 +86,23 @@
   grid-template-columns: 220px 1fr;
   gap: 18px;
 }
+/*
+ * El carril de filtros llevaba `margin: -32px 0 -56px -32px` para sangrar hasta
+ * el borde de la página. Eso lo sacaba de su columna: se montaba sobre la barra
+ * lateral y, al tener fondo propio, quedaba como una tarjeta blanca flotando y
+ * cortada en seco donde acababa su contenido. Los números además daban por
+ * supuesto un relleno de página exacto, así que cualquier cambio de espaciado lo
+ * descolocaba de nuevo.
+ *
+ * Ahora es una columna normal: ocupa su celda, se estira a lo alto de la fila y
+ * no invade nada.
+ */
 .filters-panel {
-  margin: -32px 0 -56px -32px;
-  padding: 24px 15px;
-  border-right: 1px solid var(--line);
+  align-self: stretch;
+  min-width: 0;
+  padding: 18px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   background: var(--surface);
 }
 .filters-panel h2 {
