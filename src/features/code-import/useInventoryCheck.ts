@@ -32,6 +32,8 @@ export interface InventoryCheck {
   missing: number;
   isLoading: boolean;
   isError: boolean;
+  /** Toda variable declarada se llegó a consultar: sus avisos ya son completos. */
+  ready: boolean;
 }
 
 /** Página corta: se busca por código exacto, no se pagina un catálogo entero. */
@@ -154,6 +156,7 @@ export function useInventoryCheck({
     missing: [...matches.values()].filter((match) => !match.found).length,
     isLoading: all.some((query) => query.isLoading),
     isError: all.some((query) => query.isError),
+    ready: enabled && declared.length > 0 && matches.size === declared.length,
   };
 }
 

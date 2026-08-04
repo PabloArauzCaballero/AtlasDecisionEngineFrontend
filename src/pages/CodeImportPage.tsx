@@ -9,6 +9,8 @@ import { GeneratedGraphPreview } from '../components/GeneratedGraphPreview';
 import { CodeImportIssuesList, type CodeImportIssue } from '../components/CodeImportIssuesList';
 import { ImportBankPanel } from '../features/actions/ImportBankPanel';
 import { InventoryCheckNote } from '../features/code-import/InventoryCheckNote';
+import { ENGINE_CATALOG_ISSUE_CODES } from '../features/code-import/inventory-check';
+import { SAMPLE_SOURCE } from '../features/code-import/sample-source';
 import { useInventoryCheck } from '../features/code-import/useInventoryCheck';
 import { localPythonIssues, stripUppercaseAccents } from '../components/code-import-issues';
 import {
@@ -22,31 +24,6 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { VariableList } from '../components/VariableIo';
 import { asRecord, asRows, display } from '../utils/records';
-
-// Ejemplo con una cadena if/else if/else: es la forma que el analizador convierte
-// en un ÁRBOL de condiciones y resultados, no en un único nodo de script.
-const SAMPLE_SOURCE = `// @atlas-contract
-// { "contractVersion": "1",
-//   "inputs": [
-//     { "id": "edad", "name": "Edad", "type": "INTEGER", "required": true },
-//     { "id": "score_buro", "name": "Score de buró", "type": "INTEGER", "required": true },
-//     { "id": "ingreso_mensual", "name": "Ingreso mensual", "type": "NUMBER", "required": true }],
-//   "outputs": [
-//     { "id": "decision", "name": "Decisión", "type": "STRING", "required": true },
-//     { "id": "motivo", "name": "Motivo", "type": "STRING", "required": true },
-//     { "id": "limite", "name": "Límite aprobado", "type": "NUMBER", "required": true }],
-//   "primaryOutputId": "decision",
-//   "reasonOutputId": "motivo" }
-if (variables.edad < 18) {
-  return { decision: 'RECHAZADO', motivo: 'AGE_NOT_ELIGIBLE', limite: 0 };
-} else if (variables.score_buro < 550) {
-  return { decision: 'RECHAZADO', motivo: 'BUREAU_SCORE_TOO_LOW', limite: 0 };
-} else if (variables.score_buro >= 700) {
-  return { decision: 'APROBADO', motivo: 'APPROVED_POLICY', limite: variables.ingreso_mensual * 0.35 };
-} else {
-  return { decision: 'REVISION', motivo: 'SCORE_BAND_BORDERLINE', limite: 0 };
-}
-`;
 
 /**
  * Code -> Flow generator (Fase 5): paste JS/Python, analyze it (syntax, contract,
@@ -72,12 +49,22 @@ export function CodeImportPage() {
   const detected = detectSourceLanguage(sourceCode);
   const accentIssues = language === 'PYTHON' ? localPythonIssues(sourceCode) : [];
   const localIssues = [...languageMismatchIssues(sourceCode, language), ...accentIssues];
-  const sourceIssues = [...localIssues, ...(asRows(result.issues) as unknown as CodeImportIssue[])];
+  const engineIssues = asRows(result.issues) as unknown as CodeImportIssue[];
+  const engineCatalogIssues = engineIssues.filter((issue) =>
+    ENGINE_CATALOG_ISSUE_CODES.has(issue.code),
+  );
+  // Lo que va MAL EN EL CÓDIGO esconde el grafo, porque no hay grafo que enseñar.
+  // Lo que falta en el catálogo, no: ahí el algoritmo está bien y lo que hay que
+  // arreglar es el inventario, para lo cual hay que ver qué pide el algoritmo.
+  const codeIssues = [
+    ...localIssues,
+    ...engineIssues.filter((issue) => !ENGINE_CATALOG_ISSUE_CODES.has(issue.code)),
+  ];
   const generatedGraph = asRecord(result.generatedGraph);
   const dependencies = asRows(generatedGraph.dependencies);
   const nodes = asRows(generatedGraph.nodes);
   const edges = asRows(generatedGraph.edges);
-  const hasBlockingIssues = sourceIssues.some((issue) => issue.severity === 'ERROR');
+  const hasBlockingIssues = codeIssues.some((issue) => issue.severity === 'ERROR');
   // Lo mismo que se exige a cualquier artefacto: el contrato sólo puede usar
   // variables y motivos que el inventario ya tiene declarados.
   const inventory = useInventoryCheck({
@@ -87,8 +74,11 @@ export function CodeImportPage() {
     dependencies,
     nodes,
   });
-  const issues = [...sourceIssues, ...inventory.issues];
-  const inventoryBlocked = inventory.issues.some((issue) => issue.severity === 'ERROR');
+  const catalogIssues = inventory.ready
+    ? inventory.issues
+    : [...engineCatalogIssues, ...inventory.issues];
+  const issues = [...codeIssues, ...catalogIssues];
+  const inventoryBlocked = catalogIssues.some((issue) => issue.severity === 'ERROR');
   const importId = display(result, 'id');
   const conditionCount = nodes.filter((node) => display(node, 'type') === 'CONDITION').length;
   const inputs = dependencies.filter(

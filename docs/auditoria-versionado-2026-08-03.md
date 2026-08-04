@@ -127,6 +127,37 @@ Además: el portal **no puede imponer** «una sola versión activa en producció
 pero ya no la esconde — si un ambiente devuelve más de un despliegue activo, se
 cuenta y se señala en rojo (`conflictingHeads`).
 
+### D7 · «Resumen de Cambios» no comparaba nada
+
+El panel mostraba un bloque fijo —«Graph and contract changes · Consulte el
+checksum»— con icono de diff y sin ninguna comparación detrás. El revisor tenía
+que aprobar sin saber qué cambiaba.
+
+Corrección: `version-diff.ts` compara dos instantáneas del grafo **por
+identificador estable de dominio** (`nodes[].key`, `edges[].key`,
+`actions[].code`, `variables[].code`), no por texto: así un reordenamiento del
+arreglo no aparece como cambio y un renombrado sí. Produce rutas legibles del
+tipo `nodes.EVAL_SCORE.label`, exactamente el formato que pide el §6.2 del
+encargo. Los cambios que sólo mueven el dibujo (`x`, `y`, `order`) se informan
+igual, pero marcados, para que no se confundan con lógica.
+
+Se calcula en el cliente a partir de `/v1/artifact-versions/{id}/graph`, que ya
+existía: **no hizo falta ningún endpoint nuevo**. Se muestra en la pantalla de
+aprobación (contra el origen o contra lo vigente en cada ambiente) y en la
+pestaña de versiones de la ficha del artefacto.
+
+### D8 · Nadie avisaba de que la base había avanzado
+
+Escenario del §6.1 del encargo: una versión se crea sobre v4, mientras espera
+revisión producción pasa a v6, y aprobarla revierte lo que ya está decidiendo.
+No había ninguna señal.
+
+Corrección: `diff-bases.ts` compara el `sourceVersionId` de la versión con la
+versión vigente en cada ambiente. Si difieren, la pantalla lo advierte por
+nombre de ambiente y ofrece comparar **contra lo que hoy decide**, no sólo
+contra el origen. Es detección y visualización de conflicto (§11.3); la
+resolución sigue necesitando backend.
+
 ## 3. Matriz de cumplimiento
 
 Estado: ✅ cumple · 🟡 parcial · ⛔ no aplica en este repositorio · ❌ no cumple
@@ -143,41 +174,39 @@ Estado: ✅ cumple · 🟡 parcial · ⛔ no aplica en este repositorio · ❌ n
 | 8     | El administrador puede aprobar o rechazar            | ✅     | `ApprovalRequestDetailPage` + `decision-policy.ts`                                   |
 | 9     | Merge a DEVELOPMENT                                  | ⛔     | No existe el concepto de merge en el backend                                         |
 | 10    | Promoción a PRODUCTION                               | ✅     | `DeploymentCreateForm` → `POST /v1/artifact-versions/{id}/deployments`               |
-| 11–15 | Detección, visualización y resolución de conflictos  | ⛔     | **No hay API de conflictos.** Ver §4                                                 |
+| 11–12 | Los conflictos se detectan y se muestran             | 🟡     | Base desactualizada detectada y avisada (`diff-bases.ts`); el merge no existe        |
+| 13–15 | Bloqueo por conflicto, resoluciones registradas      | ⛔     | **No hay API de resolución ni de merge.** Ver §4                                     |
 | 16    | Merge transaccional                                  | ⛔     | Backend                                                                              |
 | 17    | Los reintentos no duplican versiones                 | 🟡     | Clave de idempotencia enviada (`idempotency.ts`); el backend debe honrarla           |
 | 18    | Cada acción crítica queda auditada                   | 🟡     | El portal consume `/v1/audit/events`; escribirla es del backend                      |
 | 19–21 | Seeders idempotentes y prohibidos en producción      | ⛔     | No hay seeders en este repositorio                                                   |
 | 22    | Credenciales funcionales por rol                     | ⛔     | Los usuarios viven en el IdP. Ver §5                                                 |
 | 23    | Pruebas de autorización con casos negativos          | ✅     | `decision-policy.test.ts` (5 casos negativos) + `ApprovalRequestDetailPage.test.tsx` |
+| §15.4 | Pruebas de frontend sobre las vistas nuevas          | ✅     | `e2e/governance-decision.spec.ts`: render, contraste en 2 temas y desbordamiento     |
 | 24    | OpenAPI y documentación reflejan lo real             | 🟡     | Este documento; no hay OpenAPI en este repositorio                                   |
-| 25    | No se eliminaron funcionalidades                     | ✅     | Suite completa: 577 pruebas en verde                                                 |
+| 25    | No se eliminaron funcionalidades                     | ✅     | Suite completa: 617 pruebas en verde                                                 |
 | 26    | No se introdujeron secretos                          | ✅     | Ningún archivo nuevo contiene credenciales                                           |
 | 27    | Nada se declara funcionando sin evidencia            | ✅     | §6                                                                                   |
 | §11.1 | Ver versión actual por ambiente                      | ✅     | `EnvironmentHeadsPanel.tsx`                                                          |
-| §11.1 | Diferencias entre versiones (diff)                   | ❌     | **No implementado.** Ver §4                                                          |
+| §11.1 | Diferencias entre versiones (diff)                   | ✅     | `version-diff.ts` + `VersionDiffPanel.tsx`, en la ficha y en la aprobación           |
+| §6.2  | Merge/comparación consciente del dominio             | 🟡     | Comparación estructural por identificador estable; el merge sigue siendo del backend |
 | §11.4 | Acciones administrativas sólo visibles al autorizado | ✅     | `decision-policy.ts`                                                                 |
 | §11.5 | Confirmación antes de una acción crítica             | ✅     | `DecisionConfirmDialog.tsx`                                                          |
 | §15.4 | Manejo de 409 y reintentos seguros                   | ✅     | `useApprovalDecision.ts` + prueba de 409                                             |
 
 ## 4. Lo que NO se implementó, y por qué
 
-**Detección y resolución de conflictos (§6 completo, §11.3).** No existe en el
-backend: no hay endpoint, ni estado `CONFLICTED`, ni tipo de conflicto, ni ruta
-de resolución. Implementarlo sólo en el portal significaría comparar dos grafos
-en el cliente y ofrecer resoluciones que **ningún endpoint puede aceptar**: un
-formulario que no envía nada. Sería exactamente el «botón oculto confundido con
-autorización real» que el propio prompt prohíbe, en versión inversa.
+**Resolución de conflictos y merge (§6.4, §6.5, §11.3).** No existe en el backend:
+no hay endpoint de merge, ni estado `CONFLICTED`, ni persistencia de
+resoluciones. Ofrecer `KEEP_TARGET` / `KEEP_REQUEST` / `MANUAL_VALUE` en el
+portal sería un formulario que **ningún endpoint puede aceptar**: un botón que
+aparenta gobernar y no gobierna nada.
 
-Para hacerlo bien hace falta, en el backend: un modelo de solicitud con
-`baseVersionId`, un comparador estructural por identificadores estables
-(`nodes.<id>.condition`, `edges.<id>.targetNodeId`…), persistencia de conflictos
-y resoluciones, y un merge transaccional. Después de eso, el portal es trabajo
-de un par de días.
-
-**Diff estructural entre versiones (§11.1).** Depende del mismo comparador. La
-pantalla ahora **dice que no lo calcula** y remite al grafo y al checksum, en vez
-del bloque decorativo anterior que sugería que sí había una comparación.
+Lo que **sí** se hizo, porque no necesitaba backend nuevo (ver D7): comparar y
+avisar. Falta, del lado del backend: modelo de solicitud con `baseVersionId`,
+persistencia de conflictos y resoluciones, y un merge transaccional. El
+comparador estructural que consumiría esa UI ya está escrito y probado
+(`version-diff.ts`), así que esa parte no habrá que rehacerla.
 
 **Roles del prompt (`DECISION_ENGINE_ADMIN`, usuario solicitante).** No se
 crearon: el catálogo real (`src/auth/access-policies.ts`) ya tiene
@@ -210,24 +239,50 @@ está cubierto **sin necesidad del IdP** en
 ```txt
 npx eslint . --max-warnings=0        → sin hallazgos
 npx prettier --check .               → All matched files use Prettier code style!
-node scripts/verify-source.mjs       → passed (529 archivos)
+node scripts/verify-source.mjs       → passed (547 archivos)
 node scripts/verify-conventions.mjs  → passed
 npx tsc --noEmit                     → sin errores
-npx vitest run                       → 77 archivos · 577 pruebas · todas en verde
+npx vitest run                       → 82 archivos · 617 pruebas · todas en verde
+npx next build                       → compilado sin errores
+npx playwright test --config playwright.prod.config.ts
+                                     → 74 pasan · 6 omitidas · 7,6 min
 ```
+
+La corrida E2E es la canónica del proyecto: contra el artefacto construido, sin
+compilación al vuelo. Las 6 omitidas son las de `real-backend.spec.ts`, que se
+saltan solas cuando no hay un Decision Engine detrás.
+
+### Una brecha de medición que había que cerrar
+
+La primera corrida E2E daba 59 en verde **sin haber pintado ni una sola de las
+superficies nuevas**. Las barridas de contraste y de desbordamiento recorren
+rutas de LISTADO, y el motor simulado devuelve páginas vacías; el diff, la
+versión vigente por ambiente, el aviso de invariante rota y el diálogo de firma
+viven en rutas de DETALLE y sólo existen con objetos detrás. Era exactamente el
+riesgo que advierte `CLAUDE.md`: medir una cabecera creyendo medir la vista.
+
+Se cerró con `e2e/support/governance-backend.ts` (escenario de gobierno: un paso
+firmable, un gate en rojo, dos despliegues ACTIVE en PROD, un origen distinto de
+lo vigente y dos grafos que difieren) y `e2e/governance-decision.spec.ts`, que
+comprueba que esas superficies **aparecen**, que se leen con AA 4,5:1 en los dos
+temas y que no empujan la página a 360 px. 15 pruebas, todas en verde a la
+primera corrida.
+
+Las parejas de color usadas ya estaban cubiertas por `theme-contrast.test.ts`:
+los alias semánticos resuelven a tokens medidos (`--danger-text` → `--danger`,
+`--text-muted` → `--muted`, `--surface-muted` → `--surface-sunken`). La medición
+sobre el DOM ya pintado lo confirma en ambos temas.
 
 **No ejecutado, y por qué:**
 
-- `yarn build` y `yarn test:e2e:prod` — **otro agente está trabajando en el
-  repositorio en este momento** (`e2e/graph-panels-overflow.spec.ts`,
-  `src/styles/parts/graph-actions.css`). `next build` reescribe `.next` y dejaría
-  su servidor de desarrollo sirviendo módulos que ya no existen (CLAUDE.md lo
-  advierte). Debe correrse cuando el repositorio esté libre.
 - `yarn` como tal falla en esta máquina: Node 24.18.1 contra el motor declarado
   `>=20.9 <24`. Por eso los comandos se ejecutaron con `npx`. Es un desajuste del
   entorno local, no del cambio.
 - Cualquier prueba de concurrencia, idempotencia real o constraint de base de
-  datos: necesitan el backend.
+  datos: necesitan el backend. Siguen sin verificarse (§7).
+- El diff y el aviso de base desactualizada están probados contra respuestas
+  simuladas, no contra el backend real: la forma de `sourceVersionId` y del grafo
+  se tomó del código que ya los consume (`ArtifactDetailPage`, `useGraphEditor`).
 
 ## 7. Riesgos pendientes
 
@@ -235,12 +290,17 @@ npx vitest run                       → 77 archivos · 577 pruebas · todas en 
    nadie ha comprobado que la base la imponga. Es el riesgo número uno.
 2. **La idempotencia depende del backend.** Si ignora `Idempotency-Key`, el
    reintento duplica igual.
-3. **No hay conflictos ni diff.** Dos personas editando el mismo grafo siguen
-   pisándose sin que nadie lo detecte.
-4. **`hasAnyRole` concede todo a `PLATFORM_ADMIN`.** Es la convención del
+3. **Hay diff y aviso, pero no resolución.** Dos personas editando el mismo grafo
+   siguen pisándose: el portal ahora lo _enseña_ (§D7, §D8), pero sin merge en el
+   backend la única salida sigue siendo coordinarse a mano.
+4. **El diff depende de que el grafo traiga identificadores estables.** Si un
+   elemento llega sin `key`/`code`, se empareja por posición y la ruta lo declara
+   (`nodes.#3`). Es visible, no silencioso, pero conviene que el backend garantice
+   el identificador.
+5. **`hasAnyRole` concede todo a `PLATFORM_ADMIN`.** Es la convención del
    repositorio, pero significa que un administrador de plataforma ve habilitado
    un paso de `COMPLIANCE`. El backend decide; si allí no lo es, verá un 403.
-5. **Las claves donde el backend cuelga los gates son una conjetura**
+6. **Las claves donde el backend cuelga los gates son una conjetura**
    (`gates`, `qualityGates`, `checks`, `validations`, `evidence`). Si usa otro
    nombre, la pantalla mostrará «sin datos» — que es el fallo seguro correcto,
    pero conviene confirmar el nombre real y fijarlo.

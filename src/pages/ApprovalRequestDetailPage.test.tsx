@@ -129,6 +129,66 @@ describe('ApprovalRequestDetailPage', () => {
     );
   });
 
+  it('compara el grafo contra su origen y nombra cada cambio', async () => {
+    currentUser = userWith(['AUDITOR']);
+    mockedApiRequest.mockImplementation(async (path) => {
+      if (path.startsWith('/v1/approval-requests/')) {
+        return {
+          ...REQUEST,
+          artifactVersion: { ...REQUEST.artifactVersion, sourceVersionId: '54' },
+        };
+      }
+      if (path === '/v1/artifact-versions/54/graph') {
+        return { nodes: [{ key: 'EVAL', type: 'CONDITION', label: 'Evalúa score' }] };
+      }
+      if (path === '/v1/artifact-versions/55/graph') {
+        return {
+          nodes: [
+            { key: 'EVAL', type: 'CONDITION', label: 'Evalúa buró' },
+            { key: 'REVISION', type: 'RESULT', label: 'Revisión manual' },
+          ],
+        };
+      }
+      return {};
+    });
+    renderPage();
+
+    expect(await screen.findByText('nodes.EVAL.label')).toBeInTheDocument();
+    expect(screen.getByText('Evalúa score')).toBeInTheDocument();
+    expect(screen.getByText('Evalúa buró')).toBeInTheDocument();
+    expect(screen.getByText('nodes.REVISION')).toBeInTheDocument();
+  });
+
+  it('avisa cuando el ambiente avanzó por debajo de la versión en revisión', async () => {
+    currentUser = userWith(['AUDITOR']);
+    mockedApiRequest.mockImplementation(async (path) => {
+      if (path.startsWith('/v1/approval-requests/')) {
+        return {
+          ...REQUEST,
+          artifactVersion: { ...REQUEST.artifactVersion, sourceVersionId: '54' },
+        };
+      }
+      if (path.startsWith('/v1/deployments')) {
+        return {
+          items: [
+            {
+              id: 'd1',
+              environment: { code: 'PROD' },
+              deploymentStatus: 'ACTIVE',
+              deployedAt: '2026-07-30T10:00:00Z',
+              deployedBy: 'admin@atlas.bo',
+              artifactVersion: { id: '60', versionNumber: '6' },
+            },
+          ],
+        };
+      }
+      return {};
+    });
+    renderPage();
+
+    expect(await screen.findByText(/el objetivo avanzó/)).toBeInTheDocument();
+  });
+
   it('ante un 409 relee el estado y avisa de que la solicitud cambió', async () => {
     currentUser = userWith(['RISK_APPROVER']);
     mockedApiRequest.mockImplementation(async (path) => {

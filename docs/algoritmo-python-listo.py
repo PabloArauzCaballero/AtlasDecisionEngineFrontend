@@ -11,6 +11,18 @@
 # cuerpo JSON válido, y JUSTO DESPUES debe empezar el código (sin comentarios en
 # medio). El motor inyecta `variables` (entradas) y tú asignas `result` (salidas).
 #
+# IMPORTANTE — los identificadores NO se inventan. Una importación se exige igual
+# que cualquier artefacto: cada `id` del contrato tiene que ser un codigo que YA
+# exista en el catalogo de variables, con el mismo tipo, y cada valor del motivo
+# tiene que estar en el catalogo de motivos. Antes el motor creaba sola la
+# variable que faltara (sin dueño ni clasificacion); ahora responde
+# CODE_IMPORT_VARIABLE_NOT_IN_CATALOG y no deja guardar. Por eso este ejemplo usa
+# los codigos reales del catalogo sembrado (monthly_income, bureau_score, age...)
+# en vez de nombres bonitos en castellano: el nombre legible va en "name".
+#
+# Ademas, `credit_risk_decision` declara en el catalogo sus valores permitidos
+# ("PASS", "REVIEW", "FAIL"). Escribir "APROBADO" ahi lo rechaza la validacion.
+#
 # Contrato del ejecutor: solo builtins seguros (abs, bool, dict, float, int, len,
 # list, max, min, range, round, str, sum, tuple, zip); nada de import/try/class.
 #
@@ -23,35 +35,34 @@
 # {
 #   "contractVersion": "1",
 #   "inputs": [
-#     { "id": "ingreso_mensual", "name": "Ingreso mensual", "type": "NUMBER", "required": true },
-#     { "id": "deuda_mensual", "name": "Deuda mensual", "type": "NUMBER", "required": false },
-#     { "id": "score_buro", "name": "Score de buro", "type": "INTEGER", "required": true },
-#     { "id": "edad", "name": "Edad", "type": "INTEGER", "required": true }
+#     { "id": "monthly_income", "name": "Ingreso mensual", "type": "NUMBER", "required": true },
+#     { "id": "existing_monthly_debt_payments", "name": "Deuda mensual", "type": "NUMBER", "required": false },
+#     { "id": "bureau_score", "name": "Score de buro", "type": "INTEGER", "required": true },
+#     { "id": "age", "name": "Edad", "type": "INTEGER", "required": true }
 #   ],
 #   "outputs": [
-#     { "id": "decision", "name": "Decision", "type": "STRING", "required": true },
-#     { "id": "motivo", "name": "Motivo", "type": "STRING", "required": true },
-#     { "id": "limite", "name": "Limite recomendado", "type": "NUMBER", "required": false },
-#     { "id": "riesgo", "name": "Nivel de riesgo", "type": "STRING", "required": false }
+#     { "id": "credit_risk_decision", "name": "Decision", "type": "STRING", "required": true },
+#     { "id": "adverse_action_reason_codes", "name": "Motivo", "type": "STRING", "required": true },
+#     { "id": "approved_credit_limit", "name": "Limite aprobado", "type": "NUMBER", "required": false }
 #   ],
-#   "primaryOutputId": "decision",
-#   "reasonOutputId": "motivo"
+#   "primaryOutputId": "credit_risk_decision",
+#   "reasonOutputId": "adverse_action_reason_codes"
 # }
-ingreso = variables.get("ingreso_mensual", 0)
-deuda = variables.get("deuda_mensual", 0)
-score = variables.get("score_buro", 0)
-edad = variables.get("edad", 0)
+ingreso = variables.get("monthly_income", 0)
+deuda = variables.get("existing_monthly_debt_payments", 0)
+score = variables.get("bureau_score", 0)
+edad = variables.get("age", 0)
 
 # Relacion deuda/ingreso (DTI). Sin ingreso, se trata como maximo riesgo.
 ratio_deuda = deuda / ingreso if ingreso > 0 else 1.0
 
 if edad < 18:
-    result = {"decision": "RECHAZADO", "motivo": "AGE_NOT_ELIGIBLE", "limite": 0, "riesgo": "ALTO"}
+    result = {"credit_risk_decision": "FAIL", "adverse_action_reason_codes": "AGE_NOT_ELIGIBLE", "approved_credit_limit": 0}
 elif ratio_deuda > 0.45:
-    result = {"decision": "RECHAZADO", "motivo": "AFFORDABILITY_RATIO_EXCEEDED", "limite": 0, "riesgo": "ALTO"}
+    result = {"credit_risk_decision": "FAIL", "adverse_action_reason_codes": "AFFORDABILITY_RATIO_EXCEEDED", "approved_credit_limit": 0}
 elif score < 550:
-    result = {"decision": "RECHAZADO", "motivo": "BUREAU_SCORE_TOO_LOW", "limite": 0, "riesgo": "ALTO"}
+    result = {"credit_risk_decision": "FAIL", "adverse_action_reason_codes": "BUREAU_SCORE_TOO_LOW", "approved_credit_limit": 0}
 elif score >= 700:
-    result = {"decision": "APROBADO", "motivo": "APPROVED_POLICY", "limite": round(min(5000, ingreso * 0.35), 2), "riesgo": "BAJO"}
+    result = {"credit_risk_decision": "PASS", "adverse_action_reason_codes": "APPROVED_POLICY", "approved_credit_limit": round(min(5000, ingreso * 0.35), 2)}
 else:
-    result = {"decision": "REVISION_MANUAL", "motivo": "SCORE_BAND_BORDERLINE", "limite": 0, "riesgo": "MEDIO"}
+    result = {"credit_risk_decision": "REVIEW", "adverse_action_reason_codes": "SCORE_BAND_BORDERLINE", "approved_credit_limit": 0}

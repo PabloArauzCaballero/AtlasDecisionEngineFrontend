@@ -34,17 +34,33 @@ API_KEY = os.environ.get("MANAGEMENT_API_KEY", "")
 TENANT = os.environ.get("TENANT_ID", "1")
 
 # Un algoritmo de decisión LÓGICO (riesgo de crédito), no un ejemplo absurdo.
+#
+# Trae la cabecera @atlas-contract —sin ella el motor responde
+# CONTRACT_MARKER_MISSING— y declara sólo códigos que EXISTEN en el catálogo
+# sembrado. Los ids no se inventan: desde que una importación se exige como
+# cualquier artefacto, una variable que el catálogo no tenga da
+# CODE_IMPORT_VARIABLE_NOT_IN_CATALOG y el import no se puede guardar.
+# `credit_risk_decision` además declara sus valores permitidos: PASS/REVIEW/FAIL.
 PYTHON_SOURCE = """
-# Decide el nivel de riesgo de una solicitud de crédito a partir de variables de entrada.
+# @atlas-contract
+# { "contractVersion": "1",
+#   "inputs": [
+#     { "id": "monthly_income", "name": "Ingreso mensual", "type": "NUMBER", "required": true },
+#     { "id": "bureau_score", "name": "Score de buro", "type": "INTEGER", "required": true }],
+#   "outputs": [
+#     { "id": "credit_risk_decision", "name": "Decision", "type": "STRING", "required": true },
+#     { "id": "adverse_action_reason_codes", "name": "Motivo", "type": "STRING", "required": true }],
+#   "primaryOutputId": "credit_risk_decision",
+#   "reasonOutputId": "adverse_action_reason_codes" }
 income = variables["monthly_income"]
-has_debt = variables["has_active_debt"]
+score = variables["bureau_score"]
 
-if income >= 3000 and not has_debt:
-    result = {"risk_level": "LOW", "explanation": "Ingreso estable y sin deuda activa"}
-elif income >= 1500:
-    result = {"risk_level": "MEDIUM", "explanation": "Ingreso moderado, revisar caso"}
+if score < 550:
+    result = {"credit_risk_decision": "FAIL", "adverse_action_reason_codes": "BUREAU_SCORE_TOO_LOW"}
+elif income >= 3000 and score >= 700:
+    result = {"credit_risk_decision": "PASS", "adverse_action_reason_codes": "APPROVED_POLICY"}
 else:
-    result = {"risk_level": "HIGH", "explanation": "Ingreso insuficiente"}
+    result = {"credit_risk_decision": "REVIEW", "adverse_action_reason_codes": "SCORE_BAND_BORDERLINE"}
 """.strip()
 
 
@@ -93,6 +109,21 @@ def main():
     if isinstance(body, dict):
         import_id = body.get("id") or body.get("importId") or body.get("codeImportId")
     print(f"  ✓ El motor recibió y analizó el código. id={import_id}")
+
+    # El endpoint responde 201 aunque el análisis traiga errores: el import queda
+    # guardado como ANALYZED y es `save-draft`/`confirm` quien lo rechaza después.
+    # Sin mirar `issues` esta prueba imprimía OK sobre un import que no se podía
+    # escribir en ningún artefacto, que es justo lo que decía comprobar.
+    blocking = [
+        issue
+        for issue in (body.get("issues") or [] if isinstance(body, dict) else [])
+        if issue.get("severity") == "ERROR"
+    ]
+    if blocking:
+        print("  ✗ El análisis devolvió errores bloqueantes; el import no se puede guardar:")
+        print(preview(blocking))
+        sys.exit(1)
+
     print("  Análisis devuelto:")
     print(preview(body))
 

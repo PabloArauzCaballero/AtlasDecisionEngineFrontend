@@ -69,8 +69,7 @@ export function VersionDiffPanel({ targetVersionId, targetLabel, bases }: Versio
   const targetGraph = useGraph(targetVersionId || null);
   const loading = baseGraph.isPending || targetGraph.isPending;
   const failed = baseGraph.isError || targetGraph.isError;
-  const diff =
-    !loading && !failed ? diffGraphs(baseGraph.data, targetGraph.data) : null;
+  const diff = !loading && !failed ? diffGraphs(baseGraph.data, targetGraph.data) : null;
   const groups = diff ? groupByCollection(diff) : [];
 
   return (

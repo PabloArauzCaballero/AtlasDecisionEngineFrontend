@@ -129,6 +129,44 @@ describe('CodeImportPage', () => {
     expect(screen.getByRole('button', { name: /Confirmar/ })).toBeDisabled();
   });
 
+  it('deja ver el grafo aunque el motor rechace el contrato por el catálogo', async () => {
+    // El motor manda el mismo aviso en inglés y en la línea 1. Esconder el grafo
+    // por eso dejaría a quien tiene que declarar la variable sin ver qué pide el
+    // algoritmo, que es justo lo que necesita para declararla bien.
+    mockedApiRequest.mockImplementation(async (path: string) => {
+      if (path === '/v1/code-imports') {
+        return {
+          ...ANALYSIS,
+          issues: [
+            {
+              source: 'CONTRACT',
+              severity: 'ERROR',
+              line: 1,
+              code: 'CODE_IMPORT_VARIABLE_NOT_IN_CATALOG',
+              message: 'Output "decision" is not declared in the variable catalog',
+            },
+          ],
+        } as never;
+      }
+      if (path.startsWith('/v1/variables/')) return { versions: [] } as never;
+      if (path.startsWith('/v1/variables')) return catalogFor(path) as never;
+      if (path.startsWith('/v1/reason-codes')) return { items: [] } as never;
+      return [] as never;
+    });
+    renderPage();
+    fireEvent.change(screen.getByLabelText('Lenguaje'), { target: { value: 'PYTHON' } });
+    pasteSource(PYTHON_SOURCE);
+    fireEvent.click(screen.getByRole('button', { name: 'Analizar' }));
+
+    expect(await screen.findByText('Grafo generado')).toBeInTheDocument();
+    expect(
+      await screen.findByText(/La salida principal «decision» no existe en el inventario/),
+    ).toBeInTheDocument();
+    // Un solo aviso por el mismo hecho: el del motor se calla cuando el local ya está.
+    expect(screen.queryByText(/is not declared in the variable catalog/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Guardar borrador/ })).toBeDisabled();
+  });
+
   it('deja guardar cuando todo el contrato ya está en los catálogos', async () => {
     mockedApiRequest.mockImplementation(async (path: string) => {
       if (path === '/v1/code-imports') return ANALYSIS as never;

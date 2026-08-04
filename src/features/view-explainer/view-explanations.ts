@@ -53,7 +53,7 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
     business:
       'Traduce lógica existente (código o reglas legadas) a un artefacto versionado del motor, para migrar decisiones sin reescribirlas a mano ni perder trazabilidad.',
     systems:
-      'Parsea la fuente y propone nodos, condiciones y acciones; genera un borrador de versión que luego se revisa en el editor y se compila.',
+      'Parsea la fuente y propone nodos, condiciones y acciones; genera un borrador de versión que luego se revisa en el editor y se compila. El contrato declarado se exige contra los catálogos: sólo puede usar variables y motivos ya declarados, como cualquier otro artefacto.',
   },
   'test-suites': {
     module: 'Suites de Prueba · Calidad',

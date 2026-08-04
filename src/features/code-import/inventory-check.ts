@@ -17,6 +17,21 @@ export interface CatalogMatch {
   similar?: string;
 }
 
+/**
+ * Avisos del motor que nacen del CATÁLOGO, no del código pegado.
+ *
+ * Se apartan del resto por dos motivos. Uno: no deben ocultar la vista previa del
+ * grafo —para declarar bien una variable hay que poder ver qué pide el algoritmo—
+ * aunque impidan guardarlo. Dos: la comprobación local dice lo mismo mejor (en
+ * español, con el papel de la variable, en su línea del contrato y con enlace al
+ * catálogo), así que se enseña una sola vez, y sólo se cede al mensaje del motor
+ * cuando la comprobación local no llegó a hacerse.
+ */
+export const ENGINE_CATALOG_ISSUE_CODES: ReadonlySet<string> = new Set([
+  'CODE_IMPORT_VARIABLE_NOT_IN_CATALOG',
+  'CODE_IMPORT_VARIABLE_TYPE_MISMATCH',
+]);
+
 /** Dónde aparece un texto en el código, para señalar la línea en vez de decir «línea 1». */
 export type Locate = (needle: string) => number;
 

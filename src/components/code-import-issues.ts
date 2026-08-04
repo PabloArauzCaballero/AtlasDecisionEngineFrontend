@@ -64,6 +64,11 @@ const BY_CODE: Record<string, IssueExplanation> = {
       'El código escribe ese valor en la salida del motivo, pero no está en el catálogo de motivos. Sin estar declarado no se convierte en una acción que lo emita: entra al grafo como una cadena suelta, y la decisión no se puede filtrar, explicar ni auditar por ese motivo.',
     fix: 'Declara el motivo en el catálogo antes de importar, o usa uno de los que ya existen.',
   },
+  CONTRACT_REASON_OUTPUT_UNKNOWN: {
+    cause:
+      '`reasonOutputId` nombra la salida que lleva el motivo de la decisión, y el id que trae no está entre las salidas declaradas. Sin una salida real detrás, el importador no sabe de dónde sacar el motivo.',
+    fix: 'Escribe en `reasonOutputId` el `id` exacto de una de las salidas del bloque `outputs`.',
+  },
   CODE_IMPORT_REASON_OUTPUT_UNDECLARED: {
     cause:
       'Sin `reasonOutputId` no se sabe cuál de las salidas lleva el motivo de la decisión, así que no se puede comprobar contra el catálogo de motivos cuáles de los valores que escribe el código son códigos de salida gobernados y cuáles son datos normales del resultado.',

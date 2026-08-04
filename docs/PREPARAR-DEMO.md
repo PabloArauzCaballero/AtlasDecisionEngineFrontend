@@ -48,14 +48,26 @@ Al cambiar lo que se siembra hay que subir `DEMO_SEMANTIC_VERSION`
 
 ## 3. Importar el algoritmo Python
 
-En **Importar Código**, pega [`algoritmo-python-listo.py`](algoritmo-python-listo.py).
-Ya trae el header **`# @atlas-contract`** que exige el importador (declara entradas y
-salidas antes del código). Sin ese header salía:
+En **Importar Código**, pon el selector **Lenguaje en Python** y pega
+[`algoritmo-python-listo.py`](algoritmo-python-listo.py). El archivo ya cumple las tres
+cosas que exige el importador, y las tres dan un error distinto si faltan:
 
-> Missing "# @atlas-contract" header — the metadata contract must be declared before the code body
+1. **El lenguaje del selector.** Arranca en JavaScript; con Python pegado ahí, el motor
+   responde un error de sintaxis en la línea 1 y `Missing "// @atlas-contract" header`
+   sobre un archivo que sí la trae, escrita con `#`. La pantalla lo detecta antes de
+   enviar y ofrece corregirlo de un clic.
+2. **El header `# @atlas-contract`**, en líneas `#`, con JSON válido, y el código
+   empezando **justo después** (sin comentarios en medio). Si falta:
+   > Missing "# @atlas-contract" header — the metadata contract must be declared before the code body
+3. **Identificadores del catálogo.** Cada `id` del contrato tiene que existir ya como
+   variable del catálogo, con el mismo tipo, y los motivos en el catálogo de motivos —
+   igual que cualquier otro artefacto. Antes el motor creaba sola la variable que
+   faltara; ahora responde `CODE_IMPORT_VARIABLE_NOT_IN_CATALOG` y no deja guardar. Por
+   eso el archivo usa `monthly_income`, `bureau_score`, `age`, `credit_risk_decision`…
+   y no nombres inventados en castellano.
 
-El header debe ir en líneas `#`, con JSON válido, y el código empieza **justo
-después** (sin comentarios en medio). El archivo ya está así.
+Contra el catálogo sembrado, el análisis termina **sin observaciones**, con 15 nodos y
+los cinco motivos emitidos como acciones `EMIT_REASON`.
 
 ---
 

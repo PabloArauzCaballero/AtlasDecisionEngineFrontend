@@ -59,7 +59,9 @@ describe('diffGraphs', () => {
   it('marca como cosmético lo que sólo mueve el dibujo, sin ocultarlo', () => {
     const moved = diff.entries.find((entry) => entry.path === 'nodes.EVAL_SCORE.x');
     expect(moved?.cosmetic).toBe(true);
-    expect(diff.substantive).not.toContainEqual(expect.objectContaining({ path: 'nodes.EVAL_SCORE.x' }));
+    expect(diff.substantive).not.toContainEqual(
+      expect.objectContaining({ path: 'nodes.EVAL_SCORE.x' }),
+    );
     expect(diff.substantive.length).toBeLessThan(diff.entries.length);
   });
 

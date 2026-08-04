@@ -77,6 +77,16 @@ se mantiene al día solo. Si necesitas frescura inmediata dentro de un turno
 - Editores de nodos del grafo: `src/features/graph-editor/NodeProperties.tsx`
   despacha un editor dedicado por tipo de nodo; los nodos de código comparten
   el contrato `config.script = { language, source }` y `script-lint.ts`.
+- **Importar código no estrena variables.** El `@atlas-contract` sólo puede usar
+  códigos que ya existan en el catálogo (mismo tipo) y motivos del catálogo de
+  motivos, igual que cualquier artefacto: el motor responde
+  `CODE_IMPORT_VARIABLE_NOT_IN_CATALOG` y `src/features/code-import/` lo repite
+  en español, con la línea del contrato. Esos avisos **no** esconden la vista
+  previa del grafo —para declarar bien una variable hay que ver qué pide el
+  algoritmo—, sólo bloquean el guardado. Por eso `sample-source.ts` y
+  `docs/algoritmo-python-listo.py` usan códigos reales del catálogo sembrado
+  (`monthly_income`, `bureau_score`, `credit_risk_decision`…): un ejemplo con
+  nombres inventados abriría la pantalla llena de errores.
 
 ## Sistema visual
 

@@ -10,6 +10,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
 import { EnvironmentHeadsPanel } from '../features/governance/EnvironmentHeadsPanel';
+import { VersionDiffPanel } from '../features/governance/VersionDiffPanel';
 import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
 import type { VersionRow } from '../features/version-history/VersionHistoryGraph';
 import { useDetailQuery } from '../hooks/useDetailQuery';
@@ -170,9 +171,26 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
               </Panel>
             </div>
           ) : tab === 'versions' ? (
-            <Panel title="Lineaje de versiones" meta={`${versions.length} versiones`}>
-              <VersionHistoryGraph versions={versions.map(toVersionRow)} />
-            </Panel>
+            <>
+              <Panel title="Lineaje de versiones" meta={`${versions.length} versiones`}>
+                <VersionHistoryGraph versions={versions.map(toVersionRow)} />
+              </Panel>
+              {/* Qué introdujo la última versión respecto de la anterior: el
+                  lineaje dice cuáles hay, no qué cambió en cada una. */}
+              {latestId !== '—' && previousId !== '—' ? (
+                <VersionDiffPanel
+                  targetVersionId={latestId}
+                  targetLabel={`v${display(latest, 'semanticVersion', 'versionNumber')}`}
+                  bases={[
+                    {
+                      versionId: previousId,
+                      label: `v${display(versions[1] ?? {}, 'semanticVersion', 'versionNumber')}`,
+                      hint: 'versión anterior',
+                    },
+                  ]}
+                />
+              ) : null}
+            </>
           ) : (
             <Panel title="Datos del artefacto" meta="atributo-valor · JSON">
               <DataInspector data={artifact} idPrefix="artifact-data" label="Artefacto" />
