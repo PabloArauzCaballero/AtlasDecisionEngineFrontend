@@ -1,22 +1,22 @@
-import { useMutation } from '@tanstack/react-query';
-import {
-  CheckCircle2,
-  FileDiff,
-  Printer,
-  Share2,
-  ShieldAlert,
-  ThumbsDown,
-  ThumbsUp,
-} from 'lucide-react';
+'use client';
+
+import { GitCompare, Printer, Share2, ShieldAlert, ThumbsDown, ThumbsUp } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
-import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
+import { useAuth } from '../auth/useAuth';
+import { isPassingGate, readGates } from '../features/governance/approval-gates';
+import { DecisionConfirmDialog } from '../features/governance/DecisionConfirmDialog';
+import { evaluateDecisionGate } from '../features/governance/decision-policy';
+import { buildDiffBases } from '../features/governance/diff-bases';
+import { useApprovalDecision, type Decision } from '../features/governance/useApprovalDecision';
+import { useArtifactHeads } from '../features/governance/useArtifactHeads';
+import { VersionDiffPanel } from '../features/governance/VersionDiffPanel';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display } from '../utils/records';
@@ -27,7 +27,9 @@ interface ApprovalRequestDetailPageProps {
 
 export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPageProps) {
   const [comments, setComments] = useState('');
+  const [confirming, setConfirming] = useState<Decision | null>(null);
   const { notify } = useNotifications();
+  const { user } = useAuth();
   const query = useDetailQuery<unknown>(
     'approval-request',
     requestId ? `/v1/approval-requests/${encodeURIComponent(requestId)}` : null,
@@ -36,38 +38,45 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
   const version = asRecord(request.artifactVersion);
   const artifact = asRecord(version.artifact);
   const steps = asRows(request.steps);
-  const activeStep = steps.find((step) => step.status === 'PENDING') ?? {};
-  const activeStepId = display(activeStep, 'id');
-  const decide = useMutation({
-    mutationFn: (decision: 'APPROVE' | 'REJECT') =>
-      apiRequest(`/v1/approval-steps/${encodeURIComponent(activeStepId)}/decisions`, {
-        method: 'POST',
-        body: { decision, comments, evidence: [] },
-      }),
-    onSuccess: (_data, decision) => {
-      // Clearing the box prevents the comment being replayed onto a later step.
-      setComments('');
-      void query.refetch();
-      notify({
-        tone: decision === 'APPROVE' ? 'success' : 'warning',
-        title:
-          decision === 'APPROVE'
-            ? 'Decisión registrada: aprobada'
-            : 'Decisión registrada: rechazada',
-        description: `REQ-${display(request, 'id')} quedó firmado en la bitácora de auditoría.`,
-      });
-    },
-  });
-  const pendingDecision = decide.isPending ? decide.variables : undefined;
 
-  /** Copies the request's deep link so it can be pasted into chat or email. */
+  const gate = evaluateDecisionGate(request, user);
+  const gates = readGates(request, version);
+  const { heads } = useArtifactHeads(display(artifact, 'artifactCode'));
+  const requestLabel = `REQ-${display(request, 'id')}`;
+  const decide = useApprovalDecision({
+    requestLabel,
+    refresh: () => void query.refetch(),
+  });
+
+  /** Abre la confirmación y fija la clave de idempotencia de este intento. */
+  const askConfirmation = (decision: Decision) => {
+    decide.beginAttempt();
+    setConfirming(decision);
+  };
+
+  const confirmDecision = () => {
+    if (!gate.stepId || !confirming) return;
+    decide.mutate(
+      { stepId: gate.stepId, decision: confirming, comments },
+      {
+        onSuccess: () => {
+          // Limpiar evita que el comentario se replique sobre un paso posterior.
+          setComments('');
+          setConfirming(null);
+        },
+        onError: () => setConfirming(null),
+      },
+    );
+  };
+
+  /** Copia el enlace directo de la solicitud para pegarlo en chat o correo. */
   const shareRequest = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       notify({
         tone: 'success',
         title: 'Enlace copiado',
-        description: `El enlace directo a REQ-${display(request, 'id')} está en tu portapapeles.`,
+        description: `El enlace directo a ${requestLabel} está en tu portapapeles.`,
       });
     } catch {
       notify({
@@ -79,15 +88,28 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
     }
   };
 
+  const versionLabel = display(version, 'semanticVersion', 'versionNumber');
+  const versionId = display(version, 'id');
+  const blockedByComment = !comments.trim();
+
+  // Contra qué comparar esta versión: su origen y lo vigente en cada ambiente.
+  // La misma consulta que usa la ficha del artefacto, resuelta una sola vez.
+  const sourceVersionId = display(version, 'sourceVersionId');
+  const { bases, movedAhead } = buildDiffBases({
+    versionId,
+    sourceVersionId: sourceVersionId === '—' ? null : sourceVersionId,
+    heads,
+  });
+
   return (
     <>
       <PageHeader
         eyebrow="F4-03 · Governance Request"
-        title={`REQ-${display(request, 'id')}: ${display(artifact, 'name')}`}
-        description={`${display(artifact, 'artifactCode')} · v${display(version, 'semanticVersion', 'versionNumber')}`}
+        title={`${requestLabel}: ${display(artifact, 'name')}`}
+        description={`${display(artifact, 'artifactCode')} · v${versionLabel}`}
         actions={
           <>
-            <Link className="button" href={`/security-review/${display(version, 'id')}`}>
+            <Link className="button" href={`/security-review/${versionId}`}>
               <ShieldAlert size={16} /> Revisión de Seguridad
             </Link>
             <button className="button" type="button" onClick={() => window.print()}>
@@ -99,8 +121,12 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
           </>
         }
       />
-      {query.isError || decide.isError ? (
-        <Alert tone="error">{errorMessage(query.error ?? decide.error)}</Alert>
+      {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
+      {decide.staleState ? (
+        <Alert tone="warning">
+          La solicitud cambió mientras la revisabas: otra persona decidió este paso o el flujo
+          avanzó. Se releyó el estado real; revísalo antes de volver a decidir.
+        </Alert>
       ) : null}
       <div className="governance-detail">
         <main>
@@ -117,33 +143,53 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
               ]}
             />
           </Panel>
-          <Panel title="Resultados de Pruebas (Gates)" meta="Required evidence">
-            <ul className="gate-list">
-              {[
-                'Compilación determinista',
-                'Suite bloqueante aprobada',
-                'Cobertura mínima alcanzada',
-                'Integridad de grafo verificada',
-              ].map((gate) => (
-                <li key={gate}>
-                  <CheckCircle2 /> <span>{gate}</span>
-                  <StatusBadge value="PASSED" />
-                </li>
-              ))}
-            </ul>
+          <Panel
+            title="Resultados de Pruebas (Gates)"
+            meta={gates.reported ? `${gates.rows.length} reportados` : 'Sin datos del backend'}
+          >
+            {gates.reported ? (
+              <ul className="gate-list">
+                {gates.rows.map((row) => (
+                  <li key={row.key} data-passing={isPassingGate(row.status) ? 'yes' : 'no'}>
+                    <span>
+                      {row.label}
+                      {row.detail ? <small>{row.detail}</small> : null}
+                    </span>
+                    <StatusBadge value={row.status ?? 'SIN DATO'} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <Alert tone="warning">
+                El backend no envió resultados de gates para esta solicitud. Esta pantalla no puede
+                afirmar que la compilación, las suites bloqueantes o la cobertura hayan pasado:
+                compruébalo en la versión antes de firmar.
+              </Alert>
+            )}
           </Panel>
-          <Panel title="Resumen de Cambios (Diff)" meta="Version comparison">
-            <div className="diff-block">
-              <FileDiff />
-              <div>
-                <strong>Graph and contract changes</strong>
-                <p>Consulte el checksum y la evidencia adjunta antes de tomar la decisión.</p>
-              </div>
+          {movedAhead.length ? (
+            <Alert tone="warning">
+              Esta versión partió de otra distinta de la que hoy está vigente en{' '}
+              {movedAhead.map((head) => head.environmentCode).join(', ')}: el objetivo avanzó
+              mientras esperaba revisión. Compárala contra lo vigente antes de firmar — aprobarla
+              puede revertir lo que ya está decidiendo.
+            </Alert>
+          ) : null}
+          <VersionDiffPanel
+            targetVersionId={versionId === '—' ? '' : versionId}
+            targetLabel={`v${versionLabel}`}
+            bases={bases}
+          />
+          {versionId !== '—' ? (
+            <div className="stack-actions">
+              <Link className="button" href={`/artifact-versions/${versionId}/graph`}>
+                <GitCompare size={16} /> Ver grafo completo de la versión
+              </Link>
             </div>
-          </Panel>
+          ) : null}
         </main>
         <aside>
-          <Panel title="Decisión de Aprobación" meta={display(activeStep, 'requiredRole')}>
+          <Panel title="Decisión de Aprobación" meta={gate.requiredRole ?? 'Sin rol declarado'}>
             <div className="approval-steps">
               {steps.map((step) => (
                 <div key={display(step, 'id')}>
@@ -155,45 +201,61 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
                 </div>
               ))}
             </div>
-            <label className="field">
-              <span>Comentario obligatorio</span>
-              <textarea
-                rows={5}
-                value={comments}
-                onChange={(event) => setComments(event.target.value)}
-              />
-            </label>
-            <div className="decision-buttons">
-              <button
-                className="button button-danger"
-                disabled={!comments || activeStepId === '—' || decide.isPending}
-                onClick={() => decide.mutate('REJECT')}
-                type="button"
-              >
-                {pendingDecision === 'REJECT' ? (
-                  <span className="inline-spinner" aria-hidden="true" />
-                ) : (
-                  <ThumbsDown size={16} />
-                )}
-                Rechazar
-              </button>
-              <button
-                className="button button-primary"
-                disabled={!comments || activeStepId === '—' || decide.isPending}
-                onClick={() => decide.mutate('APPROVE')}
-                type="button"
-              >
-                {pendingDecision === 'APPROVE' ? (
-                  <span className="inline-spinner" aria-hidden="true" />
-                ) : (
-                  <ThumbsUp size={16} />
-                )}
-                Aprobar Despliegue
-              </button>
-            </div>
+            {gate.canDecide ? (
+              <>
+                <label className="field">
+                  <span>Comentario obligatorio</span>
+                  <textarea
+                    rows={5}
+                    value={comments}
+                    onChange={(event) => setComments(event.target.value)}
+                  />
+                </label>
+                <div className="decision-buttons">
+                  <button
+                    className="button button-danger"
+                    disabled={blockedByComment || decide.isPending}
+                    onClick={() => askConfirmation('REJECT')}
+                    type="button"
+                  >
+                    <ThumbsDown size={16} /> Rechazar
+                  </button>
+                  <button
+                    className="button button-primary"
+                    disabled={blockedByComment || decide.isPending}
+                    onClick={() => askConfirmation('APPROVE')}
+                    type="button"
+                  >
+                    <ThumbsUp size={16} /> Aprobar Despliegue
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Alert tone="info">
+                {gate.reason ?? 'Esta solicitud no admite decisiones desde tu sesión.'}
+              </Alert>
+            )}
           </Panel>
         </aside>
       </div>
+      {confirming ? (
+        <DecisionConfirmDialog
+          decision={confirming}
+          subject={{
+            requestLabel,
+            artifactName: display(artifact, 'name'),
+            artifactCode: display(artifact, 'artifactCode'),
+            versionLabel,
+            requiredRole: gate.requiredRole,
+            stepLabel: `Paso ${display(asRecord(gate.step), 'stepOrder')}`,
+          }}
+          gates={gates}
+          comments={comments}
+          pending={decide.isPending}
+          onCancel={() => setConfirming(null)}
+          onConfirm={confirmDecision}
+        />
+      ) : null}
     </>
   );
 }

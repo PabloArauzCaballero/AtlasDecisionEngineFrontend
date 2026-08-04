@@ -23,6 +23,9 @@
 @import './parts/quality.css';
 @import './parts/generated-graph.css';
 @import './parts/operations-governance.css';
+/* Carga después de operations-governance: reescribe `.gate-list` para el estado
+   real de cada gate, en vez del icono verde fijo que traía. */
+@import './parts/governance-decision.css';
 @import './parts/nested-trees.css';
 /* The interaction layer loads after the component parts it enhances, so its
    hover, press and busy states win the cascade on equal specificity. */

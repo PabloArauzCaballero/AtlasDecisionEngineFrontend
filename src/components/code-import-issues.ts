@@ -39,6 +39,41 @@ const BY_CODE: Record<string, IssueExplanation> = {
       'Sin la cabecera @atlas-contract no se puede saber qué datos necesita el algoritmo ni qué devuelve, así que tampoco se pueden crear sus variables de entrada y salida.',
     fix: 'Añade el bloque @atlas-contract en comentarios, con JSON válido, antes de la primera línea de código y sin comentarios entre medias.',
   },
+  CODE_IMPORT_LANGUAGE_MISMATCH: {
+    cause:
+      'El analizador compila el código con el lenguaje que hay elegido en el selector, no con el que aparenta ser. Si no coinciden, la primera línea ya no se entiende y el motor devuelve dos errores que no están en tu código: uno de sintaxis en la línea 1 y otro diciendo que falta la cabecera @atlas-contract (la busca con el prefijo de comentario del otro lenguaje).',
+    fix: 'Cambia el selector de lenguaje al que corresponde al código pegado y vuelve a analizar.',
+  },
+  CODE_IMPORT_VARIABLE_NOT_IN_CATALOG: {
+    cause:
+      'El contrato declara una variable que el inventario no tiene. Al guardar, el motor la crea sola con lo mínimo para que el grafo cuadre: sin dueño, sin descripción de negocio y sin restricciones. Es la vía por la que un algoritmo importado se salta el catálogo que el resto de artefactos sí respeta.',
+    fix: 'Declárala primero en el catálogo de variables (con su tipo, dueño y clasificación) y luego usa ese mismo código en el contrato. Si ya existe con otro nombre, corrige el `id` del contrato.',
+  },
+  CODE_IMPORT_VARIABLE_CASE_MISMATCH: {
+    cause:
+      'El motor busca la variable por código exacto. Una que sólo difiere en mayúsculas es, para él, otra variable distinta: al guardar crearía un duplicado en el catálogo en vez de reutilizar la que ya existe.',
+    fix: 'Escribe en el contrato el código tal cual está en el catálogo.',
+  },
+  CODE_IMPORT_VARIABLE_TYPE_MISMATCH: {
+    cause:
+      'El tipo declarado en el contrato y el que el catálogo tiene registrado para esa variable no son el mismo. El catálogo manda: al ejecutar, el valor se valida contra él, no contra el contrato del archivo.',
+    fix: 'Ajusta el tipo del contrato al del catálogo, o cambia el tipo de la variable en el catálogo si el que estaba era el equivocado.',
+  },
+  CODE_IMPORT_REASON_CODE_NOT_IN_CATALOG: {
+    cause:
+      'El código escribe ese valor en la salida del motivo, pero no está en el catálogo de motivos. Sin estar declarado no se convierte en una acción que lo emita: entra al grafo como una cadena suelta, y la decisión no se puede filtrar, explicar ni auditar por ese motivo.',
+    fix: 'Declara el motivo en el catálogo antes de importar, o usa uno de los que ya existen.',
+  },
+  CODE_IMPORT_REASON_OUTPUT_UNDECLARED: {
+    cause:
+      'Sin `reasonOutputId` no se sabe cuál de las salidas lleva el motivo de la decisión, así que no se puede comprobar contra el catálogo de motivos cuáles de los valores que escribe el código son códigos de salida gobernados y cuáles son datos normales del resultado.',
+    fix: 'Añade `"reasonOutputId": "<id de la salida del motivo>"` al bloque @atlas-contract.',
+  },
+  CODE_IMPORT_VALUE_NOT_ALLOWED: {
+    cause:
+      'La variable de salida declara en el catálogo la lista de valores que admite, y el código escribe uno que no está en ella. Al publicar, la validación del motor lo rechaza.',
+    fix: 'Usa uno de los valores permitidos, o amplía la lista en el contrato de esa variable del catálogo.',
+  },
   CODE_IMPORT_UNSAFE_CONSTRUCT: {
     cause:
       'El ejecutor corre el código en un entorno cerrado: no hay imports ni acceso a archivos, red o sistema. Se encontró una construcción fuera de ese entorno.',

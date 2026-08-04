@@ -1,0 +1,270 @@
+/*
+ * Confirmación de decisiones gobernadas y versión vigente por ambiente.
+ *
+ * Sólo tokens: los avisos de esta pantalla se leen en claro y en oscuro, y un
+ * hex escrito a mano se volvería ilegible al conmutar el tema.
+ */
+
+.decision-summary {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+.decision-summary > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+.decision-summary dt {
+  color: var(--text-muted);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.decision-summary dd {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.decision-summary dd code {
+  margin-left: var(--space-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.decision-evidence {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-soft);
+}
+.decision-evidence h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.decision-comment {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+/* Un aviso que el revisor debe leer antes de firmar, no una nota al pie. */
+.decision-warning {
+  display: block;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/*
+ * Los gates ahora llevan etiqueta + estado real (dos columnas), no el icono
+ * verde fijo de la versión anterior, que afirmaba PASSED sin haber mirado nada.
+ */
+.gate-list li {
+  grid-template-columns: 1fr auto;
+}
+.gate-list li > span {
+  display: grid;
+  gap: 2px;
+}
+.gate-list li > span small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.gate-list li[data-passing='no'] {
+  border-left: 3px solid var(--warning-line);
+  padding-left: var(--space-2);
+}
+
+.environment-heads {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.environment-heads li {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+}
+.environment-heads li[data-conflict='yes'] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+.environment-heads code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+.environment-heads strong {
+  display: block;
+  font-size: 13px;
+}
+.environment-heads small {
+  color: var(--text-muted);
+  font-size: 9px;
+}
+.head-conflict {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--danger-text);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/*
+ * Comparación estructural entre versiones.
+ *
+ * El color distingue añadido/eliminado/modificado, pero nunca es lo único: cada
+ * fila lleva su etiqueta escrita, para que el diff se lea igual sin color.
+ */
+.diff-caption {
+  margin: 0 0 var(--space-3);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.diff-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+}
+.diff-counts li {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 800;
+}
+.diff-counts li[data-kind='added'] {
+  border-color: var(--success-line);
+  background: var(--success-wash);
+  color: var(--success-text);
+}
+.diff-counts li[data-kind='removed'] {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+.diff-counts li[data-kind='changed'] {
+  border-color: var(--info-line);
+  background: var(--info-wash);
+  color: var(--info-strong);
+}
+
+.diff-group {
+  margin-bottom: var(--space-4);
+}
+.diff-group h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.diff-group h3 small {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  font-size: 9px;
+}
+.diff-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.diff-entries li {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+}
+.diff-entries li[data-kind='added'] {
+  border-left-color: var(--success);
+}
+.diff-entries li[data-kind='removed'] {
+  border-left-color: var(--danger);
+}
+.diff-entries li[data-kind='changed'] {
+  border-left-color: var(--info);
+}
+.diff-entries li[data-cosmetic='yes'] {
+  opacity: 0.75;
+}
+.diff-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.diff-row-head code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  word-break: break-all;
+}
+.diff-kind {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.diff-cosmetic {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.diff-values {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.diff-values del,
+.diff-values ins {
+  display: block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  word-break: break-all;
+}
+.diff-values del {
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+.diff-values ins {
+  background: var(--success-wash);
+  color: var(--success-text);
+  text-decoration: none;
+}

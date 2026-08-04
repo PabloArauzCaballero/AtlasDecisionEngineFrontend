@@ -9,6 +9,7 @@ import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
+import { EnvironmentHeadsPanel } from '../features/governance/EnvironmentHeadsPanel';
 import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
 import type { VersionRow } from '../features/version-history/VersionHistoryGraph';
 import { useDetailQuery } from '../hooks/useDetailQuery';
@@ -123,7 +124,14 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                   ]}
                 />
               </Panel>
-              <Panel title="Current Version" meta="Governed">
+              <EnvironmentHeadsPanel artifactCode={artifactCode} />
+              {/*
+               * «Última versión» es la más reciente del historial, no la que
+               * está decidiendo: eso lo dice el panel de ambientes de arriba.
+               * Llamarla «Current Version · Governed» hacía creer que una
+               * versión recién creada ya mandaba en producción.
+               */}
+              <Panel title="Última versión del historial" meta="Puede no estar desplegada">
                 <div className="current-version">
                   <strong>v{display(latest, 'semanticVersion', 'versionNumber')}</strong>
                   <StatusBadge value={latest.status} />

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { FileCode2, GitBranch, Save, ShieldCheck, Wand2, XCircle } from 'lucide-react';
+import { FileCode2, GitBranch, Languages, Save, ShieldCheck, Wand2, XCircle } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
@@ -8,7 +8,15 @@ import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { GeneratedGraphPreview } from '../components/GeneratedGraphPreview';
 import { CodeImportIssuesList, type CodeImportIssue } from '../components/CodeImportIssuesList';
 import { ImportBankPanel } from '../features/actions/ImportBankPanel';
+import { InventoryCheckNote } from '../features/code-import/InventoryCheckNote';
+import { useInventoryCheck } from '../features/code-import/useInventoryCheck';
 import { localPythonIssues, stripUppercaseAccents } from '../components/code-import-issues';
+import {
+  detectSourceLanguage,
+  languageMismatchIssues,
+  LANGUAGE_LABELS,
+  type ImportLanguage,
+} from '../components/code-import-language';
 import { JsonTextarea } from '../components/JsonTextarea';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
@@ -47,7 +55,7 @@ if (variables.edad < 18) {
  * docs/code-to-flow-specification.md.
  */
 export function CodeImportPage() {
-  const [language, setLanguage] = useState<'JAVASCRIPT' | 'PYTHON'>('JAVASCRIPT');
+  const [language, setLanguage] = useState<ImportLanguage>('JAVASCRIPT');
   const [sourceCode, setSourceCode] = useState(SAMPLE_SOURCE);
   const [artifactVersionId, setArtifactVersionId] = useState('');
   const [expectedLockVersion, setExpectedLockVersion] = useState('1');
@@ -58,15 +66,29 @@ export function CodeImportPage() {
   });
   const result = asRecord(analyze.data);
   // La revisión local se antepone a la del motor: cuando detecta un carácter que
-  // el analizador de Python rechaza, señala la línea real en lugar de dejar que
-  // el motor culpe a la línea 1.
-  const localIssues = language === 'PYTHON' ? localPythonIssues(sourceCode) : [];
-  const issues = [...localIssues, ...(asRows(result.issues) as unknown as CodeImportIssue[])];
+  // el analizador de Python rechaza —o que el selector de lenguaje no es el del
+  // código pegado— señala la causa real en lugar de dejar que el motor culpe a
+  // la línea 1 y dé por ausente una cabecera que sí está.
+  const detected = detectSourceLanguage(sourceCode);
+  const accentIssues = language === 'PYTHON' ? localPythonIssues(sourceCode) : [];
+  const localIssues = [...languageMismatchIssues(sourceCode, language), ...accentIssues];
+  const sourceIssues = [...localIssues, ...(asRows(result.issues) as unknown as CodeImportIssue[])];
   const generatedGraph = asRecord(result.generatedGraph);
   const dependencies = asRows(generatedGraph.dependencies);
   const nodes = asRows(generatedGraph.nodes);
   const edges = asRows(generatedGraph.edges);
-  const hasBlockingIssues = issues.some((issue) => issue.severity === 'ERROR');
+  const hasBlockingIssues = sourceIssues.some((issue) => issue.severity === 'ERROR');
+  // Lo mismo que se exige a cualquier artefacto: el contrato sólo puede usar
+  // variables y motivos que el inventario ya tiene declarados.
+  const inventory = useInventoryCheck({
+    enabled: analyze.isSuccess && !hasBlockingIssues && nodes.length > 0,
+    language,
+    source: sourceCode,
+    dependencies,
+    nodes,
+  });
+  const issues = [...sourceIssues, ...inventory.issues];
+  const inventoryBlocked = inventory.issues.some((issue) => issue.severity === 'ERROR');
   const importId = display(result, 'id');
   const conditionCount = nodes.filter((node) => display(node, 'type') === 'CONDITION').length;
   const inputs = dependencies.filter(
@@ -108,7 +130,7 @@ export function CodeImportPage() {
               <span>Lenguaje</span>
               <select
                 value={language}
-                onChange={(event) => setLanguage(event.target.value as 'JAVASCRIPT' | 'PYTHON')}
+                onChange={(event) => setLanguage(event.target.value as ImportLanguage)}
               >
                 <option value="JAVASCRIPT">JavaScript</option>
                 <option value="PYTHON">Python</option>
@@ -142,13 +164,22 @@ export function CodeImportPage() {
           {analyze.isSuccess || localIssues.length ? (
             <>
               <CodeImportIssuesList issues={issues} />
-              {localIssues.length ? (
+              {detected && detected !== language ? (
+                <button
+                  className="button button-primary code-import-autofix"
+                  type="button"
+                  onClick={() => setLanguage(detected)}
+                >
+                  <Languages size={15} /> Cambiar el lenguaje a {LANGUAGE_LABELS[detected]}
+                </button>
+              ) : null}
+              {accentIssues.length ? (
                 <button
                   className="button button-primary code-import-autofix"
                   type="button"
                   onClick={() => setSourceCode(stripUppercaseAccents(sourceCode))}
                 >
-                  <Wand2 size={15} /> Quitar las tildes de las mayúsculas ({localIssues.length})
+                  <Wand2 size={15} /> Quitar las tildes de las mayúsculas ({accentIssues.length})
                 </button>
               ) : null}
               {!hasBlockingIssues && nodes.length ? (
@@ -164,6 +195,7 @@ export function CodeImportPage() {
                       : `${nodes.length} nodos · el código se importa como un único nodo de script`}
                   </p>
                   <GeneratedGraphPreview nodes={nodes} edges={edges} />
+                  <InventoryCheckNote check={inventory} />
                   <VariableList
                     title="Entradas"
                     hint="Datos que la decisión necesita recibir"
@@ -208,11 +240,21 @@ export function CodeImportPage() {
                 onChange={(event) => setExpectedLockVersion(event.target.value)}
               />
             </label>
+            {/* Guardar con el contrato fuera del inventario no falla: el motor CREA
+                sola cada variable que no encuentre, sin dueño ni clasificación. Por
+                eso se frena aquí, que es donde todavía se puede declarar bien. */}
+            {inventoryBlocked ? (
+              <Alert tone="error">
+                <XCircle size={14} aria-hidden="true" /> El contrato usa variables o motivos que el
+                inventario no tiene declarados. Decláralos primero en el catálogo: un artefacto no
+                estrena variables al guardarse.
+              </Alert>
+            ) : null}
             <div className="inline-actions">
               <button
                 className="button"
                 type="button"
-                disabled={!artifactVersionId || write.isPending}
+                disabled={!artifactVersionId || write.isPending || inventoryBlocked}
                 onClick={() => write.mutate('save-draft')}
               >
                 <Save size={16} /> Guardar borrador
@@ -220,7 +262,7 @@ export function CodeImportPage() {
               <button
                 className="button button-primary"
                 type="button"
-                disabled={!artifactVersionId || write.isPending}
+                disabled={!artifactVersionId || write.isPending || inventoryBlocked}
                 onClick={() => write.mutate('confirm')}
               >
                 <ShieldCheck size={16} /> Confirmar (validar + compilar)

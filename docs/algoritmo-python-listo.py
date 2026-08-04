@@ -1,6 +1,10 @@
 # Algoritmo de decisión de crédito — LISTO para "Importar Codigo".
 #
 # Pega TODO este archivo en "Importar Codigo" (o en un nodo Resultado con código).
+# ANTES de analizar, pon el selector "Lenguaje" en Python: arranca en JavaScript, y
+# analizado como JavaScript el motor responde un error de sintaxis en la linea 1 y
+# "Missing @atlas-contract header" (busca la marca con "//", no con "#") aunque el
+# archivo este perfecto. La pantalla ya lo detecta y ofrece cambiarlo de un clic.
 # El bloque "# @atlas-contract" de abajo DECLARA las entradas y salidas: el
 # importador lo exige antes del código (si falta, verás
 # "Missing @atlas-contract header"). Debe ir en líneas de comentario "#", con un
