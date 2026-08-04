@@ -1,23 +1,13 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
+import { defaultOperatorFor, OPERATOR_LABELS, operatorsFor } from './condition-operators';
 
 interface Props {
   config: UnknownRecord;
   inputs: UnknownRecord[];
   onChange: (config: UnknownRecord) => void;
 }
-
-/** Same operator vocabulary the visual condition editor exposes. */
-const OPERATORS = [
-  ['eq', 'Igual a'],
-  ['neq', 'Distinto de'],
-  ['gt', 'Mayor que'],
-  ['gte', 'Mayor o igual'],
-  ['lt', 'Menor que'],
-  ['lte', 'Menor o igual'],
-  ['in', 'Incluido en lista'],
-] as const;
 
 /**
  * Rule-list editor for DECISION_TABLE nodes. Rules evaluate top-down and the
@@ -26,6 +16,17 @@ const OPERATORS = [
  */
 export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
   const rules = asRows(config.rules);
+  /*
+   * Tipo de la variable que compara cada regla. Decide qué operadores se ofrecen:
+   * «mayor o igual» sobre un texto no significa nada y en JavaScript compara
+   * alfabéticamente, así que la regla se guardaba y decidía por un criterio que
+   * nadie había elegido.
+   */
+  const ruleType = (rule: UnknownRecord) =>
+    display(
+      inputs.find((input) => display(input, 'code') === display(rule, 'variable')) ?? {},
+      'dataType',
+    ).toUpperCase();
 
   function updateRule(index: number, patch: UnknownRecord) {
     onChange({
@@ -69,12 +70,12 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
           <label className="field">
             <span>Operador</span>
             <select
-              value={String(rule.operator ?? 'eq')}
+              value={String(rule.operator ?? defaultOperatorFor(ruleType(rule)))}
               onChange={(event) => updateRule(index, { operator: event.target.value })}
             >
-              {OPERATORS.map(([value, label]) => (
+              {operatorsFor(ruleType(rule)).map((value) => (
                 <option key={value} value={value}>
-                  {label}
+                  {OPERATOR_LABELS[value]}
                 </option>
               ))}
             </select>

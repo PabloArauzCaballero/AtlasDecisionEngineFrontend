@@ -1,6 +1,12 @@
 import { Trash2, X } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
 import { InfoHint } from '../../components/InfoHint';
+import {
+  defaultOperatorFor,
+  isOperatorValidFor,
+  OPERATOR_LABELS,
+  operatorsFor,
+} from './condition-operators';
 import { CONDITION_ORIGIN } from './node-tutorials';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 
@@ -8,17 +14,6 @@ import { asRecord, asRows, display, type UnknownRecord } from '../../utils/recor
 const CASE_VALUE_HINT =
   'El valor con el que se compara, escrito con su tipo real: 1500 para un número, ' +
   'true para un booleano, «APROBADO» para un texto, ["A","B"] para una lista.';
-
-const operators = [
-  ['eq', 'Igual a'],
-  ['neq', 'Distinto de'],
-  ['gt', 'Mayor que'],
-  ['gte', 'Mayor o igual'],
-  ['lt', 'Menor que'],
-  ['lte', 'Menor o igual'],
-  ['in', 'Incluido en lista'],
-  ['contains', 'Contiene'],
-] as const;
 
 interface EdgePropertiesProps {
   edge: UnknownRecord;
@@ -48,6 +43,16 @@ export function EdgeProperties({
     (condition) => display(condition, 'code') === selectedCondition,
   );
   const expression = asRecord(branchCondition?.expression);
+  /*
+   * Tipo de la variable que reparte el switch. Decide qué comparaciones se
+   * ofrecen: preguntar si un estado de KYC es «mayor o igual» que otro no
+   * significa nada, y en JavaScript compara alfabéticamente, así que la rama se
+   * guardaba y decidía por un criterio que nadie había elegido.
+   */
+  const caseType = display(
+    inputs.find((input) => display(input, 'code') === String(expression.variable ?? '')) ?? {},
+    'dataType',
+  ).toUpperCase();
 
   function updateCaseExpression(patch: UnknownRecord) {
     if (!onEditCondition || !selectedCondition) return;
@@ -156,7 +161,19 @@ export function EdgeProperties({
               </span>
               <select
                 value={String(expression.variable ?? '')}
-                onChange={(event) => updateCaseExpression({ variable: event.target.value })}
+                onChange={(event) => {
+                  const nextType = display(
+                    inputs.find((input) => display(input, 'code') === event.target.value) ?? {},
+                    'dataType',
+                  ).toUpperCase();
+                  const current = String(expression.operator ?? '');
+                  updateCaseExpression({
+                    variable: event.target.value,
+                    operator: isOperatorValidFor(nextType, current)
+                      ? current
+                      : defaultOperatorFor(nextType),
+                  });
+                }}
               >
                 <option value="">Elegir variable…</option>
                 {inputs.map((input) => (
@@ -172,12 +189,12 @@ export function EdgeProperties({
                 <InfoHint text="Cómo se compara la variable con el valor del caso. Los de lista («Incluido en lista», «Contiene») esperan varios valores; el resto, uno solo." />
               </span>
               <select
-                value={String(expression.operator ?? 'eq')}
+                value={String(expression.operator ?? defaultOperatorFor(caseType))}
                 onChange={(event) => updateCaseExpression({ operator: event.target.value })}
               >
-                {operators.map(([value, label]) => (
+                {operatorsFor(caseType).map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {OPERATOR_LABELS[value]}
                   </option>
                 ))}
               </select>

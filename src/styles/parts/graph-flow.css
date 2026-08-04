@@ -267,3 +267,15 @@
 .simulator-error-list b {
   font-family: var(--font-mono, monospace);
 }
+
+/* Aviso de condición compuesta: el JSON guardado, legible y sin desbordar. */
+.condition-composite code {
+  display: block;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  overflow-wrap: anywhere;
+}

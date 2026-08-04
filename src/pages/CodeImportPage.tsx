@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
-import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
+import { ImportTargetPicker } from '../features/code-import/ImportTargetPicker';
 import { GeneratedGraphPreview } from '../components/GeneratedGraphPreview';
 import { CodeImportIssuesList, type CodeImportIssue } from '../components/CodeImportIssuesList';
 import { ImportBankPanel } from '../features/actions/ImportBankPanel';
@@ -216,10 +216,14 @@ export function CodeImportPage() {
       {analyze.isSuccess && !hasBlockingIssues ? (
         <Panel title="Guardar en un artefacto" meta={`Import #${importId}`}>
           <div className="code-import-form" data-tutorial-id="code-import-save">
-            <ArtifactVersionPicker
+            {/* Antes sólo se podía guardar en un borrador ya existente, así que
+                importar un algoritmo NUEVO obligaba a irse a otra pantalla,
+                crearlo a mano y volver — y quien no lo sabía se quedaba con el
+                botón apagado sin explicación. */}
+            <ImportTargetPicker
               versionId={artifactVersionId}
               onVersionChange={setArtifactVersionId}
-              versionLabel="Versión destino (borrador)"
+              onLockVersionChange={setExpectedLockVersion}
             />
             <label className="field">
               <span>Lock Version esperado</span>

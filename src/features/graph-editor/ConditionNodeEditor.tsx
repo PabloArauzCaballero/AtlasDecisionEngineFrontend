@@ -1,5 +1,15 @@
 import { InfoHint } from '../../components/InfoHint';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import {
+  defaultOperatorFor,
+  expectsList,
+  expectsText,
+  isComposite,
+  isOperatorValidFor,
+  OPERATOR_LABELS,
+  operatorsFor,
+  readComparison,
+} from './condition-operators';
 
 interface ConditionNodeEditorProps {
   condition: UnknownRecord;
@@ -9,18 +19,7 @@ interface ConditionNodeEditorProps {
   onCreateCondition?: (variableCode: string) => void;
 }
 
-const NUMERIC = new Set(['NUMBER', 'INTEGER', 'INT', 'DECIMAL', 'FLOAT']);
-
-const operators = [
-  ['eq', 'Igual a'],
-  ['neq', 'Distinto de'],
-  ['gt', 'Mayor que'],
-  ['gte', 'Mayor o igual'],
-  ['lt', 'Menor que'],
-  ['lte', 'Menor o igual'],
-  ['in', 'Incluido en lista'],
-  ['contains', 'Contiene'],
-] as const;
+const NUMERIC = new Set(['NUMBER', 'INTEGER', 'INT', 'DECIMAL', 'FLOAT', 'PERCENTAGE']);
 
 export function ConditionNodeEditor({
   condition,
@@ -30,15 +29,34 @@ export function ConditionNodeEditor({
 }: ConditionNodeEditorProps) {
   const expression = asRecord(condition.expression);
   const code = display(condition, 'code');
-  const variableCode = String(expression.variable ?? '');
-  const operator = String(expression.operator ?? 'gte');
+  /*
+   * Hay dos formas guardadas y el motor evalúa las dos: la plana que escribe este
+   * editor y la de árbol que producen el compilador y los seeders. Leyendo sólo la
+   * primera, una condición sembrada aparecía con TODOS los campos vacíos, como si
+   * no estuviera configurada — cuando lo estaba y decidía bien.
+   */
+  const parsed = readComparison(condition.expression);
+  const composite = isComposite(condition.expression);
+  const variableCode = parsed?.variable ?? '';
   const selectedType = display(
     inputs.find((input) => display(input, 'code') === variableCode) ?? {},
     'dataType',
   ).toUpperCase();
+  /*
+   * El operador de partida depende del tipo: `gte` sólo significa algo donde hay
+   * orden. Antes se ofrecía «mayor o igual» también sobre un texto, y como en
+   * JavaScript eso compara alfabéticamente, la condición se guardaba y decidía
+   * por un criterio que nadie había elegido.
+   */
+  const operator = parsed?.operator ?? defaultOperatorFor(selectedType);
+  const available = operatorsFor(selectedType);
 
   function updateExpression(patch: UnknownRecord) {
-    onChange({ expression: { ...expression, ...patch } });
+    // Se reescribe SIEMPRE en forma plana y completa. Fusionar el parche sobre una
+    // expresión de árbol dejaría un híbrido con `op` y `operator` a la vez, que el
+    // motor resolvería por la rama plana ignorando el resto en silencio.
+    const base = { variable: variableCode, operator, value: parsed?.value };
+    onChange({ expression: { ...base, ...patch } });
   }
 
   function updateValue(raw: string) {
@@ -98,6 +116,14 @@ export function ConditionNodeEditor({
           onBlur={(event) => onChange({ name: event.target.value })}
         />
       </label>
+      {composite ? (
+        <p className="field-hint condition-composite">
+          Esta condición combina varias comparaciones (por ejemplo «A o B»), así que no cabe en los
+          tres campos de abajo. Se muestra tal cual está guardada; si eliges variable y operador
+          aquí, <b>la reemplazarás por una comparación simple</b>.
+          <code>{JSON.stringify(condition.expression)}</code>
+        </p>
+      ) : null}
       <label className="field">
         <span>
           Variable de entrada
@@ -105,7 +131,20 @@ export function ConditionNodeEditor({
         </span>
         <select
           value={String(expression.variable ?? '')}
-          onChange={(event) => updateExpression({ variable: event.target.value })}
+          onChange={(event) => {
+            const nextType = display(
+              inputs.find((input) => display(input, 'code') === event.target.value) ?? {},
+              'dataType',
+            ).toUpperCase();
+            // Cambiar de `edad` a `estado_kyc` conservando «mayor o igual» dejaría
+            // una condición que el motor acepta y que no quiere decir nada.
+            updateExpression({
+              variable: event.target.value,
+              operator: isOperatorValidFor(nextType, operator)
+                ? operator
+                : defaultOperatorFor(nextType),
+            });
+          }}
         >
           <option value="">Elegir variable…</option>
           {inputs.map((input) => (
@@ -121,12 +160,12 @@ export function ConditionNodeEditor({
           <InfoHint text="Cómo se compara: igual, mayor que, incluido en lista… Define cuándo la condición se cumple (verdadero)." />
         </span>
         <select
-          value={String(expression.operator ?? 'gte')}
+          value={operator}
           onChange={(event) => updateExpression({ operator: event.target.value })}
         >
-          {operators.map(([value, label]) => (
+          {available.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {OPERATOR_LABELS[value]}
             </option>
           ))}
         </select>
@@ -136,34 +175,37 @@ export function ConditionNodeEditor({
           Valor de comparación
           <InfoHint text="Contra qué se compara la variable. El campo se adapta al tipo de la variable elegida." />
         </span>
-        {operator === 'in' || operator === 'contains' ? (
+        {expectsList(operator) ? (
           <textarea
             key={`${code}-list`}
             rows={2}
             placeholder='Lista en JSON, p. ej. ["A","B"]'
             defaultValue={
-              typeof expression.value === 'string'
-                ? expression.value
-                : JSON.stringify(expression.value ?? [])
+              typeof parsed?.value === 'string' ? parsed.value : JSON.stringify(parsed?.value ?? [])
             }
             onBlur={(event) => updateValue(event.target.value)}
           />
         ) : selectedType === 'BOOLEAN' ? (
           <select
-            value={expression.value === true ? 'true' : expression.value === false ? 'false' : ''}
+            value={parsed?.value === true ? 'true' : parsed?.value === false ? 'false' : ''}
             onChange={(event) => updateExpression({ value: event.target.value === 'true' })}
           >
             <option value="">Elegir…</option>
             <option value="true">Verdadero</option>
             <option value="false">Falso</option>
           </select>
+        ) : expectsText(operator) ? (
+          <input
+            key={`${code}-match`}
+            placeholder="Texto a buscar"
+            defaultValue={typeof parsed?.value === 'string' ? parsed.value : ''}
+            onBlur={(event) => updateExpression({ value: event.target.value })}
+          />
         ) : NUMERIC.has(selectedType) ? (
           <input
             type="number"
             value={
-              expression.value === undefined || expression.value === null
-                ? ''
-                : String(expression.value)
+              parsed?.value === undefined || parsed?.value === null ? '' : String(parsed?.value)
             }
             onChange={(event) =>
               updateExpression({
@@ -174,7 +216,7 @@ export function ConditionNodeEditor({
         ) : (
           <input
             key={`${code}-text`}
-            defaultValue={typeof expression.value === 'string' ? expression.value : ''}
+            defaultValue={typeof parsed?.value === 'string' ? parsed.value : ''}
             onBlur={(event) => updateValue(event.target.value)}
           />
         )}
