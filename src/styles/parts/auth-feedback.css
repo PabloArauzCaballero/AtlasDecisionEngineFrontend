@@ -1,5 +1,5 @@
 .login-page {
-  min-height: 100vh;
+  min-height: var(--viewport-h);
   display: grid;
   place-items: center;
   position: relative;
@@ -131,7 +131,7 @@
 
 .loading-screen,
 .not-found {
-  min-height: 100vh;
+  min-height: var(--viewport-h);
   display: grid;
   place-content: center;
   justify-items: center;
@@ -157,7 +157,7 @@
 /* The `spin` keyframes used above now live once in motion.css; @keyframes are
    document-global, so the definition is shared regardless of import order. */
 
-@media (max-width: 1050px) {
+@media (max-width: 1180px) {
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -178,11 +178,11 @@
   .sidebar-open {
     transform: translateX(0);
   }
-  .sidebar-close {
+  .sidebar .sidebar-close {
     display: inline-grid;
     margin-left: auto;
   }
-  .sidebar-backdrop {
+  .app-shell .sidebar-backdrop {
     display: block;
     position: fixed;
     inset: 0;
@@ -196,12 +196,8 @@
   .menu-button {
     display: inline-grid !important;
   }
-  .topbar {
-    padding: 0 16px;
-  }
-  .content {
-    padding: 24px 18px 45px;
-  }
+  /* El margen lateral de `.topbar` y `.content` ya no se escalona aquí: lo
+     recorre `--gutter` de forma continua (parts/responsive-tokens.css). */
   .user-summary {
     display: none;
   }

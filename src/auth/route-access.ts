@@ -8,6 +8,9 @@ interface RouteAccessRule {
 
 const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/platform-health\/?$/, roles: accessPolicies.platformHealth },
+  // Aprender a usar el portal no puede depender del rol: cada tutorial se filtra
+  // luego por el permiso de la pantalla que enseña (ver tutorial-registry.ts).
+  { pattern: /^\/tutorials\/?$/, roles: accessPolicies.tutorials },
   { pattern: /^\/search\/?$/, roles: accessPolicies.globalSearch },
   { pattern: /^\/variables(?:\/[^/]+)?\/?$/, roles: accessPolicies.catalogRead },
   { pattern: /^\/reason-codes\/?$/, roles: accessPolicies.catalogRead },

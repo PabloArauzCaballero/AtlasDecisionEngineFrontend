@@ -1,0 +1,114 @@
+/**
+ * Fundamentos responsivos: lo que decide CUÁNTO mide algo según el sitio que hay.
+ *
+ * Espejo de `src/styles/breakpoints.ts`, que documenta los cuatro puntos de
+ * corte y cuya prueba impide que ninguna hoja invente un quinto. Aquí no hay
+ * `@media`: hay tokens que se adaptan solos, que es la forma de que una vista
+ * nueva se comporte bien sin escribir una sola consulta.
+ *
+ * Ni un color: los colores viven en `theme.css` y sólo allí.
+ */
+:root {
+  /*
+   * Margen lateral del contenido y de la barra superior.
+   *
+   * Antes eran dos escalones a mano (32 px arriba de 820, 18 px debajo) que
+   * dejaban un salto visible justo en el corte. `clamp` recorre lo mismo de
+   * forma continua: 16 px a 320, ~32 px a partir de 1180.
+   *
+   * A 320 px de viewport, 32 px de margen dejaban 256 px de contenido útil;
+   * ahora quedan 288. Sobre una tabla de seis columnas, eso es una columna más.
+   */
+  --gutter: clamp(16px, 3.2vw, 32px);
+
+  /* Separación entre bloques de una vista. Misma idea, escala menor. */
+  --stack-gap: clamp(12px, 2vw, 24px);
+
+  /*
+   * Área táctil mínima: WCAG 2.2 nivel AA, criterio 2.5.8.
+   *
+   * Se gana con `min-height` y `padding`, NUNCA agrandando la letra: el texto
+   * de un encabezado de tabla mide 10 px porque tiene que caber en una fila de
+   * cabecera, y subirlo rompería la tabla. Lo que se agranda es la zona que
+   * responde al dedo, no lo que se lee.
+   */
+  --tap-min: 24px;
+
+  /*
+   * Alto de viewport que sí descuenta la barra del navegador móvil.
+   *
+   * `100vh` en un teléfono mide la ventana CON la barra de direcciones retraída,
+   * que es un tamaño que casi nunca está en pantalla: el pie de un diálogo
+   * dimensionado con `100vh` queda debajo del borde y sus botones no se pueden
+   * pulsar. `dvh` mide lo que de verdad se ve.
+   *
+   * Se declara en dos pasos a propósito: un navegador que no conozca `dvh`
+   * descarta la segunda declaración y se queda con la primera, en vez de
+   * quedarse sin altura ninguna.
+   */
+  --viewport-h: 100vh;
+}
+@supports (height: 100dvh) {
+  :root {
+    --viewport-h: 100dvh;
+  }
+}
+
+/*
+ * Contenedor de contenido.
+ *
+ * `max-width` en `ch` y no en píxeles: lo que hace ilegible una línea no son sus
+ * píxeles sino cuántos caracteres tiene. El tope anterior (1600 px) se conserva
+ * como límite duro para las vistas de tabla, que sí quieren todo el ancho.
+ */
+.content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--stack-gap) var(--gutter) calc(var(--stack-gap) * 2);
+}
+
+/*
+ * Suelo táctil compartido.
+ *
+ * Se aplica a los controles que la medición encontró por debajo del mínimo
+ * —enlaces de la barra superior, encabezados ordenables, disparadores de ayuda—
+ * en vez de repetir `min-height` en seis hojas distintas. Todos son elementos en
+ * línea, así que hace falta `inline-flex` para que la altura mínima se respete.
+ */
+.top-action,
+.table-sort,
+.info-hint-trigger,
+.dash-card-action,
+.action-catalog-toggle {
+  min-height: var(--tap-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+/*
+ * Imágenes y medios: nunca más anchos que su hueco, nunca deformados.
+ *
+ * Va en los fundamentos y no en cada vista porque el fallo —una imagen que
+ * empuja la columna— no depende de qué vista la muestre.
+ */
+img,
+svg:not([width]),
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+img,
+video {
+  height: auto;
+}
+
+/*
+ * Texto largo sin espacios (códigos, identificadores, JSON) dentro de celdas y
+ * definiciones: parte por donde sea antes que ensanchar a su contenedor.
+ */
+.definition-grid dd,
+.table-detail dd,
+.modal-body {
+  overflow-wrap: anywhere;
+}

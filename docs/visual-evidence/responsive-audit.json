@@ -1,0 +1,2767 @@
+[
+  {
+    "ruta": "/platform-health",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 250×15",
+      "a.dash-feed-link 60×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 41×14",
+      "button.table-sort 75×14",
+      "button.table-sort 76×14",
+      "button.table-sort 61×14"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "table.data-table right=570 w=534",
+      "thead.? right=570 w=534",
+      "tr.? right=570 w=534",
+      "th.? right=388 w=112",
+      "th.? right=458 w=70"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 75×14",
+      "button.table-sort 68×14",
+      "button.table-sort 119×14",
+      "button.table-sort 121×14",
+      "button.table-sort 58×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414",
+      "span.info-hint-bubble right=413 w=240"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "a.? 89×16"]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "span.? right=429 w=97",
+      "small.? right=536 w=91",
+      "div.panel-body right=553 w=238"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-editor",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414", "span.info-hint-bubble right=340 w=240"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414",
+      "span.info-hint-bubble right=379 w=240",
+      "table.data-table right=797 w=761"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=471 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=388 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites/1/cases",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/coverage-matrix",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 61×14",
+      "button.table-sort 71×14",
+      "button.table-sort 109×14",
+      "button.table-sort 90×14",
+      "button.table-sort 74×14",
+      "button.table-sort 86×14"
+    ]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 44×14",
+      "button.table-sort 88×14",
+      "button.table-sort 92×14",
+      "button.table-sort 38×14"
+    ]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414", "button.button right=352 w=109"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "span.? right=387 w=55",
+      "small.? right=536 w=7",
+      "div.panel-body right=553 w=238"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/live-execution",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "main.? right=540 w=522",
+      "section.panel right=540 w=522",
+      "div.panel-title right=539 w=520",
+      "small.? right=522 w=11",
+      "div.panel-body right=539 w=520"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/executions/1",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=388 w=414",
+      "main.? right=509 w=491",
+      "section.json-panel right=509 w=491",
+      "div.panel-title right=508 w=489",
+      "div.json-panel-actions right=491 w=382",
+      "div.json-view-tabs right=333 w=224"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 320,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=388 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 61×14",
+      "button.table-sort 54×14",
+      "button.table-sort 74×14",
+      "button.table-sort 108×14",
+      "button.table-sort 95×14"
+    ]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 290×15",
+      "a.dash-feed-link 60×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 41×14",
+      "button.table-sort 75×14",
+      "button.table-sort 76×14",
+      "button.table-sort 61×14"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "table.data-table right=570 w=534",
+      "thead.? right=570 w=534",
+      "tr.? right=570 w=534",
+      "th.? right=388 w=112",
+      "th.? right=458 w=70"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414",
+      "table.data-table right=967 w=931",
+      "thead.? right=967 w=931"
+    ],
+    "pequenos": ["a.top-action 65×15", "a.? 7×16"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 75×14",
+      "button.table-sort 68×14",
+      "button.table-sort 119×14",
+      "button.table-sort 121×14",
+      "button.table-sort 58×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 44×14",
+      "button.table-sort 93×14",
+      "button.table-sort 66×14",
+      "button.table-sort 58×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414",
+      "span.info-hint-bubble right=453 w=240"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "a.? 89×16"]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "span.? right=429 w=97",
+      "small.? right=536 w=91",
+      "div.panel-body right=553 w=238"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-editor",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414",
+      "span.info-hint-bubble right=379 w=240",
+      "table.data-table right=797 w=761"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=511 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=428 w=414",
+      "table.data-table right=689 w=653",
+      "thead.? right=689 w=653"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites/1/cases",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/coverage-matrix",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 61×14",
+      "button.table-sort 71×14",
+      "button.table-sort 109×14",
+      "button.table-sort 90×14",
+      "button.table-sort 74×14",
+      "button.table-sort 86×14"
+    ]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 44×14",
+      "button.table-sort 88×14",
+      "button.table-sort 92×14",
+      "button.table-sort 38×14"
+    ]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "span.? right=387 w=55",
+      "small.? right=536 w=7",
+      "div.panel-body right=553 w=238"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 53×14",
+      "button.table-sort 74×14",
+      "button.table-sort 115×14",
+      "button.table-sort 81×14"
+    ]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/live-execution",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 60×14",
+      "button.table-sort 79×14",
+      "button.table-sort 47×14",
+      "button.table-sort 78×14",
+      "button.table-sort 72×14",
+      "button.table-sort 88×14"
+    ]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "main.? right=540 w=522",
+      "section.panel right=540 w=522",
+      "div.panel-title right=539 w=520",
+      "small.? right=522 w=11",
+      "div.panel-body right=539 w=520"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 82×14",
+      "button.table-sort 80×14",
+      "button.table-sort 74×14",
+      "button.table-sort 72×14",
+      "button.table-sort 105×14"
+    ]
+  },
+  {
+    "ruta": "/executions/1",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=428 w=414",
+      "main.? right=509 w=491",
+      "section.json-panel right=509 w=491",
+      "div.panel-title right=508 w=489",
+      "div.json-panel-actions right=491 w=382",
+      "button.json-copy-btn right=415 w=74"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 360,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=428 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 320×15",
+      "a.dash-feed-link 60×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 41×14",
+      "button.table-sort 75×14",
+      "button.table-sort 76×14",
+      "button.table-sort 61×14"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "table.data-table right=570 w=534",
+      "thead.? right=570 w=534",
+      "tr.? right=570 w=534",
+      "th.? right=458 w=70",
+      "th.? right=570 w=112"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414",
+      "table.data-table right=967 w=931",
+      "thead.? right=967 w=931"
+    ],
+    "pequenos": ["a.top-action 65×15", "a.? 7×16"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 75×14",
+      "button.table-sort 68×14",
+      "button.table-sort 119×14",
+      "button.table-sort 121×14",
+      "button.table-sort 58×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 44×14",
+      "button.table-sort 93×14",
+      "button.table-sort 66×14",
+      "button.table-sort 58×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414",
+      "span.info-hint-bubble right=465 w=240"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "a.? 89×16"]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "span.? right=429 w=97",
+      "small.? right=536 w=91",
+      "div.panel-body right=553 w=238"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-editor",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=413 w=135",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414",
+      "table.data-table right=797 w=761",
+      "thead.? right=797 w=761"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=541 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=458 w=414",
+      "table.data-table right=689 w=653",
+      "thead.? right=689 w=653"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites/1/cases",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "small.? right=536 w=7",
+      "div.panel-body right=553 w=238",
+      "ul.dependency-list right=536 w=204"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 53×14",
+      "button.table-sort 74×14",
+      "button.table-sort 115×14",
+      "button.table-sort 81×14"
+    ]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/live-execution",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "main.? right=509 w=491",
+      "section.panel right=509 w=491",
+      "div.panel-title right=508 w=489",
+      "small.? right=491 w=11",
+      "div.panel-body right=508 w=489"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/executions/1",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=458 w=414",
+      "main.? right=509 w=491",
+      "section.json-panel right=509 w=491",
+      "div.panel-title right=508 w=489",
+      "div.json-panel-actions right=491 w=382",
+      "button.json-copy-btn right=415 w=74"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 390,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=458 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 61×14",
+      "button.table-sort 54×14",
+      "button.table-sort 74×14",
+      "button.table-sort 108×14",
+      "button.table-sort 95×14"
+    ]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=581 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 360×15",
+      "a.dash-feed-link 60×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 41×14",
+      "button.table-sort 75×14",
+      "button.table-sort 76×14",
+      "button.table-sort 61×14"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "table.data-table right=570 w=534",
+      "thead.? right=570 w=534",
+      "tr.? right=570 w=534",
+      "th.? right=458 w=70",
+      "th.? right=570 w=112"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=581 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=581 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=581 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414",
+      "span.info-hint-bubble right=465 w=240"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "small.? right=536 w=91",
+      "div.panel-body right=553 w=238",
+      "div.empty-state right=536 w=204"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-editor",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "div.graph-authoring-steps right=473 w=457",
+      "span.? right=473 w=60",
+      "b.? right=434 w=21",
+      "div.graph-editor-counts right=601 w=108",
+      "span.? right=530 w=37"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=581 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=540 w=666",
+      "i.? right=574 w=738",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=498 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites/1/cases",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "main.? right=674 w=656",
+      "header.page-header right=674 w=656",
+      "div.? right=674 w=656",
+      "p.eyebrow right=674 w=656",
+      "p.page-description right=674 w=656"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/coverage-matrix",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 61×14",
+      "button.table-sort 71×14",
+      "button.table-sort 109×14",
+      "button.table-sort 90×14",
+      "button.table-sort 74×14",
+      "button.table-sort 86×14"
+    ]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 44×14",
+      "button.table-sort 88×14",
+      "button.table-sort 92×14",
+      "button.table-sort 38×14"
+    ]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "section.panel right=554 w=240",
+      "div.panel-title right=553 w=238",
+      "small.? right=536 w=7",
+      "div.panel-body right=553 w=238",
+      "ul.dependency-list right=536 w=204"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 53×14",
+      "button.table-sort 74×14",
+      "button.table-sort 115×14",
+      "button.table-sort 81×14"
+    ]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 60×14",
+      "button.table-sort 79×14",
+      "button.table-sort 47×14",
+      "button.table-sort 78×14",
+      "button.table-sort 72×14",
+      "button.table-sort 88×14"
+    ]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/executions/1",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": [
+      "span.tooltip-bubble right=498 w=414",
+      "main.? right=509 w=491",
+      "section.json-panel right=509 w=491",
+      "div.panel-title right=508 w=489",
+      "div.json-panel-actions right=491 w=382",
+      "button.json-copy-btn right=491 w=68"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 430,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=498 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 61×14",
+      "button.table-sort 54×14",
+      "button.table-sort 74×14",
+      "button.table-sort 108×14",
+      "button.table-sort 95×14"
+    ]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=919 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=836 w=414"
+    ],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 325×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=919 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=836 w=414",
+      "table.data-table right=967 w=931",
+      "thead.? right=967 w=931",
+      "tr.? right=967 w=931"
+    ],
+    "pequenos": ["a.top-action 65×15", "a.? 7×16"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=919 w=753",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=836 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=912 w=738",
+      "i.? right=882 w=828",
+      "span.tooltip-bubble right=836 w=414"
+    ],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "a.? 89×16"]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/coverage-matrix",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 53×14",
+      "button.table-sort 74×14",
+      "button.table-sort 115×14",
+      "button.table-sort 81×14"
+    ]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/live-execution",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 82×14",
+      "button.table-sort 80×14",
+      "button.table-sort 74×14",
+      "button.table-sort 72×14",
+      "button.table-sort 105×14"
+    ]
+  },
+  {
+    "ruta": "/executions/1",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 768,
+    "desborde": 0,
+    "culpables": ["span.tooltip-bubble right=836 w=414"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 97×14",
+      "button.table-sort 61×14",
+      "button.table-sort 54×14",
+      "button.table-sort 74×14",
+      "button.table-sort 108×14",
+      "button.table-sort 95×14"
+    ]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": ["i.? right=1196 w=856"],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 299×15",
+      "a.dash-card-action 299×19",
+      "a.dash-feed-link 60×15"
+    ]
+  },
+  {
+    "ruta": "/search",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 41×14",
+      "button.table-sort 75×14",
+      "button.table-sort 76×14",
+      "button.table-sort 61×14"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [
+      "i.? right=1196 w=856",
+      "table.data-table right=1261 w=931",
+      "thead.? right=1261 w=931",
+      "tr.? right=1261 w=931",
+      "th.? right=1033 w=82",
+      "th.? right=1185 w=152"
+    ],
+    "pequenos": ["a.top-action 65×15", "a.? 7×16"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": ["i.? right=1196 w=856"],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": ["i.? right=1196 w=856"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "a.? 89×16"]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": ["i.? right=1196 w=856"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": ["i.? right=1196 w=856"],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [
+      "main.? right=1206 w=656",
+      "header.page-header right=1206 w=656",
+      "div.page-actions right=1206 w=311",
+      "button.button right=1102 w=97",
+      "svg.[object right=1030 w=11",
+      "path.[object right=1028 w=6"
+    ],
+    "pequenos": ["a.top-action 65×15", "input.? 15×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18"]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "button.info-hint-trigger 18×18", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/live-execution",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.top-action 65×15", "input.sr-only 1×1"]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 60×14",
+      "button.table-sort 79×14",
+      "button.table-sort 47×14",
+      "button.table-sort 78×14",
+      "button.table-sort 72×14",
+      "button.table-sort 88×14"
+    ]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 1024,
+    "desborde": 0,
+    "culpables": [
+      "aside.? right=1149 w=330",
+      "section.panel right=1149 w=330",
+      "div.panel-title right=1148 w=328",
+      "small.? right=1131 w=55",
+      "div.panel-body right=1148 w=328",
+      "label.field right=1131 w=294"
+    ],
+    "pequenos": ["a.top-action 65×15"]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": ["i.? right=1485 w=1050"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 269×15"
+    ]
+  },
+  {
+    "ruta": "/variables",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/calculated-fields",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": ["i.? right=1495 w=1071"],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15", "a.? 7×16"]
+  },
+  {
+    "ruta": "/calculated-fields/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": ["i.? right=1495 w=1071"],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 75×14",
+      "button.table-sort 68×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 44×14"
+    ]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": ["i.? right=1495 w=1071"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.? 89×16"
+    ]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-editor",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [
+      "aside.node-properties right=1370 w=320",
+      "div.workbench-heading right=1370 w=319",
+      "strong.? right=1354 w=287",
+      "small.? right=1354 w=287",
+      "section.properties-empty-state right=1370 w=319",
+      "strong.? right=1356 w=291"
+    ],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/test-suites",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": ["i.? right=1495 w=1070"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/test-suites/1/cases",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15", "input.? 15×15"]
+  },
+  {
+    "ruta": "/test-cases",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15", "input.? 15×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/graph-coverage",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/coverage-matrix",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/objectives/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/reviews",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 80×14",
+      "button.table-sort 66×14",
+      "button.table-sort 44×14"
+    ]
+  },
+  {
+    "ruta": "/approval-requests/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/security-review/1",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/environments",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/simulator",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "input.sr-only 1×1"
+    ]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/executions",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/audit-events",
+    "ancho": 1280,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/platform-health",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": ["i.? right=1682 w=1204"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.dash-card-action 322×15"
+    ]
+  },
+  {
+    "ruta": "/variables/1",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/reason-codes",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifacts",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "button.table-sort 47×14",
+      "button.table-sort 51×14",
+      "button.table-sort 44×14"
+    ]
+  },
+  {
+    "ruta": "/artifacts/1/dependency-graph",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/actions",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": ["i.? right=1670 w=1181"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18",
+      "a.? 89×16"
+    ]
+  },
+  {
+    "ruta": "/libraries",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": ["i.? right=1670 w=1181"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/qa-lab",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": ["i.? right=1682 w=1204"],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/test-suites",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/manual-reviews",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/manual-reviews/1",
+    "ancho": 1440,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/algorithms",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/artifact-versions/1/graph",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.action-catalog-toggle 139×16",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifact-versions/1/compile",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1/coverage",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 1920,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  },
+  {
+    "ruta": "/artifacts/1",
+    "ancho": 2560,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/code-import",
+    "ancho": 2560,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/test-runs/1",
+    "ancho": 2560,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": ["a.? 56×15", "a.? 62×15", "a.? 47×15", "a.top-action 65×15"]
+  },
+  {
+    "ruta": "/deployments",
+    "ancho": 2560,
+    "desborde": 0,
+    "culpables": [],
+    "pequenos": [
+      "a.? 56×15",
+      "a.? 62×15",
+      "a.? 47×15",
+      "a.top-action 65×15",
+      "button.info-hint-trigger 18×18"
+    ]
+  }
+]

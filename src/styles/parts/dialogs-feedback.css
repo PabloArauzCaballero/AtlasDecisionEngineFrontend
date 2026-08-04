@@ -1,7 +1,7 @@
 /* Generic interrupt modal (confirmations, error reports) + validation lists. */
 .modal-dialog {
   width: min(560px, 100%);
-  max-height: calc(100vh - 48px);
+  max-height: calc(var(--viewport-h) - 48px);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;

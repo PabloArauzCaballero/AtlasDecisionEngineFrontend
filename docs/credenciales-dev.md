@@ -226,6 +226,20 @@ docker compose run --rm seed
 
 ---
 
+## Detalles de la interfaz que conviene saber
+
+- **La X de la barra lateral sólo aparece en pantallas estrechas** (bajo 820 px),
+  porque sólo ahí la barra es un cajón que se pueda cerrar. En escritorio es
+  permanente. Antes se pintaba también en escritorio por un empate de
+  especificidad en el CSS, y pulsarla no hacía nada.
+- **Los diálogos se montan en `document.body`**, no donde se declaran.
+  `position: fixed` se posiciona respecto a la pantalla salvo que un ancestro
+  tenga `transform`, y la animación de entrada de cada ruta deja uno fijado: sin
+  el portal, los modales se centraban respecto al documento y salían abajo y
+  cortados.
+- **Las superficies de trabajo no llevan fondo ambiental** (editor, calidad,
+  despliegues, ejecuciones). Se conserva en el panel principal y en el acceso.
+
 ## Comprobar que todo responde
 
 ```bash

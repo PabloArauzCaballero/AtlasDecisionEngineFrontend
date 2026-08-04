@@ -207,7 +207,7 @@
   animation: fade-in var(--dur-fast) var(--ease-out) both;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 820px) {
   .rich-empty-state {
     padding: 24px 14px;
   }

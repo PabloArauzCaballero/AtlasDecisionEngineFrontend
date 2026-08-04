@@ -109,7 +109,7 @@
 
 .action-node-editor .action-summary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 8px;
   margin: 0 0 10px;
 }

@@ -88,7 +88,7 @@ textarea:focus-visible {
 }
 
 .app-shell {
-  min-height: 100vh;
+  min-height: var(--viewport-h);
   /* Red de seguridad: ningún adorno superpuesto —un globo de ayuda, una sombra—
      debe poder hacer que la página entera se desplace en horizontal. `clip` y no
      `hidden` a propósito: `hidden` crearía un contenedor de desplazamiento y
@@ -193,13 +193,8 @@ textarea:focus-visible {
   background: var(--success);
   box-shadow: 0 0 0 3px #d1fadf;
 }
-.sidebar-close,
-.sidebar-backdrop {
-  display: none;
-}
-
 .app-main {
-  min-height: 100vh;
+  min-height: var(--viewport-h);
   margin-left: 280px;
 }
 .topbar {
@@ -210,7 +205,9 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 0 32px;
+  /* Mismo margen lateral que el contenido: si no coinciden, el título de la
+     vista y el de la barra quedan desalineados y se nota en cada scroll. */
+  padding: 0 var(--gutter);
   background: var(--panel-live);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(8px);
@@ -290,8 +287,5 @@ textarea:focus-visible {
   color: var(--muted);
   margin-top: 2px;
 }
-.content {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 32px 32px 56px;
-}
+/* `.content` se define en `parts/responsive-tokens.css`: su margen lateral es
+   fluido (`--gutter`) y no dos escalones a mano con un salto en el corte. */

@@ -5,7 +5,7 @@
   .graph-workbench {
     height: auto;
     grid-template-columns: 210px minmax(480px, 1fr);
-    grid-template-rows: minmax(620px, calc(100vh - 260px)) auto;
+    grid-template-rows: minmax(620px, calc(var(--viewport-h) - 260px)) auto;
   }
   .node-properties {
     grid-column: 1 / -1;
@@ -47,9 +47,55 @@
   .simulator-layout {
     grid-template-columns: 1fr;
   }
+  /*
+   * Ni el carril de filtros ni el índice de pasos se ocultan ya.
+   *
+   * Estaban los dos en `display: none`, y no eran adorno: el carril de filtros
+   * de los casos de prueba contiene la ÚNICA búsqueda de esa vista y el
+   * interruptor de «sólo activos». Ocultarlo no degradaba la pantalla, le
+   * quitaba la función. El índice del asistente de compilación es lo que dice
+   * en qué paso se está, que en una vista de varios pasos es la mitad de la
+   * información.
+   *
+   * Ya no hace falta esconderlos: la rejilla que los contiene pasó a una
+   * columna justo arriba, así que aquí sólo se les quita la altura completa
+   * —arriba son una columna lateral que se estira— y se les deja fluir en
+   * horizontal, como una banda por encima del contenido.
+   */
   .wizard-steps,
   .filters-panel {
-    display: none;
+    align-self: start;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .filters-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+  .filters-panel h2 {
+    flex: 1 0 100%;
+    margin-bottom: 0;
+  }
+  .filters-panel .field {
+    flex: 1 1 200px;
+  }
+  /* La nota del CSV es ayuda, no control: pasa a línea propia y no compite por
+     el sitio con los campos. */
+  .filters-panel small {
+    flex: 1 0 100%;
+  }
+  /* Los pasos, en fila y desplazables: se sigue viendo en cuál se está sin
+     gastar media pantalla en la lista. */
+  .wizard-steps ol {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+  }
+  .wizard-steps li {
+    flex: 0 0 auto;
   }
   .graph-workbench {
     display: flex;

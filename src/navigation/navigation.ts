@@ -11,6 +11,7 @@ import {
   FlaskConical,
   GitBranch,
   Goal,
+  GraduationCap,
   History,
   Layers,
   Library,
@@ -20,6 +21,7 @@ import {
   Rocket,
   ScanSearch,
   ScrollText,
+  Search,
   ShieldCheck,
   Zap,
 } from 'lucide-react';
@@ -46,6 +48,31 @@ export const navigation: readonly NavigationSection[] = [
         path: '/platform-health',
         icon: Activity,
         roles: accessPolicies.platformHealth,
+      },
+      {
+        /*
+         * La búsqueda global vivía SÓLO en la caja de la barra superior, y esa
+         * caja se oculta por debajo de 820 px por falta de sitio. Resultado: en
+         * un teléfono no había forma de llegar a `/search`, porque no estaba en
+         * ninguna otra parte de la navegación —a diferencia de «Dashboard»,
+         * «Workspaces» y «Analytics», que sí se ocultan pero apuntan a rutas que
+         * el cajón ya lista—.
+         *
+         * Aquí no se duplica una vista, se le da el único acceso que tenía y que
+         * desaparecía al estrechar la pantalla.
+         */
+        label: 'Búsqueda Global',
+        path: '/search',
+        // El mismo icono que ya usa la caja de la barra superior
+        // (`GlobalSearchBox`): son la misma cosa vista desde dos sitios.
+        icon: Search,
+        roles: accessPolicies.globalSearch,
+      },
+      {
+        label: 'Centro de Tutoriales',
+        path: '/tutorials',
+        icon: GraduationCap,
+        roles: accessPolicies.tutorials,
       },
     ],
   },

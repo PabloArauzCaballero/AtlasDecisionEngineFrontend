@@ -1,0 +1,132 @@
+/* Tarjetas del Centro de Tutoriales: una por recorrido, con su estado.
+   Separado de tutorial-center.css para respetar el limite de 299 lineas. */
+
+/* — Grupos y tarjetas — */
+.tutorial-center-group + .tutorial-center-group {
+  margin-top: var(--space-5);
+}
+.tutorial-center-group > h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+.tutorial-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.tutorial-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+}
+/* El borde izquierdo refuerza el estado, pero nunca lo comunica solo: la
+   etiqueta con icono y palabra va siempre en la cabecera de la tarjeta. */
+.tutorial-card-completed {
+  border-left-color: var(--success);
+}
+.tutorial-card-in-progress {
+  border-left-color: var(--info);
+}
+.tutorial-card-outdated {
+  border-left-color: var(--warning);
+}
+
+.tutorial-card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.tutorial-card-category {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+.tutorial-card-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  border: 1px solid var(--line-soft);
+}
+.tutorial-state-completed {
+  background: var(--success-wash);
+  color: var(--success-text);
+  border-color: var(--success-line);
+}
+.tutorial-state-in-progress {
+  background: var(--info-wash);
+  color: var(--info);
+  border-color: var(--info-line);
+}
+.tutorial-state-outdated {
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  border-color: var(--warning-line);
+}
+
+.tutorial-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.tutorial-card-intro {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+.tutorial-card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.tutorial-card-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+.tutorial-card-essential {
+  color: var(--accent-strong);
+  background: var(--accent-wash) !important;
+}
+.tutorial-card-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+.tutorial-card-prereq {
+  color: var(--warning-text);
+}
+.tutorial-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}

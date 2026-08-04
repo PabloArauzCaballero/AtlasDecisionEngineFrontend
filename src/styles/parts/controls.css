@@ -1,9 +1,20 @@
 .page-header {
   display: flex;
+  /* Envuelve desde el principio, no sólo por debajo de 560 px. Entre 560 y
+     820 px el título y su fila de acciones se repartían el ancho a la fuerza:
+     un título largo estrujaba los botones hasta partirles el texto. Ahora, en
+     cuanto la fila de acciones no cabe, baja entera. */
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 30px;
+  gap: var(--space-3) 30px;
   align-items: flex-start;
   margin-bottom: 24px;
+}
+.page-header > :first-child {
+  /* Sin esto el bloque del título se niega a encogerse por debajo de su texto
+     más largo y es él quien fuerza el desbordamiento en vez de envolver. */
+  min-width: 0;
+  flex: 1 1 320px;
 }
 .eyebrow {
   margin: 0 0 6px;
@@ -30,6 +41,7 @@
 }
 .page-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 

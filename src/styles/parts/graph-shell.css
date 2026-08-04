@@ -1,12 +1,12 @@
 .graph-editor-page {
   margin: -32px;
-  min-height: calc(100vh - 64px);
+  min-height: calc(var(--viewport-h) - 64px);
   background: var(--canvas);
 }
 .graph-workbench {
   display: grid;
   grid-template-columns: 250px minmax(520px, 1fr) 320px;
-  height: calc(100vh - 274px);
+  height: calc(var(--viewport-h) - 274px);
   min-height: 620px;
   border-top: 1px solid var(--line-soft);
 }

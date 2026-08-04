@@ -18,6 +18,16 @@ function isActivePath(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
 }
 
+/**
+ * Enlaces del menú que algún tutorial resalta. Se declaran aquí, y no con un
+ * condicional en el JSX, para que añadir un objetivo nuevo no obligue a encadenar
+ * ternarios dentro del render.
+ */
+const NAV_TUTORIAL_IDS: Readonly<Record<string, string | undefined>> = {
+  '/simulator': 'nav-simulator',
+  '/tutorials': 'tutorial-center-link',
+};
+
 const QUICK_ACTIONS = [
   { path: '/simulator', label: 'Ejecutar simulación', icon: Boxes },
   { path: '/reviews', label: 'Enviar a revisión', icon: SendHorizonal },
@@ -55,6 +65,7 @@ function QuickActionMenu({ roles, onNavigate }: { roles: string[]; onNavigate: (
       <button
         className="quick-action"
         type="button"
+        data-tutorial-id="quick-action"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((visible) => !visible)}
@@ -106,7 +117,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
         </button>
       </div>
       <QuickActionMenu roles={roles} onNavigate={onClose} />
-      <nav aria-label="Navegación principal">
+      <nav aria-label="Navegación principal" data-tutorial-id="sidebar-nav">
         {navigation.map((section) => {
           const visibleItems = section.items.filter((item) => hasAnyRole(roles, item.roles));
           if (visibleItems.length === 0) return null;
@@ -123,7 +134,7 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
                     onClick={onClose}
                     className={active ? 'nav-link active' : 'nav-link'}
                     aria-current={active ? 'page' : undefined}
-                    data-tutorial-id={item.path === '/simulator' ? 'nav-simulator' : undefined}
+                    data-tutorial-id={NAV_TUTORIAL_IDS[item.path]}
                   >
                     <Icon size={18} />
                     <span>{item.label}</span>

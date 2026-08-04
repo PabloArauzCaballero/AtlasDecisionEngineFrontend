@@ -2,6 +2,9 @@ export const accessPolicies = {
   platformHealth: [] as const,
   // Search spans every domain; each hit still gates at its target route.
   globalSearch: [] as const,
+  // El Centro de Tutoriales es abierto como la búsqueda: la lista se recorta por
+  // rol dentro de la vista, y cada recorrido hereda el permiso de su pantalla.
+  tutorials: [] as const,
   catalogRead: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   artifacts: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'AUDITOR'] as const,
   graphAuthoring: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,

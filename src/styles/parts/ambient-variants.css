@@ -145,7 +145,7 @@
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 820px) {
   /* En móvil el fondo se simplifica: malla más grande, sin haz ni paralaje, y
      la red más tenue. Menos elementos compuestos por píxel en la pantalla que
      menos potencia tiene. */

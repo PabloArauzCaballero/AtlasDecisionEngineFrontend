@@ -1,6 +1,27 @@
 .table-wrap {
   width: 100%;
   overflow: auto;
+  /*
+   * Indicio de que la tabla continúa a la derecha.
+   *
+   * Las celdas se recortan con puntos suspensivos y la tabla se desplaza dentro
+   * de su caja, así que en una pantalla estrecha la última columna visible
+   * termina limpiamente en el borde: nada dice que haya cinco columnas más. El
+   * degradado se pinta con `background-attachment: local` en las capas de
+   * relleno y `scroll` en las de sombra, que es el truco que hace que la sombra
+   * SÓLO aparezca cuando queda contenido por ese lado y desaparezca al llegar
+   * al final. Sin JavaScript y sin nodos extra.
+   *
+   * Los colores salen de los tokens del tema, no escritos a mano: `--surface`
+   * para tapar y `--line` para la sombra.
+   */
+  background:
+    linear-gradient(to right, var(--surface), transparent) left / 24px 100% no-repeat local,
+    linear-gradient(to left, var(--surface), transparent) right / 24px 100% no-repeat local,
+    linear-gradient(to right, var(--line), transparent) left / 12px 100% no-repeat scroll,
+    linear-gradient(to left, var(--line), transparent) right / 12px 100% no-repeat scroll;
+  /* Desplazamiento táctil que no arrastra la página cuando la tabla se acaba. */
+  overscroll-behavior-x: contain;
   /* `min-width: 0` rompe la regla por defecto de grid/flex, donde un ítem vale
      `min-width: auto` y por tanto SE NIEGA a encogerse por debajo de su contenido.
      Sin esto, una tabla con celdas largas (los payloads JSON de los casos de

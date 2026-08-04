@@ -97,7 +97,7 @@
 }
 .environment-card dl {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   margin: 0;
   padding: 16px;
 }
@@ -153,7 +153,7 @@
 }
 .simulation-result dl {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
   margin: 0;
 }
 /* Los códigos de salida son largos y sin espacios (ADVERSE_ACTION_REASON_CODES,

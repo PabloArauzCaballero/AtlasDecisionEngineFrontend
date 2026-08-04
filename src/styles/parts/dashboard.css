@@ -109,6 +109,18 @@
     opacity var(--dur-fast) var(--ease-out),
     transform var(--dur-fast) var(--ease-out);
 }
+/*
+ * En un dispositivo sin puntero fino no hay «pasar el cursor»: el enlace se
+ * quedaba invisible salvo que el usuario diera con el foco por teclado, que en
+ * un teléfono no ocurre. `hover: none` es exactamente esa población, así que
+ * ahí la acción está siempre visible en vez de esperar un gesto que no existe.
+ */
+@media (hover: none) {
+  .dash-card-action {
+    opacity: 1;
+    transform: none;
+  }
+}
 .dash-card:hover .dash-card-action,
 .dash-card-action:focus-visible {
   opacity: 1;
@@ -242,12 +254,12 @@
   transform: scale(1.08);
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1180px) {
   .dash-activity {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-@media (max-width: 720px) {
+@media (max-width: 820px) {
   .ambient-surface {
     margin: -20px -16px -40px;
     padding: 20px 16px 40px;

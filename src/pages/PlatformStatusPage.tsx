@@ -97,7 +97,7 @@ export function PlatformStatusPage() {
 
       {health.isError ? <Alert tone="error">{errorMessage(health.error)}</Alert> : null}
 
-      <div className="dash-grid stagger-in">
+      <div className="dash-grid stagger-in" data-tutorial-id="dashboard-metrics">
         <DashboardCard
           concept="artifact"
           label="Artefactos de decisión"

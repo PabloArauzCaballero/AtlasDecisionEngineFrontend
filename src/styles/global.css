@@ -1,7 +1,12 @@
 /* Tokens de tema primero: todo lo demás lee sus colores de aquí. */
 @import './parts/theme.css';
 @import './parts/foundation.css';
+/* Fundamentos responsivos justo después de los de siempre: redefine `.content`
+   con margen fluido y declara `--gutter`, `--tap-min` y `--viewport-h`, que las
+   hojas posteriores consumen. Espejo de `src/styles/breakpoints.ts`. */
+@import './parts/responsive-tokens.css';
 @import './parts/accessibility-feedback.css';
+@import './parts/sidebar-drawer.css';
 @import './parts/controls.css';
 @import './parts/data-display.css';
 @import './parts/metrics.css';
@@ -45,6 +50,8 @@
 @import './parts/tabs.css';
 @import './parts/action-icons.css';
 @import './parts/interactive-tutorial.css';
+@import './parts/tutorial-center.css';
+@import './parts/tutorial-cards.css';
 /* Lenguaje visual transversal: iconos de concepto, ilustraciones, estados
    vacíos explicativos y fondos ambientales. Cargan al final para poder afinar
    piezas anteriores sin subir la especificidad. */
@@ -62,6 +69,11 @@
 @import './parts/calculated-fields.css';
 @import './parts/libraries-qa.css';
 @import './parts/simulator-samples.css';
+/* Faltaba en la lista: `.import-target` se usaba en `ImportTargetPicker.tsx`
+   pero su hoja no se cargaba nunca, así que el selector de destino se pintaba
+   sin panel, sin separaciones y —lo que importa aquí— sin el `flex-wrap` que
+   baja de línea sus tres modos cuando no caben. */
+@import './parts/code-import.css';
 @import './parts/graph-actions.css';
 @import './parts/graph-canvas-states.css';
 @import './parts/table-tools.css';

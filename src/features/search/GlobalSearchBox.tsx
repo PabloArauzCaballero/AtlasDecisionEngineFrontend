@@ -41,7 +41,7 @@ export function GlobalSearchBox() {
   }
 
   return (
-    <div className="global-search" ref={containerRef}>
+    <div className="global-search" ref={containerRef} data-tutorial-id="global-search">
       <Search />
       <input
         aria-label="Buscar en ATLAS"

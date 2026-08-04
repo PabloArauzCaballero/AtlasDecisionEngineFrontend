@@ -15,8 +15,13 @@ th .info-hint {
 .info-hint-trigger {
   display: inline-grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  /* Medido en 18×18 en 95 apariciones (cabeceras de tabla, sobre todo): por
+     debajo del mínimo de WCAG 2.2 AA. El signo dibujado no cambia de tamaño
+     —sigue siendo una marca discreta al lado del rótulo—, cambia el área que
+     acepta el toque. Sin esto, pedir la explicación de una columna en un
+     teléfono es cuestión de puntería. */
+  width: var(--tap-min);
+  height: var(--tap-min);
   padding: 0;
   border: 0;
   border-radius: 50%;

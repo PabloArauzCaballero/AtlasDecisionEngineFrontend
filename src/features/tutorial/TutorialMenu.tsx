@@ -43,6 +43,7 @@ export function TutorialMenu() {
       <button
         type="button"
         className="tutorial-button"
+        data-tutorial-id="tutorial-menu"
         onClick={hasInteractive ? startInteractive : startDrawer}
       >
         <GraduationCap size={15} aria-hidden /> Tutorial
@@ -55,6 +56,7 @@ export function TutorialMenu() {
       <button
         type="button"
         className="tutorial-button"
+        data-tutorial-id="tutorial-menu"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}

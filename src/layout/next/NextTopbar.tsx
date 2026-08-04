@@ -62,6 +62,7 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
           afirmación falsa sobre dónde está trabajando el usuario. */}
       {env.environmentLabel ? (
         <div
+          data-tutorial-id="environment-chip"
           className={`environment-chip ${env.environmentLabel === 'PRODUCTION' ? '' : 'environment-nonprod'}`}
           title={
             env.environmentLabel === 'PRODUCTION'
@@ -80,13 +81,14 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       <div className="security-label">
         <ShieldCheck size={15} /> Verified
       </div>
-      <div className="user-summary">
+      <div className="user-summary" data-tutorial-id="user-summary">
         <strong>{user?.name ?? user?.fullName}</strong>
         <span>{user?.department ?? 'ATLAS'}</span>
       </div>
       <button
         className={closing ? 'icon-button is-busy' : 'icon-button'}
         type="button"
+        data-tutorial-id="logout"
         onClick={() => void closeSession()}
         disabled={closing}
         aria-label="Cerrar sesión"

@@ -1,0 +1,17 @@
+/**
+ * Barra lateral en modo cajón.
+ *
+ * El botón de cerrar y el velo pertenecen SÓLO al cajón, que existe por debajo
+ * de 820 px; en escritorio la barra es permanente y no hay nada que cerrar.
+ *
+ * Van en hoja aparte y cualificados con su ancestro por un motivo concreto: con
+ * un selector de una sola clase empataban en especificidad con `.icon-button` de
+ * `foundation.css`, y al ir esa regla DESPUÉS ganaba ella. Resultado: la X se
+ * pintaba en escritorio, donde pulsarla ponía el estado en «cerrado» y no
+ * ocurría nada visible, porque la regla que desplaza la barra vive dentro del
+ * media query. Un botón que no hace nada es peor que no tener botón.
+ */
+.sidebar .sidebar-close,
+.app-shell .sidebar-backdrop {
+  display: none;
+}

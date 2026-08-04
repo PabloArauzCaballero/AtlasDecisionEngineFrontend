@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useState, type PropsWithChildren } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useMemo, useState, type PropsWithChildren } from 'react';
 import { AmbientProvider } from '../../components/ambient/AmbientProvider';
 import { InteractiveTutorialProvider } from '../../features/tutorial/InteractiveTutorialProvider';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
@@ -15,11 +15,21 @@ import { NextTopbar } from './NextTopbar';
 export function NextAppShell({ children }: PropsWithChildren) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname() ?? '';
+  const router = useRouter();
+
+  // El motor de tutoriales no importa `next/navigation`: recibe aquí la única
+  // navegación que necesita. Así un recorrido lanzado desde el Centro puede
+  // llevar al usuario a la pantalla que enseña, y el motor sigue siendo
+  // probable sin montar un router.
+  const tutorialRouter = useMemo(
+    () => ({ pathname, push: (route: string) => router.push(route) }),
+    [pathname, router],
+  );
 
   return (
     <UnsavedChangesProvider>
       <TutorialProvider>
-        <InteractiveTutorialProvider>
+        <InteractiveTutorialProvider router={tutorialRouter}>
           <div className="app-shell">
             <RouteProgress />
             <NextSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />

@@ -79,7 +79,12 @@ export function NotificationCenter() {
     unreadCount > 0 ? `Notificaciones, ${unreadCount} sin leer` : 'Notificaciones, sin novedades';
 
   return (
-    <div className="notification-center" ref={container} data-unread={ringing ? 'true' : undefined}>
+    <div
+      className="notification-center"
+      ref={container}
+      data-tutorial-id="notification-center"
+      data-unread={ringing ? 'true' : undefined}
+    >
       <button
         ref={trigger}
         className={open ? 'icon-button active' : 'icon-button'}

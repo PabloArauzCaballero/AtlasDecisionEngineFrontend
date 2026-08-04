@@ -1,76 +1,12 @@
 'use client';
 
 import { ArrowLeft, ArrowRight, MousePointerClick, X } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { InteractiveTutorial, RequiredAction } from './interactive-types';
-import { placeTooltip, type Placement } from './tooltip-placement';
+import { usePlacement, useTargetDisabled } from './overlay-hooks';
 import { useTutorialTarget } from './useTutorialTarget';
 
 const PAD = 8;
-
-/**
- * `true` cuando el elemento del paso existe pero no se puede accionar.
- *
- * Un botón deshabilitado —"Guardar" sin cambios, "Ejecutar" sin versión— nunca
- * emitirá el clic que el paso espera. Detectarlo permite ofrecer "Siguiente" en
- * lugar de dejar al usuario mirando un botón que no responde.
- */
-function useTargetDisabled(selector: string | undefined, rect: DOMRect | null): boolean {
-  const [disabled, setDisabled] = useState(false);
-
-  useEffect(() => {
-    if (!selector) {
-      setDisabled(false);
-      return;
-    }
-    const element = document.querySelector(selector);
-    setDisabled(
-      element instanceof HTMLElement &&
-        (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true'),
-    );
-    // `rect` cambia cuando el elemento aparece o se mueve: es la señal de que
-    // toca volver a mirar si sigue deshabilitado.
-  }, [selector, rect]);
-
-  return disabled;
-}
-
-/**
- * Calcula dónde va la tarjeta midiéndola de verdad.
- *
- * Se mide en `useLayoutEffect` y antes de pintar, así que el usuario no llega a
- * ver la tarjeta en una posición provisional. El `ResizeObserver` la recoloca
- * cuando su contenido cambia de alto —pasos con consejo, textos largos— sin
- * esperar a un cambio de paso.
- */
-function usePlacement(card: RefObject<HTMLDivElement | null>, rect: DOMRect | null) {
-  const [placement, setPlacement] = useState<Placement | null>(null);
-
-  useLayoutEffect(() => {
-    const element = card.current;
-    if (!rect || !element) {
-      setPlacement(null);
-      return;
-    }
-    const reposition = () => {
-      const box = element.getBoundingClientRect();
-      setPlacement(
-        placeTooltip(
-          { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
-          { top: 0, left: 0, width: box.width, height: box.height },
-          { width: window.innerWidth, height: window.innerHeight },
-        ),
-      );
-    };
-    reposition();
-    if (typeof ResizeObserver !== 'function') return;
-    const observer = new ResizeObserver(reposition);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [card, rect]);
-
-  return placement;
-}
 
 /** Qué se le pide al usuario mientras el paso espera su acción. */
 const WAIT_LABEL: Record<RequiredAction, string> = {
@@ -103,14 +39,32 @@ export function InteractiveTutorialOverlay({
   const step = tutorial.steps[stepIndex];
   const rect = useTutorialTarget(step.target);
   const [actionDone, setActionDone] = useState(false);
+  const [confirmingExit, setConfirmingExit] = useState(false);
   const card = useRef<HTMLDivElement>(null);
   const disabled = useTargetDisabled(step.target, rect);
+
+  /**
+   * Salir del primer paso no cuesta nada; salir del séptimo tira el recorrido
+   * hecho, así que ahí sí se pregunta. Se confirma DENTRO de la tarjeta y no con
+   * `window.confirm`, que ni respeta el tema ni se puede leer con el resto.
+   */
+  const requestExit = useCallback(() => {
+    if (stepIndex === 0) onExit();
+    else setConfirmingExit(true);
+  }, [stepIndex, onExit]);
+
+  // Cambiar de paso invalida una confirmación abierta: preguntar por una salida
+  // que el usuario ya no está pidiendo sería ruido.
+  useEffect(() => setConfirmingExit(false), [stepIndex]);
 
   // Escape cierra el recorrido (además del botón de cerrar): es lo que espera
   // cualquier usuario de un overlay modal.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onExit();
+      if (event.key === 'Escape') requestExit();
+      // Mientras se pregunta por la salida, las flechas no deben mover el paso
+      // por debajo de la pregunta.
+      if (confirmingExit) return;
       // Flechas para recorrer los pasos: es lo que espera cualquiera que haya
       // usado una presentación, y evita tener que apuntar con el ratón.
       if (event.key === 'ArrowRight') onNext();
@@ -118,7 +72,7 @@ export function InteractiveTutorialOverlay({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onExit, onNext, onPrevious]);
+  }, [requestExit, onNext, onPrevious, confirmingExit]);
 
   // El elemento del paso puede estar fuera de la pantalla (una tabla larga, el
   // panel de resultados): se trae a la vista para que el foco sea visible.
@@ -197,7 +151,7 @@ export function InteractiveTutorialOverlay({
         <button
           className="icon-button tutorial-close"
           type="button"
-          onClick={onExit}
+          onClick={requestExit}
           aria-label="Salir del tutorial"
         >
           <X size={16} />
@@ -233,6 +187,22 @@ export function InteractiveTutorialOverlay({
             El elemento resaltado está deshabilitado en este momento, así que no puedes usarlo
             todavía. Continúa y vuelve cuando esté disponible.
           </p>
+        ) : null}
+        {confirmingExit ? (
+          <div className="tutorial-confirm" role="alertdialog" aria-label="Confirmar salida">
+            <p>
+              Vas por el paso {stepIndex + 1} de {tutorial.steps.length}. Si sales ahora se guarda
+              tu avance y puedes retomarlo desde el Centro de Tutoriales.
+            </p>
+            <div className="tutorial-confirm-actions">
+              <button className="button" type="button" onClick={() => setConfirmingExit(false)}>
+                Seguir aquí
+              </button>
+              <button className="button button-danger" type="button" onClick={onExit}>
+                Salir del tutorial
+              </button>
+            </div>
+          </div>
         ) : null}
         <div className="tutorial-actions">
           <button className="button" type="button" onClick={onPrevious} disabled={stepIndex === 0}>

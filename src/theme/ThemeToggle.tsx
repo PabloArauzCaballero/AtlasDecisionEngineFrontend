@@ -95,6 +95,7 @@ export function ThemeToggle() {
       <button
         type="button"
         className="icon-button theme-toggle"
+        data-tutorial-id="theme-toggle"
         onClick={cycle}
         aria-label={`${LABELS[preference]}. Cambiar tema`}
       >

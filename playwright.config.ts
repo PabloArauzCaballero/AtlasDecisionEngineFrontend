@@ -13,7 +13,11 @@ import { defineConfig, devices } from '@playwright/test';
  * `yarn test:e2e:tools`. Dejarlas dentro sólo enseñaba a esperar —o a saltarse—
  * una suite lenta, que es la forma más rápida de que nadie la corra.
  */
-export const ON_DEMAND = ['**/visual-evidence.spec.ts', '**/style-fingerprint.spec.ts'];
+export const ON_DEMAND = [
+  '**/visual-evidence.spec.ts',
+  '**/style-fingerprint.spec.ts',
+  '**/responsive-audit.spec.ts',
+];
 
 export default defineConfig({
   testDir: './e2e',
