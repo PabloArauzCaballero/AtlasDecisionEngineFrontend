@@ -104,7 +104,11 @@ test.describe('pestaña Procesamiento', () => {
     await expect(page.getByRole('button', { name: /Elegir archivo/i })).toBeVisible();
 
     // Y se dice qué pasa con el documento, que es lo que da derecho a subirlo.
-    await expect(page.getByText(/no se conserva/i)).toBeVisible();
+    //
+    // Acotado a la nota, no `getByText` a secas: la misma frase está también en
+    // el globo de ayuda de la cabecera, y un localizador que casa con las dos
+    // no comprueba que esté JUNTO al control de subida, que es donde importa.
+    await expect(page.locator('.worker-privacy-note')).toContainText(/no se conserva/i);
   });
 
   test('un archivo que no es PDF se rechaza antes de enviarlo', async ({ page }) => {
@@ -119,7 +123,12 @@ test.describe('pestaña Procesamiento', () => {
       buffer: Buffer.from('esto no es un extracto'),
     });
 
-    await expect(page.getByRole('alert')).toContainText(/Sólo se admiten archivos PDF/i);
+    // `role=alert` dentro del formulario, no en toda la página: Next monta su
+    // propio anunciador de rutas con ese mismo rol, y un localizador global casa
+    // con los dos.
+    await expect(page.locator('.worker-input [role="alert"]')).toContainText(
+      /Sólo se admiten archivos PDF/i,
+    );
     // Y no deja enviar: la comprobación previa existe para no subir un archivo
     // que el backend va a rechazar igualmente.
     await expect(page.getByRole('button', { name: 'Convertir' })).toBeDisabled();
