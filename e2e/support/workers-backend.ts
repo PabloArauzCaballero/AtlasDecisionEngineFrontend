@@ -15,48 +15,51 @@ import { MOCK_SESSION } from './backend-mock';
  * ve así.
  */
 
-/** Catálogo: es lo que gobierna límites y disponibilidad en la vista. */
-const CATALOG = {
-  items: [
-    {
-      code: 'semantic-analysis',
-      name: 'Análisis semántico',
-      description: 'Clasifica un texto libre contra el catálogo de categorías.',
-      acceptedInputs: ['Texto libre', 'Escenario de prueba'],
-      limits: { maxTextLength: 8000 },
-      available: true,
-      fixturesEnabled: true,
-    },
-    {
-      code: 'bank-statement',
-      name: 'Extractos bancarios',
-      description: 'Convierte un extracto boliviano en PDF a movimientos normalizados.',
-      acceptedInputs: ['Archivo PDF', 'Escenario de prueba'],
-      limits: { maxUploadBytes: 10485760, maxFiles: 1, acceptedMimeTypes: 'application/pdf' },
-      available: true,
-      fixturesEnabled: true,
-    },
-  ],
-};
+/**
+ * Catálogo: es lo que gobierna límites y disponibilidad en la vista.
+ *
+ * Array desnudo, NO `{ items }`. Es la convención del motor para colecciones no
+ * paginadas (`ApiArrayResponse`), y el simulado la tenía mal: envolvía la
+ * respuesta y por eso el E2E pasaba contra un contrato que el motor real no
+ * sirve. Lo destapó el smoke por HTTP, no esta prueba.
+ */
+const CATALOG = [
+  {
+    code: 'semantic-analysis',
+    name: 'Análisis semántico',
+    description: 'Clasifica un texto libre contra el catálogo de categorías.',
+    acceptedInputs: ['Texto libre', 'Escenario de prueba'],
+    limits: { maxTextLength: 8000 },
+    available: true,
+    fixturesEnabled: true,
+  },
+  {
+    code: 'bank-statement',
+    name: 'Extractos bancarios',
+    description: 'Convierte un extracto boliviano en PDF a movimientos normalizados.',
+    acceptedInputs: ['Archivo PDF', 'Escenario de prueba'],
+    limits: { maxUploadBytes: 10485760, maxFiles: 1, acceptedMimeTypes: 'application/pdf' },
+    available: true,
+    fixturesEnabled: true,
+  },
+];
 
-const FIXTURES = {
-  items: [
-    {
-      code: 'valid-basic',
-      name: 'Caso básico',
-      description: 'El camino feliz: debe terminar en éxito.',
-      preview: 'Hay un cargo en mi tarjeta que yo no hice.',
-      expectsFailure: false,
-    },
-    {
-      code: 'invalid-example',
-      name: 'Entrada inválida',
-      description: 'Debe rechazarse con un error controlado.',
-      preview: '(texto vacío tras normalizar)',
-      expectsFailure: true,
-    },
-  ],
-};
+const FIXTURES = [
+  {
+    code: 'valid-basic',
+    name: 'Caso básico',
+    description: 'El camino feliz: debe terminar en éxito.',
+    preview: 'Hay un cargo en mi tarjeta que yo no hice.',
+    expectsFailure: false,
+  },
+  {
+    code: 'invalid-example',
+    name: 'Entrada inválida',
+    description: 'Debe rechazarse con un error controlado.',
+    preview: '(texto vacío tras normalizar)',
+    expectsFailure: true,
+  },
+];
 
 const SEMANTIC_RESULT = {
   requestId: 'run-semantico',

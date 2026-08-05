@@ -41,7 +41,7 @@ export function BankStatementWorkerPage() {
     queryKey: ['worker-catalog'],
     queryFn: ({ signal }) => fetchWorkerCatalog(signal),
   });
-  const descriptor: WorkerDescriptor | undefined = catalog.data?.items?.find(
+  const descriptor: WorkerDescriptor | undefined = catalog.data?.find(
     (item) => item.code === WORKER,
   );
 
@@ -107,7 +107,7 @@ export function BankStatementWorkerPage() {
           mode={mode}
           onModeChange={setMode}
           fixturesEnabled={descriptor?.fixturesEnabled === true}
-          fixtures={fixtures.data?.items ?? []}
+          fixtures={fixtures.data ?? []}
           selectedFixture={fixtureCode}
           onFixtureChange={setFixtureCode}
           ownLabel="Cargar mi propio PDF"

@@ -38,7 +38,7 @@ export function SemanticAnalysisWorkerPage() {
     queryKey: ['worker-catalog'],
     queryFn: ({ signal }) => fetchWorkerCatalog(signal),
   });
-  const descriptor: WorkerDescriptor | undefined = catalog.data?.items?.find(
+  const descriptor: WorkerDescriptor | undefined = catalog.data?.find(
     (item) => item.code === WORKER,
   );
 
@@ -103,7 +103,7 @@ export function SemanticAnalysisWorkerPage() {
           mode={mode}
           onModeChange={setMode}
           fixturesEnabled={descriptor?.fixturesEnabled === true}
-          fixtures={fixtures.data?.items ?? []}
+          fixtures={fixtures.data ?? []}
           selectedFixture={fixtureCode}
           onFixtureChange={setFixtureCode}
           ownLabel="Escribir un texto"

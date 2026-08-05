@@ -11,15 +11,33 @@ import type { WorkerDescriptor, WorkerFixture, WorkerRun } from './worker-types'
 
 export type WorkerCode = 'semantic-analysis' | 'bank-statement';
 
-export function fetchWorkerCatalog(signal?: AbortSignal): Promise<{ items: WorkerDescriptor[] }> {
-  return apiRequest<{ items: WorkerDescriptor[] }>('/v1/workers', { signal });
+/**
+ * El motor devuelve un **array desnudo** en las respuestas de colección, no un
+ * sobre `{ items }`: ésa es la convención de `ApiArrayResponse`, la misma que
+ * usan despliegues y árboles anidados. El sobre sólo aparece en las respuestas
+ * paginadas.
+ *
+ * Se normaliza aquí, en un solo sitio, en vez de en cada vista: dar por hecho el
+ * sobre hacía que el catálogo llegara `undefined` y las dos pantallas dijeran
+ * «no se pudo consultar el catálogo» contra un motor que respondía 200.
+ */
+function toItems<T>(payload: unknown): T[] {
+  if (Array.isArray(payload)) return payload as T[];
+  const envelope = payload as { items?: unknown } | null;
+  return Array.isArray(envelope?.items) ? (envelope.items as T[]) : [];
 }
 
-export function fetchFixtures(
+export async function fetchWorkerCatalog(signal?: AbortSignal): Promise<WorkerDescriptor[]> {
+  return toItems<WorkerDescriptor>(await apiRequest<unknown>('/v1/workers', { signal }));
+}
+
+export async function fetchFixtures(
   worker: WorkerCode,
   signal?: AbortSignal,
-): Promise<{ items: WorkerFixture[] }> {
-  return apiRequest<{ items: WorkerFixture[] }>(`/v1/workers/${worker}/fixtures`, { signal });
+): Promise<WorkerFixture[]> {
+  return toItems<WorkerFixture>(
+    await apiRequest<unknown>(`/v1/workers/${worker}/fixtures`, { signal }),
+  );
 }
 
 export function fetchRun(
