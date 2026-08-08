@@ -52,13 +52,29 @@ export function StatementCategoriesBar({
       {corriendo ? (
         <>
           {/*
-           * `aria-live="polite"` y no un `role="progressbar"`: lo que importa
-           * anunciar es el avance en glosas, y una barra sin porcentaje exacto
-           * obligaría a inventar uno.
+           * Barra determinada, no un girador. Aquí el avance se CONOCE —glosas
+           * terminadas sobre glosas totales—, así que inventar una animación sin
+           * fin escondería justo el dato que hace esperable la espera: cuánto
+           * falta. `aria-valuenow` lleva el mismo número que se pinta.
            */}
-          <p className="worker-categories-progress" aria-live="polite">
-            Clasificando… {hechas} de {total} glosas
-          </p>
+          <div className="worker-categories-running">
+            <div
+              className="worker-progress"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={hechas}
+              aria-label={`Clasificando glosas: ${hechas} de ${total}`}
+            >
+              <div
+                className="worker-progress-fill"
+                style={{ inlineSize: `${total ? Math.round((hechas / total) * 100) : 0}%` }}
+              />
+            </div>
+            <p className="worker-categories-progress" aria-live="polite">
+              Clasificando… {hechas} de {total} glosas
+            </p>
+          </div>
           <button type="button" className="button" onClick={onParar}>
             Parar
           </button>

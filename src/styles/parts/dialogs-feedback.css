@@ -177,3 +177,14 @@
   font-size: 0.83rem;
   cursor: pointer;
 }
+
+/* Lo que se perdería al salir, enumerado en el aviso de navegación. */
+.unsaved-work-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}

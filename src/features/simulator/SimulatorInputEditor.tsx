@@ -191,8 +191,20 @@ export function SimulatorInputEditor({
                 const current = parsed[code];
                 return (
                   <label className="field" key={code}>
+                    {/*
+                     * Manda el nombre legible, y el código baja al pie.
+                     *
+                     * Estaba al revés: la etiqueta decía `CUOTA_SOLICITADA_EXTRACTO`
+                     * y «Cuota mensual solicitada» —que el contrato SÍ publica—
+                     * quedaba en letra pequeña debajo. Un formulario que se
+                     * rellena leyendo identificadores en mayúsculas obliga a
+                     * traducir cada campo mentalmente, y el nombre estaba ahí
+                     * todo el tiempo. El código no se esconde: sigue siendo la
+                     * clave del contrato y la que se usa en la vista JSON, así
+                     * que se conserva junto al tipo.
+                     */}
                     <span>
-                      {code}
+                      {variable.canonicalName ? display(variable, 'canonicalName') : code}
                       {required ? ' *' : ''}
                     </span>
                     {allowed.length ? (
@@ -217,8 +229,7 @@ export function SimulatorInputEditor({
                       />
                     )}
                     <small className="field-meta">
-                      {dataType}
-                      {variable.canonicalName ? ` · ${display(variable, 'canonicalName')}` : ''}
+                      <code>{code}</code> · {dataType}
                       {rangeHint(schema)}
                     </small>
                   </label>

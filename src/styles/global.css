@@ -82,6 +82,7 @@
 @import './parts/libraries-qa.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
+@import './parts/workers-categories.css';
 @import './parts/node-state.css';
 @import './parts/lifecycle-wizard.css';
 @import './parts/workers-shell.css';

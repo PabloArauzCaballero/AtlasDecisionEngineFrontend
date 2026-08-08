@@ -20,6 +20,7 @@ import {
   type StatementFormat,
 } from '../features/workers/workers.api';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
+import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { saveBlob } from '../utils/download';
 import { asRecord, asRows } from '../utils/records';
@@ -115,6 +116,20 @@ export function BankStatementWorkerConsole() {
     run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS';
 
   const categorias = useStatementCategories();
+
+  /*
+   * Dos cosas que duele perder: un PDF ya elegido y sin convertir —volver a
+   * buscarlo en el disco es trabajo—, y una clasificación en curso, que además
+   * de tiempo gasta ejecuciones del worker semántico contra el limitador.
+   */
+  useUnsavedWork(
+    requestId === null && file !== null,
+    'Un PDF elegido en la consola de Extractos Bancarios, sin convertir.',
+  );
+  useUnsavedWork(
+    categorias.corriendo,
+    `Una clasificación de movimientos en curso (${categorias.hechas} de ${categorias.total} glosas).`,
+  );
   // Las glosas del extracto ya convertido, deduplicadas: son lo que se clasifica.
   const glosas = useMemo(() => {
     const filas = asRows(asRecord(run.data?.result).transactions);

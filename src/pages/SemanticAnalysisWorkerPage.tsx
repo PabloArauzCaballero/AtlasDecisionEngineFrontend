@@ -14,6 +14,7 @@ import {
   fetchWorkerCatalog,
 } from '../features/workers/workers.api';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
+import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { SemanticResultView } from '../features/workers/SemanticResultView';
 
@@ -77,6 +78,17 @@ export function SemanticAnalysisWorkerConsole() {
         description: 'No llegó a procesarse.',
       }),
   });
+
+  /*
+   * Qué se perdería al salir. Un texto escrito y todavía no enviado, o una
+   * ejecución en curso que esta vista está siguiendo. No cuenta el radio marcado
+   * por omisión: eso no es trabajo, y avisar por ello enseñaría a descartar el
+   * aviso sin leerlo.
+   */
+  useUnsavedWork(
+    requestId === null && text.trim() !== '',
+    'Un texto escrito en la consola de Análisis Semántico, sin enviar.',
+  );
 
   const maxLength = Number(descriptor?.limits?.maxTextLength ?? 8_000);
   const trimmed = text.trim();
