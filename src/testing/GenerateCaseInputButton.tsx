@@ -2,36 +2,54 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { Dices } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
+import type { SampleKind } from './suite-types';
 
 const sampleSchema = z.object({
   seed: z.string(),
   cases: z.array(z.object({ input: z.record(z.unknown()) })).min(1),
 });
 
-type Kind = 'VALID' | 'BOUNDARY' | 'INVALID';
-
 interface Props {
   /** Versión que la suite prueba: de ahí sale el contrato, no de un ambiente. */
   artifactVersionId: string;
+  /**
+   * Clase de valores que corresponde al tipo de suite elegido. Se puede cambiar
+   * a mano —a veces se quiere un caso límite dentro de una regresión—, pero el
+   * valor por omisión lo decide el tipo, no la última elección del usuario.
+   */
+  defaultKind?: SampleKind;
+  /** Por qué ese tipo se siembra así. Se enseña junto al selector. */
+  kindReason?: string;
   onGenerated: (input: Record<string, unknown>) => void;
 }
 
 /**
- * Rellena la entrada de un caso con valores derivados del contrato de la versión.
+ * Rellena la entrada de un caso con valores ficticios derivados del contrato de
+ * la versión.
  *
  * El resultado esperado se deja a propósito en blanco: eso es lo que el analista está
  * afirmando y adivinarlo ejecutando el algoritmo convertiría la prueba en una tautología
  * —el caso pasaría siempre, incluso cuando el algoritmo esté mal—. Para comparar contra
  * la ejecución real están las corridas del QA Lab.
  */
-export function GenerateCaseInputButton({ artifactVersionId, onGenerated }: Props) {
-  const [kind, setKind] = useState<Kind>('VALID');
+export function GenerateCaseInputButton({
+  artifactVersionId,
+  defaultKind = 'VALID',
+  kindReason,
+  onGenerated,
+}: Props) {
+  const [kind, setKind] = useState<SampleKind>(defaultKind);
   const [seed, setSeed] = useState('');
+
+  // Cambiar el tipo de suite cambia lo que corresponde generar. Sin esto, elegir
+  // «Generada del contrato» seguía sembrando casos cómodos porque el selector se
+  // quedaba con el valor de antes.
+  useEffect(() => setKind(defaultKind), [defaultKind]);
 
   const generate = useMutation({
     mutationFn: () =>
@@ -51,7 +69,7 @@ export function GenerateCaseInputButton({ artifactVersionId, onGenerated }: Prop
       <div className="sample-bar-actions">
         <label className="field sample-bar-kind">
           <span>Generar entrada de ejemplo</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as Kind)}>
+          <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
             <option value="VALID">Válida</option>
             <option value="BOUNDARY">En el límite del contrato</option>
             <option value="INVALID">Inválida (el caso debe rechazarse)</option>
@@ -66,6 +84,7 @@ export function GenerateCaseInputButton({ artifactVersionId, onGenerated }: Prop
           <Dices size={16} /> {generate.isPending ? 'Generando…' : 'Generar entrada'}
         </button>
       </div>
+      {kindReason ? <small className="field-hint">{kindReason}</small> : null}
       {generate.isError ? <Alert tone="error">{errorMessage(generate.error)}</Alert> : null}
       {seed && !generate.isError ? (
         <small className="field-hint">

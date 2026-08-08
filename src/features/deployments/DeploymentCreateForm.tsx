@@ -5,33 +5,48 @@ import { Rocket, X } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
+import { promotionDenialReason } from '../../auth/business-rules';
 import { Alert } from '../../components/Alert';
 import { PickerSelect } from '../../components/PickerSelect';
 import { useDialogFocus } from '../../hooks/useDialogFocus';
 import { useNotifications } from '../../notifications/useNotifications';
 import { display, type UnknownRecord } from '../../utils/records';
 import { TrafficRulesEditor, trafficRulesValid, type TrafficRuleDraft } from './TrafficRulesEditor';
+import { usePromotionTargets } from './usePromotionTargets';
 
 type DeploymentCreateFormProps = { onClose: () => void };
 
 const MODES = ['DIRECT', 'CANARY', 'CHAMPION_CHALLENGER'] as const;
 
 /**
- * Promotes an approved artifact version to an environment via
- * POST /v1/artifact-versions/{versionId}/deployments. DIRECT sends no traffic
- * rules (the backend only validates split totals when traffic is non-empty);
- * CANARY / CHAMPION_CHALLENGER expose the traffic split editor. Requires
- * PLATFORM_ADMIN (gated by the page).
+ * Promueve una versión aprobada a un ambiente vía
+ * POST /v1/artifact-versions/{versionId}/deployments. DIRECT no manda reglas de
+ * tráfico (el backend sólo valida los repartos cuando vienen); CANARY y
+ * CHAMPION_CHALLENGER abren el editor de reparto.
+ *
+ * Quién puede promover depende del AMBIENTE, no del formulario: a un ambiente de
+ * trabajo promueve quien propone el cambio; a producción, sólo un administrador
+ * (`business-rules.ts`). Por eso el selector sólo lista los destinos permitidos y
+ * la comprobación se repite antes de enviar: el catálogo puede degradar a texto
+ * libre, y ahí el usuario podría escribir `PROD` a mano.
  */
 export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
   const queryClient = useQueryClient();
   const { notify } = useNotifications();
   const dialog = useRef<HTMLElement>(null);
-  useDialogFocus(dialog);
+  // Escape cierra, como en cualquier modal del portal. Sin esto el diálogo
+  // atrapaba el foco y no daba salida por teclado: quien no usa el ratón se
+  // quedaba dentro del formulario sin poder abandonarlo.
+  useDialogFocus(dialog, undefined, onClose);
   const [versionId, setVersionId] = useState('');
   const [environmentCode, setEnvironmentCode] = useState('');
   const [deploymentMode, setDeploymentMode] = useState<string>('DIRECT');
   const [traffic, setTraffic] = useState<TrafficRuleDraft[]>([]);
+  const targets = usePromotionTargets();
+  const chosen = targets.allowed.find((environment) => environment.code === environmentCode);
+  const denial = environmentCode
+    ? promotionDenialReason(targets.roles, chosen ?? { code: environmentCode })
+    : null;
 
   const create = useMutation({
     mutationFn: () =>
@@ -66,12 +81,16 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    // Segunda comprobación, no decorativa: el ambiente puede haber llegado por
+    // texto libre si el catálogo degradó, y ahí `allowed` no lo filtró.
+    if (denial) return;
     create.mutate();
   };
 
   const ready =
     Boolean(versionId) &&
     Boolean(environmentCode) &&
+    denial === null &&
     (deploymentMode === 'DIRECT' || trafficRulesValid(traffic));
 
   return (
@@ -128,21 +147,39 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
                     };
               }}
             />
-            <PickerSelect
-              label="Ambiente"
-              value={environmentCode}
-              onChange={setEnvironmentCode}
-              endpoint="/v1/environments"
-              queryKey="deploy-environments"
-              required
-              placeholder="Elegir ambiente…"
-              mapOption={(row) => {
-                const code = display(row, 'code', 'environmentCode');
-                return code === '—'
-                  ? null
-                  : { value: code, label: `${display(row, 'name', 'code')} (${code})` };
-              }}
-            />
+            <label className="field">
+              <span>Ambiente</span>
+              <select
+                required
+                value={environmentCode}
+                disabled={targets.isPending}
+                onChange={(event) => setEnvironmentCode(event.target.value)}
+              >
+                <option value="">
+                  {targets.isPending ? 'Cargando ambientes…' : 'Elegir ambiente…'}
+                </option>
+                {targets.allowed.map((environment) => (
+                  <option key={environment.code} value={environment.code}>
+                    {environment.name} ({environment.code})
+                    {environment.isProduction ? ' · producción' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {targets.isError ? (
+              <Alert tone="warning">
+                No fue posible consultar los ambientes, así que no se puede saber cuál es
+                productivo. Vuelve a intentarlo antes de promover.
+              </Alert>
+            ) : null}
+            {targets.withheldProduction.length ? (
+              <Alert tone="info">
+                Puedes promover a ambientes de trabajo. Publicar en producción (
+                {targets.withheldProduction.map((environment) => environment.code).join(', ')})
+                requiere rol Platform Admin: envía la versión a revisión para que la firme.
+              </Alert>
+            ) : null}
+            {denial ? <Alert tone="error">{denial}</Alert> : null}
             <label className="field">
               <span>Modo de despliegue</span>
               <select

@@ -10,88 +10,121 @@ import { AUDIT_ROUTES, AUDIT_WIDTHS } from './support/responsive-matrix';
  *
  * Va con las herramientas (`yarn test:e2e:tools`) y no con la suite: tarda
  * minutos y su resultado no dice si el código está bien, sólo qué hace.
- * Quien afirma es `responsive.spec.ts`.
+ * Quien afirma es `responsive.spec.ts`, y usa **las mismas exclusiones** que
+ * esta herramienta: si divergieran, el barrido señalaría como defectos cosas
+ * que el gate acepta, y se perdería el tiempo persiguiéndolas.
  */
-test('auditoría responsive · matriz completa', async ({ page }) => {
-  test.setTimeout(30 * 60_000);
-  await denseBackend(page);
-  const informe: unknown[] = [];
 
-  for (const width of AUDIT_WIDTHS) {
-    await page.setViewportSize({ width, height: 900 });
-    for (const route of AUDIT_ROUTES) {
-      // Una redirección en vuelo aborta el `goto` siguiente. Se reintenta una
-      // vez en lugar de tumbar el barrido entero por una ruta.
-      try {
-        await page.goto(route, { waitUntil: 'domcontentloaded' });
-      } catch {
-        await page.goto(route, { waitUntil: 'domcontentloaded' });
-      }
-      await page.waitForTimeout(400);
+/** Mismo criterio que `responsive.spec.ts`. Ver allí el porqué de cada exclusión. */
+const MEDIDA = `(() => {
+  const doc = document.documentElement;
+  const limite = doc.clientWidth + 1;
 
-      const medida = await page.evaluate(() => {
-        const doc = document.documentElement;
-        const desborde = doc.scrollWidth - doc.clientWidth;
-
-        /*
-         * `desborde` NO basta en este portal: `.app-shell` lleva
-         * `overflow-x: clip`, así que nada de lo que hay dentro puede ensanchar
-         * el documento. Lo que antes se veía como barra de desplazamiento ahora
-         * se ve como contenido recortado —peor, porque no se nota— y la medida
-         * del `scrollWidth` sale siempre limpia.
-         *
-         * Lo que sí delata el problema es el borde derecho de cada elemento
-         * contra el ancho del viewport: si sobresale, o está cortado o está
-         * bajo el recorte. Se ignoran los `fixed` (velos y cajones, que se
-         * posicionan a propósito fuera) y los que están dentro de un contenedor
-         * que SÍ desplaza (`.table-wrap`), donde salirse es el diseño.
-         */
-        const culpables: string[] = [];
-        for (const nodo of Array.from(document.querySelectorAll<HTMLElement>('body *'))) {
-          const caja = nodo.getBoundingClientRect();
-          if (caja.width === 0 || caja.right <= doc.clientWidth + 1) continue;
-          const estilo = getComputedStyle(nodo);
-          if (estilo.position === 'fixed') continue;
-          if (nodo.closest('.table-wrap, .graph-canvas-viewport, [data-scroll-x]')) continue;
-          culpables.push(
-            `${nodo.tagName.toLowerCase()}.${(nodo.className || '?').toString().split(' ')[0]}` +
-              ` right=${Math.round(caja.right)} w=${Math.round(caja.width)}`,
-          );
-        }
-
-        // Controles por debajo del mínimo táctil de WCAG 2.2 AA (24×24).
-        const pequenos: string[] = [];
-        const interactivos = document.querySelectorAll<HTMLElement>(
-          'button, a[href], input, select, [role="button"], [role="tab"]',
-        );
-        for (const nodo of Array.from(interactivos)) {
-          const caja = nodo.getBoundingClientRect();
-          if (caja.width === 0 || caja.height === 0) continue;
-          if (caja.width >= 24 && caja.height >= 24) continue;
-          pequenos.push(
-            `${nodo.tagName.toLowerCase()}.${(nodo.className || '?').toString().split(' ')[0]}` +
-              ` ${Math.round(caja.width)}×${Math.round(caja.height)}`,
-          );
-        }
-
-        return {
-          desborde,
-          culpables: Array.from(new Set(culpables)).slice(0, 6),
-          pequenos: Array.from(new Set(pequenos)).slice(0, 8),
-        };
-      });
-
-      if (medida.desborde > 1 || medida.culpables.length || medida.pequenos.length) {
-        informe.push({ ruta: route, ancho: width, ...medida });
-      }
-    }
+  const culpables = [];
+  for (const nodo of document.querySelectorAll('body *')) {
+    const caja = nodo.getBoundingClientRect();
+    if (caja.width === 0 || caja.right <= limite) continue;
+    if (getComputedStyle(nodo).position === 'fixed') continue;
+    if (nodo.closest('.table-wrap, .graph-canvas-viewport, [data-scroll-x]')) continue;
+    if (nodo.closest('[aria-hidden="true"]')) continue;
+    const clase = (nodo.className || '').toString().split(' ')[0] || '(sin clase)';
+    culpables.push(nodo.tagName.toLowerCase() + '.' + clase + ' se sale ' + Math.round(caja.right - limite) + 'px');
   }
 
-  writeFileSync(
-    'docs/visual-evidence/responsive-audit.json',
-    JSON.stringify(informe, null, 2),
-    'utf8',
-  );
-  console.log(`HALLAZGOS: ${informe.length}`);
-  console.log(JSON.stringify(informe, null, 2));
+  const pequenos = [];
+  for (const nodo of document.querySelectorAll('button, a[href], select, [role="button"], [role="tab"]')) {
+    if (nodo.closest('.sr-only') || nodo.classList.contains('sr-only')) continue;
+    const caja = nodo.getBoundingClientRect();
+    if (caja.width === 0 || caja.height === 0) continue;
+    if (caja.width >= 24 && caja.height >= 24) continue;
+    const clase = (nodo.className || '').toString().split(' ')[0] || '(sin clase)';
+    pequenos.push(nodo.tagName.toLowerCase() + '.' + clase + ' mide ' + Math.round(caja.width) + '×' + Math.round(caja.height));
+  }
+
+  return {
+    desborde: doc.scrollWidth - doc.clientWidth,
+    culpables: [...new Set(culpables)].slice(0, 8),
+    pequenos: [...new Set(pequenos)].slice(0, 8),
+  };
+})()`;
+
+interface Hallazgo {
+  ruta: string;
+  ancho: number;
+  desborde?: number;
+  culpables?: string[];
+  pequenos?: string[];
+  error?: string;
+}
+
+test('auditoría responsive · matriz completa', async ({ page }) => {
+  test.setTimeout(40 * 60_000);
+  await denseBackend(page);
+  const hallazgos: Hallazgo[] = [];
+
+  /*
+   * El informe se escribe pase lo que pase.
+   *
+   * Antes se escribía sólo al final, y cuando el barrido moría a mitad quedaba
+   * en disco el JSON de la corrida ANTERIOR —con su fecha vieja y sin nada que
+   * lo delatase—. Leerlo daba por vigentes hallazgos de horas antes, ya
+   * corregidos. Una evidencia caducada que se hace pasar por fresca es peor que
+   * no tener evidencia: por eso ahora lleva su marca de tiempo y se vuelca
+   * también cuando la corrida falla.
+   */
+  const volcar = () =>
+    writeFileSync(
+      'docs/visual-evidence/responsive-audit.json',
+      JSON.stringify(
+        {
+          generado: new Date().toISOString(),
+          rutas: AUDIT_ROUTES.length,
+          anchos: AUDIT_WIDTHS.length,
+          hallazgos,
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+
+  try {
+    for (const ancho of AUDIT_WIDTHS) {
+      await page.setViewportSize({ width: ancho, height: 900 });
+      for (const ruta of AUDIT_ROUTES) {
+        /*
+         * Una redirección en vuelo aborta el `goto` siguiente, y en desarrollo
+         * Turbopack compila cada ruta la primera vez que se pide, así que una
+         * puede agotar su reloj. Se reintenta una vez y, si tampoco, se anota y
+         * se sigue: perder una ruta de 41 es un dato, perder el barrido entero
+         * por una ruta es quedarse sin ninguno.
+         */
+        try {
+          await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+        } catch {
+          try {
+            await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+          } catch (error) {
+            hallazgos.push({ ruta, ancho, error: String(error).slice(0, 140) });
+            continue;
+          }
+        }
+        await page.waitForTimeout(400);
+
+        const medida = await page.evaluate<{
+          desborde: number;
+          culpables: string[];
+          pequenos: string[];
+        }>(MEDIDA);
+        if (medida.culpables.length || medida.pequenos.length) {
+          hallazgos.push({ ruta, ancho, ...medida });
+        }
+      }
+    }
+  } finally {
+    volcar();
+  }
+
+  console.log(`HALLAZGOS: ${hallazgos.length} sobre ${AUDIT_ROUTES.length * AUDIT_WIDTHS.length}`);
+  console.log(JSON.stringify(hallazgos, null, 2));
 });

@@ -6,3 +6,8 @@ coverage
 .next
 test-results
 playwright-report
+# Informe que genera `responsive-audit.spec.ts` en cada barrido. Lo escribe
+# `JSON.stringify` y su formato no es una decisión de nadie: dejarlo bajo el
+# control de formato obliga a reformatearlo tras cada corrida o a ver `yarn
+# verify` en rojo por una evidencia recién generada.
+docs/visual-evidence/responsive-audit.json

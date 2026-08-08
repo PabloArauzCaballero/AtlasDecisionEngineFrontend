@@ -18,6 +18,8 @@
 @import './parts/node-tutorial.css';
 @import './parts/graph-toolbar.css';
 @import './parts/graph-canvas.css';
+/* Después del lienzo: añade a `.graph-canvas-viewport` el estado de arrastre. */
+@import './parts/zoom-controls.css';
 @import './parts/graph-canvas-feedback.css';
 @import './parts/graph-flow.css';
 @import './parts/flow-paths.css';
@@ -35,6 +37,7 @@
 @import './parts/code-import.css';
 @import './parts/generated-graph.css';
 @import './parts/operations-governance.css';
+@import './parts/manual-review-case.css';
 /* Carga después de operations-governance: reescribe `.gate-list` para el estado
    real de cada gate, en vez del icono verde fijo que traía. */
 @import './parts/governance-decision.css';
@@ -55,6 +58,9 @@
 @import './parts/graph-notes.css';
 @import './parts/tabs.css';
 @import './parts/action-icons.css';
+/* Después de action-icons e info-hint: reubica sus globos donde el anclaje al
+   disparador ya no cabe (≤ 820 px). Gana por orden, no por especificidad. */
+@import './parts/hint-bubbles-narrow.css';
 @import './parts/interactive-tutorial.css';
 @import './parts/tutorial-center.css';
 @import './parts/tutorial-cards.css';
@@ -76,6 +82,12 @@
 @import './parts/libraries-qa.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
+@import './parts/node-state.css';
+@import './parts/lifecycle-wizard.css';
+@import './parts/workers-shell.css';
+@import './parts/workers-dashboard.css';
+@import './parts/workers-latency.css';
+@import './parts/workers-queue.css';
 @import './parts/simulator-samples.css';
 @import './parts/graph-actions.css';
 @import './parts/graph-canvas-states.css';

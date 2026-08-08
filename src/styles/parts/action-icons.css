@@ -15,7 +15,26 @@
   color: var(--surface);
   font-size: 0.74rem;
   font-weight: 500;
-  white-space: nowrap;
+  /*
+   * Con `white-space: nowrap` y sin tope, el globo mide lo que mida su frase.
+   * Medido: el de `ThemeToggle` en la barra superior llegaba a 414 px de ancho
+   * y su borde derecho a 388 px en una ventana de 320 — es decir, la mitad del
+   * texto quedaba fuera de la pantalla justo cuando el usuario lo pedía.
+   *
+   * El tope lo ata al ancho disponible y deja que envuelva. Una frase de ayuda
+   * en dos líneas se lee; media frase, no.
+   */
+  max-width: min(260px, calc(100vw - 2 * var(--gutter)));
+  /*
+   * Sin esto el globo mide lo que su bloque contenedor —`.tooltip-wrap`, que es
+   * un botón de 32-38 px—, porque un absoluto sin `width` se ajusta al hueco
+   * disponible. Medido en la barra superior: 78 px de ancho y 138 de alto, seis
+   * renglones de una palabra cada uno. `max-content` le devuelve su ancho
+   * natural y el `max-width` de arriba sigue siendo quien lo ata a la ventana.
+   */
+  width: max-content;
+  white-space: normal;
+  text-wrap: balance;
   padding: 5px 9px;
   border-radius: 6px;
   opacity: 0;
@@ -37,6 +56,7 @@
    página entera se moviese en horizontal —el síntoma era una vista recortada—.
    Donde el control vive en el extremo derecho, el globo se ancla a ese borde y
    crece hacia dentro. */
+.topbar .tooltip-bubble,
 .table-toolbar .tooltip-bubble,
 .page-header .tooltip-bubble,
 .action-row .tooltip-bubble {
@@ -44,6 +64,8 @@
   right: 0;
   transform: translateY(4px);
 }
+.topbar .tooltip-wrap:hover .tooltip-bubble,
+.topbar .tooltip-wrap:focus-within .tooltip-bubble,
 .table-toolbar .tooltip-wrap:hover .tooltip-bubble,
 .table-toolbar .tooltip-wrap:focus-within .tooltip-bubble,
 .page-header .tooltip-wrap:hover .tooltip-bubble,
@@ -51,6 +73,23 @@
 .action-row .tooltip-wrap:hover .tooltip-bubble,
 .action-row .tooltip-wrap:focus-within .tooltip-bubble {
   transform: translateY(0);
+}
+
+/*
+ * La barra superior está pegada al borde de la ventana (`position: sticky; top: 0`),
+ * así que un globo anclado con `bottom: calc(100% + 6px)` se pinta ARRIBA de ella:
+ * en coordenadas negativas, fuera de la ventana. Se abría, ocupaba su hueco y no
+ * se veía nunca — medido: `top` ≈ -22 px con la barra en `top: 0`.
+ *
+ * Aquí el globo cuelga hacia abajo, sobre el contenido, que es el único lado con
+ * sitio. El `z-index` sube por encima del de la propia barra (20) para que no lo
+ * tape la sombra ni el contenido pegajoso de la vista.
+ */
+.topbar .tooltip-bubble {
+  bottom: auto;
+  top: calc(100% + 8px);
+  transform: translateY(-4px);
+  z-index: 60;
 }
 
 /* Dentro de una fila de tabla el globo competía con la cabecera pegajosa

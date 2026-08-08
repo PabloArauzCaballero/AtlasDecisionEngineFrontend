@@ -165,51 +165,38 @@ tr.is-expanded {
 .data-table .table-expander-head {
   z-index: 3;
 }
+/* --------------------------------------------------- columna de acciones
+
+   Simétrica a la de identidad y por el mismo motivo, sólo que por el otro lado:
+   la tabla es más ancha que su marco y «Acciones» es la ÚLTIMA columna, así que
+   el botón de ver detalle quedaba fuera de la parte visible —medido en
+   /artifacts a 1512 px: 1436 px de tabla en 1166 px de marco—. Quien entra a la
+   vista no veía ninguna forma de abrir un registro. */
+.data-table th.table-actions,
+.data-table td.table-actions {
+  position: sticky;
+  z-index: 1;
+  right: 0;
+}
+.data-table th.table-actions {
+  z-index: 3;
+}
 .data-table .table-expander,
-.data-table td.table-identity {
+.data-table td.table-identity,
+.data-table td.table-actions {
   background: var(--panel);
 }
 .data-table tbody tr:hover > .table-expander,
-.data-table tbody tr:hover > .table-identity {
+.data-table tbody tr:hover > .table-identity,
+.data-table tbody tr:hover > .table-actions {
   background: var(--surface-hover);
 }
 .data-table tr.is-expanded > .table-expander,
-.data-table tr.is-expanded > .table-identity {
+.data-table tr.is-expanded > .table-identity,
+.data-table tr.is-expanded > .table-actions {
   background: var(--surface-inset);
 }
-.table-detail-row > td {
-  padding: 0 14px 14px;
-  background: var(--surface-inset);
-  /* El detalle es texto largo a propósito: aquí no se recorta nada. */
-  max-width: none;
-  white-space: normal;
-}
-.table-detail {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 8px;
-  margin: 0;
-}
-.table-detail div {
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface);
-}
-.table-detail dt {
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.table-detail dd {
-  margin: 3px 0 0;
-  color: var(--text);
-  font-size: 12px;
-  line-height: 1.5;
-  word-break: break-word;
-}
+/* La fila desplegada se mide aparte, en `table-cells.css`. */
 .table-no-match {
   padding: 22px 14px !important;
   color: var(--muted);

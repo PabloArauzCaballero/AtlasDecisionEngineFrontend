@@ -55,6 +55,48 @@ export interface WorkerFixture {
   expectsFailure: boolean;
 }
 
+/**
+ * Salud de un worker, tal como la publica `GET /v1/workers/:code/metrics`.
+ *
+ * Espejo del DTO del motor. **No es autoritativo**, como el resto de contratos
+ * de este directorio: sirve para pintar. Un `null` significa «en la ventana no
+ * hubo de qué medirlo» y nunca cero, que sería una afirmación.
+ */
+export interface WorkerMetrics {
+  worker: string;
+  name: string;
+  available: boolean;
+  windowHours: number;
+  windowFrom: string;
+  computedAt: string;
+  totalRuns: number;
+  finishedRuns: number;
+  successRate: number | null;
+  statusMix: Array<{ status: WorkerRunStatus; count: number }>;
+  latency: {
+    p50Ms: number | null;
+    p95Ms: number | null;
+    p99Ms: number | null;
+    maxMs: number | null;
+    avgWaitMs: number | null;
+    maxWaitMs: number | null;
+    samples: number;
+  };
+  queue: { queued: number; running: number; oldestQueuedAt: string | null };
+  incidents: WorkerIncident[];
+  lastRunAt: string | null;
+}
+
+export interface WorkerIncident {
+  code: string;
+  message: string | null;
+  count: number;
+  lastOccurredAt: string;
+  lastRequestId: string;
+  lastCorrelationId: string;
+  lastAttemptCount: number;
+}
+
 export interface WorkerDescriptor {
   code: string;
   name: string;
@@ -125,7 +167,13 @@ export function statusTone(status: WorkerRunStatus): string {
   return 'QUEUED';
 }
 
-/** Duración legible entre dos instantes. `null` cuando aún no ha empezado. */
+/**
+ * Duración legible entre dos instantes. `null` cuando aún no ha empezado.
+ *
+ * Sube de unidad al pasar la hora y el día. Se quedaba en minutos, y el
+ * historial de un worker llega a semanas: «hace 1052 min 13 s» obliga a dividir
+ * mentalmente por 60 para enterarse de que fue ayer.
+ */
 export function elapsedLabel(from: string | null | undefined, to?: string | null): string | null {
   if (!from) return null;
   const start = Date.parse(from);
@@ -133,6 +181,11 @@ export function elapsedLabel(from: string | null | undefined, to?: string | null
   const end = to ? Date.parse(to) : Date.now();
   const seconds = Math.max(0, Math.round((end - start) / 1_000));
   if (seconds < 60) return `${seconds} s`;
+
   const minutes = Math.floor(seconds / 60);
-  return `${minutes} min ${seconds % 60} s`;
+  if (minutes < 60) return `${minutes} min ${seconds % 60} s`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} h ${minutes % 60} min`;
+  return `${Math.floor(hours / 24)} d ${hours % 24} h`;
 }

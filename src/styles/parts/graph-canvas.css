@@ -3,7 +3,15 @@
 .graph-canvas {
   position: relative;
   overflow: hidden;
-  min-width: 500px;
+  /*
+   * Era `min-width: 500px`, y ese mínimo es lo que hacía que las tres columnas
+   * del banco de trabajo no cupieran en un portátil de 1280 (250 + 500 + 320
+   * contra 1000 px reales). El lienzo NO necesita un ancho mínimo: es un marco
+   * fijo sobre `.graph-canvas-viewport`, que desplaza en los dos ejes sobre un
+   * mundo mayor que la pantalla. Lo que necesita es poder encogerse con su
+   * columna en vez de empujarla.
+   */
+  min-width: 0;
   isolation: isolate;
   /* Sin degradado: el lienzo pintaba encima de `--canvas` una lechada verde menta
      propia, aparte de la ambiental. Es una mesa de trabajo, y cualquier tinte

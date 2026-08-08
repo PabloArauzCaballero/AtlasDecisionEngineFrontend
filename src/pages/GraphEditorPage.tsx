@@ -1,13 +1,13 @@
-import { AlertCircle, GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { useAmbientState } from '../components/ambient/useAmbientState';
-import { ModalDialog } from '../components/ModalDialog';
 import { ActionCatalogPanel } from '../features/graph-editor/ActionCatalogPanel';
 import { EdgeProperties } from '../features/graph-editor/EdgeProperties';
+import { EditorSection } from '../features/graph-editor/EditorSection';
+import { summarizeData, summarizeFlow } from '../features/graph-editor/editor-summaries';
 import { GraphCanvas } from '../features/graph-editor/GraphCanvas';
 import { GraphEditorToolbar } from '../features/graph-editor/GraphEditorToolbar';
+import { GraphErrorDialog } from '../features/graph-editor/GraphErrorDialog';
 import { GraphNotesPanel } from '../features/graph-editor/GraphNotesPanel';
 import { FlowPathsPanel } from '../features/graph-editor/FlowPathsPanel';
 import { FlowChecklist } from '../features/graph-editor/FlowChecklist';
@@ -19,10 +19,7 @@ import { OutputVariableManager } from '../features/graph-editor/OutputVariableMa
 import { IntermediateVariableManager } from '../features/graph-editor/IntermediateVariableManager';
 import { OutputContractPanel } from '../features/graph-editor/OutputContractPanel';
 import { useGraphEditor } from '../features/graph-editor/useGraphEditor';
-import { tutorialCodeFor } from '../features/tutorial/error-tutorial';
-import { errorTutorial } from '../features/tutorial/interactive-catalog';
 import { TutorialMenu } from '../features/tutorial/TutorialMenu';
-import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useUnsavedChangesGuard } from '../shared/navigation/unsaved-changes';
 import { asRecord, display } from '../utils/records';
 
@@ -37,6 +34,13 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
   // antes que verlo compacto. Se puede apagar para grafos con muchos nodos.
   const [detailed, setDetailed] = useState(true);
   const [dismissedError, setDismissedError] = useState<unknown>(null);
+  /**
+   * Sección desplegada, una a la vez, y ninguna al entrar: el lienzo tiene que
+   * estar en la primera pantalla. Lo que hace falta declarar no se esconde —el
+   * resumen de cada cabecera lo dice en ámbar («sin entradas, sin salidas»)—,
+   * simplemente deja de ocupar 900 px por encima de lo que se viene a hacer.
+   */
+  const [openSection, setOpenSection] = useState<'datos' | 'analisis' | ''>('');
 
   // Fase 3 QA fix: opening this page by URL (e.g. the artifact detail "View Graph"
   // link) used to leave the canvas empty until "Load" was pressed. Auto-load on the
@@ -58,6 +62,21 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
   const hasFlow = editor.nodes.length > 0;
   const hasConnections = editor.edges.length > 0;
 
+  const dataSummary = summarizeData({
+    inputs: editor.inputs,
+    outputs: editor.outputs,
+    intermediates: editor.intermediates,
+    actions: editor.actions,
+    outputContract: editor.outputContract,
+  });
+  const flowSummary = summarizeFlow({
+    nodes: editor.nodes,
+    edges: editor.edges,
+    inputs: editor.inputs,
+    outputs: editor.outputs,
+    actions: editor.actions,
+  });
+
   const selectedNodeBranchCount = editor.edges.filter(
     (edge) => display(edge, 'from') === editor.selectedKey,
   ).length;
@@ -65,12 +84,6 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
     (node) => display(node, 'key') === display(asRecord(editor.selectedEdge), 'from'),
   );
   const selectedEdgeSourceType = selectedEdgeSource ? display(selectedEdgeSource, 'type') : '';
-
-  // Un fallo del motor no queda en un mensaje técnico opaco: el diálogo usa la
-  // explicación del catálogo y ofrece el recorrido que enseña a corregirlo.
-  const { startForError } = useInteractiveTutorial();
-  const errorTutorialCode = tutorialCodeFor(blockingError);
-  const errorTutorialLink = errorTutorialCode ? errorTutorial(errorTutorialCode) : null;
 
   // Guardar y validar son viajes reales al motor: el fondo lo refleja mientras
   // duran, y sólo mientras duran.
@@ -91,9 +104,6 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         onLoad={() => editor.load.mutate(undefined)}
         onUndo={editor.undo}
         onRedo={editor.redo}
-        onZoomOut={editor.zoomOut}
-        onZoomIn={editor.zoomIn}
-        onResetZoom={editor.resetZoom}
         onAutoLayout={editor.autoLayout}
         detailed={detailed}
         onToggleDetail={() => setDetailed((value) => !value)}
@@ -115,41 +125,11 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         />
       ) : null}
       {showErrorModal ? (
-        <ModalDialog
-          title={errorTutorialLink ? errorTutorialLink.title : 'No se pudo completar la operación'}
-          subtitle={editor.save.error ? 'Al guardar el algoritmo' : 'Al cargar la versión'}
-          tone="danger"
-          icon={<AlertCircle size={20} />}
-          onClose={() => setDismissedError(blockingError)}
-          actions={
-            <>
-              {/* El recorrido guiado va DENTRO del diálogo: antes el mismo fallo
-                  llegaba además como aviso, y era ahí donde estaba la única forma
-                  de llegar al tutorial. */}
-              {errorTutorialLink ? (
-                <button
-                  type="button"
-                  className="button"
-                  onClick={() => {
-                    setDismissedError(blockingError);
-                    startForError(errorTutorialCode as string);
-                  }}
-                >
-                  <GraduationCap size={16} /> Ver tutorial guiado
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="button button-primary"
-                onClick={() => setDismissedError(blockingError)}
-              >
-                Cerrar
-              </button>
-            </>
-          }
-        >
-          <p>{errorTutorialLink ? errorTutorialLink.description : errorMessage(blockingError)}</p>
-        </ModalDialog>
+        <GraphErrorDialog
+          error={blockingError}
+          whileSaving={Boolean(editor.save.error)}
+          onDismiss={() => setDismissedError(blockingError)}
+        />
       ) : null}
       <div className="graph-editor-statusbar">
         <div className="graph-authoring-steps" aria-label="Progreso del diseño">
@@ -178,38 +158,40 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         </div>
         <TutorialMenu />
       </div>
-      <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
-      <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
-      <IntermediateVariableManager
-        intermediates={editor.intermediates}
-        nodes={editor.nodes}
-        onChange={editor.changeIntermediates}
-      />
-      <OutputContractPanel
-        variables={editor.variables}
-        intermediates={editor.intermediates}
-        nodes={editor.nodes}
-        outputContract={editor.outputContract}
-        onChange={editor.changeOutputContract}
-      />
-      <ActionCatalogPanel
-        actions={editor.actions}
-        nodes={editor.nodes}
-        onChange={editor.changeActions}
-      />
-      {/* Todas las posibilidades del árbol, en orden. Va junto a la revisión de
-          flujo porque responden a la misma pregunta desde dos ángulos: aquélla
-          dice qué está mal; ésta, qué le pasa a cada tipo de caso. */}
-      <FlowPathsPanel nodes={editor.nodes} edges={editor.edges} onSelectNode={editor.selectNode} />
-      <FlowChecklist
-        nodes={editor.nodes}
-        edges={editor.edges}
-        inputs={editor.inputs}
-        outputs={editor.outputs}
-        actions={editor.actions}
-        onSelectNode={editor.selectNode}
-      />
-      {hasVersion ? <GraphNotesPanel versionId={editor.versionId} /> : null}
+      {/* Antes, los cinco paneles de datos se apilaban DESPLEGADOS aquí y el
+          lienzo empezaba en y≈1380: se entraba al editor de grafo y no se veía
+          el grafo. Ahora esta sección queda plegada en una fila —el resumen de
+          su cabecera dice lo que falta— y el análisis se va debajo del lienzo,
+          que es donde se consulta: después de dibujar. */}
+      <EditorSection
+        id="datos"
+        title="Datos y contrato"
+        hint="Qué entra, qué sale y qué se calcula por el camino."
+        summary={dataSummary.text}
+        attention={dataSummary.attention}
+        open={openSection === 'datos'}
+        onToggle={() => setOpenSection(openSection === 'datos' ? '' : 'datos')}
+      >
+        <InputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
+        <OutputVariableManager variables={editor.variables} onChange={editor.changeVariables} />
+        <IntermediateVariableManager
+          intermediates={editor.intermediates}
+          nodes={editor.nodes}
+          onChange={editor.changeIntermediates}
+        />
+        <OutputContractPanel
+          variables={editor.variables}
+          intermediates={editor.intermediates}
+          nodes={editor.nodes}
+          outputContract={editor.outputContract}
+          onChange={editor.changeOutputContract}
+        />
+        <ActionCatalogPanel
+          actions={editor.actions}
+          nodes={editor.nodes}
+          onChange={editor.changeActions}
+        />
+      </EditorSection>
       <div className="graph-workbench">
         <NodeLibrary onAddNode={editor.addNode} />
         <GraphCanvas
@@ -265,6 +247,33 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
           />
         )}
       </div>
+      <EditorSection
+        id="analisis"
+        title="Análisis del flujo"
+        hint="Qué le pasa a cada tipo de caso y qué impediría publicar."
+        summary={flowSummary.text}
+        attention={flowSummary.attention}
+        open={openSection === 'analisis'}
+        onToggle={() => setOpenSection(openSection === 'analisis' ? '' : 'analisis')}
+      >
+        {/* Todas las posibilidades del árbol, en orden. Va junto a la revisión de
+            flujo porque responden a la misma pregunta desde dos ángulos: aquélla
+            dice qué está mal; ésta, qué le pasa a cada tipo de caso. */}
+        <FlowPathsPanel
+          nodes={editor.nodes}
+          edges={editor.edges}
+          onSelectNode={editor.selectNode}
+        />
+        <FlowChecklist
+          nodes={editor.nodes}
+          edges={editor.edges}
+          inputs={editor.inputs}
+          outputs={editor.outputs}
+          actions={editor.actions}
+          onSelectNode={editor.selectNode}
+        />
+        {hasVersion ? <GraphNotesPanel versionId={editor.versionId} /> : null}
+      </EditorSection>
     </div>
   );
 }

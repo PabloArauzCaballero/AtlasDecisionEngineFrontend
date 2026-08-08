@@ -1,0 +1,160 @@
+/*
+ * Asistente de validación y compilación: dónde está la versión y qué encontró
+ * el motor al mirarla.
+ *
+ * Separado de `quality.css` por el límite de 299 líneas, y el corte va por
+ * responsabilidad: allí la composición del asistente, aquí lo que informa del
+ * estado real. Sólo tokens, ningún color escrito a mano.
+ */
+
+/* --- Dónde está la versión y qué corresponde hacer ------------------------- */
+
+.lifecycle-state {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  background: var(--surface-muted);
+  border: 1px solid var(--line-soft);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius-md);
+}
+
+.lifecycle-state.tone-success {
+  background: var(--success-wash);
+  border-color: var(--success-line);
+  border-left-color: var(--success);
+}
+
+.lifecycle-state.tone-warning {
+  background: var(--warning-wash);
+  border-color: var(--warning-line);
+  border-left-color: var(--warning);
+}
+
+.lifecycle-state.tone-info {
+  background: var(--info-wash);
+  border-color: var(--info-line);
+  border-left-color: var(--info);
+}
+
+.lifecycle-state p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* --- Informe real de validación -------------------------------------------- */
+
+.validation-verdict {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: 0 0 var(--space-3);
+}
+
+.validation-verdict.tone-success {
+  color: var(--success-strong);
+}
+
+.validation-verdict.tone-danger {
+  color: var(--danger-strong);
+}
+
+.validation-verdict span {
+  display: grid;
+  gap: 2px;
+}
+
+.validation-verdict small {
+  color: var(--text-muted);
+}
+
+.validation-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.validation-metrics dt {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.validation-metrics dd {
+  margin: 2px 0 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.validation-issues h3 {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0 0 var(--space-2);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.validation-issues-count {
+  padding: 1px var(--space-2);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+}
+
+.validation-issues ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.validation-issues li {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+.validation-issues li.tone-danger {
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+
+.validation-issues li.tone-warning {
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+
+.validation-issues li span {
+  display: grid;
+  gap: 2px;
+}
+
+.validation-issues li code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.validation-issues li small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.validation-issues-empty {
+  margin: 0 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

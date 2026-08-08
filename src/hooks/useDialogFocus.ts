@@ -36,21 +36,44 @@ function focusableWithin(container: HTMLElement): HTMLElement[] {
  * tabulador se escapa del diálogo—, así que quien navega con teclado acaba
  * rellenando un formulario que no ve.
  *
- * Se encarga de tres cosas:
+ * Se encarga de cuatro cosas:
  *  1. llevar el foco dentro al abrir (al primer control, o al propio diálogo);
  *  2. mantenerlo dentro, haciendo que el tabulador dé la vuelta en los bordes;
- *  3. devolverlo al elemento que abrió el diálogo cuando se cierra, para no
- *     dejar a nadie al principio de la página sin saber dónde estaba.
+ *  3. cerrarlo con Escape, si quien lo usa dice cómo cerrarlo;
+ *  4. devolver el foco al elemento que abrió el diálogo cuando se cierra, para
+ *     no dejar a nadie al principio de la página sin saber dónde estaba.
+ *
+ * El punto 3 faltaba, y su ausencia era exactamente el agujero que la trampa de
+ * foco abre: atrapar el foco sin dar salida por teclado deja encerrado a quien
+ * no usa el ratón. `ModalDialog` lo resolvía por su cuenta, así que los diálogos
+ * que pasan por él sí cerraban; los que usan este hook directamente —el alta de
+ * despliegue, entre otros— no, y se detectó barriendo el portal con teclado.
+ * Vive aquí y no en cada diálogo porque la promesa la hace `aria-modal`, que es
+ * lo que este hook existe para cumplir.
  *
  * @param container Referencia al elemento con `role="dialog"`.
  * @param initialFocus Control concreto que debe recibir el foco al abrir.
+ * @param onClose Cómo cerrar el diálogo. Sin él, Escape no hace nada — que es
+ *   lo correcto para un panel que no se puede cerrar, no un valor por omisión.
  */
 export function useDialogFocus(
   container: RefObject<HTMLElement | null>,
   initialFocus?: RefObject<HTMLElement | null>,
+  onClose?: () => void,
 ): void {
   // Se captura en el primer render, antes de que el diálogo robe el foco.
   const opener = useRef<HTMLElement | null>(null);
+
+  /*
+   * `onClose` se guarda en una referencia y no entra en las dependencias.
+   *
+   * El efecto corre UNA vez, al montar, a propósito (ver abajo). Si `onClose`
+   * fuera dependencia, cada render con una función nueva —lo normal, si se
+   * escribe en línea— volvería a montar la trampa y devolvería el foco al
+   * principio del diálogo mientras alguien escribe.
+   */
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   useEffect(() => {
     opener.current = document.activeElement as HTMLElement | null;
@@ -62,6 +85,14 @@ export function useDialogFocus(
     target.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && closeRef.current) {
+        // `stopPropagation` no: dos diálogos anidados deben cerrarse de dentro
+        // hacia fuera, y cada uno atiende su propio Escape. `preventDefault` sí,
+        // para que el navegador no cancele además el campo que tuviera el foco.
+        event.preventDefault();
+        closeRef.current();
+        return;
+      }
       if (event.key !== 'Tab') return;
       const focusable = focusableWithin(dialog);
       if (!focusable.length) {

@@ -15,6 +15,7 @@ import { LiveGraph } from '../features/execution-playback/LiveGraph';
 import { versionIdFromEvent } from '../features/execution-playback/live-trace';
 import { useSafeEnvironments } from '../features/simulator/useSafeEnvironments';
 import { useDetailQuery } from '../hooks/useDetailQuery';
+import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows } from '../utils/records';
 import { parseJsonObject } from '../utils/json';
 
@@ -48,8 +49,23 @@ export function LiveExecutionPage() {
   const generation = useRef(0);
   /** Corta la conexión en vuelo: al relanzar y al abandonar la vista. */
   const abort = useRef<AbortController | null>(null);
+  const { notify, update, dismiss } = useNotifications();
+  /** El aviso que sigue a la ejecución en curso, para retocarlo o retirarlo. */
+  const liveToast = useRef<string | null>(null);
 
-  useEffect(() => () => abort.current?.abort(), []);
+  /*
+   * Al abandonar la vista se corta la conexión Y se retira el aviso. Sin lo
+   * segundo quedaría una tarjeta «en curso» girando para siempre sobre una
+   * ejecución que ya nadie está escuchando: el motor no va a contestar a una
+   * conexión cancelada, así que ese aviso no puede terminar por sí solo.
+   */
+  useEffect(
+    () => () => {
+      abort.current?.abort();
+      if (liveToast.current) dismiss(liveToast.current);
+    },
+    [dismiss],
+  );
 
   // El grafo que se ilumina es el de la versión elegida. Si el motor declara la
   // versión en sus eventos, esa manda; si no, vale la que seleccionó el usuario.
@@ -69,6 +85,26 @@ export function LiveExecutionPage() {
     abort.current?.abort();
     const controller = new AbortController();
     abort.current = controller;
+    /*
+     * Una ejecución puede tardar. El aviso la acompaña de principio a fin en la
+     * MISMA tarjeta —en curso, avance, desenlace—, así que el operador se entera
+     * de cómo acabó aunque para entonces esté mirando otra parte de la página.
+     * El de la ejecución anterior se retira: ya no hay quien lo termine.
+     */
+    if (liveToast.current) dismiss(liveToast.current);
+    const toastId = notify({
+      title: 'Ejecución en vivo en curso',
+      description: 'El motor está recorriendo el grafo.',
+      // Indeterminado a propósito: no se sabe cuántos nodos recorrerá hasta que
+      // los recorre, y un denominador inventado mentiría sobre lo que falta.
+      progress: null,
+      durationMs: null,
+    });
+    liveToast.current = toastId;
+    /** Se cuenta aquí y no con `steps`: el estado no se ve desde los eventos. */
+    let recorded = 0;
+    /** Si el motor cierra sin decir en qué acabó, no se inventa un desenlace. */
+    let settled = false;
     setSteps([]);
     setNested([]);
     setResult(null);
@@ -93,20 +129,45 @@ export function LiveExecutionPage() {
           if (declared) setVersionId((current) => (current === declared ? current : declared));
           if (event.type === 'node_step') {
             setSteps((previous) => [...previous, event.data as LiveNodeStep]);
+            recorded += 1;
+            update(toastId, { description: `${recorded} nodos recorridos.` });
           } else if (event.type === 'execution_completed') {
             const data = event.data as { nestedExecutions?: NestedExecutionEntry[] };
             setNested(data.nestedExecutions ?? []);
             setResult(event.data);
+            settled = true;
+            update(toastId, {
+              tone: 'success',
+              title: 'Ejecución completada',
+              description: `El motor recorrió ${recorded} nodos.`,
+            });
           } else if (event.type === 'execution_failed') {
             setError(JSON.stringify(event.data));
+            settled = true;
+            update(toastId, {
+              tone: 'error',
+              title: 'La ejecución falló',
+              description: `Se detuvo tras ${recorded} nodos. El detalle está en la vista.`,
+            });
           }
         },
         { signal: controller.signal },
       );
     } catch (caught) {
-      if (currentGeneration === generation.current) setError(errorMessage(caught));
+      if (currentGeneration !== generation.current) return;
+      setError(errorMessage(caught));
+      settled = true;
+      update(toastId, { tone: 'error', title: 'La ejecución no llegó a terminar' });
     } finally {
-      if (currentGeneration === generation.current) setRunning(false);
+      if (currentGeneration === generation.current) {
+        setRunning(false);
+        /*
+         * Cerrar sin `execution_completed` ni `execution_failed` deja la tarjeta
+         * sin desenlace posible: se retira en vez de dejarla girando. Inventarle
+         * un éxito sería peor —diría que salió bien algo que nadie confirmó—.
+         */
+        if (!settled) dismiss(toastId);
+      }
     }
   };
 

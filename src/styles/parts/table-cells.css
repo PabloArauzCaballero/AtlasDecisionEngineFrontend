@@ -1,5 +1,5 @@
 /**
- * Anchos de celda.
+ * Anchos de celda y fila desplegada.
  *
  * Vive aparte de `table-tools.css` sólo por el límite de 299 líneas por fichero
  * que aplica `verify-source`; conceptualmente es la misma hoja.
@@ -17,11 +17,81 @@
 /* El código es un identificador largo y sin espacios: en una sola línea empuja
    la columna hasta 312 px, y partiéndolo por cualquier sitio queda ilegible
    («EMIT_AFF_DISPOSA / BLE»). Un cuerpo un punto menor deja que los códigos
-   reales quepan enteros, y `anywhere` sólo actúa en los excepcionalmente
-   largos. */
+   reales quepan enteros, y el corte sólo actúa en los excepcionalmente largos.
+
+   `break-word` y NO `anywhere`, aunque partan igual: las oportunidades de corte
+   de `anywhere` cuentan para el ancho mínimo intrínseco de la celda, así que el
+   navegador daba por bueno un ancho de columna de UN carácter. Como el resto de
+   columnas son de una línea —rígidas a su contenido—, ésta era la única que
+   podía encogerse y se llevaba todo el recorte: medido en /artifacts, 75 px de
+   columna y filas de 77 px de alto con «EXTRACTO_CAPACIDAD_PAGO» partido en
+   cuatro. Con `break-word` el ancho mínimo es el del código entero, el corte
+   sigue disponible cuando de verdad no cabe, y `max-width` mantiene el tope. */
 .data-table td.table-identity.mono {
+  /* Suelo, por si alguna vez vuelve a haber una celda que sí pueda encogerse:
+     ni con eso baja de un ancho en el que el código se lee. */
+  min-width: 120px;
   max-width: 232px;
   font-size: 11px;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------- fila desplegada
+
+   Se abre para LEER una fila que no cabe; abrirla y tener que desplazarse en
+   horizontal para ver la mitad de las fichas era pedir dos veces lo mismo, y es
+   lo que pasaba: la celda desplegada ocupa lo que mide la TABLA, no lo que se
+   ve. Medido en /artifacts a 1512 px, la última ficha llegaba a x = 1625 con el
+   marco desplazable acabando en x = 1479 —146 px cortados—.
+
+   Se corrige en dos mitades: la celda se ancla a la izquierda del área visible,
+   como la columna de identidad, y la rejilla se mide en `cqi`, que es el ancho
+   VISIBLE de `.table-wrap` (declarado contenedor en `data-display.css`) y no el
+   de la tabla que lleva dentro. El relleno se muda a la rejilla por lo mismo:
+   es ella la que conoce el ancho bueno. */
+.table-detail-row > td {
+  padding: 0;
+  background: var(--surface-inset);
+  /* El detalle es texto largo a propósito: aquí no se recorta nada. */
+  max-width: none;
+  white-space: normal;
+  position: sticky;
+  left: 0;
+}
+.table-detail {
+  box-sizing: border-box;
+  width: 100cqi;
+  padding: 0 14px 14px;
+}
+.table-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+/* Un enlace, no un icono: el detalle desplegado es prosa, no una barra de
+   herramientas, y aquí sí hay sitio para decir a dónde lleva. */
+.table-detail-open {
+  margin-top: 10px;
+}
+.table-detail-grid > div {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.table-detail dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.table-detail dd {
+  margin: 3px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
 }

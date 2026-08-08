@@ -51,7 +51,7 @@ export function LibrariesPage() {
       />
 
       <Panel title="Filtros">
-        <div className="output-contract-controls">
+        <div className="output-contract-controls" data-tutorial-id="library-filters">
           <input
             aria-label="Buscar librería"
             placeholder="Nombre o descripción"
@@ -80,7 +80,7 @@ export function LibrariesPage() {
                 <LibraryChip key={display(library, 'id')} library={library} />
               ))}
             </div>
-            <table className="data-table">
+            <table className="data-table" data-tutorial-id="library-table">
               <thead>
                 <tr>
                   <th>Librería</th>

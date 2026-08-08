@@ -84,6 +84,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
           <button
             className="button button-primary"
             type="button"
+            data-tutorial-id="calculated-field-new-version"
             onClick={() => setShowForm((open) => !open)}
           >
             {showForm ? 'Cancelar' : 'Nueva versión'}
@@ -132,10 +133,12 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
       ) : null}
 
       <Panel title="Versiones" meta={`${versions.length} versiones`}>
-        <CalculatedFieldVersionList
-          versions={versions}
-          onPromote={(versionId, status) => promote.mutate({ versionId, status })}
-        />
+        <div data-tutorial-id="calculated-field-versions">
+          <CalculatedFieldVersionList
+            versions={versions}
+            onPromote={(versionId, status) => promote.mutate({ versionId, status })}
+          />
+        </div>
       </Panel>
 
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}

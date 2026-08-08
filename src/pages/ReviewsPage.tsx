@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useEffect, useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { canProposeArtifactChange } from '../auth/business-rules';
+import { useAuth } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
@@ -16,6 +18,11 @@ export function ReviewsPage() {
   const [requestId, setRequestId] = useState('');
   const [result, setResult] = useState<unknown>(null);
   const { notify } = useNotifications();
+  const { user } = useAuth();
+  // Enviar una versión a revisión es el acto de PROPONER el cambio, no el de
+  // aprobarlo: lo hace quien lo escribió. Quien sólo revisa o audita entra a
+  // esta bandeja a consultar solicitudes, y el formulario se lo dice.
+  const canPropose = canProposeArtifactChange(user?.roles ?? []);
 
   // Rollback on the artifact page deep-links here with the version prefilled;
   // the operator still reviews and confirms the submission by hand.
@@ -58,16 +65,29 @@ export function ReviewsPage() {
       <div className="two-column">
         <form
           className="panel compact-form"
-          onSubmit={(event) => submit(event, () => submitReview.mutate(versionId))}
+          onSubmit={(event) =>
+            submit(event, () => {
+              if (canPropose) submitReview.mutate(versionId);
+            })
+          }
         >
           <h2>Enviar a revisión</h2>
+          {canPropose ? null : (
+            <Alert tone="info">
+              Proponer un cambio requiere rol QA Analyst, Fraud Analyst o Platform Admin. Desde aquí
+              puedes consultar el estado de cualquier solicitud.
+            </Alert>
+          )}
           <ArtifactVersionPicker
             versionId={versionId}
             onVersionChange={setVersionId}
             initialVersionId={initialVersionId}
             required
           />
-          <button className="button button-primary" disabled={submitReview.isPending}>
+          <button
+            className="button button-primary"
+            disabled={submitReview.isPending || !canPropose}
+          >
             {submitReview.isPending ? <span className="inline-spinner" aria-hidden="true" /> : null}
             {submitReview.isPending ? 'Enviando…' : 'Enviar con Compliance'}
           </button>

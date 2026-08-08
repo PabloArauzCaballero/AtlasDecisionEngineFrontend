@@ -12,7 +12,10 @@ const contract: ImportField[] = [
   { code: 'country', dataType: 'STRING', required: true },
 ];
 
-function renderBar(artifactCode = 'RIESGO') {
+function renderBar(
+  artifactCode = 'RIESGO',
+  options: { contract?: ImportField[]; contractLoading?: boolean } = {},
+) {
   const onLoad = vi.fn();
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -22,7 +25,8 @@ function renderBar(artifactCode = 'RIESGO') {
       <SimulatorSampleBar
         artifactCode={artifactCode}
         environmentCode="SANDBOX"
-        contract={contract}
+        contract={options.contract ?? contract}
+        contractLoading={options.contractLoading}
         onLoad={onLoad}
       />
     </QueryClientProvider>,
@@ -109,5 +113,45 @@ describe('SimulatorSampleBar', () => {
     renderBar('');
     expect(screen.getByRole('button', { name: /Generar valores/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: /Subir JSON o CSV/ })).toBeDisabled();
+  });
+
+  /*
+   * El contrato llega por red, y hasta que llega no se sabe dónde entra un
+   * documento. Subir el PDF en ese hueco se rechazaba con «este artefacto no
+   * declara ninguna variable de documento» —falso: sí la declara— y el analista
+   * se quedaba con el formulario vacío y un «faltan variables obligatorias».
+   * Como dependía de la latencia, fallaba «a veces» y nunca al probarlo.
+   */
+  it('no acepta archivos mientras el contrato no ha llegado', () => {
+    renderBar('EXTRACTO', { contract: [], contractLoading: true });
+
+    const subir = screen.getByRole('button', { name: /Leyendo el contrato/ });
+    expect(subir).toBeDisabled();
+  });
+
+  it('con el contrato en camino no afirma que el artefacto no admita documentos', async () => {
+    const onLoad = renderBar('EXTRACTO', { contract: [], contractLoading: true });
+
+    fireEvent.change(screen.getByLabelText(/Subir archivo/), {
+      target: { files: [fileWith('extracto.pdf', '%PDF-1.4')] },
+    });
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/contrato/i));
+    expect(screen.getByRole('alert')).not.toHaveTextContent(/no declara ninguna variable/i);
+    expect(onLoad).not.toHaveBeenCalled();
+  });
+
+  it('con el contrato ya leído sí dice la verdad: este artefacto no admite documentos', async () => {
+    // `score`/`country` no son un hueco documental, y aquí el contrato SÍ llegó.
+    const onLoad = renderBar('RIESGO');
+
+    fireEvent.change(screen.getByLabelText(/Subir archivo/), {
+      target: { files: [fileWith('extracto.pdf', '%PDF-1.4')] },
+    });
+
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(/no declara ninguna variable/i),
+    );
+    expect(onLoad).not.toHaveBeenCalled();
   });
 });

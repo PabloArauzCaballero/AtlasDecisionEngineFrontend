@@ -21,3 +21,9 @@ test-results/
 *.sln
 *.swp
 
+
+# Evidencia responsive generada contra el motor real (yarn evidencia:responsive).
+# Son 440 capturas y ~124 MB por corrida: es un ARTEFACTO, se regenera con el
+# script y no tiene por qué viajar en la historia. Las capturas curadas a mano de
+# docs/visual-evidence/ SÍ se versionan: esas son documentación, no salida.
+docs/visual-evidence/real/

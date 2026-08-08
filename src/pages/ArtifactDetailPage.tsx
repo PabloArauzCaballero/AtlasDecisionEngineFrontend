@@ -136,7 +136,10 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                 <div className="current-version">
                   <strong>v{display(latest, 'semanticVersion', 'versionNumber')}</strong>
                   <StatusBadge value={latest.status} />
-                  <p className="mono">{display(latest, 'checksum')}</p>
+                  {/* El motor lo llama `canonicalChecksum` (Prisma
+                      `decision_artifact_version.canonical_checksum`); pedir
+                      `checksum` a secas dejaba siempre un guión. */}
+                  <p className="mono">{display(latest, 'canonicalChecksum', 'checksum')}</p>
                 </div>
                 <div className="stack-actions">
                   {previousId !== '—' ? (

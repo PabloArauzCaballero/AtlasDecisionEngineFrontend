@@ -128,13 +128,17 @@ describe('filtrado por rol', () => {
     expect(visible.length).toBeGreaterThan(0);
   });
 
-  it('un analista de riesgo ve el editor de grafo y un auditor no', () => {
+  it('un tester ve el editor de grafo; el analista de riesgo y el auditor no', () => {
+    const tester = listingsForRoles(['QA_ANALYST']).map((listing) => listing.id);
     const risk = listingsForRoles(['RISK_ANALYST']).map((listing) => listing.id);
     const auditor = listingsForRoles(['AUDITOR']).map((listing) => listing.id);
 
-    expect(risk).toContain('graph-editor');
+    // Enseñar a diseñar reglas sólo tiene sentido para quien puede diseñarlas.
+    expect(tester).toContain('graph-editor');
+    expect(risk).not.toContain('graph-editor');
     expect(auditor).not.toContain('graph-editor');
-    // El auditor sí conserva lo suyo: la trazabilidad y las ejecuciones.
+    // Cada uno conserva lo suyo: el riesgo, sus casos; el auditor, la traza.
+    expect(risk).toContain('execution-detail');
     expect(auditor).toContain('execution-detail');
   });
 

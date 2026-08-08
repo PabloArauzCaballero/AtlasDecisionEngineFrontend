@@ -162,9 +162,6 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           </Panel>
         </main>
         <aside>
-          <Panel title="Estado de variables por nodo" meta="entradas · intermedias · salidas">
-            <NodeVariableStatePanel trace={trace} />
-          </Panel>
           <Panel title="Timeline de Ejecución" meta={`${trace.length} steps`}>
             <Timeline
               items={trace.map((item) => ({
@@ -176,6 +173,18 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           </Panel>
         </aside>
       </div>
+      {/*
+        El estado por nodo va a lo ancho, fuera de la rejilla.
+        Medido en el navegador: dentro del `aside` el contenedor daba 294 px para
+        una tabla que necesita 622 —seis columnas: variable, antes, después,
+        productora, creada en, consumida por—. Desplazaba, sí, pero enseñaba
+        menos de la mitad, y una barra horizontal dentro de un panel es fácil de
+        no ver: se leía como cortada. La línea de tiempo sí cabe en la columna,
+        porque es una lista estrecha; esta tabla no.
+      */}
+      <Panel title="Estado de variables por nodo" meta="entradas · intermedias · salidas">
+        <NodeVariableStatePanel trace={trace} />
+      </Panel>
     </>
   );
 }

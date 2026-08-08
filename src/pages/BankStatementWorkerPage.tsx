@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatementResultView } from '../features/workers/StatementResultView';
 import { StatementUploadField } from '../features/workers/StatementUploadField';
@@ -13,23 +12,33 @@ import { useWorkerRun } from '../features/workers/useWorkerRun';
 import {
   cancelRun,
   createBankStatementRun,
+  downloadStatement,
   fetchFixtures,
   fetchWorkerCatalog,
-  statementDownloadPath,
+  type StatementFormat,
 } from '../features/workers/workers.api';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
 import { useNotifications } from '../notifications/useNotifications';
+import { saveBlob } from '../utils/download';
 
 const WORKER = 'bank-statement' as const;
 
+const DESCARGAS: ReadonlyArray<{ format: StatementFormat; label: string }> = [
+  { format: 'csv', label: 'Descargar CSV' },
+  { format: 'json', label: 'Movimientos (JSON)' },
+  { format: 'normalized', label: 'Contrato completo' },
+];
+
 /**
- * Conversión de extractos bancarios en PDF a movimientos normalizados.
+ * Consola de extractos: subir un PDF y obtener sus movimientos normalizados.
  *
  * El documento no se conserva: el motor lo borra en cuanto hay resultado. La
  * vista lo dice de forma explícita, porque quien sube un extracto propio tiene
  * derecho a saber qué pasa con él.
+ *
+ * Sin cabecera propia: vive dentro de la pestaña «Consola» de `WorkersPage`.
  */
-export function BankStatementWorkerPage() {
+export function BankStatementWorkerConsole() {
   const { notify } = useNotifications();
   const [mode, setMode] = useState<'fixture' | 'own'>('fixture');
   const [file, setFile] = useState<File | null>(null);
@@ -66,6 +75,17 @@ export function BankStatementWorkerPage() {
     },
   });
 
+  const descargar = useMutation({
+    mutationFn: (format: StatementFormat) => downloadStatement(requestId as string, format),
+    onSuccess: (archivo) => saveBlob(archivo.fileName, archivo.blob),
+    onError: (error: Error) =>
+      notify({
+        tone: 'error',
+        title: 'No se pudo descargar',
+        description: error.message,
+      }),
+  });
+
   const cancel = useMutation({
     mutationFn: () => cancelRun(WORKER, requestId as string),
     onSuccess: () =>
@@ -92,17 +112,16 @@ export function BankStatementWorkerPage() {
     run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS';
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Procesamiento"
-        title="Extractos Bancarios"
-        description="Convierte un extracto bancario boliviano en PDF a movimientos normalizados, con su nivel de confianza."
-        hint="Sube el PDF de un extracto y obtén sus movimientos en una tabla que puedes descargar. El número de cuenta se publica siempre enmascarado y el documento no se conserva."
-      />
-
+    // Contenedor propio por lo mismo que en la consola semántica: el panel de
+    // control sigue montado al lado y comparte vocabulario con esta vista.
+    <div className="worker-console">
       <WorkerHeaderFacts descriptor={descriptor} loading={catalog.isLoading} />
 
-      <Panel title="Entrada" meta={descriptor?.available ? undefined : 'Worker no disponible'}>
+      <Panel
+        title="Entrada"
+        className="worker-entry"
+        meta={descriptor?.available ? undefined : 'Worker no disponible'}
+      >
         <WorkerInputChoice
           mode={mode}
           onModeChange={setMode}
@@ -156,24 +175,23 @@ export function BankStatementWorkerPage() {
               finished ? (
                 <>
                   {/*
-                   * Enlaces y no botones con `fetch`: la descarga la gestiona el
-                   * navegador, que ya sabe nombrar el archivo a partir de
-                   * `Content-Disposition` y no obliga a mantener el contenido en
-                   * memoria de la pestaña.
+                   * Botones y no enlaces: un `<a href="/v1/…">` es una navegación
+                   * del navegador y ahí no viaja el token de la sesión, que esta
+                   * aplicación guarda en memoria. Los tres devolvían 401 y el
+                   * usuario se llevaba el error como archivo. El nombre lo sigue
+                   * decidiendo el servidor por `Content-Disposition`.
                    */}
-                  <a className="btn ghost" href={statementDownloadPath(requestId, 'csv')} download>
-                    Descargar CSV
-                  </a>
-                  <a className="btn ghost" href={statementDownloadPath(requestId, 'json')} download>
-                    Movimientos (JSON)
-                  </a>
-                  <a
-                    className="btn ghost"
-                    href={statementDownloadPath(requestId, 'normalized')}
-                    download
-                  >
-                    Contrato completo
-                  </a>
+                  {DESCARGAS.map(({ format, label }) => (
+                    <button
+                      key={format}
+                      type="button"
+                      className="btn ghost"
+                      disabled={descargar.isPending}
+                      onClick={() => descargar.mutate(format)}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </>
               ) : null
             }
@@ -186,6 +204,6 @@ export function BankStatementWorkerPage() {
           <StatementResultView result={run.data.result} warnings={run.data.warnings} />
         </Panel>
       ) : null}
-    </>
+    </div>
   );
 }

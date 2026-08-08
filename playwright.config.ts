@@ -17,6 +17,11 @@ export const ON_DEMAND = [
   '**/visual-evidence.spec.ts',
   '**/style-fingerprint.spec.ts',
   '**/responsive-audit.spec.ts',
+  '**/responsive-shots.spec.ts',
+  // Generador de capturas del Centro de Tutoriales. Su propia cabecera lo dice:
+  // «No afirma nada». Estaba corriendo en la suite normal y la ponía en rojo por
+  // no encontrar un menú, que es justo lo que esta lista existe para evitar.
+  '**/_shots.spec.ts',
 ];
 
 export default defineConfig({

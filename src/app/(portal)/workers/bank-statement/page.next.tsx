@@ -1,7 +1,8 @@
 'use client';
 
-import { BankStatementWorkerPage } from '../../../../pages/BankStatementWorkerPage';
+import { WorkersPage } from '../../../../pages/WorkersPage';
 
+/** Enlace directo al worker de extractos. Ver la nota del worker semántico. */
 export default function BankStatementWorkerRoute() {
-  return <BankStatementWorkerPage />;
+  return <WorkersPage initialWorker="bank-statement" />;
 }

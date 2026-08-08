@@ -57,14 +57,41 @@
 /*
  * Contenedor de contenido.
  *
- * `max-width` en `ch` y no en píxeles: lo que hace ilegible una línea no son sus
- * píxeles sino cuántos caracteres tiene. El tope anterior (1600 px) se conserva
- * como límite duro para las vistas de tabla, que sí quieren todo el ancho.
+ * El tope de 1600 px se conserva tal cual: por encima, el contenido se centra en
+ * vez de estirarse. Las vistas de tabla quieren todo ese ancho, así que el
+ * límite no baja.
+ *
+ * Los márgenes laterales usan `max(--gutter, env(...))`: en un teléfono con
+ * muesca en horizontal, el lado del recorte necesita más margen que el resto. En
+ * un dispositivo sin muesca `env()` vale 0 y gana `--gutter`, así que la
+ * expresión no cambia nada donde no hace falta. El respaldo explícito `, 0px`
+ * evita que un navegador sin `env()` descarte la declaración entera y deje la
+ * vista sin márgenes.
  */
 .content {
   max-width: 1600px;
   margin: 0 auto;
-  padding: var(--stack-gap) var(--gutter) calc(var(--stack-gap) * 2);
+  padding-top: var(--stack-gap);
+  padding-bottom: calc(var(--stack-gap) * 2);
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+/* La barra superior comparte margen con el contenido, muesca incluida: si no
+   coinciden, el título de la vista y el de la barra quedan desalineados. */
+.topbar {
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+}
+/*
+ * El cajón de navegación ocupa el borde izquierdo, que es justo donde caen la
+ * muesca y la esquina redondeada al sostener el teléfono en horizontal. Sin esto
+ * los rótulos del menú quedan bajo el recorte.
+ */
+.sidebar {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.sidebar nav {
+  padding-bottom: max(13px, env(safe-area-inset-bottom, 0px));
 }
 
 /*
@@ -111,4 +138,77 @@ video {
 .table-detail dd,
 .modal-body {
   overflow-wrap: anywhere;
+}
+
+/*
+ * Las columnas de las composiciones principales tienen que poder encogerse.
+ *
+ * Un hijo de rejilla vale `min-width: auto` por omisión, y eso significa que se
+ * NIEGA a bajar del ancho intrínseco de su contenido. Basta un panel con una
+ * tabla o un bloque JSON dentro para que la columna imponga su ancho y arrastre
+ * la vista entera. Medido antes de esto: el `main` de `/executions/1` se salía
+ * 186 px y el de `/manual-reviews/1` 217 px, en los dos casos con la rejilla ya
+ * colapsada a una sola columna —el problema no era el número de columnas, era
+ * que la única que había no cabía—.
+ *
+ * Es la misma razón por la que `.table-wrap` y `.panel` ya llevaban
+ * `min-width: 0`; aquí se aplica a las composiciones que faltaban, en un sitio,
+ * en vez de perseguirlo vista por vista.
+ */
+.health-layout > *,
+.artifact-overview > *,
+.objective-layout > *,
+.wizard-layout > *,
+.test-cases-layout > *,
+.result-layout > *,
+.coverage-layout > *,
+.governance-detail > *,
+.review-detail-grid > *,
+.execution-detail-grid > *,
+.simulator-layout > * {
+  min-width: 0;
+}
+
+/*
+ * La cadena del recorrido de una ejecución, hasta la tabla.
+ *
+ * `min-width: 0` en el hijo de `.simulator-layout` no basta: entre él y la
+ * tabla hay más rejillas (`.simulation-result`, `.node-state-panel`) y cada una
+ * vuelve a poner `min-width: auto` a SUS hijos. Con eso, una tabla ancha —la
+ * del estado de variables, seis columnas— no desplazaba dentro de su caja: se
+ * llevaba por delante el ancho de la rejilla y desplazaba la PÁGINA entera,
+ * arrastrando también la barra lateral. Basta con que un eslabón se olvide.
+ */
+.simulation-result > *,
+.simulator-debug,
+.simulator-debug > *,
+.node-state-panel,
+.node-state-body,
+.node-state-group {
+  min-width: 0;
+}
+
+/*
+ * Toda tabla desplaza dentro de su caja, esté o no envuelta.
+ *
+ * `DataTable` pone su tabla dentro de `.table-wrap`, que desplaza. Pero hay 16
+ * `<table>` escritas a mano en las vistas y varias no tienen ese envoltorio:
+ * con seis columnas y `white-space: nowrap` en las cabeceras, imponen su ancho
+ * intrínseco y se salen —medido: 644 px fuera en `/calculated-fields` a 320—.
+ * Como el marco recorta, no se veía una barra de desplazamiento: se veía media
+ * tabla y ninguna forma de llegar al resto.
+ *
+ * `display: block` convierte la tabla en su propio contenedor desplazable. Con
+ * el `width: 100%` que ya tienen, cuando el contenido cabe se pinta exactamente
+ * igual que antes; cuando no cabe, ahora se puede llegar a él.
+ *
+ * Lo preferible sigue siendo envolverla en `.table-wrap` —así la cabecera
+ * anclada y los indicios de desplazamiento funcionan igual que en el resto del
+ * portal—; esto es el suelo para las que no lo hagan.
+ */
+table:not(.table-wrap table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }

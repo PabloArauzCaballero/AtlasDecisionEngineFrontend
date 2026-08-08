@@ -28,6 +28,10 @@
      prueba) no scrollea dentro de su caja: estira el layout entero y la página se
      desplaza en horizontal, arrastrando incluso la barra lateral. */
   min-width: 0;
+  /* Contenedor de consulta: deja que lo de dentro se mida contra el ancho
+     VISIBLE y no contra el de la tabla. Lo usa la fila desplegada
+     (`.table-detail`, en `table-cells.css`), que si no se salía por la derecha. */
+  container-type: inline-size;
 }
 /* Un panel que contiene tabla debe poder encogerse por el mismo motivo. */
 .panel {

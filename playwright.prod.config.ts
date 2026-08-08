@@ -23,6 +23,13 @@ export default defineConfig({
     command: 'node scripts/serve-standalone.mjs',
     url: process.env.PW_BASE_URL ?? 'http://localhost:5173',
     reuseExistingServer: false,
-    timeout: 120_000,
+    /*
+     * 120 s no daban. El guion copia primero `.next/static` y `public/` dentro
+     * de `.next/standalone` —miles de ficheros pequeños—, y en un disco cargado
+     * esa copia sola se come el presupuesto: la suite moría en «Timed out
+     * waiting from config.webServer» sin llegar a abrir el navegador, que es un
+     * fallo por reloj disfrazado de fallo de la aplicación.
+     */
+    timeout: 300_000,
   },
 });

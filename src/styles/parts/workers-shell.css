@@ -1,0 +1,47 @@
+/*
+ * Concentrador de workers: elegir de cuál se habla y qué cara se mira.
+ *
+ * Dos niveles de elección seguidos son el riesgo de esta pantalla, así que se
+ * dibujan distinto a propósito. Sólo tokens, ningún color escrito a mano.
+ */
+
+/* Los dos workers, como pestañas de primer nivel: es la elección que manda. */
+.worker-switch > .tabs-list {
+  gap: var(--space-1);
+  padding-bottom: 0;
+}
+
+.worker-switch > .tabs-list .tabs-tab {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.95rem;
+}
+
+/*
+ * Las vistas de dentro (panel/consola) pesan menos que la elección de worker, y
+ * por eso son un conmutador segmentado y no otra fila de pestañas idénticas:
+ * dos jerarquías planas seguidas hacen dudar de cuál manda sobre cuál.
+ */
+.worker-views > .tabs-list {
+  gap: 0;
+  border-bottom: 0;
+  margin-bottom: var(--space-4);
+  padding: 3px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.worker-views > .tabs-list .tabs-tab {
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 0;
+  border-radius: var(--radius-pill);
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.worker-views > .tabs-list .tabs-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}

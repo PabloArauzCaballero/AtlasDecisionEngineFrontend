@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
+  Bot,
   Boxes,
   Braces,
   Calculator,
@@ -8,7 +9,6 @@ import {
   Database,
   FileCode2,
   FileSearch,
-  FileSpreadsheet,
   FlaskConical,
   GitBranch,
   Goal,
@@ -24,7 +24,6 @@ import {
   ScrollText,
   Search,
   ShieldCheck,
-  Sparkles,
   Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
@@ -242,15 +241,16 @@ export const navigation: readonly NavigationSection[] = [
     label: 'Procesamiento',
     items: [
       {
-        label: 'Análisis Semántico',
-        path: '/workers/semantic-analysis',
-        icon: Sparkles,
-        roles: accessPolicies.workers,
-      },
-      {
-        label: 'Extractos Bancarios',
-        path: '/workers/bank-statement',
-        icon: FileSpreadsheet,
+        /*
+         * Una entrada y no una por worker. Eran dos vistas sueltas, cada una
+         * con su formulario y nada más: se podía mandar trabajo pero no saber
+         * si el worker estaba sano, qué tenía encolado ni con qué fallaba.
+         * `/workers` las reúne como pestañas y le da a cada una su panel de
+         * control; los enlaces directos a cada worker siguen existiendo.
+         */
+        label: 'Workers',
+        path: '/workers',
+        icon: Bot,
         roles: accessPolicies.workers,
       },
     ],

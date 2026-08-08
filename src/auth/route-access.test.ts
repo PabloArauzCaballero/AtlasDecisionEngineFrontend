@@ -6,9 +6,22 @@ describe('route access policies', () => {
     expect(canAccessPath('/platform-health', [])).toBe(true);
   });
 
-  it('applies authoring roles to graph routes', () => {
-    expect(canAccessPath('/artifact-versions/version-1/graph', ['RISK_ANALYST'])).toBe(true);
-    expect(canAccessPath('/artifact-versions/version-1/graph', ['QA_ANALYST'])).toBe(false);
+  it('applies authoring roles to graph routes, keeping the risk analyst out', () => {
+    // Regla de negocio: el analista de riesgo consulta, no diseña reglas.
+    expect(canAccessPath('/artifact-versions/version-1/graph', ['QA_ANALYST'])).toBe(true);
+    expect(canAccessPath('/artifact-versions/version-1/graph', ['FRAUD_ANALYST'])).toBe(true);
+    expect(canAccessPath('/artifact-versions/version-1/graph', ['RISK_ANALYST'])).toBe(false);
+    expect(canAccessPath('/graph-editor', ['RISK_ANALYST'])).toBe(false);
+    expect(canAccessPath('/simulator', ['RISK_ANALYST'])).toBe(false);
+    expect(canAccessPath('/qa-lab', ['RISK_ANALYST'])).toBe(false);
+  });
+
+  it('keeps the risk analyst on every consultation route', () => {
+    expect(canAccessPath('/artifacts/artifact-1', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/manual-reviews/case-1', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/executions/execution-1', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/audit-events', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/variables', ['RISK_ANALYST'])).toBe(true);
   });
 
   it('applies quality roles to dynamic test routes', () => {
@@ -34,7 +47,9 @@ describe('route access policies', () => {
   });
 
   it('restricts the code-to-flow import route to authoring roles, denying read-only roles', () => {
-    expect(canAccessPath('/code-import', ['RISK_ANALYST'])).toBe(true);
+    expect(canAccessPath('/code-import', ['QA_ANALYST'])).toBe(true);
+    expect(canAccessPath('/code-import', ['FRAUD_ANALYST'])).toBe(true);
+    expect(canAccessPath('/code-import', ['RISK_ANALYST'])).toBe(false);
     expect(canAccessPath('/code-import', ['AUDITOR'])).toBe(false);
   });
 

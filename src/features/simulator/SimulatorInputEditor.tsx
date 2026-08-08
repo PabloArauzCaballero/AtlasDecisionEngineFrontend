@@ -7,7 +7,7 @@ import { Alert } from '../../components/Alert';
 import { JsonTextarea } from '../../components/JsonTextarea';
 import { isOutput, VariableList } from '../../components/VariableIo';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
-import type { ImportField } from './sample-import';
+import type { ImportedCase, ImportField } from './sample-import';
 import { FieldControl } from './SimulatorFieldControl';
 import { missingRequired, seedPayload } from './simulator-payload';
 import { PairsEditor } from './SimulatorPairsEditor';
@@ -20,6 +20,10 @@ interface Props {
   environmentCode: string;
   value: string;
   onChange: (next: string) => void;
+  /** La tanda generada o importada, para ejecutarla entera y paginar. */
+  onCases?: (cases: ImportedCase[]) => void;
+  /** Cuál de la tanda se está editando: es el que recibe lo que se teclea. */
+  onActiveCase?: (index: number) => void;
 }
 
 /**
@@ -27,7 +31,14 @@ interface Props {
  * artifact's declared INPUT contract, and a raw JSON view. Both edit the same
  * JSON payload string.
  */
-export function SimulatorInputEditor({ artifactCode, environmentCode, value, onChange }: Props) {
+export function SimulatorInputEditor({
+  artifactCode,
+  environmentCode,
+  value,
+  onChange,
+  onCases,
+  onActiveCase,
+}: Props) {
   const [view, setView] = useState<View>('form');
   const contract = useQuery({
     queryKey: ['artifact-input-contract', artifactCode],
@@ -91,6 +102,14 @@ export function SimulatorInputEditor({ artifactCode, environmentCode, value, onC
         artifactCode={artifactCode}
         environmentCode={environmentCode}
         contract={importContract}
+        // Lo que ya hay escrito, para que cargar un documento lo conserve en vez
+        // de vaciar el formulario.
+        current={parsed ?? undefined}
+        // Mientras el contrato no ha llegado no se sabe dónde entra un
+        // documento: aceptar el archivo sólo servía para rechazarlo mal.
+        contractLoading={artifactCode.trim() !== '' && contract.isPending}
+        onCases={onCases}
+        onActive={onActiveCase}
         onLoad={(input) => {
           onChange(JSON.stringify(input, null, 2));
           setView('form');

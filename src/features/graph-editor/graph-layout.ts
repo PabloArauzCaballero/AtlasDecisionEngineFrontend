@@ -20,10 +20,20 @@ const ROW_PITCH = 13;
  */
 /**
  * The canvas positions nodes as percentages (0–100). Re-layout a graph only when
- * its coordinates fall OUTSIDE that space — e.g. the seeder writes pixel-based
- * `xPos = order*120`, and imported/legacy graphs may too, which would clamp every
- * node into one corner and render nothing. Percentage graphs pass through
- * untouched (same array reference) so user-placed positions are preserved.
+ * its stored coordinates cannot be drawn:
+ *
+ * 1. **Fuera del rango.** El sembrador escribe píxeles (`xPos = order*120`), y
+ *    los grafos importados o antiguos también: todos se recortarían contra una
+ *    esquina y no se vería nada.
+ * 2. **Apiladas.** Un grafo creado por API —sembrado, importado, clonado— llega
+ *    con TODOS los nodos en `(0, 0)`. Está dentro del rango, así que la regla
+ *    anterior lo dejaba pasar y las ocho tarjetas se pintaban una encima de otra
+ *    en la esquina, con las aristas saliendo del mismo punto: el amasijo que se
+ *    ve al abrir el editor. Dos nodos en la coordenada exacta no son una
+ *    colocación, son la ausencia de una.
+ *
+ * Un grafo con posiciones distinguibles pasa intacto (misma referencia de array)
+ * para no pisar lo que el autor colocó a mano.
  */
 export function normalizeNodePositions(
   nodes: UnknownRecord[],
@@ -35,7 +45,9 @@ export function normalizeNodePositions(
     const y = typeof node.y === 'number' ? node.y : 0;
     return x > 100 || x < 0 || y > 100 || y < 0;
   });
-  return outOfRange ? layoutGraphNodes(nodes, edges) : nodes;
+  const distinct = new Set(nodes.map((node) => `${node.x ?? ''}:${node.y ?? ''}`));
+  const stacked = nodes.length > 1 && distinct.size < nodes.length;
+  return outOfRange || stacked ? layoutGraphNodes(nodes, edges) : nodes;
 }
 
 /**

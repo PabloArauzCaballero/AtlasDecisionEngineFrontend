@@ -20,7 +20,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:tools": "playwright test --config playwright.tools.config.ts",
     "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
-    "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build"
+    "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build",
+    "evidencia:responsive": "node scripts/evidencia-responsive.mjs",
+    "evidencia:responsive:auditar": "node scripts/evidencia-responsive.mjs --solo-auditar"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

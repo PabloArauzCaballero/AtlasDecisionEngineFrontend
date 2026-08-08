@@ -32,8 +32,11 @@ function Harness() {
 }
 
 function renderApp() {
+  // Ya en `/artifacts` y sin tabla en el DOM: el paso que pide abrir una ficha
+  // es opcional, así que el recorrido lo salta solo y arranca en la ficha, que
+  // es lo que estas pruebas cubren.
   return render(
-    <InteractiveTutorialProvider>
+    <InteractiveTutorialProvider router={{ pathname: '/artifacts', push: vi.fn() }}>
       <Harness />
     </InteractiveTutorialProvider>,
   );
@@ -45,7 +48,8 @@ describe('tutorial interactivo', () => {
     fireEvent.click(screen.getByText('go'));
 
     expect(await screen.findByText('Qué es esta pantalla')).toBeInTheDocument();
-    expect(screen.getByText(/paso 1 de 4/)).toBeInTheDocument();
+    // Paso 2: el primero pide abrir una ficha y aquí ya se dio por abierta.
+    expect(screen.getByText(/paso 2 de 5/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Siguiente/ }));
     expect(screen.getByText('Pestaña Resumen')).toBeInTheDocument();

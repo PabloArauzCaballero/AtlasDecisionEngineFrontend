@@ -81,13 +81,16 @@
 }
 
 /* Qué se va a aprender en este recorrido, sólo en el primer paso. */
+/* El "para qué sirve" del recorrido, sólo en el primer paso.
+   En caja de color parecía un aviso del sistema y competía con el título del
+   paso; como entradilla en cursiva se lee por lo que es: la presentación. */
 .tutorial-intro {
-  margin: 8px 0 0;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: var(--accent-wash);
-  color: var(--accent-strong);
+  margin: 6px 0 0;
+  padding: 0 0 0 10px;
+  border-left: 2px solid var(--accent-soft);
+  color: var(--text-muted);
   font-size: 0.8rem;
+  font-style: italic;
   line-height: 1.45;
 }
 
@@ -203,11 +206,13 @@
   font-size: 0.7rem;
 }
 /* Barra de avance del recorrido guiado: cuántos pasos quedan de un vistazo. */
+/* 6 px, no 4: a cuatro píxeles sobre un borde gris la barra desaparecía y el
+   recorrido no daba ninguna sensación de avance. */
 .tutorial-progress-bar {
-  height: 4px;
-  margin: 6px 0 10px;
+  height: 6px;
+  margin: 8px 0 12px;
   border-radius: 999px;
-  background: var(--line);
+  background: var(--surface-sunken);
   overflow: hidden;
 }
 .tutorial-progress-bar span {
@@ -237,4 +242,57 @@
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;
+}
+
+/* Invitación al recorrido introductorio. Va en el flujo de la página, no
+   flotando encima: no debe tapar nada de lo que la persona vino a hacer. */
+.tutorial-welcome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--radius-lg);
+  color: var(--accent-strong);
+}
+.tutorial-welcome-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 260px;
+}
+.tutorial-welcome-text strong {
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.tutorial-welcome-text span {
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.tutorial-welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding-right: var(--space-5);
+}
+.tutorial-welcome-never {
+  background: none;
+  border: 0;
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tutorial-welcome-never:hover {
+  color: var(--ink);
+}
+.tutorial-welcome-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
 }

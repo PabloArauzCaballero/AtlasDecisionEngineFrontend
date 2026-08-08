@@ -57,6 +57,79 @@ se mantiene al día solo. Si necesitas frescura inmediata dentro de un turno
   el motor simulado normal devuelve listados VACÍOS, así que una prueba escrita
   contra él mide cabeceras y estados vacíos creyendo que mide la vista entera.
 
+### Contra el motor REAL, con sesión real (`e2e/portal-real-*.spec.ts`)
+
+Opt-in. Entran por la pantalla de acceso con un usuario del proveedor de
+identidad y recorren el portal con los datos que hay en la base. Un simulado
+prueba que la vista sabe pintar la forma que este repositorio CREE que el motor
+sirve; esto prueba que esa creencia es cierta.
+
+```bash
+PW_BASE_URL=http://localhost:5180 PW_TENANT_ID=1 \
+  PW_USER=<correo> PW_PASSWORD=<clave> \
+  yarn playwright test e2e/portal-real-clasificador.spec.ts
+```
+
+Sin `PW_USER`/`PW_PASSWORD` se saltan enteras: una prueba roja por falta de
+configuración no informa de ningún defecto. **Las credenciales nunca se
+escriben en el repositorio.**
+
+**Córrelos de UNO EN UNO.** No es una preferencia: `-barrido` recorre decenas de
+vistas y agota el limitador del motor (`RATE_LIMIT_MANAGEMENT_REQUESTS`,
+300/min). Encadenados en una sola invocación, el que va detrás recibe 429 en el
+catálogo del worker, la vista lo lee como «worker apagado» y las pruebas se
+SALTAN — en verde y sin comprobar nada. Medido: juntos, 146 peticiones
+rechazadas; separados, ninguna que importe.
+
+```bash
+# uno por invocación, y deja respirar un minuto entre ellos
+yarn playwright test e2e/portal-real-acceso.spec.ts
+yarn playwright test e2e/portal-real-clasificador.spec.ts
+yarn playwright test e2e/portal-real-generadores.spec.ts
+yarn playwright test e2e/portal-real-barrido.spec.ts
+```
+
+- `-acceso` — la puerta: validación en cliente, credencial mala, tenant que no
+  existe. Fija que **un tenant inexistente responde 401 igual que una contraseña
+  mala**: el motor lo mandaba a 502, que operativamente significa «proveedor de
+  identidad caído» y además delataba qué tenants existen.
+- `-clasificador` — clasificar un gasto real contra el transformer y ver su rama
+  del árbol; la abstención; los límites del formulario.
+- `-generadores` — que QA Lab y el simulador produzcan valores utilizables, no
+  «undefined» ni «[object Object]».
+- `-barrido` — todas las rutas, todos los controles con nombre accesible, y que
+  cada diálogo atrape el foco y cierre con Escape. Los identificadores de las
+  rutas de detalle **se descubren navegando**, no se fijan a `/1`: contra la base
+  real ese identificador casi nunca existe y el barrido medía pantallas de «no
+  encontrado» creyendo que medía vistas de detalle.
+
+### Evidencia responsive con datos reales
+
+```bash
+PW_BASE_URL=http://localhost:5180 PW_TENANT_ID=1   PW_USER=<correo> PW_PASSWORD=<clave>   yarn evidencia:responsive          # genera y audita (~25 min)
+yarn evidencia:responsive:auditar    # sólo revisa lo que ya hay en disco
+```
+
+Recorre la matriz completa (43 rutas × 10 anchos) y deja capturas y medición en
+`docs/visual-evidence/real/`, que **está en `.gitignore`**: son 440 PNG y ~124 MB
+por corrida, un artefacto que se regenera con el script. Las capturas curadas a
+mano de `docs/visual-evidence/` sí se versionan — ésas son documentación.
+
+**El script audita lo que quedó en disco, y esa parte no es ceremonia.** Una
+corrida de Playwright puede terminar en verde y dejar 440 fotos de un spinner: la
+evidencia salía de la pantalla «Validando sesión segura» porque la espera miraba
+si el indicador de carga había DESAPARECIDO, y `PortalSessionGuard` lo monta
+después del primer render — «no está» y «todavía no está» son indistinguibles.
+Lo descubrió una persona abriendo los PNG, que es justo lo que una herramienta de
+evidencia no puede permitirse. Hoy hay tres guardas: `esperarVista` aguarda una
+señal POSITIVA (`.sidebar` o `.login-page`, que no pueden existir antes de
+tiempo), la prueba se niega a capturar una vista sin asentar, y el script rechaza
+la corrida si alguna captura pesa menos que una pantalla en blanco.
+
+Los botones destructivos (borrar, aprobar, promover, desplegar) **no se pulsan**
+y el barrido informa de cuáles omitió: un tope silencioso se leería como «se
+probó todo».
+
 ## Convenciones clave
 
 - Notificaciones: `useNotifications()` — los errores de mutaciones se reportan

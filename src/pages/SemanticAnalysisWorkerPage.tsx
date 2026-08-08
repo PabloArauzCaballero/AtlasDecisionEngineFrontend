@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
@@ -21,13 +20,17 @@ import { SemanticResultView } from '../features/workers/SemanticResultView';
 const WORKER = 'semantic-analysis' as const;
 
 /**
- * Análisis semántico de un texto.
+ * Consola del análisis semántico: enviar un texto y ver su clasificación.
  *
  * La ejecución es asíncrona: esta vista encola y sigue, no espera. Por eso el
  * botón de ejecutar desaparece en cuanto hay una ejecución en curso, en vez de
  * quedarse deshabilitado — un botón gris invita a volver a pulsarlo.
+ *
+ * No pinta cabecera de página: vive dentro de la pestaña «Consola» de
+ * `WorkersPage`, que ya dice de qué worker se trata. Dos títulos seguidos
+ * repetirían lo mismo y empujarían el formulario fuera de la primera pantalla.
  */
-export function SemanticAnalysisWorkerPage() {
+export function SemanticAnalysisWorkerConsole() {
   const { notify } = useNotifications();
   const [mode, setMode] = useState<'fixture' | 'own'>('fixture');
   const [text, setText] = useState('');
@@ -88,17 +91,20 @@ export function SemanticAnalysisWorkerPage() {
   }
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Procesamiento"
-        title="Análisis Semántico"
-        description="Clasifica un texto libre contra el catálogo de categorías, resolviendo entidades, montos y fechas."
-        hint="Sirve para saber de qué trata un texto —un reclamo, una glosa, una nota— según las categorías que tu equipo definió, con la evidencia que sostiene cada decisión."
-      />
-
+    /*
+     * Un contenedor propio, no un fragmento: la pestaña «Panel de control»
+     * sigue montada al lado (oculta, para conservar su estado) y comparte
+     * vocabulario con ésta —«En cola», «Completado con advertencias»—. Sin una
+     * raíz que las separe, cualquier búsqueda por texto encuentra las dos.
+     */
+    <div className="worker-console">
       <WorkerHeaderFacts descriptor={descriptor} loading={catalog.isLoading} />
 
-      <Panel title="Entrada" meta={descriptor?.available ? undefined : 'Worker no disponible'}>
+      <Panel
+        title="Entrada"
+        className="worker-entry"
+        meta={descriptor?.available ? undefined : 'Worker no disponible'}
+      >
         <WorkerInputChoice
           mode={mode}
           onModeChange={setMode}
@@ -170,6 +176,6 @@ export function SemanticAnalysisWorkerPage() {
           <SemanticResultView result={run.data.result} />
         </Panel>
       ) : null}
-    </>
+    </div>
   );
 }

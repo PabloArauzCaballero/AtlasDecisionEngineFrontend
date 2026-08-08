@@ -1,0 +1,59 @@
+/*
+ * Globos de ayuda en pantallas estrechas.
+ *
+ * `action-icons.css` e `info-hint.css` deciden el lado del globo por contenedor:
+ * centrado por omisión, anclado a la derecha donde el disparador vive pegado al
+ * borde. Ese método funciona mientras el globo quepa a un lado del disparador, y
+ * a 320 px deja de caber: un globo de 240 px anclado a la derecha de una
+ * cabecera de tabla situada en x = 100 se sale 140 px por la IZQUIERDA, y
+ * centrarlo o anclarlo a la izquierda sólo cambia el borde por el que se sale.
+ * Medido en la corrida de `e2e/responsive.spec.ts`: 19 fallos en 15 rutas —de
+ * `/login` a `/graph-editor`— con este único origen. Ampliar la lista de
+ * contenedores no puede cerrarlo, porque el problema no es el lado: es que no
+ * hay hueco a ningún lado.
+ *
+ * Aquí el globo deja de colgar del control y ocupa el ancho seguro de la
+ * ventana, acoplado al pie. Es el único ancho que siempre cabe, y de paso una
+ * frase de ayuda se lee en tres renglones anchos mejor que en ocho estrechos.
+ *
+ * Se carga después de `action-icons.css` para ganar en igualdad de
+ * especificidad, que es la convención de orden de `global.css`.
+ */
+
+@media (max-width: 820px) {
+  .tooltip-bubble,
+  .info-hint-bubble {
+    position: fixed;
+    inset: auto var(--gutter) var(--gutter);
+    top: auto;
+    width: auto;
+    max-width: none;
+    /* El desplazamiento de entrada era horizontal para centrar el globo sobre su
+       disparador; sin disparador al que centrarse, entra desde abajo. */
+    transform: translateY(6px);
+    text-wrap: pretty;
+  }
+
+  /* Los estados visibles heredan la posición y sólo apagan el desplazamiento.
+     Se enumeran los mismos selectores que abren el globo en las hojas de
+     origen: si uno se queda fuera, el globo aparece 6 px desplazado. */
+  .tooltip-wrap:hover .tooltip-bubble,
+  .tooltip-wrap:focus-within .tooltip-bubble,
+  .info-hint:hover .info-hint-bubble,
+  .info-hint-trigger:focus-visible + .info-hint-bubble {
+    transform: translateY(0);
+  }
+
+  /* La flecha apuntaba al disparador. Acoplado al pie ya no apunta a nada, y
+     dibujarla señalando al vacío confunde más que la ausencia. */
+  .info-hint-bubble::after {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) and (prefers-reduced-motion: reduce) {
+  .tooltip-bubble,
+  .info-hint-bubble {
+    transform: none;
+  }
+}

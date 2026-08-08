@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { useCanvasZoom } from '../graph-view/useCanvasZoom';
+import { positionOf, worldSize } from './canvas-world';
 import { createEdgeDraft, createNodeDraft, edgeCreationError } from './graph-authoring';
 import { applyEdgePatch } from './edge-patch';
 import { connectionErrorNotice, type ConnectionNotice } from './connection-feedback';
@@ -10,15 +12,11 @@ import { layoutGraphNodes, normalizeLoadedGraph } from './graph-layout';
 import { withEdges, withNewNodeCondition, withNodes, withoutNode } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
 
-const ZOOM_MIN = 0.5;
-const ZOOM_MAX = 2;
-const ZOOM_STEP = 0.1;
 export function useGraphEditor(initialVersionId = '') {
   const [versionId, setVersionId] = useState(initialVersionId);
   const [selectedKey, setSelectedKey] = useState('');
   const [selectedEdgeKey, setSelectedEdgeKey] = useState('');
   const [lockVersion, setLockVersion] = useState('0');
-  const [zoom, setZoom] = useState(1);
   const [connectMode, setConnectMode] = useState(false);
   const [pendingFrom, setPendingFrom] = useState<string | null>(null);
   const [connectionNotice, setConnectionNotice] = useState<ConnectionNotice | null>(null);
@@ -31,6 +29,14 @@ export function useGraphEditor(initialVersionId = '') {
   const intermediates = asRows(history.snapshot.intermediates);
   /** Contrato de salida explícito (§4): de dónde sale cada campo publicado. */
   const outputContract = asRows(history.snapshot.outputContract);
+  // Misma escala compartida por el resto de grafos del portal: Ctrl + rueda anclado al
+  // puntero, «Ajustar» y arrastre del fondo. El mundo se declara para que «Ajustar»
+  // calcule la escala exacta, igual que hace el lienzo al reservar su sitio.
+  const zoom = useCanvasZoom({
+    content: worldSize(
+      asRows(history.snapshot.nodes).map((node, index) => positionOf(node, index)),
+    ),
+  });
   const conditions = asRows(history.snapshot.conditions);
   /** Catálogo de acciones: dice qué EJECUTA un nodo de acción, no sólo su tipo. */
   const actions = asRows(history.snapshot.actions);
@@ -270,9 +276,6 @@ export function useGraphEditor(initialVersionId = '') {
     redo: history.redo,
     canUndo: history.canUndo,
     canRedo: history.canRedo,
-    zoomOut: () => setZoom((v) => Math.max(ZOOM_MIN, +(v - ZOOM_STEP).toFixed(2))),
-    zoomIn: () => setZoom((v) => Math.min(ZOOM_MAX, +(v + ZOOM_STEP).toFixed(2))),
-    resetZoom: () => setZoom(1),
     autoLayout,
     cancelConnection: () => {
       setPendingFrom(null);

@@ -42,7 +42,13 @@ export function GraphNotesPanel({ versionId }: { versionId: string }) {
         description: 'Las notas del grafo se actualizaron.',
       });
     },
-    onError: () => notify({ tone: 'error', title: 'No se pudieron guardar las notas' }),
+    /*
+     * El fallo NO se anuncia aquí. El `MutationCache` de QueryProvider ya lo
+     * hace por toda mutación que no declare `meta.handled`, así que este aviso
+     * propio salía además del global: dos tarjetas para un único fallo, y la de
+     * aquí era la peor de las dos —sin el motivo del backend ni la referencia
+     * de la petición—.
+     */
   });
 
   if (!versionId) return null;

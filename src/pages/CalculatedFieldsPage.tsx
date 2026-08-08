@@ -4,6 +4,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
+import { canProposeArtifactChange } from '../auth/business-rules';
+import { useAuth } from '../auth/useAuth';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
@@ -30,6 +32,10 @@ export function CalculatedFieldsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const { notify } = useNotifications();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  // El código de un campo calculado corre dentro de decisiones reales: crearlo
+  // es autoría, no consulta. El catálogo se lee con el permiso de la ruta.
+  const canCreate = canProposeArtifactChange(user?.roles ?? []);
 
   const query = useQuery({
     queryKey: ['calculated-fields', search],
@@ -62,6 +68,13 @@ export function CalculatedFieldsPage() {
           <button
             className="button button-primary"
             type="button"
+            data-tutorial-id="calculated-field-new"
+            disabled={!canCreate}
+            title={
+              canCreate
+                ? undefined
+                : 'Crear un campo calculado requiere rol QA Analyst, Fraud Analyst o Platform Admin'
+            }
             onClick={() => setShowCreate((open) => !open)}
           >
             <Plus size={16} aria-hidden /> Nuevo campo calculado
@@ -69,7 +82,7 @@ export function CalculatedFieldsPage() {
         }
       />
 
-      {showCreate ? (
+      {showCreate && canCreate ? (
         <Panel title="Nuevo campo calculado">
           <CalculatedFieldCreateWizard
             onCancel={() => setShowCreate(false)}
@@ -88,42 +101,48 @@ export function CalculatedFieldsPage() {
           />
         </div>
         {rows.length ? (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Modalidad</th>
-                <th>Devuelve</th>
-                <th>Estado</th>
-                <th>Versión</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={display(row, 'id')}>
-                  <td>
-                    <NavLink href={`/calculated-fields/${display(row, 'id')}`}>
-                      <code>{display(row, 'fieldCode')}</code>
-                    </NavLink>
-                  </td>
-                  <td>{display(row, 'name')}</td>
-                  <td>{display(row, 'category')}</td>
-                  <td>
-                    {IMPLEMENTATION_LABELS[
-                      display(row, 'implementationKind') as ImplementationKind
-                    ] ?? '—'}
-                  </td>
-                  <td>{row.returnType ? dataTypeLabel(row.returnType) : '—'}</td>
-                  <td>
-                    <StatusBadge value={display(row, 'status')} />
-                  </td>
-                  <td>v{display(row, 'latestVersion') || '—'}</td>
+          /* `.table-wrap` desplaza en horizontal en vez de empujar la página:
+             siete columnas no caben en 320 px, y sin él la tabla entera —con sus
+             cabeceras y sus insignias— se salía por la derecha. Es lo que ya
+             hacen las demás tablas del portal. */
+          <div className="table-wrap" data-tutorial-id="calculated-field-catalog">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Modalidad</th>
+                  <th>Devuelve</th>
+                  <th>Estado</th>
+                  <th>Versión</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={display(row, 'id')}>
+                    <td>
+                      <NavLink href={`/calculated-fields/${display(row, 'id')}`}>
+                        <code>{display(row, 'fieldCode')}</code>
+                      </NavLink>
+                    </td>
+                    <td>{display(row, 'name')}</td>
+                    <td>{display(row, 'category')}</td>
+                    <td>
+                      {IMPLEMENTATION_LABELS[
+                        display(row, 'implementationKind') as ImplementationKind
+                      ] ?? '—'}
+                    </td>
+                    <td>{row.returnType ? dataTypeLabel(row.returnType) : '—'}</td>
+                    <td>
+                      <StatusBadge value={display(row, 'status')} />
+                    </td>
+                    <td>v{display(row, 'latestVersion') || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <EmptyState
             illustration="empty"

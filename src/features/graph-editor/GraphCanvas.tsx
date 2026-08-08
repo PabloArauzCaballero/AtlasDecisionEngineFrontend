@@ -12,6 +12,7 @@ import { GraphNodeCard } from './GraphNodeCard';
 import { nodeIo } from './node-io';
 import { nodeBadges, nodeSummary } from './node-summary';
 import { CanvasLegend } from './CanvasLegend';
+import type { CanvasZoom } from '../graph-view/useCanvasZoom';
 
 interface GraphCanvasProps {
   nodes: UnknownRecord[];
@@ -33,7 +34,8 @@ interface GraphCanvasProps {
   pendingFrom?: string | null;
   connectMode: boolean;
   connectionNotice?: ConnectionNotice | null;
-  zoom: number;
+  /** Escala compartida: el lienzo la aplica y le presta su ventana desplazable. */
+  zoom: CanvasZoom;
   onNodeClick: (node: UnknownRecord) => void;
   onMoveNode: (key: string, x: number, y: number) => void;
   onDragStart: () => void;
@@ -183,7 +185,8 @@ export function GraphCanvas({
         .join(' ')}
     >
       <div
-        className="graph-canvas-viewport"
+        className={`graph-canvas-viewport ${zoom.panning ? 'is-panning' : ''}`.trim()}
+        ref={zoom.viewportRef}
         onDragOver={(event) => {
           event.preventDefault();
           event.dataTransfer.dropEffect = 'copy';
@@ -195,7 +198,7 @@ export function GraphCanvas({
             barras de desplazamiento horizontal y vertical de verdad. */}
         <div
           className="graph-canvas-scroll"
-          style={{ width: world.width * zoom, height: world.height * zoom }}
+          style={{ width: world.width * zoom.zoom, height: world.height * zoom.zoom }}
         >
           <div
             className="graph-canvas-world"
@@ -203,7 +206,7 @@ export function GraphCanvas({
             style={{
               width: world.width,
               height: world.height,
-              transform: `scale(${zoom})`,
+              transform: `scale(${zoom.zoom})`,
             }}
           >
             <div className="canvas-grid" />

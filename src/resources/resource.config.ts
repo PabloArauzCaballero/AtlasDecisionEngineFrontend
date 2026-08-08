@@ -1,3 +1,4 @@
+import { ARTIFACT_CREATE_ROLES, CHANGE_PROPOSAL_ROLES } from '../auth/business-rules';
 import { auditResources } from './resource.config.audit';
 import {
   artifactsCreateFields,
@@ -28,6 +29,11 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     primaryAction: 'Add Variable',
     createFields: variablesCreateFields,
     createStaticBody: variablesCreateStaticBody,
+    // El catálogo lo consulta todo el mundo; declarar una variable es definir un
+    // dato que las decisiones van a usar, y eso es autoría.
+    createRoles: CHANGE_PROPOSAL_ROLES,
+    createDeniedHint:
+      'Declarar una variable requiere rol QA Analyst, Fraud Analyst o Platform Admin. Consultar el catálogo no.',
     filters: [
       {
         param: 'usage',
@@ -79,6 +85,9 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterPlaceholder: 'Código, título o mensaje',
     primaryAction: 'Add Reason Code',
     createFields: reasonCodesCreateFields,
+    createRoles: CHANGE_PROPOSAL_ROLES,
+    createDeniedHint:
+      'Dar de alta un motivo explicable requiere rol QA Analyst, Fraud Analyst o Platform Admin.',
     filters: [
       {
         param: 'category',
@@ -112,6 +121,12 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterPlaceholder: 'Código, nombre o equipo',
     primaryAction: 'Nuevo Artefacto',
     createFields: artifactsCreateFields,
+    // Crear un artefacto abre una familia de versiones nueva: es la decisión que
+    // el encargo reserva a la administración. Proponer cambios sobre uno que ya
+    // existe es otra cosa, y ésa sí la hace el tester.
+    createRoles: ARTIFACT_CREATE_ROLES,
+    createDeniedHint:
+      'Sólo un Platform Admin crea artefactos. Para proponer un cambio, crea una versión del artefacto existente.',
     filters: [
       {
         param: 'status',

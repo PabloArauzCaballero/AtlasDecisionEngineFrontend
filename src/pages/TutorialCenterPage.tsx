@@ -82,7 +82,9 @@ export function TutorialCenterPage() {
 
       <TutorialCenterSummary summary={summary} recommended={recommended} onStart={start} />
 
-      <Panel title="Todos los tutoriales" meta={`${listings.length} disponibles para tu rol`}>
+      {/* Sin `meta`: el recuento ya lo da la barra de filtros, y ahí sí cambia
+          al filtrar. Repetirlo en la cabecera decía dos veces lo mismo. */}
+      <Panel title="Todos los tutoriales">
         <TutorialCenterFilters
           filters={filters}
           onChange={setFilters}
@@ -101,7 +103,7 @@ export function TutorialCenterPage() {
             }
           />
         ) : (
-          <div data-tutorial-id="tutorial-center-list">
+          <div data-tutorial-id="tutorial-center-list" data-testid="tutorial-list">
             {groupByCategory(visible).map(([category, items]) => (
               <section className="tutorial-center-group" key={category}>
                 <h2>{TUTORIAL_CATEGORY_LABELS[category]}</h2>

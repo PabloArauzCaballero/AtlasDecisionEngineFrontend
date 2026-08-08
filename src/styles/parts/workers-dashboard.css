@@ -1,0 +1,218 @@
+/*
+ * Panel de control de un worker: salud, latencia, cola e incidencias.
+ *
+ * Sólo tokens, ningún color escrito a mano. El estado de una ejecución se
+ * dibuja SIEMPRE con el mismo color en las tres piezas —barras del gráfico,
+ * reparto y cola—, porque son tres vistas del mismo hecho: si «falló» fuera
+ * rojo en una y granate en otra, habría que aprender dos códigos.
+ */
+
+/* --- Constantes vitales ----------------------------------------------------- */
+
+.worker-dashboard {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.worker-vitals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+  gap: var(--space-3);
+}
+
+.worker-vitals.is-loading {
+  opacity: 0.65;
+}
+
+.worker-vital {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/*
+ * El color sólo aparece cuando hay algo que mirar, y aparece en LA CIFRA, que
+ * es lo que se lee. Cinco franjas de colores distintos convertían la fila en un
+ * semáforo donde «Encendido» pesaba igual que «2 fallos»; teñir sólo el dato
+ * malo deja que el ojo caiga primero donde tiene que caer. Lo bueno no necesita
+ * pintarse: ya lo dice la palabra.
+ */
+.worker-vital.tone-warning {
+  border-color: var(--warning-line);
+}
+.worker-vital.tone-danger {
+  border-color: var(--danger-line);
+}
+
+.worker-vital.tone-warning .worker-vital-value {
+  color: var(--warning);
+}
+.worker-vital.tone-danger .worker-vital-value {
+  color: var(--danger);
+}
+
+.worker-vital-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.worker-vital-value {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  /* Cifras de ancho fijo: cinco tarjetas en fila se comparan de un vistazo y un
+     «1» estrecho las descuadra. */
+  font-variant-numeric: tabular-nums;
+}
+
+.worker-vital-hint {
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/*
+ * En estrecho, cinco tarjetas apiladas son 550 px de scroll para leer cinco
+ * cifras. Aquí dejan de ser tarjetas y pasan a ser filas: etiqueta y valor en
+ * la misma línea, separadas por un filete. Se lee de arriba abajo como una
+ * ficha, que es como se lee una lista de constantes.
+ */
+@media (max-width: 560px) {
+  .worker-vitals {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .worker-vital {
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    padding: var(--space-2) var(--space-3);
+    border: 0;
+    border-top: 1px solid var(--line-soft);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .worker-vital:first-child {
+    border-top: 0;
+  }
+
+  .worker-vital-value {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.125rem;
+  }
+
+  .worker-vital-hint {
+    grid-column: 1 / -1;
+  }
+}
+
+/* --- Rejilla de paneles ----------------------------------------------------- */
+
+.worker-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .worker-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.worker-panel-note {
+  margin: var(--space-3) 0 0;
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* --- Reparto por estado ----------------------------------------------------- */
+
+.worker-mix-bar {
+  display: flex;
+  gap: 2px;
+  height: 14px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+
+.worker-mix-slice {
+  min-width: 3px;
+  background: var(--accent);
+}
+
+.worker-mix-key {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.worker-mix-slice.is-succeeded_with_warnings,
+.worker-mix-key.is-succeeded_with_warnings {
+  background: var(--warning);
+}
+.worker-mix-slice.is-failed,
+.worker-mix-key.is-failed {
+  background: var(--danger);
+}
+.worker-mix-slice.is-cancelled,
+.worker-mix-key.is-cancelled {
+  background: var(--line-strong);
+}
+.worker-mix-slice.is-queued,
+.worker-mix-key.is-queued {
+  background: var(--muted);
+}
+.worker-mix-slice.is-running,
+.worker-mix-key.is-running {
+  background: var(--info);
+}
+
+.worker-mix-legend {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+}
+
+.worker-mix-legend li {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.worker-mix-legend strong {
+  margin-left: auto;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.worker-dashboard-source {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.75rem;
+}

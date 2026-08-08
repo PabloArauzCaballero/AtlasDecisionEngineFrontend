@@ -1,0 +1,74 @@
+/* Controles de escala compartidos por todos los lienzos de grafo. */
+.zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+.zoom-controls .icon-button {
+  width: 28px;
+  height: 28px;
+}
+.zoom-controls .zoom-value {
+  min-width: 46px;
+  height: 28px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.zoom-controls .zoom-value:hover {
+  color: var(--text);
+}
+
+/* Sobre el propio lienzo: las vistas de sólo lectura no tienen barra de herramientas
+   donde alojarlos, y bajarlos fuera del marco los separa de lo que gobiernan. */
+.zoom-controls-floating {
+  position: absolute;
+  z-index: 5;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--panel-live);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Marco de un grafo de flujo (historial de versiones, vista previa de un import). */
+.zoom-flow {
+  position: relative;
+}
+.zoom-flow-viewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.zoom-flow-viewport.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+.zoom-flow-spacer {
+  position: relative;
+}
+.zoom-flow-stage {
+  transform-origin: 0 0;
+  transition: transform 0.14s ease-out;
+}
+/* Con la altura ya medida, el escenario sale del flujo: `transform` no cambia la caja de
+   diseño, así que dejarlo dentro haría que el hueco midiera la altura SIN escalar y
+   sobrara o faltara sitio según el zoom. Sin medida se queda en flujo (ver ZoomableFlow). */
+.zoom-flow-spacer.is-measured > .zoom-flow-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* El lienzo del editor y el de reproducción ya reservan su mundo; aquí sólo se marca el
+   arrastre en curso, que es lo único que el zoom añade a su hoja propia. */
+.graph-canvas-viewport.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}

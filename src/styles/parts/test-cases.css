@@ -1,0 +1,179 @@
+/* Casos de prueba: el carril de filtros, la tabla y el detalle desplegable. */
+
+.test-cases-layout {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+}
+
+/*
+ * La columna de contenido tiene que poder encogerse por debajo de su tabla.
+ *
+ * Un ítem de grid vale `min-width: auto`, es decir, SE NIEGA a bajar del ancho
+ * de su contenido. `.table-wrap` ya lleva `min-width: 0` y `overflow: auto`,
+ * pero eso no sirve de nada si su padre crece sin límite: la tabla nunca llega
+ * a tener que desplazarse, simplemente ensancha la columna.
+ *
+ * Medido con 22 casos en una ventana de 1440: `main` iba de x=550 a x=1918 con
+ * el contenido acabando en 1440 — 478 px fuera. Y como `.app-shell` lleva
+ * `overflow-x: clip`, ese exceso no producía barra de desplazamiento ninguna:
+ * se recortaba en silencio. Los botones «Importar CSV», «Agregar Caso» y
+ * «Ejecutar Suite» de la cabecera quedaban en x=1520..1918, fuera de la
+ * pantalla y sin forma de alcanzarlos.
+ *
+ * Con esto la tabla vuelve a desplazarse DENTRO de su caja, que es donde el
+ * degradado de `.table-wrap` avisa de que sigue habiendo columnas a la derecha.
+ */
+.test-cases-layout > main {
+  min-width: 0;
+}
+
+/* Anchos declarados: sin esto el navegador reparte según el contenido y una
+   celda con un payload largo se lleva media tabla. */
+.test-cases-table {
+  table-layout: fixed;
+  min-width: 780px;
+}
+.test-cases-table th:nth-child(1) {
+  width: 22%;
+}
+.test-cases-table th:nth-child(2) {
+  width: 24%;
+}
+.test-cases-table th:nth-child(3) {
+  width: 12%;
+}
+.test-cases-table th:nth-child(4),
+.test-cases-table th:nth-child(5) {
+  width: 15%;
+}
+/* El 9 % dejaba la insignia de estado cortada por su última letra: una insignia
+   a medias parece un fallo de datos, no de espacio. */
+.test-cases-table th:nth-child(6) {
+  width: 12%;
+}
+
+.case-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.case-toggle:hover {
+  color: var(--accent);
+}
+.case-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.case-toggle svg {
+  flex: none;
+  color: var(--faint);
+}
+.case-toggle .mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* El nombre del escenario es la única celda que gana con dos líneas: es prosa,
+   no un dato, y truncarlo deja «Rechaza por capacidad de…» sin el porqué. */
+.case-name-cell {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.case-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.case-tags em {
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/*
+ * Resumen del payload en vez del JSON crudo.
+ *
+ * `JSON.stringify()` de ocho campos pasa de 200 caracteres: la celda lo
+ * truncaba y lo que quedaba era medio objeto partido, que no identifica nada.
+ * El número de campos más los primeros nombres sí identifican el caso, y el
+ * contenido completo está a un clic en la fila desplegada.
+ */
+.case-summary {
+  display: grid;
+  gap: 1px;
+}
+.case-summary strong {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 650;
+}
+.case-summary small {
+  overflow: hidden;
+  color: var(--faint);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.case-summary-cell {
+  vertical-align: top;
+}
+.faint-note {
+  color: var(--faint);
+}
+
+.case-row.is-open > td {
+  background: var(--surface-muted);
+  border-bottom: 0;
+}
+
+/* El detalle no participa del ancho de las columnas: ocupa la fila entera y
+   presenta cada payload con el mismo visor que el resto del portal. */
+.case-detail-row > td {
+  max-width: none;
+  padding: 0 14px 14px;
+  background: var(--surface-muted);
+  white-space: normal;
+}
+.case-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+/* La cabecera del visor lleva el rótulo y tres pestañas más copiar y descargar:
+   en media columna no cabe en una línea y se salía 22 px por la derecha. Que
+   envuelva es más barato que recortarle acciones. */
+.case-detail .json-panel {
+  min-width: 0;
+}
+.case-detail .panel-title {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.case-detail .json-panel-actions {
+  flex-wrap: wrap;
+}
+
+/* 820 y no 900: es el corte de la escala (src/styles/breakpoints.ts), el mismo
+   al que el resto de composiciones de detalle pasan a una columna. */
+@media (max-width: 820px) {
+  .case-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

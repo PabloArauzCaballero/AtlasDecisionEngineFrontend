@@ -40,6 +40,12 @@
 .wizard-steps li.active {
   color: var(--accent);
 }
+/* Superado y actual se distinguen: si los pasos ya recorridos se pintaran como
+   el actual, el indicador diría «estás en todos». */
+.wizard-steps li.done {
+  color: var(--success);
+}
+
 .wizard-main {
   padding: 16px 24px 30px;
 }
@@ -81,11 +87,7 @@
   margin-top: 18px;
 }
 
-.test-cases-layout {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 18px;
-}
+/* `.test-cases-layout` y la tabla de casos viven en `parts/test-cases.css`. */
 /*
  * El carril de filtros llevaba `margin: -32px 0 -56px -32px` para sangrar hasta
  * el borde de la página. Eso lo sacaba de su columna: se montaba sobre la barra
@@ -127,8 +129,20 @@
   color: var(--muted);
   font-size: 11px;
 }
-.filters-panel input {
+/*
+ * `width: auto` estaba puesto para que la casilla de «sólo casos activos» no se
+ * estirase a todo lo ancho. El problema es que también alcanzaba al buscador,
+ * y un `<input type="text">` en `auto` mide lo que dice su atributo `size`
+ * —veinte caracteres— sin importar el hueco: en una ventana de 320 px el carril
+ * entero se salía 351 px. Ahora la excepción se limita a lo que la pedía.
+ */
+.filters-panel input[type='checkbox'],
+.filters-panel input[type='radio'] {
   width: auto;
+}
+.filters-panel input:not([type='checkbox']):not([type='radio']) {
+  width: 100%;
+  min-width: 0;
 }
 .result-layout,
 .coverage-layout {
@@ -199,53 +213,6 @@
   margin-bottom: 7px;
   color: var(--muted);
   font-size: 10px;
-}
-
-/* Fase 5 — code-to-flow import. */
-.code-import-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 1.2fr) minmax(240px, 1fr);
-  gap: 16px;
-}
-.code-import-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.code-import-issues {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  list-style: none;
-  margin: 0 0 16px;
-  padding: 0;
-}
-.code-import-issues li {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 12px;
-  padding: 8px 10px;
-  border-radius: 6px;
-}
-.code-import-issues .issue-error {
-  background: rgba(220, 38, 38, 0.08);
-  color: var(--danger);
-}
-.code-import-issues .issue-warning {
-  background: rgba(217, 119, 6, 0.1);
-  color: var(--warning);
-}
-.issue-location {
-  font-family: monospace;
-  white-space: nowrap;
-}
-.code-import-preview h4 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 12px 0 4px;
-  font-size: 13px;
 }
 /* Fase 10 — security review dashboard. */
 .severity-badge {

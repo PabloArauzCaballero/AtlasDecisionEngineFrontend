@@ -7,6 +7,15 @@ import { z } from 'zod';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
+import {
+  acceptedFileTypes,
+  documentInput,
+  fileInputLabel,
+  fileToBase64,
+  findDocumentSlot,
+  isPdf,
+  uploadLabel,
+} from './document-input';
 import { parseSampleFile, type ImportField, type ImportedCase } from './sample-import';
 
 const sampleInputsSchema = z.object({
@@ -34,7 +43,35 @@ interface Props {
   artifactCode: string;
   environmentCode: string;
   contract: ImportField[];
+  /**
+   * Lo que hay ahora en el formulario. Sólo se usa para NO perderlo al cargar un
+   * documento, que aporta dos variables y no un caso completo.
+   */
+  current?: Record<string, unknown>;
+  /**
+   * El contrato del artefacto todavía no ha llegado.
+   *
+   * Sin esto, subir un archivo antes de que respondiera el contrato se
+   * rechazaba con «este artefacto no declara ninguna variable de documento»,
+   * que es **falso**: sí la declara, sólo que aún no se sabía. El defecto
+   * dependía de la latencia, así que fallaba «a veces» y nunca en la máquina de
+   * quien lo probaba.
+   */
+  contractLoading?: boolean;
   onLoad: (input: Record<string, unknown>) => void;
+  /**
+   * La tanda entera, para que la página pueda ejecutar TODOS los casos y
+   * paginar sus resultados. `onLoad` sólo lleva el que se está editando.
+   */
+  onCases?: (cases: ImportedCase[]) => void;
+  /**
+   * Cuál de la tanda está el formulario editando.
+   *
+   * Sin esto, la página no puede saber en qué caso volcar lo que el analista
+   * teclea, y al ejecutar mandaba la tanda tal como se generó —descartando cada
+   * cambio hecho a mano—.
+   */
+  onActive?: (index: number) => void;
 }
 
 /**
@@ -45,7 +82,16 @@ interface Props {
  * Las dos comparten el mismo carrusel de casos porque el analista hace lo mismo con
  * ambas: recorrerlos y cargar el que le interesa.
  */
-export function SimulatorSampleBar({ artifactCode, environmentCode, contract, onLoad }: Props) {
+export function SimulatorSampleBar({
+  artifactCode,
+  environmentCode,
+  contract,
+  current,
+  contractLoading = false,
+  onLoad,
+  onCases,
+  onActive,
+}: Props) {
   const [kind, setKind] = useState<Kind>('VALID');
   const [count, setCount] = useState(3);
   const [cases, setCases] = useState<ImportedCase[]>([]);
@@ -60,6 +106,8 @@ export function SimulatorSampleBar({ artifactCode, environmentCode, contract, on
     setCases(list);
     setActive(0);
     setNotice({ tone, text });
+    onCases?.(list);
+    onActive?.(0);
     if (list.length) onLoad(list[0].input);
   }
 
@@ -83,6 +131,63 @@ export function SimulatorSampleBar({ artifactCode, environmentCode, contract, on
   });
 
   async function importFile(file: File) {
+    /*
+     * Un PDF no se lee como texto: se codifica en base64 y se carga en la
+     * variable que el contrato declara para el documento. No pasa por
+     * `parseSampleFile` porque no hay filas que convertir —es un valor único—,
+     * y el motor es quien lo interpreta.
+     */
+    const slot = findDocumentSlot(contract);
+    if (isPdf(file)) {
+      if (!slot) {
+        /*
+         * «No hay hueco documental» y «todavía no sé si lo hay» no son lo mismo.
+         *
+         * El contrato llega por red; mientras no está, `contract` viene vacío y
+         * `findDocumentSlot` devuelve null para CUALQUIER artefacto. Decir aquí
+         * que el artefacto no declara variable de documento era afirmar algo
+         * falso a partir de no saberlo, y mandaba a subir un CSV a quien tenía
+         * el archivo correcto en la mano.
+         */
+        setNotice(
+          contractLoading
+            ? {
+                tone: 'warning',
+                text: `Todavía se está leyendo el contrato de ${artifactCode}. Espera un momento y vuelve a subir ${file.name}.`,
+              }
+            : {
+                tone: 'error',
+                text: `${file.name}: este artefacto no declara ninguna variable de documento, así que un PDF no tiene dónde entrar. Sube JSON o CSV con los valores.`,
+              },
+        );
+        return;
+      }
+      try {
+        const base64 = await fileToBase64(file);
+        /*
+         * El documento se AÑADE a lo que ya hay, no lo reemplaza.
+         *
+         * Un PDF aporta dos variables —el contenido y el nombre— y no un caso
+         * completo, así que sustituir el payload entero borraba en silencio lo
+         * que el analista ya había rellenado. El síntoma era desconcertante:
+         * subías el extracto y el motor contestaba «falta
+         * cuota_solicitada_extracto» sobre un formulario que se veía completo.
+         *
+         * Las tandas generadas y los CSV sí reemplazan, y con razón: cada caso
+         * suyo es un caso entero y mezclarlo con restos del anterior produciría
+         * una entrada que nadie escribió.
+         */
+        show(
+          [{ label: file.name, input: { ...current, ...documentInput(slot, file, base64) } }],
+          `${file.name} · cargado en ${slot.contentCode}. El resto de variables del contrato las rellenas tú.`,
+          'warning',
+        );
+      } catch (error) {
+        setNotice({ tone: 'error', text: errorMessage(error) });
+      }
+      return;
+    }
+
     const result = parseSampleFile(file.name, await file.text(), contract);
     if (result.error || !result.cases.length) {
       setNotice({ tone: 'error', text: result.error ?? 'El archivo no contiene valores.' });
@@ -103,6 +208,7 @@ export function SimulatorSampleBar({ artifactCode, environmentCode, contract, on
 
   function pick(index: number) {
     setActive(index);
+    onActive?.(index);
     onLoad(cases[index].input);
   }
 
@@ -137,20 +243,26 @@ export function SimulatorSampleBar({ artifactCode, environmentCode, contract, on
         >
           <Dices size={16} /> {generate.isPending ? 'Generando…' : 'Generar valores'}
         </button>
+        {/*
+         * Deshabilitado mientras el contrato no ha llegado: hasta entonces no se
+         * sabe qué formatos admite este artefacto ni dónde entra un documento,
+         * y aceptar el archivo sólo servía para rechazarlo mal.
+         */}
         <button
           type="button"
           className="button"
           onClick={() => fileInput.current?.click()}
-          disabled={!ready}
+          disabled={!ready || contractLoading}
+          title={contractLoading ? 'Esperando el contrato del artefacto…' : undefined}
         >
-          <Upload size={16} /> Subir JSON o CSV
+          <Upload size={16} /> {contractLoading ? 'Leyendo el contrato…' : uploadLabel(contract)}
         </button>
         <input
           ref={fileInput}
           type="file"
-          accept=".json,.csv,application/json,text/csv"
+          accept={acceptedFileTypes(contract)}
           className="sr-only"
-          aria-label="Subir archivo JSON o CSV con valores de prueba"
+          aria-label={fileInputLabel(contract)}
           onChange={(event) => {
             const file = event.target.files?.[0];
             // Se limpia el input para que volver a elegir el MISMO archivo (tras editarlo)

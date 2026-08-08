@@ -2,6 +2,18 @@
 
 import { resolvePath } from './records';
 
+/**
+ * Entrega un `Blob` como archivo.
+ *
+ * También lo usan las descargas que vienen del motor: se piden con la sesión
+ * puesta y se guardan desde memoria, porque un `<a href>` a una ruta de API es
+ * una navegación del navegador y ahí no viaja el token —el portal no tiene
+ * sesión por cookie— y el servidor responde 401.
+ */
+export function saveBlob(filename: string, blob: Blob): void {
+  triggerDownload(filename, blob);
+}
+
 function triggerDownload(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');

@@ -62,6 +62,20 @@ describe('normalizeNodePositions', () => {
     }
   });
 
+  it('re-acomoda un grafo con todos los nodos apilados en (0,0)', () => {
+    // Lo que sirve el motor para un grafo creado por API (sembrado, importado o
+    // clonado): coordenadas dentro del rango, pero todas iguales. Sin esto, las
+    // tarjetas se pintan una encima de otra en la esquina superior izquierda.
+    const nodes = [
+      { key: 'START', type: 'START', x: 0, y: 0 },
+      { key: 'CHECK', type: 'CONDITION', x: 0, y: 0 },
+    ];
+    const result = normalizeNodePositions(nodes, edges);
+
+    expect(result).not.toBe(nodes);
+    expect(result[0].x).not.toBe(result[1].x);
+  });
+
   it('leaves an already-percentage graph untouched (preserves user positions)', () => {
     const nodes = [
       { key: 'START', type: 'START', x: 10, y: 43 },

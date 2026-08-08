@@ -200,6 +200,12 @@
   font-size: 11px;
 }
 .dash-feed-link {
+  /* Medido en 60×15: por debajo del mínimo táctil de WCAG 2.2 AA. La letra no
+     cambia —sigue siendo el enlace discreto al final de cada línea del feed—,
+     crece la zona que acepta el toque. */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
   color: var(--accent);
   font-size: 11.5px;
   font-weight: 700;

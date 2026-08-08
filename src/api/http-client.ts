@@ -61,8 +61,16 @@ export async function publicApiRequest<T>(
 
 /**
  * Sends an authenticated API request and performs at most one token refresh.
+ *
+ * Returns the raw `Response`: quien la pide decide qué hacer con el cuerpo. Lo
+ * normal es `apiRequest`, que lo interpreta como JSON; las descargas
+ * (`api/file-download`) lo quieren como archivo y por eso comparten esta base en
+ * vez de reimplementar la sesión y la renovación de token.
  */
-export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> = {}): Promise<T> {
+export async function authorizedFetch<T>(
+  path: string,
+  options: ApiRequestOptions<T> = {},
+): Promise<Response> {
   assertSafeApiPath(path);
   const activeSession = session;
   const token = activeSession?.getAccessToken();
@@ -73,9 +81,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
   }
 
   const response = await send(path, options, token);
-  if (response.status !== 401 || options.retryOnUnauthorized === false) {
-    return parseResponse(response, options.responseSchema);
-  }
+  if (response.status !== 401 || options.retryOnUnauthorized === false) return response;
 
   let refreshedToken: string;
   try {
@@ -90,12 +96,12 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> 
     { ...options, retryOnUnauthorized: false },
     refreshedToken,
   );
+  if (retryResponse.status === 401) activeSession.expireSession();
+  return retryResponse;
+}
 
-  if (retryResponse.status === 401) {
-    activeSession.expireSession();
-  }
-
-  return parseResponse(retryResponse, options.responseSchema);
+export async function apiRequest<T>(path: string, options: ApiRequestOptions<T> = {}): Promise<T> {
+  return parseResponse(await authorizedFetch(path, options), options.responseSchema);
 }
 
 export interface ApiEvent {
@@ -229,7 +235,8 @@ async function send<T>(
       credentials: 'include',
       headers,
       signal: managedSignal.signal,
-      body: body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
+      body:
+        body === undefined ? undefined : isMultipart ? (body as FormData) : JSON.stringify(body),
     });
   } catch {
     if (managedSignal.didTimeout()) {

@@ -1,16 +1,25 @@
 import { useMutation } from '@tanstack/react-query';
 import { AlertTriangle, GitBranch, Play } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
+import { TraceActions } from '../features/execution-playback/TraceActions';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { PickerSelect } from '../components/PickerSelect';
-import { StatusBadge } from '../components/StatusBadge';
+import type { ImportedCase } from '../features/simulator/sample-import';
+import {
+  batchCases,
+  runSimulationBatch,
+  type BatchEntry,
+} from '../features/simulator/simulation-batch';
+import { SimulationResultPanel } from '../features/simulator/SimulationResultPanel';
 import { SimulatorInputEditor } from '../features/simulator/SimulatorInputEditor';
+import { useArtifactDeployments } from '../features/simulator/useArtifactDeployments';
 import { useSafeEnvironments } from '../features/simulator/useSafeEnvironments';
 import { useNotifications } from '../notifications/useNotifications';
 // La consulta de ambientes y su tipo se mudaron a `useSafeEnvironments`; aquí
@@ -25,20 +34,33 @@ import { asRecord, asRows, display } from '../utils/records';
 // simulación terminara en NO_DECISION · VARIABLE_MISSING_OR_INVALID.
 const initialPayload = '{}';
 
-function formatValue(value: unknown, fallback = '—'): string {
-  if (value === null || value === undefined || value === '') return fallback;
-  return typeof value === 'object' ? JSON.stringify(value) : String(value);
-}
-
 export function SimulatorPage() {
   const [artifactCode, setArtifactCode] = useState('');
   // Vacío a propósito: lo rellena el primer ambiente que declare el motor.
   const [environmentCode, setEnvironmentCode] = useState('');
   const [variables, setVariables] = useState(initialPayload);
   const [showTrace, setShowTrace] = useState(false);
+  // La tanda generada o importada, y cuál de sus resultados se está mirando.
+  const [batch, setBatch] = useState<ImportedCase[]>([]);
+  const [activeResult, setActiveResult] = useState(0);
+  /*
+   * Cuál de la tanda edita el formulario. Sin esto, al ejecutar se enviaba la
+   * tanda tal como se generó y todo lo tecleado después se perdía en silencio:
+   * el motor contestaba «falta la variable X» sobre un formulario que la
+   * enseñaba rellena.
+   */
+  const [editingCase, setEditingCase] = useState(0);
   const { notify } = useNotifications();
   const environments = useSafeEnvironments(environmentCode, setEnvironmentCode);
   const safeEnvironments = environments.environments;
+  /*
+   * Dónde está desplegado el artefacto elegido. Se consulta ANTES de ejecutar
+   * para no ofrecer una combinación que el motor va a rechazar con
+   * `ACTIVE_DEPLOYMENT_NOT_FOUND` después de rellenar todo el formulario.
+   */
+  const deployments = useArtifactDeployments(artifactCode);
+  const deployedHere = deployments.has(environmentCode);
+  const canSimulate = Boolean(artifactCode) && safeEnvironments.length > 0 && deployedHere;
 
   // "Clonar" on an execution detail page leaves the original request here so
   // the operator can replay it as a dry run. Consumed once, then discarded.
@@ -65,34 +87,41 @@ export function SimulatorPage() {
     }
   }, [notify]);
 
+  /**
+   * Una petición por caso. Cada una lleva su propio `requestId`: repetirlo haría
+   * que el motor tratara la segunda como un reintento de la primera.
+   */
+  const simulateOne = (input: Record<string, unknown>) =>
+    apiRequest(`/v1/simulations/${encodeURIComponent(artifactCode.trim())}`, {
+      method: 'POST',
+      body: {
+        requestId: crypto.randomUUID(),
+        environmentCode,
+        variables: input,
+        context: { channel: 'DECISION_PORTAL' },
+      },
+      responseSchema: simulationResponseSchema,
+    });
+
   const simulation = useMutation({
-    mutationFn: () => {
-      const requestId = crypto.randomUUID();
-      return apiRequest(`/v1/simulations/${encodeURIComponent(artifactCode.trim())}`, {
-        method: 'POST',
-        body: {
-          requestId,
-          environmentCode,
-          variables: parseJsonObject(variables),
-          context: { channel: 'DECISION_PORTAL' },
-        },
-        responseSchema: simulationResponseSchema,
-      });
-    },
-    onSuccess: (decision) => {
+    mutationFn: () =>
+      runSimulationBatch(batchCases(batch, parseJsonObject(variables), editingCase), simulateOne),
+    onSuccess: (results) => {
       setShowTrace(false);
+      setActiveResult(0);
+      const decided = results.filter((entry) => entry.decision).length;
       notify({
-        tone: 'success',
-        title: `Simulación completada · ${decision.outcome}`,
-        description: `${decision.artifact.code} se evaluó en ${decision.artifact.environment} sin persistir una decisión real.`,
+        tone: decided ? 'success' : 'warning',
+        title:
+          results.length > 1
+            ? `${decided} de ${results.length} casos simulados`
+            : `Simulación completada · ${results[0]?.decision?.outcome ?? 'sin desenlace'}`,
+        description: `${artifactCode} se evaluó en ${environmentCode} sin persistir ninguna decisión real.`,
       });
     },
   });
-  const result: SimulationResponse | undefined = simulation.data;
-  const primaryResult = result?.primaryResult;
-  // Un NO_DECISION trae el detalle de qué variable falló: se muestra en claro en
-  // vez de dejar sólo el código VARIABLE_MISSING_OR_INVALID.
-  const variableErrors = asRows(result?.errors);
+  const entries: BatchEntry[] = simulation.data ?? [];
+  const result: SimulationResponse | undefined = entries[activeResult]?.decision;
   const traceSteps = asRows(asRecord(result?.trace).nodes).length > 0;
   /*
    * Recorrido con el estado de las variables en cada paso. El motor lo devuelve
@@ -147,20 +176,41 @@ export function SimulatorPage() {
                   {safeEnvironments.map((environment) => (
                     <option key={environment.id} value={environment.code}>
                       {environment.name} ({environment.code})
+                      {/* Se marca, no se oculta: saber que un ambiente existe y
+                          que el artefacto no está allí es información útil. */}
+                      {artifactCode && !deployments.has(environment.code)
+                        ? ' — sin despliegue activo'
+                        : ''}
                     </option>
                   ))}
                 </select>
               </label>
             </div>
+
+            {artifactCode && !deployedHere ? (
+              <Alert tone="warning">
+                <strong>{artifactCode}</strong> no tiene un despliegue activo en{' '}
+                <strong>{environmentCode}</strong>, y el simulador ejecuta el artefacto compilado
+                que está desplegado: sin uno, no hay nada que simular.
+                {deployments.environmentCodes.length ? (
+                  <> Sí está desplegado en {deployments.environmentCodes.join(', ')}.</>
+                ) : (
+                  <> No está desplegado en ningún ambiente todavía.</>
+                )}{' '}
+                <Link href="/deployments">Ir a Despliegues</Link>
+              </Alert>
+            ) : null}
             <SimulatorInputEditor
               artifactCode={artifactCode}
               environmentCode={environmentCode}
               value={variables}
               onChange={setVariables}
+              onCases={setBatch}
+              onActiveCase={setEditingCase}
             />
             <button
               className="button button-primary"
-              disabled={simulation.isPending || !safeEnvironments.length}
+              disabled={simulation.isPending || !canSimulate}
               type="submit"
               data-tutorial-id="simulator-submit"
             >
@@ -168,74 +218,63 @@ export function SimulatorPage() {
             </button>
           </form>
         </Panel>
-        <Panel title="Resultado de simulación" meta={result?.status ?? 'WAITING'}>
-          <div className="simulation-result">
-            <StatusBadge value={result?.outcome ?? 'WAITING'} />
-            <strong>{formatValue(primaryResult?.value ?? result?.outcome)}</strong>
-            {primaryResult ? (
-              <small className="primary-result-label">
-                Resultado principal · {primaryResult.code}
-              </small>
-            ) : null}
-            <dl className="dynamic-output-grid">
-              {Object.entries(result?.output ?? {}).map(([key, value]) => (
-                <div key={key}>
-                  <dt>{key}</dt>
-                  <dd>{formatValue(value)}</dd>
-                </div>
-              ))}
-            </dl>
-            {result?.reasonCodes.map((reason) => (
-              <article key={reason.code}>
-                <span>{reason.code}</span>
-                <p>{reason.message ?? reason.category ?? 'Sin mensaje público'}</p>
-              </article>
-            ))}
-            {variableErrors.length ? (
-              <Alert tone="warning">
-                No se pudo decidir porque faltan o no son válidas estas variables de entrada:
-                <ul className="simulator-error-list">
-                  {variableErrors.map((error, index) => (
-                    <li key={index}>
-                      <b>{display(error, 'variableCode', 'code')}</b>{' '}
-                      {display(error, 'message', 'errorCode')}
-                    </li>
-                  ))}
-                </ul>
-                Corrígelas en el formulario de la izquierda y vuelve a ejecutar.
-              </Alert>
-            ) : null}
-            <button
-              className="button"
-              type="button"
-              disabled={!traceSteps}
-              aria-expanded={showTrace}
-              onClick={() => setShowTrace((visible) => !visible)}
-            >
-              <GitBranch size={16} /> {showTrace ? 'Ocultar traza' : 'Ver traza de ejecución'}
-            </button>
-            {result && !traceSteps ? (
-              <small className="field-hint">
-                Esta ejecución no recorrió ningún nodo, así que no hay traza que mostrar.
-              </small>
-            ) : null}
-            {showTrace && result ? (
-              debugSteps.length ? (
-                <div className="simulator-debug">
-                  <p className="field-hint">
-                    Recorrido paso a paso. Cada nodo muestra qué recibió, qué calculó y qué dejó
-                    disponible para los siguientes: así se ve dónde nació cada variable intermedia y
-                    con qué valor llegó a la decisión final.
-                  </p>
-                  <NodeVariableStatePanel trace={debugSteps} />
-                </div>
-              ) : (
-                <JsonPanel label="Traza dry-run" value={result.trace} />
-              )
-            ) : null}
-          </div>
-        </Panel>
+        <SimulationResultPanel
+          entries={entries}
+          index={activeResult}
+          onIndex={(next) => {
+            setActiveResult(next);
+            // La traza pertenece al caso que se estaba mirando: dejarla abierta
+            // al cambiar de caso enseñaría el recorrido del anterior.
+            setShowTrace(false);
+          }}
+        >
+          <button
+            className="button"
+            type="button"
+            disabled={!traceSteps}
+            aria-expanded={showTrace}
+            onClick={() => setShowTrace((visible) => !visible)}
+          >
+            <GitBranch size={16} /> {showTrace ? 'Ocultar traza' : 'Ver traza de ejecución'}
+          </button>
+          {result && !traceSteps ? (
+            <small className="field-hint">
+              Esta ejecución no recorrió ningún nodo, así que no hay traza que mostrar.
+            </small>
+          ) : null}
+        </SimulationResultPanel>
       </div>
+      {/*
+        La traza va DEBAJO de las dos columnas, a lo ancho, y no dentro del panel
+        de resultado.
+        Medido: en la columna de resultado el contenedor daba 294 px y la tabla
+        necesitaba 622 —seis columnas: variable, antes, después, productora,
+        creada en, consumida por—. Desplazaba, sí, pero enseñaba menos de la
+        mitad y la barra horizontal de un panel interior es fácil de no ver:
+        parecía que la traza salía cortada. A lo ancho cabe entera.
+      */}
+      {showTrace && result ? (
+        debugSteps.length ? (
+          <Panel title="Traza de ejecución" meta={`${debugSteps.length} pasos`}>
+            <div className="simulator-debug">
+              <p className="field-hint">
+                Recorrido paso a paso. Cada nodo muestra qué recibió, qué calculó y qué dejó
+                disponible para los siguientes: así se ve dónde nació cada variable intermedia y con
+                qué valor llegó a la decisión final.
+              </p>
+              {/* Una traza se mira aquí pero se analiza en otro sitio: en un
+                  ticket, comparada con la de ayer, o pasada por `jq`. */}
+              <TraceActions trace={result.trace} name={result.requestId} />
+              <NodeVariableStatePanel trace={debugSteps} />
+            </div>
+          </Panel>
+        ) : (
+          <Panel title="Traza dry-run" meta="sin recorrido por nodo">
+            <TraceActions trace={result.trace} name={result.requestId} />
+            <JsonPanel label="Traza dry-run" value={result.trace} />
+          </Panel>
+        )
+      ) : null}
       {simulation.isError ? <Alert tone="error">{errorMessage(simulation.error)}</Alert> : null}
     </>
   );

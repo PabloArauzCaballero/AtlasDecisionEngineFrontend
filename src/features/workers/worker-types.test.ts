@@ -58,6 +58,13 @@ describe('tiempo transcurrido', () => {
     expect(elapsedLabel('2026-08-04T10:00:00.000Z', '2026-08-04T10:02:05.000Z')).toBe('2 min 5 s');
   });
 
+  it('sube a horas y a días en vez de acumular minutos', () => {
+    // El historial de un worker llega a semanas. «hace 1052 min 13 s» obliga a
+    // dividir de cabeza por 60 para enterarse de que fue ayer.
+    expect(elapsedLabel('2026-08-04T10:00:00.000Z', '2026-08-04T13:30:00.000Z')).toBe('3 h 30 min');
+    expect(elapsedLabel('2026-08-04T10:00:00.000Z', '2026-08-06T14:00:00.000Z')).toBe('2 d 4 h');
+  });
+
   it('no inventa una duración cuando no hay inicio', () => {
     expect(elapsedLabel(null)).toBeNull();
     expect(elapsedLabel(undefined)).toBeNull();

@@ -122,15 +122,25 @@
   .editor-toolbar-actions {
     width: 100%;
   }
+  /*
+   * `flex: 0 0 auto` les prohibía encogerse, y la fila de pasos de autoría se
+   * salía 150 px en una ventana de 320. No se ocultan —dicen en qué punto del
+   * trabajo está el grafo—: envuelven, que es lo que `0 0 auto` impedía.
+   */
   .graph-authoring-steps,
   .graph-editor-counts {
-    flex: 0 0 auto;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    min-width: 0;
   }
   .environment-grid {
     grid-template-columns: 1fr;
   }
+  /* El sangrado negativo se ata al margen real de la página: con un número fijo
+     se pasaba de largo en cuanto `--gutter` bajaba de 18 px, y el borde del
+     editor sobresalía 1 px por cada lado. */
   .graph-editor-page {
-    margin: -24px -18px;
+    margin: calc(-1 * var(--stack-gap)) calc(-1 * var(--gutter));
   }
 }
 @media (max-width: 560px) {

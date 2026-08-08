@@ -1,0 +1,162 @@
+/* Los dos carriles del banco de trabajo: la biblioteca de bloques (izquierda) y
+   el panel de propiedades (derecha), con sus cabeceras y su estado vacío. */
+
+.node-library,
+.node-properties {
+  overflow: auto;
+  background: var(--surface);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.node-library {
+  border-right: 1px solid var(--line);
+}
+.node-properties {
+  border-left: 1px solid var(--line);
+}
+.workbench-heading {
+  display: grid;
+  gap: 2px;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-inset);
+}
+.workbench-heading strong {
+  font-size: 13px;
+}
+.workbench-heading small {
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.4;
+}
+.node-library section,
+.node-properties section {
+  padding: 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.node-library h3,
+.node-properties h3,
+.validation-group h3 {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.node-library .library-node {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin: 7px 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  font-size: 11px;
+  cursor: grab;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+.node-library .library-node:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.07);
+  transform: translateY(-1px);
+}
+.library-node-icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--line-soft);
+  color: var(--muted);
+}
+.library-node > span:nth-child(2) {
+  min-width: 0;
+}
+.library-node strong,
+.library-node small {
+  display: block;
+}
+.library-node strong {
+  color: var(--text);
+  font-size: 11px;
+}
+.library-node small {
+  overflow: hidden;
+  margin-top: 2px;
+  color: var(--faint);
+  font-size: 8.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.library-node b {
+  color: var(--faint);
+  font-size: 15px;
+}
+.library-node-condition .library-node-icon {
+  background: var(--highlight-wash);
+  color: var(--highlight);
+}
+.library-node-result .library-node-icon {
+  background: var(--success-wash);
+  color: var(--success);
+}
+.library-node-manual_review .library-node-icon {
+  background: var(--warning-wash);
+  color: var(--warning);
+}
+.library-node-end .library-node-icon {
+  background: var(--danger-wash);
+  color: var(--danger-strong);
+}
+.library-node-expression .library-node-icon {
+  background: var(--info-wash);
+  color: var(--info);
+}
+.library-node-score .library-node-icon {
+  background: var(--info-wash);
+  color: var(--info);
+}
+.library-tip {
+  display: grid;
+  gap: 4px;
+  margin: 14px;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--success-wash);
+  color: var(--accent);
+  font-size: 9px;
+  line-height: 1.45;
+}
+.library-tip strong {
+  color: var(--accent);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.properties-empty-state {
+  display: grid;
+  gap: 6px;
+  color: var(--faint);
+  line-height: 1.5;
+}
+.properties-empty-state strong,
+.properties-empty-state p {
+  margin: 0;
+}
+.properties-empty-state strong {
+  color: var(--text);
+  font-size: 11px;
+}
+.properties-empty-state p {
+  font-size: 10px;
+}

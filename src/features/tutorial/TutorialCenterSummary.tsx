@@ -41,7 +41,9 @@ export function TutorialCenterSummary({ summary, recommended, onStart }: Props) 
           aria-valuemax={100}
           aria-label="Avance general de tutoriales"
         >
-          <span style={{ width: `${summary.percent}%` }} />
+          {/* Sin relleno cuando no hay avance: el `min-width` que hace visible
+              un 3 % pintaría también un 0 %, y eso sería mentir. */}
+          {summary.percent > 0 ? <span style={{ width: `${summary.percent}%` }} /> : null}
         </div>
         <ul className="tutorial-center-tally">
           <li>

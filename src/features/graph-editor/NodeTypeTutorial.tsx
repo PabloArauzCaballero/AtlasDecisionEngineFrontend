@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, GraduationCap } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, GraduationCap, Lightbulb } from 'lucide-react';
 import { useState } from 'react';
 import { NODE_CATALOG, type NodeTypeDefinition } from './node-catalog';
 import { CONDITION_ORIGIN, tutorialFor } from './node-tutorials';
@@ -42,12 +42,22 @@ export function NodeTypeTutorial({ nodeType }: Props) {
           <p className="node-tutorial-what">{definition.description}</p>
           <p className="node-tutorial-flow">{definition.dataFlow}</p>
 
+          {/* El ejemplo va ANTES de los pasos: un tipo de nodo abstracto no se
+              entiende, y leer «elige la variable que quieres comparar» sin saber
+              para qué obliga a releerlo todo al llegar al final. */}
+          <p className="node-tutorial-example">
+            <Lightbulb size={13} aria-hidden /> {tutorial.example}
+          </p>
+
           <ol>
             {tutorial.steps.map((step) => (
               <li key={step}>{step}</li>
             ))}
           </ol>
 
+          <p className="node-tutorial-check">
+            <CheckCircle2 size={13} aria-hidden /> <b>Quedó bien si:</b> {tutorial.check}
+          </p>
           <p className="node-tutorial-pitfall">
             <AlertTriangle size={13} aria-hidden /> {tutorial.pitfall}
           </p>

@@ -1,5 +1,44 @@
 /* Barra de valores de prueba del simulador: generar desde el contrato o subir JSON/CSV.
    Sólo tokens; un hex escrito a mano quedaría ilegible al conmutar el tema. */
+/*
+ * Paginador de la tanda: un resultado por cada caso generado.
+ *
+ * La posición va en medio y con su propio ancho flexible para que los dos
+ * botones no se muevan al pasar de «Caso 1 de 5» a «Caso 10 de 12»: un control
+ * que salta de sitio obliga a volver a apuntar en cada paso.
+ */
+.simulation-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.simulation-pager-position {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/*
+ * Llevarse la traza: al portapapeles o a un archivo.
+ *
+ * Vive aquí y no en `execution-playback.css` por el límite de 299 líneas de ese
+ * archivo; comparte sitio con la barra de valores de prueba porque las dos son
+ * lo que rodea a una simulación, no la simulación misma.
+ */
+.trace-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0 0 var(--space-3);
+}
+
 .sample-bar {
   display: grid;
   gap: 10px;

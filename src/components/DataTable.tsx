@@ -2,9 +2,10 @@
 
 import { ChevronDown, ChevronRight, ChevronsUpDown, SortAsc, SortDesc } from 'lucide-react';
 import { Fragment, useState } from 'react';
+import { NavLink } from '../navigation/NavLink';
 import { resolvePath } from '../utils/records';
 import { ActionIcon } from './ActionIcon';
-import type { ActionKey } from './action-catalog';
+import { ACTIONS, type ActionKey } from './action-catalog';
 import { DataTableToolbar, type TableDensity } from './DataTableToolbar';
 import { InfoHint } from './InfoHint';
 import { StatusBadge } from './StatusBadge';
@@ -43,6 +44,9 @@ export interface TableColumn<T> {
    */
   wrap?: boolean;
 }
+
+/** Mismo icono que el botón de la fila: el catálogo es la única verdad. */
+const DetailIcon = ACTIONS.view.icon;
 
 export interface RowAction {
   action: ActionKey;
@@ -137,7 +141,11 @@ export function DataTable<T extends Record<string, unknown>>({
                   onSort={() => setSort((current) => nextSort(current, column.key))}
                 />
               ))}
-              {hasActions ? <th scope="col">Acciones</th> : null}
+              {hasActions ? (
+                <th scope="col" className="table-actions">
+                  Acciones
+                </th>
+              ) : null}
             </tr>
           </thead>
           <tbody>
@@ -179,7 +187,7 @@ export function DataTable<T extends Record<string, unknown>>({
                       );
                     })}
                     {hasActions ? (
-                      <td>
+                      <td className="table-actions">
                         <div className="action-row">
                           {rowActions ? (
                             rowActions(row).map((rowAction, index) => (
@@ -195,18 +203,36 @@ export function DataTable<T extends Record<string, unknown>>({
                   {open ? (
                     <tr className="table-detail-row">
                       <td colSpan={span}>
-                        <dl className="table-detail row-expand">
-                          {columns.map((column) => (
-                            <div key={column.key}>
-                              <dt>{column.label}</dt>
-                              <dd>
-                                {formatCell(
-                                  column.path ? resolvePath(row, column.path) : row[column.key],
-                                )}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
+                        <div className="table-detail row-expand">
+                          <dl className="table-detail-grid">
+                            {columns.map((column) => (
+                              <div key={column.key}>
+                                <dt>{column.label}</dt>
+                                <dd>
+                                  {formatCell(
+                                    column.path ? resolvePath(row, column.path) : row[column.key],
+                                  )}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                          {/*
+                           * El icono de la última columna dice «Ver detalle» sólo
+                           * al posarse encima, y en una tabla ancha vive fuera de
+                           * la parte visible. Quien despliega una fila está justo
+                           * buscando saber más de ELLA: aquí el mismo destino se
+                           * ofrece con su nombre escrito.
+                           */}
+                          {detailPath ? (
+                            <NavLink
+                              className="button table-detail-open"
+                              href={detailPath(row)}
+                              showSpinner
+                            >
+                              <DetailIcon size={15} aria-hidden /> {ACTIONS.view.label}
+                            </NavLink>
+                          ) : null}
+                        </div>
                       </td>
                     </tr>
                   ) : null}

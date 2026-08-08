@@ -1,21 +1,24 @@
 /* Tarjetas del Centro de Tutoriales: una por recorrido, con su estado.
    Separado de tutorial-center.css para respetar el limite de 299 lineas. */
 
-/* — Grupos y tarjetas — */
+/* — Grupos — */
 .tutorial-center-group + .tutorial-center-group {
   margin-top: var(--space-5);
 }
 .tutorial-center-group > h2 {
   margin: 0 0 var(--space-3);
-  font-size: 0.8rem;
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--faint);
 }
 
 .tutorial-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
   gap: var(--space-3);
 }
 
@@ -26,107 +29,120 @@
   padding: var(--space-4);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-left: 3px solid var(--line-strong);
   border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease;
 }
-/* El borde izquierdo refuerza el estado, pero nunca lo comunica solo: la
-   etiqueta con icono y palabra va siempre en la cabecera de la tarjeta. */
-.tutorial-card-completed {
-  border-left-color: var(--success);
-}
-.tutorial-card-in-progress {
-  border-left-color: var(--info);
-}
-.tutorial-card-outdated {
-  border-left-color: var(--warning);
+.tutorial-card:hover {
+  border-color: var(--line-strong);
 }
 
-.tutorial-card header {
+/* El título manda; el distintivo no se encoge ni lo empuja. */
+.tutorial-card-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-2);
 }
-.tutorial-card-category {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--faint);
-}
-.tutorial-card-state {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  font-size: 0.7rem;
-  background: var(--surface-sunken);
-  color: var(--text-muted);
-  border: 1px solid var(--line-soft);
-}
-.tutorial-state-completed {
-  background: var(--success-wash);
-  color: var(--success-text);
-  border-color: var(--success-line);
-}
-.tutorial-state-in-progress {
-  background: var(--info-wash);
-  color: var(--info);
-  border-color: var(--info-line);
-}
-.tutorial-state-outdated {
-  background: var(--warning-wash);
-  color: var(--warning-text);
-  border-color: var(--warning-line);
-}
-
 .tutorial-card h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.94rem;
+  line-height: 1.35;
   color: var(--ink);
 }
+.tutorial-card-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tutorial-badge-success {
+  background: var(--success-wash);
+  color: var(--success-text);
+}
+.tutorial-badge-info {
+  background: var(--info-wash);
+  color: var(--info-strong);
+}
+.tutorial-badge-warning {
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+
+/*
+ * Tres líneas y punto.
+ *
+ * Sin recorte, una descripción larga estiraba su tarjeta y —como la rejilla
+ * iguala las alturas de la fila— abría un hueco muerto enorme bajo las cortas,
+ * con el botón flotando al fondo. Recortando, las tarjetas miden casi lo mismo
+ * y la rejilla se lee como una rejilla. El texto completo vive en el propio
+ * recorrido, así que aquí no se pierde nada.
+ */
 .tutorial-card-intro {
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.5;
   color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.tutorial-card-facts {
+
+/* Datos de apoyo en una línea con puntos medios. Eran cuatro cápsulas grises:
+   demasiado peso visual para decir "4 min" y "3 pasos". */
+.tutorial-card-meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
   margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.72rem;
+  font-size: 0.73rem;
   color: var(--text-muted);
 }
-.tutorial-card-facts li {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
-  background: var(--surface-sunken);
-  border-radius: var(--radius-sm);
+.tutorial-card-meta > span + span::before {
+  content: '·';
+  margin-right: var(--space-2);
+  color: var(--line-strong);
 }
 .tutorial-card-essential {
   color: var(--accent-strong);
-  background: var(--accent-wash) !important;
+  font-weight: 500;
 }
-.tutorial-card-note {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
+
+.tutorial-card-notes:empty {
+  display: none;
+}
+.tutorial-card-notes p {
   margin: 0;
   font-size: 0.76rem;
+  line-height: 1.4;
   color: var(--text-muted);
 }
-.tutorial-card-prereq {
-  color: var(--warning-text);
-}
+
+/* `auto` alinea la acción al fondo en toda la fila; con el recorte de tres
+   líneas el hueco que deja ya es pequeño. */
 .tutorial-card-actions {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
   margin-top: auto;
-  padding-top: var(--space-2);
+  padding-top: var(--space-3);
+}
+/* El botón mide lo que dice, no todo el ancho: a ancho completo se leía como
+   una barra maciza por tarjeta y la rejilla se volvía una escalera de bloques. */
+.tutorial-card-actions .button {
+  margin-right: auto;
+}
+.tutorial-card-restart {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+.tutorial-card-restart:hover {
+  color: var(--ink);
 }

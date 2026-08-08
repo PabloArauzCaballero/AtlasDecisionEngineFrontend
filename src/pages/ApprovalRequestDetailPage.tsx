@@ -10,7 +10,8 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { useAuth } from '../auth/useAuth';
-import { isPassingGate, readGates } from '../features/governance/approval-gates';
+import { isPassingGate } from '../features/governance/approval-gates';
+import { useVersionGates } from '../features/governance/useVersionGates';
 import { DecisionConfirmDialog } from '../features/governance/DecisionConfirmDialog';
 import { evaluateDecisionGate } from '../features/governance/decision-policy';
 import { buildDiffBases } from '../features/governance/diff-bases';
@@ -40,7 +41,7 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
   const steps = asRows(request.steps);
 
   const gate = evaluateDecisionGate(request, user);
-  const gates = readGates(request, version);
+  const { gates, loading: gatesLoading, deniedEvidence } = useVersionGates(request, version);
   const { heads } = useArtifactHeads(display(artifact, 'artifactCode'));
   const requestLabel = `REQ-${display(request, 'id')}`;
   const decide = useApprovalDecision({
@@ -145,7 +146,13 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
           </Panel>
           <Panel
             title="Resultados de Pruebas (Gates)"
-            meta={gates.reported ? `${gates.rows.length} reportados` : 'Sin datos del backend'}
+            meta={
+              gatesLoading
+                ? 'Leyendo evidencia…'
+                : gates.reported
+                  ? `${gates.rows.length} reportados`
+                  : 'Sin datos del backend'
+            }
           >
             {gates.reported ? (
               <ul className="gate-list">
@@ -159,11 +166,13 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
                   </li>
                 ))}
               </ul>
+            ) : gatesLoading ? (
+              <p className="muted-text">Consultando las suites y corridas de esta versión…</p>
             ) : (
               <Alert tone="warning">
-                El backend no envió resultados de gates para esta solicitud. Esta pantalla no puede
-                afirmar que la compilación, las suites bloqueantes o la cobertura hayan pasado:
-                compruébalo en la versión antes de firmar.
+                {deniedEvidence
+                  ? 'Tu rol no puede leer las suites de prueba de esta versión, así que esta pantalla no tiene con qué respaldar la compilación ni las corridas bloqueantes. Pídeselo a QA o revísalo en la versión antes de firmar.'
+                  : 'Esta versión no tiene suites de prueba ni compilación registradas, y la solicitud no trae resultados de gates. Esta pantalla no puede afirmar que la compilación, las suites bloqueantes o la cobertura hayan pasado: compruébalo en la versión antes de firmar.'}
               </Alert>
             )}
           </Panel>

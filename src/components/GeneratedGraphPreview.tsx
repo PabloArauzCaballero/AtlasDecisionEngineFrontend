@@ -1,5 +1,6 @@
 import { CornerDownRight, Square } from 'lucide-react';
 import { icons } from '../features/graph-editor/node-types';
+import { ZoomableFlow } from '../features/graph-view/ZoomableFlow';
 import { asRows, display, type UnknownRecord } from '../utils/records';
 
 interface GeneratedGraphPreviewProps {
@@ -36,28 +37,32 @@ export function GeneratedGraphPreview({ nodes, edges = [] }: GeneratedGraphPrevi
   if (!nodes.length) return null;
   const steps = buildSteps(nodes, asRows(edges));
   return (
-    <div className="generated-graph" role="img" aria-label="Vista del grafo generado">
-      {steps.map(({ node, yes }, index) => (
-        <div className="generated-graph-row" key={display(node, 'key')}>
-          {index > 0 ? (
-            <span className="generated-graph-link" aria-hidden="true">
-              {display(nodes[index - 1] ?? {}, 'type') === 'CONDITION' ? 'no' : ''}
-            </span>
-          ) : null}
-          <div className="generated-graph-branch">
-            <NodeCard node={node} />
-            {yes ? (
-              <>
-                <span className="generated-graph-yes">
-                  <CornerDownRight size={13} aria-hidden="true" /> sí
-                </span>
-                <NodeCard node={yes} />
-              </>
+    // La escalera de un import de código real llega a treinta pasos: sin poder alejarla no
+    // se ve la forma del algoritmo, que es justo lo que hay que revisar antes de importar.
+    <ZoomableFlow label="Escala del grafo generado">
+      <div className="generated-graph" role="img" aria-label="Vista del grafo generado">
+        {steps.map(({ node, yes }, index) => (
+          <div className="generated-graph-row" key={display(node, 'key')}>
+            {index > 0 ? (
+              <span className="generated-graph-link" aria-hidden="true">
+                {display(nodes[index - 1] ?? {}, 'type') === 'CONDITION' ? 'no' : ''}
+              </span>
             ) : null}
+            <div className="generated-graph-branch">
+              <NodeCard node={node} />
+              {yes ? (
+                <>
+                  <span className="generated-graph-yes">
+                    <CornerDownRight size={13} aria-hidden="true" /> sí
+                  </span>
+                  <NodeCard node={yes} />
+                </>
+              ) : null}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </ZoomableFlow>
   );
 }
 

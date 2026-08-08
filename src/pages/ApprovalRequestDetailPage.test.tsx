@@ -85,12 +85,57 @@ describe('ApprovalRequestDetailPage', () => {
     expect(screen.queryByRole('button', { name: /Rechazar/ })).not.toBeInTheDocument();
   });
 
-  it('no afirma que los gates pasaron cuando el backend no los envía', async () => {
+  it('no afirma que los gates pasaron cuando no hay evidencia que lo respalde', async () => {
     currentUser = userWith(['RISK_APPROVER']);
     renderPage();
 
-    expect(await screen.findByText(/no envió resultados de gates/)).toBeInTheDocument();
+    expect(await screen.findByText(/no puede afirmar que la compilación/)).toBeInTheDocument();
     expect(screen.queryByText('PASSED')).not.toBeInTheDocument();
+  });
+
+  /*
+   * El `checksum` de la versión NO es evidencia de compilación: existe también
+   * en un borrador que nunca se compiló. La fixture lo trae, así que si algún
+   * día alguien lo usa para rellenar la fila, esta prueba lo delata.
+   */
+  it('no toma el checksum de la versión por una compilación aprobada', async () => {
+    currentUser = userWith(['RISK_APPROVER']);
+    renderPage();
+
+    await screen.findByText(/no puede afirmar que la compilación/);
+    expect(screen.queryByText('Compilación determinista')).not.toBeInTheDocument();
+  });
+
+  it('pinta la evidencia real cuando el motor sí la publica', async () => {
+    currentUser = userWith(['RISK_APPROVER']);
+    mockedApiRequest.mockImplementation(async (path) => {
+      if (path.startsWith('/v1/approval-requests/')) return REQUEST;
+      if (path.includes('/test-suites')) {
+        return {
+          items: [
+            {
+              id: '9',
+              suiteCode: 'REGRESION_BLOQUEANTE',
+              isBlocking: true,
+              cases: [{ id: 'c1' }, { id: 'c2' }],
+              runs: [{ id: '77', status: 'PASSED', finishedAt: '2026-08-01T10:00:00Z' }],
+            },
+          ],
+        };
+      }
+      if (path.startsWith('/v1/artifact-versions/')) {
+        return {
+          id: '55',
+          compiledArtifacts: [{ id: '3', compileStatus: 'SUCCESS', compilerVersion: '2.1.0' }],
+        };
+      }
+      return {};
+    });
+    renderPage();
+
+    expect(await screen.findByText('REGRESION_BLOQUEANTE')).toBeInTheDocument();
+    expect(screen.getByText('Compilación determinista')).toBeInTheDocument();
+    expect(screen.queryByText(/no puede afirmar que la compilación/)).not.toBeInTheDocument();
   });
 
   it('exige confirmación explícita antes de firmar y manda la clave de idempotencia', async () => {

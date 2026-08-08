@@ -125,6 +125,17 @@ export interface ResourceConfig {
   createFields?: readonly CreateField[];
   /** Constant payload defaults deep-merged under the create form values (e.g. required arrays). */
   createStaticBody?: Record<string, unknown>;
+  /**
+   * Roles que pueden dar de alta en este recurso, cuando el alta es más
+   * restrictiva que la lectura de la ruta. Sale de `auth/business-rules.ts`, que
+   * es donde vive la regla; aquí sólo se declara cuál aplica.
+   *
+   * Sin declararlo, el alta hereda el permiso de la ruta. Ese es el caso normal:
+   * este campo es para los recursos donde consultar y crear NO son lo mismo.
+   */
+  createRoles?: readonly string[];
+  /** Qué decirle a quien no puede crear. Sin esto, el botón se apaga sin explicación. */
+  createDeniedHint?: string;
   detailPath?: (row: ResourceRow) => string;
   /** Extra filters wired to real backend query params, shown under "Más filtros". */
   filters?: readonly ResourceFilter[];

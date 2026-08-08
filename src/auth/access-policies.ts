@@ -1,3 +1,16 @@
+/**
+ * Regla de negocio: el analista de riesgo NO edita reglas de decisión.
+ *
+ * `RISK_ANALYST` es un rol de consulta y de operación sobre casos: lee el
+ * catálogo, los artefactos, las ejecuciones y la auditoría, y resuelve la cola
+ * de revisión manual. No aparece en ninguna política de AUTORÍA —grafo,
+ * acciones, importación de código, suites, QA Lab, simulador— porque no
+ * programa, y una regla de decisión es exactamente lo que no debe poder tocar.
+ *
+ * Quien propone cambios es el tester (`QA_ANALYST`) y el analista de fraude
+ * (`FRAUD_ANALYST`); quien da de alta artefactos y publica en producción es
+ * `PLATFORM_ADMIN`. Ver `business-rules.ts`, que es donde vive esa parte.
+ */
 export const accessPolicies = {
   platformHealth: [] as const,
   // Search spans every domain; each hit still gates at its target route.
@@ -5,15 +18,34 @@ export const accessPolicies = {
   // El Centro de Tutoriales es abierto como la búsqueda: la lista se recorta por
   // rol dentro de la vista, y cada recorrido hereda el permiso de su pantalla.
   tutorials: [] as const,
-  catalogRead: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
+  // Leer el catálogo es amplio; el alta se estrecha en `resource.config.ts` con
+  // `createRoles`, porque declarar una variable es autoría y consultarla no.
+  catalogRead: ['RISK_ANALYST', 'QA_ANALYST', 'FRAUD_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   artifacts: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'AUDITOR'] as const,
-  graphAuthoring: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,
-  artifactCompile: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST'] as const,
-  qualityAuthoring: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
+  graphAuthoring: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
+  artifactCompile: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
+  qualityAuthoring: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
   coverageRead: ['QA_ANALYST', 'RISK_ANALYST', 'AUDITOR'] as const,
-  governanceReview: ['QA_ANALYST', 'RISK_APPROVER', 'COMPLIANCE', 'AUDITOR'] as const,
-  environments: ['PLATFORM_ADMIN', 'RISK_ANALYST', 'QA_ANALYST', 'AUDITOR'] as const,
-  simulator: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST'] as const,
+  // `FRAUD_ANALYST` entra como solicitante: quien propone un cambio necesita
+  // enviarlo a revisión y seguir su solicitud. Firmar cada paso lo sigue
+  // decidiendo el `requiredRole` que el backend declara (`decision-policy.ts`).
+  governanceReview: [
+    'QA_ANALYST',
+    'FRAUD_ANALYST',
+    'RISK_APPROVER',
+    'COMPLIANCE',
+    'AUDITOR',
+  ] as const,
+  environments: [
+    'PLATFORM_ADMIN',
+    'RISK_ANALYST',
+    'QA_ANALYST',
+    'FRAUD_ANALYST',
+    'AUDITOR',
+  ] as const,
+  // Simular ejecuta el motor con entradas inventadas: es una herramienta de
+  // autoría, no de consulta. El analista de riesgo ve las ejecuciones reales.
+  simulator: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
   manualReview: ['OPERATIONS', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
   executionAudit: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST', 'OPERATIONS'] as const,
   auditEvents: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST'] as const,
@@ -22,7 +54,7 @@ export const accessPolicies = {
   // GET /v1/artifacts/{id}/dependency-graph (see docs/nested-decision-trees.md).
   nestedTrees: ['RISK_ANALYST', 'FRAUD_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   // Fase 5 — code-to-flow import. Write actions mirror graphAuthoring on the backend.
-  codeImport: ['RISK_ANALYST', 'FRAUD_ANALYST'] as const,
+  codeImport: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
   // Fase 10 — security team dashboard. Mirrors the backend's SECURITY_TEAM_ROLES.
   securityReview: ['COMPLIANCE', 'FRAUD_ANALYST', 'RISK_APPROVER', 'AUDITOR'] as const,
   // §5 — campos calculados reutilizables. Leerlos es catálogo; crear versiones exige el
@@ -44,7 +76,7 @@ export const accessPolicies = {
     'PLATFORM_ADMIN',
   ] as const,
   // §10 — QA Lab. Mismos roles que la autoría de calidad: una corrida ejecuta el motor.
-  qaLab: ['QA_ANALYST', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
+  qaLab: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
   // ADR-0026 — workers adicionales (análisis semántico y extractos bancarios).
   //
   // Es el permiso de VER la pestaña, y por eso es amplio: incluye a quien

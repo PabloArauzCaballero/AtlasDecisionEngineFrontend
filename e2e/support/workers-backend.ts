@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 import { MOCK_SESSION } from './backend-mock';
+import { WORKER_HISTORY, WORKER_METRICS } from './workers-history';
+import { SEMANTIC_RESULT, STATEMENT_RESULT } from './workers-results';
 
 /**
  * Motor simulado para las vistas de worker.
@@ -26,8 +28,9 @@ import { MOCK_SESSION } from './backend-mock';
 const CATALOG = [
   {
     code: 'semantic-analysis',
-    name: 'Análisis semántico',
-    description: 'Clasifica un texto libre contra el catálogo de categorías.',
+    name: 'Clasificación de gastos',
+    description:
+      'Clasifica la descripción de un movimiento contra el árbol de categorías de gasto e ingreso.',
     acceptedInputs: ['Texto libre', 'Escenario de prueba'],
     limits: { maxTextLength: 8000 },
     available: true,
@@ -44,141 +47,57 @@ const CATALOG = [
   },
 ];
 
-const FIXTURES = [
-  {
-    code: 'valid-basic',
-    name: 'Caso básico',
-    description: 'El camino feliz: debe terminar en éxito.',
-    preview: 'Hay un cargo en mi tarjeta que yo no hice.',
-    expectsFailure: false,
-  },
-  {
-    code: 'invalid-example',
-    name: 'Entrada inválida',
-    description: 'Debe rechazarse con un error controlado.',
-    preview: '(texto vacío tras normalizar)',
-    expectsFailure: true,
-  },
-];
-
-const SEMANTIC_RESULT = {
-  requestId: 'run-semantico',
-  status: 'MATCH',
-  normalizedText: 'hay un cargo en mi tarjeta que yo no hice',
-  entities: [
+/**
+ * Escenarios, **uno por worker**.
+ *
+ * Los dos publican catálogos independientes y sus códigos no coinciden: el
+ * clasificador sirve `gasto-claro` y el de extractos `valid-basic`. El simulado
+ * los tenía fundidos en una sola lista, y funcionaba sólo porque entonces los
+ * dos usaban el mismo código; en cuanto dejaron de coincidir, la vista de
+ * extractos recibió el catálogo del clasificador y su selector se quedó sin la
+ * opción que la prueba elige. Un simulado que reparte el mismo catálogo a todo
+ * el mundo no prueba el catálogo, prueba la coincidencia.
+ */
+const FIXTURES = {
+  'semantic-analysis': [
     {
-      type: 'INSTITUCION',
-      canonicalName: 'Banco Ganadero',
-      sourceText: 'Ganadero',
-      confidence: 0.9,
+      code: 'gasto-claro',
+      name: 'Gasto de categoría clara',
+      description: 'El camino feliz: debe terminar en éxito.',
+      preview: 'COMPRA EN SUPERMERCADO HIPERMAXI SUCURSAL NORTE BS 487,90',
+      expectsFailure: false,
+    },
+    {
+      code: 'invalid-example',
+      name: 'Entrada inválida',
+      description: 'Debe rechazarse con un error controlado.',
+      preview: '(texto vacío tras normalizar)',
+      expectsFailure: true,
     },
   ],
-  matches: [
+  'bank-statement': [
     {
-      categoryCode: 'COBRO_NO_RECONOCIDO',
-      confidence: 0.91,
-      supported: true,
-      contradicted: false,
-      evidence: ['«un cargo que yo no hice» afirma desconocimiento del cargo'],
-      rationale: 'El texto desconoce un cargo ya aplicado.',
+      code: 'valid-basic',
+      name: 'Caso básico',
+      description: 'El camino feliz: debe terminar en éxito.',
+      preview: 'Extracto de una página con dos movimientos.',
+      expectsFailure: false,
+    },
+    {
+      code: 'invalid-example',
+      name: 'Entrada inválida',
+      description: 'Debe rechazarse con un error controlado.',
+      preview: '(PDF ilegible)',
+      expectsFailure: true,
     },
   ],
-  evaluatedCategoryCodes: ['COBRO_NO_RECONOCIDO', 'FRAUDE_SOSPECHADO'],
-  tierUsed: 'FAST',
-  model: 'gpt-4o-mini',
-  modelVersion: '2026-05',
-  processingTimeMs: 812,
-};
-
-const STATEMENT_RESULT = {
-  source: { fileName: 'extracto.pdf', fileHash: 'abc123', pageCount: 1, extractionMethod: 'TEXT' },
-  institution: {
-    id: 'BGA',
-    name: 'Banco Ganadero S.A.',
-    normalizedName: 'banco ganadero',
-    country: 'BO',
-    detected: true,
-    confidence: 0.98,
-  },
-  // Enmascarada SIEMPRE: la vista no debe poder enseñar un número completo ni
-  // aunque el motor se equivocara, y esto lo deja comprobable desde la prueba.
-  account: {
-    holderName: 'CLIENTE DE PRUEBA',
-    accountNumberMasked: '******7890',
-    accountType: 'CORRIENTE',
-    currency: 'BOB',
-    allAccountsMasked: ['******7890'],
-  },
-  period: { from: '2026-03-01', to: '2026-03-31' },
-  balances: { opening: 10000, closing: 11250 },
-  totals: { debit: 250, credit: 1500 },
-  processing: {
-    documentType: 'BANK_STATEMENT',
-    strategyId: 'generic:table-inference-v1',
-    strategyKind: 'GENERIC',
-    strategyVersion: '1',
-    detectionReasons: [],
-    durationMs: 2868,
-  },
-  transactions: [
-    {
-      id: 't1',
-      index: 0,
-      transactionDate: '2026-03-02',
-      valueDate: null,
-      description: 'PAGO SERVICIOS (CUOTA 3)',
-      reference: null,
-      documentNumber: null,
-      debit: 250,
-      credit: null,
-      amount: -250,
-      balance: 9750,
-      currency: 'BOB',
-      movementType: 'DEBIT',
-      channel: null,
-      branch: null,
-      rawText: null,
-      accountMasked: '******7890',
-    },
-    {
-      id: 't2',
-      index: 1,
-      transactionDate: '2026-03-05',
-      valueDate: null,
-      description: 'DEPOSITO EN EFECTIVO',
-      reference: null,
-      documentNumber: null,
-      debit: null,
-      credit: 1500,
-      amount: 1500,
-      balance: 11250,
-      currency: 'BOB',
-      movementType: 'CREDIT',
-      channel: null,
-      branch: null,
-      rawText: null,
-      accountMasked: '******7890',
-    },
-  ],
-  quality: {
-    documentConfidence: 0.95,
-    institutionConfidence: 0.98,
-    structureConfidence: 0.9,
-    reconciliationConfidence: 1,
-    overallConfidence: 0.92,
-    band: 'ALTA',
-    checksRun: 6,
-    checksPassed: 6,
-    warnings: ['renglones-no-atribuidos:1'],
-    errors: [],
-  },
-};
+} as const;
 
 function runEnvelope(worker: 'semantic-analysis' | 'bank-statement', poll: number) {
   const base = {
     requestId: `run-${worker}`,
     inputSource: 'FIXTURE',
-    fixtureCode: 'valid-basic',
+    fixtureCode: worker === 'semantic-analysis' ? 'gasto-claro' : 'valid-basic',
     attemptCount: 1,
     queuedAt: '2026-08-04T10:00:00.000Z',
     requestedBy: 'pablo@atlas',
@@ -213,6 +132,16 @@ function runEnvelope(worker: 'semantic-analysis' | 'bank-statement', poll: numbe
   };
 }
 
+/**
+ * A qué worker se dirige la petición.
+ *
+ * Se deriva de la URL y no de un parámetro porque el simulado intercepta todas
+ * las rutas a la vez: las dos consolas conviven montadas en la misma pestaña.
+ */
+function workerOf(url: string): keyof typeof FIXTURES {
+  return url.includes('bank-statement') ? 'bank-statement' : 'semantic-analysis';
+}
+
 /** Instala el motor simulado de workers con un ciclo de vida que progresa. */
 export async function mockWorkersBackend(page: Page): Promise<void> {
   let polls = 0;
@@ -223,15 +152,32 @@ export async function mockWorkersBackend(page: Page): Promise<void> {
 
     if (url.includes('/v1/session/')) return route.fulfill({ json: MOCK_SESSION });
     if (url.includes('/v1/workers/') && url.includes('/fixtures')) {
-      return route.fulfill({ json: FIXTURES });
+      return route.fulfill({ json: FIXTURES[workerOf(url)] });
+    }
+    // Salud del worker: la calcula el motor, la vista sólo la pinta.
+    if (url.includes('/v1/workers/') && url.includes('/metrics')) {
+      return route.fulfill({ json: { ...WORKER_METRICS, worker: workerOf(url) } });
     }
     if (/\/v1\/workers\/?(\?|$)/.test(url)) return route.fulfill({ json: CATALOG });
 
-    const worker = url.includes('bank-statement') ? 'bank-statement' : 'semantic-analysis';
+    const worker = workerOf(url);
 
     if (url.includes('/runs/') && route.request().method() === 'GET') {
       polls += 1;
       return route.fulfill({ json: runEnvelope(worker, polls) });
+    }
+    // El historial del panel de control. Va ANTES del alta porque `/runs` sin
+    // identificador casa con las dos, y sólo el método las distingue.
+    if (url.includes('/runs') && route.request().method() === 'GET') {
+      return route.fulfill({
+        json: {
+          items: WORKER_HISTORY,
+          page: 1,
+          pageSize: 50,
+          total: WORKER_HISTORY.length,
+          totalPages: 1,
+        },
+      });
     }
     if (url.includes('/runs') && route.request().method() === 'POST') {
       polls = 0;

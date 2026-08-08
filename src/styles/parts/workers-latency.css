@@ -1,0 +1,122 @@
+/*
+ * Gráfico de latencia del panel de un worker.
+ *
+ * Vive aparte de `workers-dashboard.css` porque el panel se pasó del tope de
+ * 299 líneas del repositorio, y de todo lo que hay allí el gráfico es la pieza
+ * con junta más limpia: no comparte ni un selector con las constantes vitales,
+ * la cola ni el reparto.
+ *
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+/* --- Gráfico de latencia ---------------------------------------------------- */
+
+.worker-chart {
+  margin: 0;
+}
+
+.worker-chart-plot {
+  position: relative;
+  height: 132px;
+  padding: 0 var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * El ancho de la barra es fijo, no una fracción del contenedor. Antes el dibujo
+ * era un SVG estirado, así que el ancho lo decidía cuántas ejecuciones había:
+ * con cuatro salían cuatro losas de 130 px, bloques de color saturado que
+ * ocupaban el panel entero sin decir nada más que las cuatro cifras impresas
+ * debajo. Lo que se compara aquí es la ALTURA.
+ *
+ * `space-around` y no `flex-end`: probado alineado a la derecha, cuatro barras
+ * se amontonaban en la esquina y dejaban el panel vacío, que se lee como un
+ * gráfico roto y no como «no hay más historia». Repartidas, cada una queda
+ * centrada en su hueco y la serie se recorre igual de izquierda a derecha.
+ */
+.worker-chart-bars {
+  display: flex;
+  gap: 2px;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worker-chart-bar {
+  flex: 0 1 1.375rem;
+  min-width: 4px;
+  border-radius: 2px 2px 0 0;
+  background: var(--accent);
+}
+.worker-chart-bar.is-succeeded_with_warnings {
+  background: var(--warning);
+}
+.worker-chart-bar.is-failed {
+  background: var(--danger);
+}
+.worker-chart-bar.is-cancelled {
+  background: var(--line-strong);
+}
+
+/* Las dos referencias: la mediana marca «lo normal» y el p95 «el techo de lo
+   normal». La primera va más tenue porque la que interesa vigilar es la otra. */
+.worker-chart-reference {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px dashed var(--muted);
+}
+
+.worker-chart-reference.is-p50 {
+  border-top-style: dotted;
+  border-top-color: var(--line-strong);
+}
+
+.worker-chart-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--faint);
+  font-size: 0.6875rem;
+}
+
+.worker-chart-legend {
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.worker-chart-empty {
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.worker-latency-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+}
+
+.worker-latency-facts dt {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.worker-latency-facts dd {
+  margin: 2px 0 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 650;
+}

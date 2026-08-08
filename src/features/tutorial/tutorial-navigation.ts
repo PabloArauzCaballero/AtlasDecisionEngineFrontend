@@ -12,6 +12,21 @@ export interface TutorialRouter {
   push: (route: string) => void;
 }
 
+/**
+ * ¿Está el usuario en la pantalla del paso, o dentro de ella?
+ *
+ * `/artifacts/row-1` cuenta como estar en `/artifacts`: es la ficha que se abre
+ * DESDE ese listado. Sin esta noción de descendencia había una carrera capaz de
+ * romper cualquier recorrido de ficha: al pulsar "Ver detalle", la ruta cambia
+ * antes de que el paso avance, el efecto de navegación se dispara todavía con
+ * el paso del listado y empuja a la persona de vuelta al listado —justo al
+ * entrar—, dejando el recorrido en un bucle del que no se sale.
+ */
+export function isAtRoute(pathname: string | undefined, route: string): boolean {
+  if (!pathname) return false;
+  return pathname === route || pathname.startsWith(`${route}/`);
+}
+
 /** ¿Existe el elemento del paso en el DOM ahora mismo? */
 export function targetExists(selector?: string): boolean {
   return selector ? Boolean(document.querySelector(selector)) : true;
@@ -53,8 +68,12 @@ export function applicableIndex(
  */
 export function routeForStep(tutorial: InteractiveTutorial, index: number): string | null {
   for (let i = Math.min(index, tutorial.steps.length - 1); i >= 0; i -= 1) {
-    const route = tutorial.steps[i]?.route;
-    if (route) return route;
+    const step = tutorial.steps[i];
+    // `dynamicRoute` corta la herencia: a partir de ahí el recorrido ocurre en
+    // la ficha que el usuario haya abierto, cuya ruta el motor no puede
+    // construir. Seguir heredando la del listado lo devolvería allí en bucle.
+    if (step?.dynamicRoute) return null;
+    if (step?.route) return step.route;
   }
   return null;
 }

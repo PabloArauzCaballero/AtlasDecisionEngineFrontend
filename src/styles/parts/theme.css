@@ -100,6 +100,25 @@
   --shadow-md: 0 6px 16px -6px rgba(16, 24, 40, 0.18), 0 2px 5px -2px rgba(16, 24, 40, 0.1);
   --shadow-lg: 0 24px 60px -24px rgba(16, 24, 40, 0.22);
   --focus-ring: rgba(37, 99, 235, 0.3);
+
+  /*
+   * Carriles del historial de versiones.
+   *
+   * Aquí el color NO significa estado ni gravedad: distingue una rama de otra,
+   * igual que en cualquier visor de git. Por eso es una secuencia propia y no
+   * reutiliza `--danger`/`--success`: un carril rojo se leería como «esta rama
+   * va mal», que es exactamente lo que no dice.
+   *
+   * Vivían escritos a mano dentro del componente, con el punto perfilado en
+   * `#ffffff`: al conmutar a oscuro el perfil quedaba como un halo blanco y los
+   * seis tonos, calculados para fondo claro, se apagaban contra el fondo.
+   */
+  --lane-1: #d81b60;
+  --lane-2: #8e24aa;
+  --lane-3: #5e35b1;
+  --lane-4: #1e88e5;
+  --lane-5: #00897b;
+  --lane-6: #ef6c00;
 }
 
 :root[data-theme='dark'] {
@@ -169,6 +188,15 @@
   --shadow-md: 0 6px 16px -6px rgba(0, 0, 0, 0.55), 0 2px 5px -2px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
   --focus-ring: rgba(132, 202, 255, 0.45);
+
+  /* Los mismos carriles, subidos de luminosidad: los tonos de fondo claro se
+     apagan contra el fondo oscuro y las ramas dejan de distinguirse. */
+  --lane-1: #ff5c8a;
+  --lane-2: #d76bff;
+  --lane-3: #9d7bff;
+  --lane-4: #58a6ff;
+  --lane-5: #2dd4bf;
+  --lane-6: #ffa657;
 }
 
 /**

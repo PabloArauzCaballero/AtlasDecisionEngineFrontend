@@ -71,3 +71,29 @@
 .tabs-panel[hidden] {
   display: none;
 }
+
+/*
+ * En estrecho las pestañas se desplazan; no envuelven.
+ *
+ * El filete de la lista va en el borde inferior del contenedor, así que al
+ * envolver sólo subraya la ÚLTIMA fila: la pestaña activa de la primera se
+ * quedaba con su subrayado de acento colgando en medio de la nada y la de abajo
+ * caía por debajo del filete. A 390 px las dos pestañas de worker se leían como
+ * un título seguido de un enlace, no como una elección entre dos.
+ *
+ * Sólo por debajo de 640 px: más ancho, envolver es lo correcto —hay sitio para
+ * ver todas las filas—, y convertirlo en un desplazamiento escondería pestañas
+ * detrás de un gesto en vistas donde hoy se ven todas.
+ */
+@media (max-width: 640px) {
+  .tabs-list {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .tabs-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}

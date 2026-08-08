@@ -3,6 +3,16 @@
   top: 8px;
   left: 8px;
   z-index: 100;
+  /*
+   * Un `<a>` es inline, y en un elemento inline el relleno vertical no cuenta
+   * para su caja: el enlace medía 181×**17** —por debajo del mínimo táctil—
+   * aunque pintase 9 px de relleno arriba y abajo. Es el primer control que
+   * recibe el foco en toda la página; que sea el más difícil de acertar es
+   * justo lo contrario de lo que pretende.
+   */
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
   padding: 9px 12px;
   border-radius: 5px;
   background: var(--ink);

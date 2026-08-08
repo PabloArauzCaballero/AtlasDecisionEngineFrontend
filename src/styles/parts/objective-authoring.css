@@ -244,6 +244,13 @@
     flex-direction: column-reverse;
     align-items: stretch;
   }
+  /* A pantalla completa el pie toca el borde inferior, que en un teléfono con
+     gesto de inicio es zona reservada del sistema: sin este margen el botón
+     principal queda debajo de la barra de gestos. Sin muesca, `env()` vale 0. */
+  .modal-actions,
+  .dialog-actions {
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  }
   .objective-create-dialog form {
     max-height: calc(var(--viewport-h) - 96px);
   }

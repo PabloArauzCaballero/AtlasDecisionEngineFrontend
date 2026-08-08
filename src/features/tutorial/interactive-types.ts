@@ -24,6 +24,15 @@ export interface InteractiveStep {
    * no necesita repetirla.
    */
   route?: string;
+  /**
+   * Desde aquí el recorrido SIGUE al usuario en lugar de llevarlo.
+   *
+   * Los recorridos de ficha (`/artifacts/{id}`) viven en una ruta que depende
+   * del registro que la persona abra: el motor no puede inventar ese id. Con
+   * esto se corta la herencia de ruta, de modo que el paso se queda donde el
+   * usuario haya llegado en vez de devolverlo al listado en bucle.
+   */
+  dynamicRoute?: boolean;
 }
 
 export interface InteractiveTutorial {

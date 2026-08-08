@@ -1,9 +1,19 @@
 /* Toast stack ------------------------------------------------------------- */
 
+/*
+ * La banda no intercepta el puntero; las tarjetas sí.
+ *
+ * `.toast-viewport` mide todo el ancho de su hueco y flota sobre el contenido,
+ * así que sin esto se tragaba los clics del espacio VACÍO que la rodea. Medido a
+ * 390 px en el simulador: el botón «Ver traza de ejecución» quedaba debajo de la
+ * banda y no había forma de pulsarlo. Con el reparto, el puntero atraviesa el
+ * hueco y sólo la tarjeta —que sí tiene botones— lo recibe.
+ */
 .toast-viewport {
   position: fixed;
   right: 24px;
   bottom: 24px;
+  pointer-events: none;
   z-index: 90;
   display: flex;
   flex-direction: column;
@@ -20,6 +30,8 @@
   grid-template-columns: auto 1fr auto;
   gap: 11px;
   align-items: start;
+  /* Recupera lo que la banda renunció: cerrar y la acción siguen pulsándose. */
+  pointer-events: auto;
   overflow: hidden;
   padding: 13px 13px 14px;
   border: 1px solid var(--line);
@@ -159,29 +171,91 @@
   border-left-color: var(--success);
   color: var(--success);
 }
-.toast-success .toast-icon {
+.toast-success .toast-icon,
+.toast-success .toast-repeat {
   background: var(--success);
 }
 .toast-error {
   border-left-color: var(--danger);
   color: var(--danger);
 }
-.toast-error .toast-icon {
+.toast-error .toast-icon,
+.toast-error .toast-repeat {
   background: var(--danger);
 }
 .toast-warning {
   border-left-color: var(--warning);
   color: var(--warning);
 }
-.toast-warning .toast-icon {
+.toast-warning .toast-icon,
+.toast-warning .toast-repeat {
   background: var(--warning);
 }
 .toast-info {
   border-left-color: var(--accent);
   color: var(--accent);
 }
-.toast-info .toast-icon {
+.toast-info .toast-icon,
+.toast-info .toast-repeat {
   background: var(--accent);
+}
+
+/*
+ * Contador de repeticiones. El mismo suceso no estrena tarjeta: se cuenta aquí,
+ * así que la cifra es la única señal de que el fallo insiste y no puede quedarse
+ * sólo en un matiz de color.
+ */
+.toast-repeat {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  color: var(--surface);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  /*
+   * El fondo lo pone cada tono ahí arriba, NO `currentColor`.
+   *
+   * `background: currentColor` se resuelve contra el `color` del propio
+   * elemento, y aquí ese color es `--surface`: fondo blanco sobre letra blanca,
+   * medido `rgb(255,255,255)` en las dos. La insignia estaba en el DOM y no se
+   * veía, que es la peor forma de fallar —el contador existía y no contaba nada—.
+   */
+}
+
+/* Operación en curso: el icono del tono se sustituye por uno que gira. */
+.toast-icon[data-running='true'] svg {
+  animation: toast-spin 900ms linear infinite;
+}
+
+@keyframes toast-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Avance conocido. El indeterminado no pinta barra: no tendría qué medir. */
+.toast-determinate {
+  display: block;
+  margin-top: 8px;
+  block-size: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+.toast-determinate > span {
+  display: block;
+  block-size: 100%;
+  background: currentColor;
+  transition: inline-size var(--dur-base) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-icon[data-running='true'] svg {
+    animation: none;
+  }
+  .toast-determinate > span {
+    transition: none;
+  }
 }
 
 @media (max-width: 560px) {

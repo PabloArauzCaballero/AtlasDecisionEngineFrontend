@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { NavigationProgressProvider } from '../navigation/NavigationProgressProvider';
 import { DataTable, type TableColumn } from './DataTable';
 import { compareCells, nextSort, quickFilterRows, sortRows } from './table-tools';
 
@@ -156,6 +157,41 @@ describe('DataTable', () => {
     expect(within(detail).getByText('Responsable')).toBeInTheDocument();
     expect(within(detail).getByText('riesgo')).toBeInTheDocument();
     expect(within(detail).getAllByRole('term')).toHaveLength(COLUMNS.length);
+  });
+
+  /*
+   * El icono de la última columna es la única puerta al detalle, y en una tabla
+   * ancha esa columna vive fuera de la parte visible: el enlace desplegado es la
+   * que sí se lee. Sin `detailPath` no hay destino, así que tampoco botón.
+   */
+  it('ofrece el detalle con su nombre escrito al desplegar una fila', () => {
+    const { container } = render(
+      // El enlace es un `NavLink`: alimenta la barra de progreso de rutas, y para
+      // eso necesita su proveedor, igual que en la aplicación real.
+      <NavigationProgressProvider>
+        <DataTable
+          rows={ROWS}
+          columns={COLUMNS}
+          getRowKey={(row) => row.id}
+          detailPath={(row) => `/artifacts/${row.id}`}
+        />
+      </NavigationProgressProvider>,
+    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ver el detalle completo' })[0]);
+
+    // El icono de la fila lleva al mismo sitio con el mismo nombre accesible, así
+    // que se busca dentro del detalle: lo que se comprueba es que ahí se LEE.
+    const detail = container.querySelector('.table-detail') as HTMLElement;
+    const abrir = within(detail).getByRole('link', { name: 'Ver detalle' });
+    expect(abrir).toHaveAttribute('href', '/artifacts/1');
+    expect(abrir).toHaveTextContent('Ver detalle');
+  });
+
+  it('no ofrece ese enlace cuando el recurso no tiene vista de detalle', () => {
+    renderTable();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ver el detalle completo' })[0]);
+
+    expect(screen.queryByRole('link', { name: 'Ver detalle' })).toBeNull();
   });
 
   it('reserva las columnas marcadas como detalle para la fila desplegada', () => {

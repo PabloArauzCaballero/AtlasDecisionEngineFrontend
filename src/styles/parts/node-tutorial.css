@@ -33,10 +33,36 @@
   color: var(--muted);
   margin: 4px 0 0;
 }
+/* El ejemplo abre la guía y va destacado: es lo que hace concreto un tipo de
+   nodo, y leído como un párrafo más se pierde entre los pasos. */
+.node-tutorial-example {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+}
+.node-tutorial-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  margin: 0 0 4px;
+  color: var(--muted);
+}
 .node-tutorial-pitfall {
   display: flex;
   align-items: flex-start;
   gap: 5px;
   margin: 0;
   color: var(--danger-text, var(--text));
+}
+.node-tutorial-example svg,
+.node-tutorial-check svg,
+.node-tutorial-pitfall svg {
+  flex: none;
+  margin-top: 2px;
 }

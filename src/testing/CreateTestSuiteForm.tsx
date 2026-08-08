@@ -3,9 +3,11 @@ import { useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
-import { JsonTextarea } from '../components/JsonTextarea';
 import { Panel } from '../components/Panel';
 import { parseJsonObject } from '../utils/json';
+import { CaseInputEditor } from './CaseInputEditor';
+import { GenerateCaseInputButton } from './GenerateCaseInputButton';
+import { SUITE_TYPES, suiteType } from './suite-types';
 import { testSuiteSchema, type TestSuite } from './testing.schemas';
 
 interface CreateTestSuiteFormProps {
@@ -17,7 +19,8 @@ interface CreateTestSuiteFormProps {
 export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTestSuiteFormProps) {
   const [suiteCode, setSuiteCode] = useState('');
   const [name, setName] = useState('');
-  const [suiteType, setSuiteType] = useState('REGRESSION');
+  const [selectedType, setSelectedType] = useState('REGRESSION');
+  const type = suiteType(selectedType);
   const [isBlocking, setIsBlocking] = useState(true);
   const [caseCode, setCaseCode] = useState('CASE_001');
   const [testName, setTestName] = useState('Caso inicial');
@@ -30,7 +33,7 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
         body: {
           suiteCode: suiteCode.trim().toUpperCase(),
           name: name.trim(),
-          suiteType,
+          suiteType: type.code,
           isBlocking,
           cases: [
             {
@@ -72,11 +75,16 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
         <div className="form-row">
           <label className="field">
             <span>Tipo</span>
-            <select value={suiteType} onChange={(event) => setSuiteType(event.target.value)}>
-              <option value="REGRESSION">Regresión</option>
-              <option value="SMOKE">Smoke</option>
-              <option value="VALIDATION">Validación</option>
+            <select value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
+              {SUITE_TYPES.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
             </select>
+            {/* Qué es cada tipo, aquí y no en un manual: el tipo decide además
+                con qué valores se siembra el primer caso. */}
+            <small className="field-hint">{type.purpose}</small>
           </label>
           <label className="field">
             <span>
@@ -107,13 +115,40 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
             />
           </label>
         </div>
-        <JsonTextarea
+        {/*
+          El primer caso de la suite es un caso como cualquier otro, así que se
+          rellena igual que en «Casos de Prueba»: escribir a mano un JSON que
+          cumpla el contrato de la versión obliga a ir consultando el catálogo
+          campo por campo, y un nombre mal escrito no se ve hasta el 422.
+        */}
+        {versionId ? (
+          <GenerateCaseInputButton
+            artifactVersionId={versionId}
+            defaultKind={type.defaultKind}
+            kindReason={type.kindReason}
+            onGenerated={(generated) => setInput(JSON.stringify(generated, null, 2))}
+          />
+        ) : (
+          // Ver la nota en `CreateTestCaseForm`: la ausencia del generador se
+          // explica en vez de dejar un hueco.
+          <Alert tone="info">
+            Elige una versión arriba para poder generar valores de ejemplo: salen de su contrato de
+            entrada.
+          </Alert>
+        )}
+        <CaseInputEditor
+          artifactVersionId={versionId}
           id="new-suite-input"
-          label="Entrada (JSON)"
+          label="Entrada del caso (JSON)"
           value={input}
           onChange={setInput}
         />
-        <JsonTextarea
+        {/*
+         * El resultado esperado NO se rellena con el contrato de entrada: es lo
+         * que la prueba afirma, y ofrecer un formulario con las mismas variables
+         * invitaría a copiar la entrada como si fuera la respuesta.
+         */}
+        <CaseInputEditor
           id="new-suite-expected"
           label="Resultado esperado (JSON)"
           value={expectedResult}

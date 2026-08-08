@@ -5,6 +5,7 @@ import { useMemo, useState, type PropsWithChildren } from 'react';
 import { AmbientProvider } from '../../components/ambient/AmbientProvider';
 import { InteractiveTutorialProvider } from '../../features/tutorial/InteractiveTutorialProvider';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
+import { TutorialWelcomePrompt } from '../../features/tutorial/TutorialWelcomePrompt';
 import { ViewExplainer } from '../../features/view-explainer/ViewExplainer';
 import { RouteProgress } from '../../navigation/RouteProgress';
 import { ToastViewport } from '../../notifications/ToastViewport';
@@ -55,6 +56,10 @@ export function NextAppShell({ children }: PropsWithChildren) {
           */}
                   <div className="route-view" key={pathname}>
                     <ViewExplainer />
+                    {/* Sólo en la pantalla de entrada: ofrecer el recorrido
+                        encima del trabajo de alguien enseña a cerrar la ayuda
+                        sin leerla. */}
+                    <TutorialWelcomePrompt active={pathname === '/platform-health'} />
                     {children}
                   </div>
                 </main>

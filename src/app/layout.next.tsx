@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import '../styles/global.css';
@@ -11,6 +11,33 @@ export const metadata: Metadata = {
     template: '%s · ATLAS Decision Engine',
   },
   description: 'Portal corporativo de administración y gobierno del Motor de Decisión ATLAS.',
+};
+
+/**
+ * Ventana gráfica.
+ *
+ * No existía, así que Next emitía su valor por omisión. Aquí se declara por dos
+ * motivos que no son de estilo:
+ *
+ * 1. `userScalable: true` y **sin** `maximumScale`. Bloquear el zoom incumple
+ *    WCAG 1.4.4 (redimensionar texto hasta el 200 %) y es la forma más rápida de
+ *    dejar fuera a quien no ve de cerca. Se declara explícitamente para que
+ *    nadie lo «arregle» más adelante añadiendo un tope.
+ *
+ * 2. `viewportFit: 'cover'` extiende la página bajo la muesca y las esquinas
+ *    redondeadas de los teléfonos que las tienen. Por sí solo eso METERÍA
+ *    contenido debajo del recorte; va acompañado —obligatoriamente— de los
+ *    `env(safe-area-inset-*)` de `parts/responsive-tokens.css`, que devuelven
+ *    ese margen donde hace falta. Los dos cambios son uno solo: aplicar este sin
+ *    aquéllos deja el cajón de navegación bajo la barra de estado.
+ *
+ * En un dispositivo sin muesca todos los `env()` valen 0 y nada cambia.
+ */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  userScalable: true,
+  viewportFit: 'cover',
 };
 
 interface RootLayoutProps {

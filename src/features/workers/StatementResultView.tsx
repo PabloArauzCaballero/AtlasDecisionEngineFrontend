@@ -1,6 +1,6 @@
 'use client';
 
-import { asRecord, asRows, type UnknownRecord } from '../../utils/records';
+import { asRecord, asRows, asStrings, type UnknownRecord } from '../../utils/records';
 
 /**
  * Resultado de una conversión de extracto.
@@ -16,7 +16,7 @@ export function StatementResultView({ result, warnings }: { result: unknown; war
   const balances = asRecord(data.balances);
   const quality = asRecord(data.quality);
   const transactions = asRows(data.transactions);
-  const warningList = asRows(warnings).map(String);
+  const warningList = asStrings(warnings);
 
   return (
     <div className="worker-result">

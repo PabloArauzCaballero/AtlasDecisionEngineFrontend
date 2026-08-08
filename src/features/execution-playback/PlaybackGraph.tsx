@@ -1,11 +1,14 @@
 'use client';
 
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId } from 'react';
 import { display, type UnknownRecord } from '../../utils/records';
 import { NODE_HEIGHT, NODE_WIDTH, positionOf, worldSize } from '../graph-editor/canvas-world';
+import { normalizeNodePositions } from '../graph-editor/graph-layout';
 import { GraphEdges } from '../graph-editor/GraphEdges';
 import { GraphNodeCard } from '../graph-editor/GraphNodeCard';
 import type { EdgeRuntimeMap, NodeRuntimeMap } from '../graph-editor/node-runtime';
+import { useCanvasZoom } from '../graph-view/useCanvasZoom';
+import { ZoomControls } from '../graph-view/ZoomControls';
 
 interface PlaybackGraphProps {
   nodes: UnknownRecord[];
@@ -26,7 +29,7 @@ interface PlaybackGraphProps {
  * un nodo abre su detalle.
  */
 export function PlaybackGraph({
-  nodes,
+  nodes: stored,
   edges,
   runtime,
   edgeRuntime,
@@ -34,10 +37,20 @@ export function PlaybackGraph({
   onSelectNode,
 }: PlaybackGraphProps) {
   const markerId = `playback-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  /*
+   * Mismo acomodo que en el editor. Un grafo creado por API llega con todos los
+   * nodos en `(0, 0)`, y aquí no hay forma de separarlos arrastrando: la
+   * reproducción se vería como una sola tarjeta en la esquina con el recorrido
+   * escondido debajo.
+   */
+  const nodes = normalizeNodePositions(stored, edges);
   const world = worldSize(nodes.map((node, index) => positionOf(node, index)));
   const nodeWidth = (NODE_WIDTH / world.width) * 100;
   const nodeHeight = (NODE_HEIGHT / world.height) * 100;
-  const viewport = useRef<HTMLDivElement>(null);
+  // El mundo es del tamaño que dice `worldSize`, así que se declara en vez de medirse:
+  // «Ajustar» puede calcular la escala exacta sin esperar a que el DOM se estabilice.
+  const zoom = useCanvasZoom({ content: world });
+  const viewport = zoom.viewportRef;
 
   const placed = nodes.map((node, index) => {
     const position = positionOf(node, index);
@@ -53,13 +66,28 @@ export function PlaybackGraph({
     if (element instanceof HTMLElement && typeof element.scrollIntoView === 'function') {
       element.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
     }
-  }, [activeKey]);
+  }, [activeKey, viewport]);
 
   return (
     <div className="graph-canvas playback-canvas">
-      <div className="graph-canvas-viewport" ref={viewport} aria-label="Recorrido de la ejecución">
-        <div className="graph-canvas-scroll" style={{ width: world.width, height: world.height }}>
-          <div className="graph-canvas-world" style={{ width: world.width, height: world.height }}>
+      <ZoomControls zoom={zoom} label="Escala del recorrido" />
+      <div
+        className={`graph-canvas-viewport ${zoom.panning ? 'is-panning' : ''}`.trim()}
+        ref={viewport}
+        aria-label="Recorrido de la ejecución"
+      >
+        <div
+          className="graph-canvas-scroll"
+          style={{ width: world.width * zoom.zoom, height: world.height * zoom.zoom }}
+        >
+          <div
+            className="graph-canvas-world"
+            style={{
+              width: world.width,
+              height: world.height,
+              transform: `scale(${zoom.zoom})`,
+            }}
+          >
             <div className="canvas-grid" />
             <GraphEdges
               edges={edges}

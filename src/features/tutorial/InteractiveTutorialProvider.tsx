@@ -9,9 +9,11 @@ import {
 } from './InteractiveTutorialContext';
 import { InteractiveTutorialOverlay } from './InteractiveTutorialOverlay';
 import type { InteractiveTutorial } from './interactive-types';
+import { safeAnalytics, type TutorialAnalytics } from './tutorial-analytics';
 import {
   applicableIndex,
   clampStep,
+  isAtRoute,
   routeForStep,
   type TutorialRouter,
 } from './tutorial-navigation';
@@ -35,13 +37,20 @@ interface Props extends PropsWithChildren {
    * pero no cambian de pantalla solos.
    */
   router?: TutorialRouter;
+  /** Destino de la medición. Por omisión no se mide nada. */
+  analytics?: TutorialAnalytics;
 }
 
-export function InteractiveTutorialProvider({ children, router }: Props) {
+export function InteractiveTutorialProvider({ children, router, analytics }: Props) {
   const [tutorial, setTutorial] = useState<InteractiveTutorial | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const { markStarted, saveStep, markCompleted, markSkipped, restart, lastStep } =
     useTutorialProgress();
+
+  // Envuelto para que un fallo del adaptador no tumbe el recorrido, y por
+  // referencia para no rehacer los callbacks en cada render.
+  const track = useRef(safeAnalytics(analytics));
+  track.current = safeAnalytics(analytics);
 
   // El router cambia de identidad en cada navegación; leerlo por referencia evita
   // que los callbacks se rehagan (y que el efecto de navegación se redispare).
@@ -59,7 +68,7 @@ export function InteractiveTutorialProvider({ children, router }: Props) {
        * cuando ya estamos donde el tutorial ocurre.
        */
       const destination = tutorialRoute(found, from);
-      const onDestination = destination === null || destination === pathname;
+      const onDestination = destination === null || isAtRoute(pathname, destination);
       const first = onDestination ? applicableIndex(found, from, 1, pathname) : from;
       // Si desde el paso pedido no queda nada aplicable, se reintenta desde el
       // principio antes de rendirse: reanudar no puede dejar sin recorrido.
@@ -67,6 +76,13 @@ export function InteractiveTutorialProvider({ children, router }: Props) {
       if (index === -1) return;
       setTutorial(found);
       setStepIndex(index);
+      track.current.track({
+        type: 'started',
+        tutorialId: found.id,
+        version: found.version,
+        from: index,
+        repeat,
+      });
       void (repeat
         ? restart(found.id, found.version)
         : markStarted(found.id, index, found.version));
@@ -95,14 +111,32 @@ export function InteractiveTutorialProvider({ children, router }: Props) {
   );
 
   const finish = useCallback(() => {
-    if (tutorial) void markCompleted(tutorial.id, tutorial.version);
+    if (tutorial) {
+      track.current.track({
+        type: 'completed',
+        tutorialId: tutorial.id,
+        version: tutorial.version,
+      });
+      void markCompleted(tutorial.id, tutorial.version);
+    }
     setTutorial(null);
     setStepIndex(0);
   }, [tutorial, markCompleted]);
 
   /** Salir a medias NO es completar: se guarda el paso para poder retomarlo. */
   const exit = useCallback(() => {
-    if (tutorial) void markSkipped(tutorial.id, stepIndex);
+    if (tutorial) {
+      // El paso EN el que se abandona es el dato que dice qué explicación no
+      // está funcionando; `lastStep` por sí solo no lo distingue de una pausa.
+      track.current.track({
+        type: 'abandoned',
+        tutorialId: tutorial.id,
+        stepId: tutorial.steps[stepIndex]?.id ?? '',
+        index: stepIndex,
+        total: tutorial.steps.length,
+      });
+      void markSkipped(tutorial.id, stepIndex);
+    }
     setTutorial(null);
     setStepIndex(0);
   }, [tutorial, stepIndex, markSkipped]);
@@ -131,11 +165,28 @@ export function InteractiveTutorialProvider({ children, router }: Props) {
    * está porque la pantalla no es la correcta, no porque falte. Se compara con la
    * ruta actual para no empujar una navegación redundante en cada paso.
    */
+  // Un evento por paso VISTO, no por pulsación de "Siguiente": así también
+  // cuentan los pasos a los que se llega saltando uno opcional o retrocediendo.
+  useEffect(() => {
+    if (!tutorial) return;
+    const step = tutorial.steps[stepIndex];
+    if (!step) return;
+    track.current.track({
+      type: 'step',
+      tutorialId: tutorial.id,
+      stepId: step.id,
+      index: stepIndex,
+      total: tutorial.steps.length,
+    });
+  }, [tutorial, stepIndex]);
+
   useEffect(() => {
     if (!tutorial) return;
     const route = tutorialRoute(tutorial, stepIndex);
     const nav = routerRef.current;
-    if (!route || !nav || nav.pathname === route) return;
+    // `isAtRoute` y no una igualdad: quien acaba de abrir una ficha desde el
+    // listado ya está donde el recorrido lo quería, y devolverlo sería un bucle.
+    if (!route || !nav || isAtRoute(nav.pathname, route)) return;
     nav.push(route);
   }, [tutorial, stepIndex, router]);
 

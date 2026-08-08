@@ -2,30 +2,21 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { apiRequest } from '../../api/http-client';
+import {
+  parseProgressMap,
+  parseProgressRows,
+  type TutorialProgress,
+} from './tutorial-progress.schema';
 
-export type TutorialStatus = 'STARTED' | 'COMPLETED' | 'SKIPPED';
-
-export interface TutorialProgress {
-  tutorialId: string;
-  status: TutorialStatus;
-  lastStep: number;
-  /** Versión del tutorial que el usuario recorrió, para detectar cambios. */
-  version: number;
-  autoShow: boolean;
-  startedAt?: string;
-  completedAt?: string;
-  lastInteractionAt?: string;
-  /** Cuántas veces se ha vuelto a empezar tras completarlo. */
-  repeatCount?: number;
-}
+export type TutorialStatus = TutorialProgress['status'];
+export type { TutorialProgress };
 
 const CACHE_KEY = 'atlas.tutorial.progress';
 
 function readCache(): Record<string, TutorialProgress> {
   try {
     const raw = window.localStorage.getItem(CACHE_KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : {};
-    return parsed && typeof parsed === 'object' ? (parsed as Record<string, TutorialProgress>) : {};
+    return parseProgressMap(raw ? JSON.parse(raw) : {});
   } catch {
     return {};
   }
@@ -90,10 +81,18 @@ export function useTutorialProgress() {
     let cancelled = false;
     void (async () => {
       try {
-        const rows = await apiRequest<TutorialProgress[]>('/v1/tutorial-progress');
+        const rows = await apiRequest<unknown>('/v1/tutorial-progress');
         if (cancelled) return;
-        const map: Record<string, TutorialProgress> = {};
-        for (const row of rows) map[row.tutorialId] = row;
+        /*
+         * El servidor manda sobre lo que conoce, pero NO borra lo que no
+         * conoce. Sustituir el mapa entero tenía un modo de fallo silencioso:
+         * quien hiciera tutoriales mientras el endpoint no existía (progreso
+         * guardado sólo en local) los perdía todos en cuanto el backend
+         * empezaba a responder con una lista vacía. Se fusiona: las filas del
+         * servidor pisan a las locales, y las locales que el servidor todavía
+         * no tiene sobreviven hasta que su próximo guardado las suba.
+         */
+        const map = { ...readCache(), ...parseProgressRows(rows) };
         setProgress(map);
         writeCache(map);
       } catch {

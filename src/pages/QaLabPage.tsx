@@ -88,11 +88,13 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
       />
 
       <Panel title="Algoritmo a poner a prueba">
-        <ArtifactVersionPicker
-          versionId={draftId}
-          onVersionChange={setDraftId}
-          initialVersionId={initialVersionId}
-        />
+        <div data-tutorial-id="qa-lab-version">
+          <ArtifactVersionPicker
+            versionId={draftId}
+            onVersionChange={setDraftId}
+            initialVersionId={initialVersionId}
+          />
+        </div>
         <div className="panel-actions">
           <button
             type="button"
@@ -107,13 +109,15 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
 
       {versionId ? (
         <Panel title="Configuración de la corrida">
-          <QaRunConfigForm
-            config={config}
-            pending={generate.isPending}
-            disabled={!versionId}
-            onChange={setConfig}
-            onRun={() => generate.mutate()}
-          />
+          <div data-tutorial-id="qa-lab-config">
+            <QaRunConfigForm
+              config={config}
+              pending={generate.isPending}
+              disabled={!versionId}
+              onChange={setConfig}
+              onRun={() => generate.mutate()}
+            />
+          </div>
         </Panel>
       ) : null}
 
@@ -121,7 +125,7 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
 
       {run.id ? (
         <>
-          <div className="metric-grid">
+          <div className="metric-grid" data-tutorial-id="qa-lab-summary">
             <MetricCard
               label="Casos ejecutados"
               value={String(run.totalCases ?? 0)}
@@ -153,7 +157,9 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
             title="Contraejemplos"
             meta={`semilla ${display(run, 'seed')} · generador ${display(run, 'generatorVersion')}`}
           >
-            <QaCounterexampleList counterexamples={asRows(run.counterexamples)} />
+            <div data-tutorial-id="qa-lab-counterexamples">
+              <QaCounterexampleList counterexamples={asRows(run.counterexamples)} />
+            </div>
           </Panel>
         </>
       ) : null}

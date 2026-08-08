@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 /** Infers a typed value from free text: boolean, number, JSON, or plain string. */
 function coerce(raw: string): unknown {
@@ -59,36 +60,89 @@ export function PairsEditor({
         <small className="field-meta">Aún no hay valores. Añade el primer atributo.</small>
       ) : null}
       {entries.map(([key, value]) => (
-        <div className="pair-row" key={key}>
-          <input
-            className="pair-key"
-            defaultValue={key}
-            aria-label="Atributo"
-            onBlur={(event) => rename(key, event.target.value)}
-          />
-          <span className="pair-eq">=</span>
-          <input
-            className="pair-value"
-            defaultValue={valueText(value)}
-            aria-label={`Valor de ${key}`}
-            onBlur={(event) => onCommit({ ...parsed, [key]: coerce(event.target.value) })}
-          />
-          <button
-            type="button"
-            className="icon-button"
-            aria-label={`Quitar ${key}`}
-            onClick={() => {
-              const next = { ...parsed };
-              delete next[key];
-              onCommit(next);
-            }}
-          >
-            <Trash2 size={14} />
-          </button>
-        </div>
+        <PairRow
+          key={key}
+          pairKey={key}
+          value={value}
+          onRename={(next) => rename(key, next)}
+          onValue={(next) => onCommit({ ...parsed, [key]: next })}
+          onRemove={() => {
+            const next = { ...parsed };
+            delete next[key];
+            onCommit(next);
+          }}
+        />
       ))}
       <button type="button" className="button pair-add" onClick={add}>
         <Plus size={14} /> Añadir atributo
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Una fila del editor, con el texto que se ve SIEMPRE atado al valor real.
+ *
+ * Las dos cajas eran `defaultValue`, es decir, no controladas: el navegador se
+ * quedaba con lo escrito y React sólo lo fijaba al montar. Bastaba con que el
+ * payload cambiara desde fuera —subir un PDF, generar valores, elegir otro caso
+ * de la tanda— para que la fila siguiera enseñando lo anterior mientras el JSON
+ * que se enviaba ya decía otra cosa. Ése era el «ya están todas llenas» con el
+ * motor contestando `Required variable … is missing`: la pantalla enseñaba un
+ * valor que no existía en la petición.
+ *
+ * El valor se confirma **al teclear** y no al salir del campo, por lo mismo:
+ * pulsar «Ejecutar» sin salir antes de la caja enviaba lo de antes.
+ */
+function PairRow({
+  pairKey,
+  value,
+  onRename,
+  onValue,
+  onRemove,
+}: {
+  pairKey: string;
+  value: unknown;
+  onRename: (next: string) => void;
+  onValue: (next: unknown) => void;
+  onRemove: () => void;
+}) {
+  const [text, setText] = useState(() => valueText(value));
+  const [keyText, setKeyText] = useState(pairKey);
+
+  // Sincroniza con lo que llega de fuera. Sin esto volvería el defecto que este
+  // componente arregla, sólo que con una caja controlada.
+  useEffect(() => setText(valueText(value)), [value]);
+  useEffect(() => setKeyText(pairKey), [pairKey]);
+
+  return (
+    <div className="pair-row">
+      <input
+        className="pair-key"
+        value={keyText}
+        aria-label="Atributo"
+        onChange={(event) => setKeyText(event.target.value)}
+        // El nombre se confirma al salir del campo: renombrar en cada tecla
+        // partiría la clave en `n`, `nu`, `nue`… y cada una crearía una entrada.
+        onBlur={(event) => onRename(event.target.value)}
+      />
+      <span className="pair-eq">=</span>
+      <input
+        className="pair-value"
+        value={text}
+        aria-label={`Valor de ${pairKey}`}
+        onChange={(event) => {
+          setText(event.target.value);
+          onValue(coerce(event.target.value));
+        }}
+      />
+      <button
+        type="button"
+        className="icon-button"
+        aria-label={`Quitar ${pairKey}`}
+        onClick={onRemove}
+      >
+        <Trash2 size={14} />
       </button>
     </div>
   );

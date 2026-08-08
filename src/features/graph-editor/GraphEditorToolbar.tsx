@@ -9,18 +9,18 @@ import {
   ShieldCheck,
   Undo2,
   Workflow,
-  ZoomIn,
-  ZoomOut,
 } from 'lucide-react';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
+import type { CanvasZoom } from '../graph-view/useCanvasZoom';
+import { ZoomControls } from '../graph-view/ZoomControls';
 
 interface GraphEditorToolbarProps {
   versionId: string;
   canUndo: boolean;
   canRedo: boolean;
   connectMode: boolean;
-  zoom: number;
+  zoom: CanvasZoom;
   loading: boolean;
   saving: boolean;
   validating: boolean;
@@ -28,9 +28,6 @@ interface GraphEditorToolbarProps {
   onLoad: () => void;
   onUndo: () => void;
   onRedo: () => void;
-  onZoomOut: () => void;
-  onZoomIn: () => void;
-  onResetZoom: () => void;
   onAutoLayout: () => void;
   /** Nivel de detalle del lienzo: reglas y marcas visibles en cada nodo. */
   detailed: boolean;
@@ -124,33 +121,8 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
             <Redo2 />
           </button>
         </div>
-        <div className="editor-tool-group editor-zoom-group" aria-label="Escala del lienzo">
-          <button
-            className="icon-button"
-            type="button"
-            title="Alejar"
-            aria-label="Alejar grafo"
-            onClick={props.onZoomOut}
-          >
-            <ZoomOut />
-          </button>
-          <button
-            className="zoom-value"
-            type="button"
-            title="Restablecer zoom"
-            onClick={props.onResetZoom}
-          >
-            {Math.round(props.zoom * 100)}%
-          </button>
-          <button
-            className="icon-button"
-            type="button"
-            title="Acercar"
-            aria-label="Acercar grafo"
-            onClick={props.onZoomIn}
-          >
-            <ZoomIn />
-          </button>
+        <div className="editor-tool-group editor-zoom-group">
+          <ZoomControls zoom={props.zoom} variant="inline" label="Escala del lienzo" />
         </div>
         <button
           className="button editor-layout-button"

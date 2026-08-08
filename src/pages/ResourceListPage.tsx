@@ -1,7 +1,9 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { Download, Plus, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
+import { hasAnyRole } from '../auth/roles';
+import { useAuth } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
 import { FilterSelect } from '../components/FilterSelect';
@@ -10,6 +12,7 @@ import { ActiveFilterChips } from '../resources/ActiveFilterChips';
 import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
 import { ResourceCreateForm } from '../resources/ResourceCreateForm';
+import { ResourceListActions } from '../resources/ResourceListActions';
 import { ResourceExtraFilters } from '../resources/ResourceExtraFilters';
 import type { ResourceConfig } from '../resources/resource.types';
 
@@ -42,6 +45,11 @@ export function ResourceListPage({
   // unavailable and the button is disabled.
   const hasInlineCreate = Boolean(config.createFields?.length);
   const openPrimary = onPrimaryAction ?? (hasInlineCreate ? () => setCreating(true) : undefined);
+  // Algunos recursos se consultan con el permiso de la ruta pero se dan de alta
+  // con uno más estrecho (`createRoles`). Sin declaración, alta y lectura son lo
+  // mismo, que es el caso normal.
+  const { user } = useAuth();
+  const canCreate = !config.createRoles || hasAnyRole(user?.roles ?? [], config.createRoles);
   const query = useQuery({
     queryKey: ['resource', config.key, page, filter, extraFilters],
     queryFn: ({ signal }) => listResource(config, { page, filter, filters: extraFilters }, signal),
@@ -141,31 +149,15 @@ export function ResourceListPage({
         description={config.description}
         hint={config.hint}
         actions={
-          <>
-            <button
-              className="button"
-              type="button"
-              disabled={!rows.length}
-              onClick={() => setExporting(true)}
-            >
-              <Download size={16} /> Exportar
-            </button>
-            {config.primaryAction ? (
-              <button
-                className="button button-primary"
-                type="button"
-                data-tutorial-id="resource-create"
-                disabled={primaryActionDisabled || !openPrimary}
-                title={
-                  primaryActionTitle ??
-                  (openPrimary ? undefined : 'Esta alta aún no está disponible en esta vista')
-                }
-                onClick={openPrimary}
-              >
-                <Plus size={16} /> {config.primaryAction}
-              </button>
-            ) : null}
-          </>
+          <ResourceListActions
+            config={config}
+            hasRows={rows.length > 0}
+            canCreate={canCreate}
+            disabled={primaryActionDisabled}
+            onCreate={openPrimary}
+            createTitle={primaryActionTitle}
+            onExport={() => setExporting(true)}
+          />
         }
       />
       {config.filterParam ? (
@@ -239,7 +231,7 @@ export function ResourceListPage({
         onRemove={removeFilter}
         onClearAll={clearFilters}
       />
-      {creating && hasInlineCreate ? (
+      {creating && hasInlineCreate && canCreate ? (
         <ResourceCreateForm config={config} onClose={() => setCreating(false)} />
       ) : null}
       {exporting ? (

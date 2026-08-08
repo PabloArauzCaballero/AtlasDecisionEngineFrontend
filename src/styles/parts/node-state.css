@@ -1,0 +1,152 @@
+/*
+ * Estado de variables por nodo: el recorrido paso a paso de una ejecución.
+ *
+ * Separado de `contracts.css` por el límite de 299 líneas del repositorio, y el
+ * corte va por responsabilidad: allí los paneles de contrato, aquí la traza.
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+/* --- Estado de variables por nodo -------------------------------------------- */
+
+.node-state-tabs {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+
+.node-state-tabs button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.node-state-tabs button.is-active {
+  border-color: var(--accent);
+  background: var(--accent-wash, var(--surface-muted));
+}
+
+.node-state-group + .node-state-group {
+  margin-top: var(--space-3);
+}
+
+.node-state-group h4 {
+  margin: 0 0 2px;
+  font-size: 0.9rem;
+}
+
+/*
+ * La tabla se desplaza dentro de su caja. Sin esto, seis columnas con un valor
+ * largo desbordaban el panel y la columna «Valor» quedaba cortada contra el
+ * borde: justo el dato por el que se abre la traza.
+ */
+.node-state-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/*
+ * Un solo desplazador, no dos anidados.
+ *
+ * `responsive-tokens.css` da a TODA tabla sin envoltorio `display: block` y
+ * `overflow-x: auto`, que es el suelo correcto para las 16 tablas escritas a
+ * mano que no tienen ninguno. Ésta sí lo tiene —`.node-state-scroll`—, así que
+ * la regla general le añadía un segundo desplazador DENTRO del primero: el de
+ * dentro recortaba las últimas columnas («Producida por», «Consumida por») y
+ * arrastrar el de fuera no llegaba a ellas, porque quien las escondía era el
+ * otro. Se veía media traza y ninguna forma de llegar al resto.
+ *
+ * Devolverla a `display: table` restaura además el reparto de anchos entre
+ * columnas: como bloque, `min-width` fijaba la caja pero no repartía nada.
+ */
+.node-state-scroll .node-state-table {
+  display: table;
+  overflow-x: visible;
+}
+
+.node-state-table {
+  width: 100%;
+  min-width: 34rem;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+/* --- Recorrido paso a paso ------------------------------------------------- */
+
+.node-state-tab-index {
+  display: inline-block;
+  min-width: 1.1rem;
+  margin-right: 5px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.node-state-pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.node-state-position {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.node-state-position code {
+  font-family: var(--font-mono);
+}
+
+.node-state-table th,
+.node-state-table td {
+  text-align: start;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.node-state-value {
+  font-family: var(--font-mono, monospace);
+  word-break: break-word;
+}
+
+.state-chip {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+}
+
+.state-computed,
+.state-valid,
+.state-available {
+  border-color: var(--success-line, var(--line));
+  background: var(--success-wash, var(--surface-muted));
+}
+
+.state-invalid,
+.state-error {
+  border-color: var(--danger-line, var(--line));
+  background: var(--danger-wash, var(--surface-muted));
+}
+
+.state-not_available,
+.state-skipped,
+.state-redacted {
+  color: var(--text-muted);
+}

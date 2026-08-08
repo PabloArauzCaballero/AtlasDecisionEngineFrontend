@@ -12,6 +12,30 @@
   flex: none;
 }
 
+/*
+ * Trazo de las ramas. El grosor y el remate redondeado se declaran aquí y no en
+ * el SVG: son cómo se ve, no qué se dibuja, y el componente sólo pasa el color
+ * del carril —que es el único dato que depende de los datos—.
+ */
+.version-graph-edge {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* El punto se perfila contra la superficie de la página, no contra blanco: en
+   tema oscuro un perfil blanco quedaba como un halo alrededor de cada commit. */
+.version-graph-node {
+  stroke-width: 2.5;
+  paint-order: stroke;
+}
+
+/* La cabecera: anillo en vez de disco, como el HEAD de un visor de git. */
+.version-graph-node.is-head {
+  stroke-width: 3.5;
+}
+
 .version-graph-rows {
   list-style: none;
   margin: 0;
@@ -20,11 +44,15 @@
   min-width: 0;
 }
 
+/* Alto fijo y contenido pegado arriba: es lo que deja al punto del riel —que se
+   dibuja en `fila × ROW_H + DOT_Y`— a la altura del número de versión y no en
+   mitad de la fila. El alto lo fija `VersionHistoryGraph`, que es quien también
+   dibuja el riel: un solo número para las dos mitades. */
 .version-graph-row {
   height: var(--row-h);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 3px;
   padding: 4px 10px;
   border-bottom: 1px solid var(--line);
@@ -47,7 +75,13 @@
   flex: none;
 }
 
+/* `flex: none` no es adorno: `overflow: hidden` —el que pone los puntos
+   suspensivos— apaga el tamaño mínimo automático de un ítem flex, así que este
+   párrafo era el único hijo de la fila capaz de encogerse y absorbía él solo
+   cualquier falta de sitio, quedándose en altura 0. El mensaje de cada versión
+   es lo que se viene a leer aquí; no puede ser la variable de ajuste. */
 .version-graph-summary {
+  flex: none;
   margin: 0;
   font-size: 0.82rem;
   color: var(--ink);

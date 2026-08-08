@@ -3,35 +3,44 @@
 import { BookOpen, ChevronDown, Cpu, Landmark } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import {
+  defaultOpen,
+  explainerSection,
+  readPreference,
+  writePreference,
+} from './explainer-preference';
 import { resolveExplanation } from './view-explanations';
 import { viewExamples } from './view-examples';
-
-const STORAGE_KEY = 'de.viewExplainer.open';
 
 /**
  * Panel por pantalla que explica, a nivel de negocio y de sistemas, para qué
  * sirve la vista actual. Se resuelve por ruta y se monta en el shell, así que
- * aparece en todas las secciones. Recuerda si el usuario lo colapsó.
+ * aparece en todas las secciones. Recuerda si el usuario lo colapsó, y lo
+ * recuerda POR SECCIÓN: plegarlo en una pantalla ya no lo pliega en las demás.
  */
 export function ViewExplainer() {
   const pathname = usePathname() ?? '';
   const explanation = resolveExplanation(pathname);
   // El ejemplo se resuelve con la MISMA clave que la explicación (primer segmento
   // de la ruta), así que una vista de detalle hereda el de su sección.
-  const example = viewExamples[pathname.split('/').filter(Boolean)[0] ?? ''];
-  const [open, setOpen] = useState(true);
+  const example = viewExamples[explainerSection(pathname)];
+  /* El valor inicial sale de la ruta, no de `true` fijo: en una mesa de trabajo
+     el banner nace plegado y así no se ve abrirse y cerrarse en el primer
+     pintado. La ruta la conocen igual el servidor y el cliente, así que no hay
+     discrepancia de hidratación. */
+  const [open, setOpen] = useState(() => defaultOpen(pathname));
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved !== null) setOpen(saved === '1');
-  }, []);
+    const saved = readPreference(pathname);
+    setOpen(saved === null ? defaultOpen(pathname) : saved);
+  }, [pathname]);
 
   if (!explanation) return null;
 
   const toggle = () =>
     setOpen((value) => {
       const next = !value;
-      window.localStorage.setItem(STORAGE_KEY, next ? '1' : '0');
+      writePreference(pathname, next);
       return next;
     });
 

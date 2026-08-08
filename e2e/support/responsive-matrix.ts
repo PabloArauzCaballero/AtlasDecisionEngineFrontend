@@ -74,6 +74,11 @@ export const AUDIT_ROUTES = [
   '/executions',
   '/executions/1',
   '/audit-events',
+  // ADR-0026 — workers adicionales. `/workers` es el concentrador con las dos
+  // pestañas; las otras dos son el enlace directo a cada worker.
+  '/workers',
+  '/workers/semantic-analysis',
+  '/workers/bank-statement',
 ] as const;
 
 /**
@@ -95,4 +100,7 @@ export const GATE_ROUTES = [
   '/manual-reviews/1',
   '/audit-events',
   '/platform-health',
+  // Un worker basta para el gate: los dos comparten composición (formulario de
+  // carga + panel de resultado). El otro entra en el barrido completo.
+  '/workers/bank-statement',
 ] as const;

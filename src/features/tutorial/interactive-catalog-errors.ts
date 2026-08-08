@@ -88,21 +88,41 @@ export const ERROR_TUTORIAL_DEFS: Readonly<Record<string, InteractiveTutorial>> 
   },
   'error:VERSION_STATE': {
     id: 'error:VERSION_STATE',
-    title: 'Esta versión ya no se puede editar ni recompilar',
+    title: 'El estado de esta versión no admite esa operación',
     intro:
-      'Una versión desplegada o retirada queda “congelada” como registro; los cambios van en una versión nueva.',
+      'Cada versión recorre un camino —Diseño, Validada, Compilada, Aprobada, Desplegada— y en cada punto sólo cabe lo siguiente.',
+    version: 2,
+    steps: [
+      step(
+        'what',
+        '¿Qué pasó?',
+        'Pediste validar o compilar una versión cuyo estado no lo admite. El motor sólo compila lo que está VALIDADA: una que ya está COMPILADA no se recompila (el resultado sería idéntico) y una DESPLEGADA queda congelada para que la decisión sea auditable.',
+      ),
+      step(
+        'fix',
+        '¿Cómo corregirlo?',
+        'Mira el recorrido en el asistente de Validar y Compilar: marca el punto exacto en el que está la versión y qué corresponde hacer. Si está compilada, el paso siguiente es enviarla a revisión, no volver a compilar; si está desplegada o retirada, los cambios van en una versión nueva.',
+        'Cada versión es una foto inmutable: para cambiar algo, tomas una foto nueva — pero sólo cuando la anterior ya salió a producción.',
+      ),
+    ],
+  },
+  'error:NO_DEPLOYMENT': {
+    id: 'error:NO_DEPLOYMENT',
+    title: 'Ese algoritmo no está desplegado en ese ambiente',
+    intro:
+      'Simular y ejecutar usan el artefacto compilado que está DESPLEGADO en el ambiente; compilar no basta.',
     version: 1,
     steps: [
       step(
         'what',
         '¿Qué pasó?',
-        'Intentaste validar, compilar o modificar una versión que ya está desplegada (o retirada). Para que una decisión en producción sea auditable, su versión no puede cambiar después de desplegarse: queda fija tal como se aprobó.',
+        'Pediste una decisión (o una simulación) de un algoritmo en un ambiente donde no tiene un despliegue activo. El motor no elige una versión por su cuenta: ejecuta exactamente la que alguien desplegó ahí, y por eso no hay nada que ejecutar.',
       ),
       step(
         'fix',
         '¿Cómo corregirlo?',
-        'Abre el artefacto y crea una NUEVA versión (Nueva versión / duplicar). Esa nueva versión nace en Borrador: ahí sí puedes editar el grafo, validar, compilar, aprobar y desplegar.',
-        'Piensa en cada versión como una foto inmutable; para cambiar algo, tomas una foto nueva.',
+        'O eliges un ambiente donde sí esté desplegado —el simulador marca cuáles—, o creas el despliegue en Despliegues. Para desplegar, la versión tiene que estar compilada y aprobada.',
+        'Compilada = lista para ejecutarse. Desplegada = puesta a ejecutar en un ambiente concreto.',
       ),
     ],
   },
@@ -144,6 +164,17 @@ export const ERROR_LINKS: Readonly<Record<string, ErrorTutorialLink>> = {
     'El tipo de la salida no es válido',
     'Revisa el contrato de salidas.',
   ),
+  /*
+   * Llegaba a la pantalla tal cual lo escribe el motor: «No active deployment
+   * for AFFORDABILITY_CONTRACT_DEMO in TEST». Es exacto y es inútil para quien
+   * no sabe que simular exige un despliegue activo, además de estar en inglés
+   * en un portal en español.
+   */
+  ACTIVE_DEPLOYMENT_NOT_FOUND: link(
+    'error:NO_DEPLOYMENT',
+    'Ese algoritmo no está desplegado en ese ambiente',
+    'Elige un ambiente donde sí lo esté, o créale un despliegue.',
+  ),
   COMPILED_ARTIFACT_NOT_FOUND: link(
     'error:NOT_COMPILED',
     'La versión no está compilada',
@@ -154,15 +185,22 @@ export const ERROR_LINKS: Readonly<Record<string, ErrorTutorialLink>> = {
     'La versión no está compilada',
     'Compílala antes de ejecutarla.',
   ),
+  /*
+   * Estas dos NO afirman por qué. El motor rechaza por el estado concreto —una
+   * versión ya compilada, una en revisión, una desplegada— y el mensaje que
+   * trae lo dice; escribir aquí «está desplegada o retirada» convertía un
+   * rechazo correcto en un diagnóstico falso, y mandaba a crear una versión
+   * nueva a quien sólo tenía que aprobar la que ya tenía compilada.
+   */
   VERSION_NOT_VALIDATABLE: link(
     'error:VERSION_STATE',
-    'Esta versión ya no se puede validar',
-    'Está desplegada o retirada: crea una versión nueva.',
+    'El estado de esta versión no admite validarla',
+    'El asistente indica en qué punto está y qué corresponde hacer.',
   ),
   VERSION_NOT_COMPILABLE: link(
     'error:VERSION_STATE',
-    'Esta versión ya no se puede compilar',
-    'Está desplegada o retirada: crea una versión nueva.',
+    'El estado de esta versión no admite compilarla',
+    'Sólo se compila lo que está validado. El asistente dice cuál es el paso siguiente.',
   ),
   VALIDATION_REQUIRED: link(
     'error:NOT_COMPILED',

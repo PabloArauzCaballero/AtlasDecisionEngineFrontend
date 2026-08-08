@@ -84,10 +84,26 @@ export function InteractiveTutorialOverlay({
     }
   }, [step.target]);
 
+  /**
+   * `true` en cuanto el elemento del paso existe de verdad en la página.
+   *
+   * Se usa como disparador para (re)enganchar el escucha de la acción. Es un
+   * booleano y no el rect a propósito: el rect cambia con cada scroll, y
+   * depender de él reiniciaría el estado del paso continuamente.
+   */
+  const hasTarget = Boolean(rect);
+
   useEffect(() => {
     setActionDone(false);
     if (!step.requiredAction || !step.target) return;
     const element = document.querySelector(step.target);
+    // Sin elemento no hay a quién escuchar, pero esto NO es el final: cuando
+    // aparezca, `hasTarget` cambia y el efecto se vuelve a ejecutar.
+    //
+    // Antes se enganchaba una sola vez, al mostrar el paso. Un paso que exige
+    // una acción sobre algo que llega DESPUÉS —tras navegar a la pantalla, o
+    // tras la respuesta del backend— se quedaba sin escucha para siempre: la
+    // persona pulsaba lo resaltado y el recorrido no avanzaba nunca.
     if (!element) return;
     const events: Record<RequiredAction, string[]> = {
       click: ['click'],
@@ -104,7 +120,7 @@ export function InteractiveTutorialOverlay({
     return () => {
       for (const name of names) element.removeEventListener(name, handler);
     };
-  }, [step, onNext]);
+  }, [step, onNext, hasTarget]);
 
   /**
    * Sólo se espera una acción si hay algo real sobre lo que hacerla.
@@ -191,15 +207,18 @@ export function InteractiveTutorialOverlay({
         {confirmingExit ? (
           <div className="tutorial-confirm" role="alertdialog" aria-label="Confirmar salida">
             <p>
-              Vas por el paso {stepIndex + 1} de {tutorial.steps.length}. Si sales ahora se guarda
-              tu avance y puedes retomarlo desde el Centro de Tutoriales.
+              Llevas {stepIndex + 1} de {tutorial.steps.length} completados. Si sales ahora se
+              guarda tu avance y puedes retomarlo desde el Centro de Tutoriales.
             </p>
             <div className="tutorial-confirm-actions">
               <button className="button" type="button" onClick={() => setConfirmingExit(false)}>
                 Seguir aquí
               </button>
+              {/* No repite el nombre del botón de cerrar: dos botones con el
+                  mismo nombre accesible dentro del mismo diálogo son
+                  indistinguibles para un lector de pantalla. */}
               <button className="button button-danger" type="button" onClick={onExit}>
-                Salir del tutorial
+                Sí, salir
               </button>
             </div>
           </div>

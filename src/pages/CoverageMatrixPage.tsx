@@ -66,7 +66,7 @@ export function CoverageMatrixPage() {
       {query.isError ? (
         <Alert tone="error">No fue posible construir la matriz de cobertura.</Alert>
       ) : null}
-      <div className="metric-grid three">
+      <div className="metric-grid three" data-tutorial-id="coverage-matrix-summary">
         <MetricCard
           label="Coverage"
           value={`${pct}%`}
@@ -92,7 +92,7 @@ export function CoverageMatrixPage() {
           <span>Trazabilidad: Objetivos vs. Políticas</span>
           <small>Complete · Partial · Gap</small>
         </div>
-        <div className="table-wrap">
+        <div className="table-wrap" data-tutorial-id="coverage-matrix-grid">
           <table>
             <thead>
               <tr>

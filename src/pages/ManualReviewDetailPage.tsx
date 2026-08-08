@@ -1,19 +1,22 @@
 import { useMutation } from '@tanstack/react-query';
-import { CheckCircle2, UserCheck } from 'lucide-react';
+import { CheckCircle2, HelpCircle, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
+import { canRequestCaseInformation } from '../auth/business-rules';
+import { useAuth } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
-import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { Timeline } from '../components/Timeline';
+import { CaseFilePanel } from '../features/manual-review/CaseFilePanel';
+import { CaseInformationRequestDialog } from '../features/manual-review/CaseInformationRequestDialog';
 import { notifyApiError } from '../features/tutorial/error-tutorial';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
-import { asRecord, display } from '../utils/records';
+import { asRecord, display, resolvePath } from '../utils/records';
 
 const RESOLUTION_LABEL: Record<string, string> = {
   APPROVE: 'aprobado',
@@ -31,13 +34,20 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   // sin leer— en una aprobación con nombre y apellidos en la auditoría.
   const [resolution, setResolution] = useState('');
   const [comments, setComments] = useState('');
+  const [askingInformation, setAskingInformation] = useState(false);
   const { notify } = useNotifications();
+  const { user } = useAuth();
   const { startForError } = useInteractiveTutorial();
   const query = useDetailQuery<unknown>(
     'manual-review',
     caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
   );
   const review = asRecord(query.data);
+  const canAskInformation = canRequestCaseInformation(user?.roles ?? []);
+  // El caso puede traer la ejecución anidada o sólo su identificador plano.
+  const executionId = String(
+    resolvePath(review, 'execution.id') ?? review.executionId ?? review.decisionExecutionId ?? '',
+  );
   const resolve = useMutation({
     // Esta vista muestra el fallo ella misma, con acceso al tutorial que enseña a
     // corregirlo: sin `handled` el aviso global de QueryProvider lo repetiría.
@@ -73,6 +83,19 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             <button
               className="button"
               type="button"
+              disabled={!canAskInformation || !caseId}
+              title={
+                canAskInformation
+                  ? 'Pedir un dato que falta, al backend central, al cliente o a un equipo interno'
+                  : 'Requiere rol Risk Analyst, Fraud Analyst u Operations'
+              }
+              onClick={() => setAskingInformation(true)}
+            >
+              <HelpCircle size={16} /> Solicitar información
+            </button>
+            <button
+              className="button"
+              type="button"
               disabled
               title="La asignación de casos aún no está expuesta por el Decision Engine; resuelve el caso desde el formulario"
             >
@@ -81,6 +104,13 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
           </>
         }
       />
+      {askingInformation ? (
+        <CaseInformationRequestDialog
+          caseId={caseId}
+          onClose={() => setAskingInformation(false)}
+          onRequested={() => void query.refetch()}
+        />
+      ) : null}
       {query.isError || resolve.isError ? (
         <Alert tone="error">{errorMessage(query.error ?? resolve.error)}</Alert>
       ) : null}
@@ -115,7 +145,12 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
               ]}
             />
           </Panel>
-          <JsonPanel label="Input Snapshot" value={review.inputSnapshot ?? review} />
+          {/*
+            El expediente completo —quién es el solicitante, con qué datos se
+            decidió y por qué motivos— es lo que el analista de riesgo necesita
+            para valorar el caso. Antes sólo había una instantánea cruda.
+          */}
+          <CaseFilePanel executionId={executionId} />
         </main>
         <aside data-tutorial-id="review-resolution">
           <Panel title="Resolution Form" meta="Required">

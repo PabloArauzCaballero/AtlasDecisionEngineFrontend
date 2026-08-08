@@ -1,0 +1,48 @@
+/* Expediente del caso de revisión manual: motivos de la decisión y las notas
+   que explican por qué una parte del expediente no está disponible. */
+
+.case-reason-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-reason-list li {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.case-reason-list code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--text);
+}
+
+.case-reason-list span {
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+/* Un aviso en prosa dentro de un panel: por qué falta algo, o qué se espera del
+   campo que hay encima. No es un error, así que no usa el tono de alerta. */
+.muted-note {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .case-reason-list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}

@@ -9,6 +9,11 @@ import type { WorkerDescriptor } from './worker-types';
  * codifica «máximo 10 MiB» en su formulario miente en cuanto alguien cambia la
  * variable de entorno del motor, y el usuario descubre el límite real al recibir
  * un rechazo que no esperaba.
+ *
+ * **No repite la descripción del worker.** La imprimía, y la cabecera de la
+ * página imprime exactamente la misma frase del mismo `descriptor` doscientos
+ * píxeles más arriba: la consola abría con el mismo texto dos veces seguidas.
+ * Aquí sólo van los límites, que es lo que la cabecera no dice.
  */
 export function WorkerHeaderFacts({
   descriptor,
@@ -35,18 +40,28 @@ export function WorkerHeaderFacts({
 
   return (
     <div className="worker-facts">
-      <p className="worker-facts-description">{descriptor.description}</p>
+      {/*
+       * Una ficha por dato y no una frase corrida: son los límites contra los
+       * que se va a chocar al enviar algo, y hay que poder encontrarlos de un
+       * vistazo mientras se rellena el formulario de abajo, no leerlos.
+       */}
       <ul className="worker-facts-list">
-        <li>
-          <strong>Acepta:</strong> {descriptor.acceptedInputs.join(' · ')}
+        <li className="worker-fact">
+          <span className="worker-fact-label">Acepta</span>
+          <span className="worker-fact-value">{descriptor.acceptedInputs.join(' · ')}</span>
         </li>
         {Object.entries(descriptor.limits).map(([key, value]) => (
-          <li key={key}>
-            <strong>{limitLabel(key)}:</strong> {formatLimit(key, value)}
+          <li key={key} className="worker-fact">
+            <span className="worker-fact-label">{limitLabel(key)}</span>
+            <span className="worker-fact-value">{formatLimit(key, value)}</span>
           </li>
         ))}
-        <li>
-          <strong>Estado:</strong> {descriptor.available ? 'Disponible' : 'Apagado en este entorno'}
+        <li className={`worker-fact is-state ${descriptor.available ? 'is-on' : 'is-off'}`}>
+          <span className="worker-fact-label">Estado</span>
+          <span className="worker-fact-value">
+            <span className="worker-fact-dot" aria-hidden="true" />
+            {descriptor.available ? 'Disponible' : 'Apagado en este entorno'}
+          </span>
         </li>
       </ul>
     </div>

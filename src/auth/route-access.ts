@@ -84,7 +84,9 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   },
   // ADR-0026 — workers adicionales. Una regla por vista y no un comodín
   // `/workers/...`: un comodín daría acceso a cualquier worker que se añada
-  // después, sin que nadie lo decida.
+  // después, sin que nadie lo decida. `/workers` a secas es el concentrador con
+  // las dos pestañas, y por eso lleva su propia regla exacta.
+  { pattern: /^\/workers\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/semantic-analysis\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/bank-statement\/?$/, roles: accessPolicies.workers },
 ];

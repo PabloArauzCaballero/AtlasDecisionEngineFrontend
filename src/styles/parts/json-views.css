@@ -3,6 +3,23 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  /*
+   * La cabecera del visor lleva tres pestañas más copiar y descargar. Sin
+   * envolver mide 382 px, y en una ventana de 320 se salía 169 —recortada en
+   * silencio por el marco, así que «Descargar» simplemente no existía—.
+   * Envolver es más barato que quitarle acciones al usuario.
+   */
+  flex-wrap: wrap;
+  min-width: 0;
+}
+/* El título del panel es `flex`: si no envuelve, la fila de acciones no puede
+   bajar por mucho que ella misma envuelva. */
+.json-panel > .panel-title {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.json-view-tabs {
+  flex-wrap: wrap;
 }
 .json-copy-btn {
   display: inline-flex;

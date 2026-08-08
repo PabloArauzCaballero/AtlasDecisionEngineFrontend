@@ -70,7 +70,7 @@ export function CalculatedFieldTryPanel({ versionId, inputs, testCases }: Props)
   const generatedSeed = display(asRecord(generate.data), 'seed');
 
   return (
-    <div className="calculated-try">
+    <div className="calculated-try" data-tutorial-id="calculated-field-try">
       <h4>Probar con un ejemplo</h4>
       <div className="constraint-grid">
         {inputs.map((input) => {

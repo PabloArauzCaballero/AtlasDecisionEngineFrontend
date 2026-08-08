@@ -1,7 +1,7 @@
 'use client';
 
 import { StatusBadge } from '../../components/StatusBadge';
-import { asRecord, asRows, type UnknownRecord } from '../../utils/records';
+import { asRecord, asRows, asStrings, type UnknownRecord } from '../../utils/records';
 
 /**
  * Resultado de un análisis semántico.
@@ -16,6 +16,7 @@ export function SemanticResultView({ result }: { result: unknown }) {
   const status = String(data.status ?? 'UNKNOWN');
   const matches = asRows(data.matches);
   const entities = asRows(data.entities);
+  const paths = asRecord(data.categoryPaths);
 
   return (
     <div className="worker-result">
@@ -61,13 +62,20 @@ export function SemanticResultView({ result }: { result: unknown }) {
                     <span className="worker-match-flag">Contradicha</span>
                   ) : null}
                 </div>
+                <CategoryPath steps={asStrings(paths[String(match.categoryCode ?? '')])} />
                 {match.rationale ? (
                   <p className="worker-match-rationale">{String(match.rationale)}</p>
                 ) : null}
-                {asRows(match.evidence).length > 0 ? (
+                {/*
+                 * La evidencia son CADENAS, no filas: son fragmentos citados
+                 * del texto analizado. Leerla con `asRows` la pintaba como una
+                 * lista de «[object Object]», es decir, el respaldo de la
+                 * decisión desaparecía justo donde se justifica.
+                 */}
+                {asStrings(match.evidence).length > 0 ? (
                   <ul className="worker-evidence">
-                    {asRows(match.evidence).map((piece, pieceIndex) => (
-                      <li key={pieceIndex}>{String(piece)}</li>
+                    {asStrings(match.evidence).map((piece, pieceIndex) => (
+                      <li key={pieceIndex}>{piece}</li>
                     ))}
                   </ul>
                 ) : null}
@@ -91,6 +99,32 @@ export function SemanticResultView({ result }: { result: unknown }) {
         </section>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Ruta de la categoría dentro del árbol, de la raíz a la hoja.
+ *
+ * El código —`GASTOS.VIVIENDA.ALQUILER`— ya insinúa la jerarquía, pero leerla de
+ * ahí sería partir una cadena por puntos y confiar en una convención de nombres.
+ * La ruta viene resuelta del motor, que es quien tiene el árbol entero, y trae
+ * los NOMBRES: «Gastos › Vivienda › Alquiler» dice lo mismo sin obligar a
+ * traducir.
+ *
+ * Un solo escalón no se pinta: repetiría el código que está justo encima sin
+ * añadir contexto, y el separador sugeriría una rama que no existe.
+ */
+function CategoryPath({ steps }: { steps: readonly string[] }) {
+  if (steps.length < 2) return null;
+  return (
+    <p className="worker-match-path">
+      {steps.map((step, index) => (
+        <span key={index}>
+          {index > 0 ? <span aria-hidden="true"> › </span> : null}
+          {step}
+        </span>
+      ))}
+    </p>
   );
 }
 

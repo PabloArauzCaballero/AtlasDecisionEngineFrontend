@@ -1,7 +1,7 @@
 'use client';
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Eye, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
@@ -151,9 +151,21 @@ export function AlgorithmsPage() {
                       </td>
                       <td>{display(row, 'ownerTeam')}</td>
                       <td>
-                        <Link className="table-action" href={`/artifacts/${id}`}>
-                          Ver
-                        </Link>
+                        {/* Mismo icono que en las demás tablas del portal (suites,
+                            casos): «ver el detalle» se dibuja siempre con el ojo.
+                            El nombre accesible lleva el código del algoritmo, que
+                            es lo que distingue una fila de otra — trece enlaces
+                            llamados «Ver» son trece enlaces indistinguibles para
+                            quien navega con lector de pantalla. */}
+                        <div className="inline-actions">
+                          <Link
+                            href={`/artifacts/${id}`}
+                            aria-label={`Ver ${display(row, 'artifactCode')}`}
+                            title="Ver el detalle del algoritmo"
+                          >
+                            <Eye size={15} />
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                     {isOpen ? (

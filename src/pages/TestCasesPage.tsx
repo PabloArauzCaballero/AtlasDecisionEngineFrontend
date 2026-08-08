@@ -7,9 +7,9 @@ import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { PickerSelect } from '../components/PickerSelect';
-import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
 import { CreateTestCaseForm } from '../testing/CreateTestCaseForm';
+import { TestCaseRow } from '../testing/TestCaseRow';
 import { parseTestCasesCsv, type CsvTestCasePayload } from '../testing/test-cases.csv';
 import {
   importedTestCasesSchema,
@@ -35,6 +35,8 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
   const [search, setSearch] = useState('');
   const [activeOnly, setActiveOnly] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
+  /** Caso desplegado: uno a la vez, para que el detalle no empuje la tabla entera. */
+  const [openCase, setOpenCase] = useState('');
   const [importError, setImportError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -60,9 +62,11 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
   const suiteRows = Array.isArray(suitePicker.data)
     ? asRows(suitePicker.data)
     : asRows(asRecord(suitePicker.data).items);
-  const artifactVersionId = suiteRows.find(
-    (row) => display(row, 'id') === suiteId,
-  )?.artifactVersionId;
+  const selectedSuite = suiteRows.find((row) => display(row, 'id') === suiteId);
+  const artifactVersionId = selectedSuite?.artifactVersionId;
+  // El tipo de la suite decide con qué valores se siembra un caso nuevo: una
+  // regresión con entradas inválidas no prueba lo que dice probar.
+  const suiteTypeCode = selectedSuite ? display(selectedSuite, 'suiteType') : undefined;
 
   const run = useMutation({
     mutationFn: () =>
@@ -212,6 +216,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
           <CreateTestCaseForm
             suiteId={suiteId}
             artifactVersionId={artifactVersionId ? String(artifactVersionId) : undefined}
+            suiteTypeCode={suiteTypeCode}
             onCancel={() => setShowCreate(false)}
             onCreated={(testCase) => {
               setShowCreate(false);
@@ -231,7 +236,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
         ) : null}
         <section className="panel">
           <div className="table-wrap">
-            <table>
+            <table className="test-cases-table">
               <thead>
                 <tr>
                   <th>ID Caso</th>
@@ -244,16 +249,12 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id}>
-                    <td className="mono">{row.caseCode}</td>
-                    <td>{row.testName}</td>
-                    <td>{displayJson(row.tagsJson)}</td>
-                    <td className="mono">{displayJson(row.inputJson)}</td>
-                    <td className="mono">{displayJson(row.expectedResultJson)}</td>
-                    <td>
-                      <StatusBadge value={row.isActive ? 'ACTIVE' : 'INACTIVE'} />
-                    </td>
-                  </tr>
+                  <TestCaseRow
+                    key={row.id}
+                    testCase={row}
+                    expanded={openCase === row.id}
+                    onToggle={() => setOpenCase(openCase === row.id ? '' : row.id)}
+                  />
                 ))}
               </tbody>
             </table>

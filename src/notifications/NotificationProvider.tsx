@@ -2,26 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 import { NotificationContext } from './NotificationContext';
-import type { AppNotification, NotificationInput, NotificationTone } from './notification.types';
+import {
+  DEFAULT_DURATION,
+  MAX_HISTORY,
+  dedupeKeyFor,
+  evictSurplus,
+  findDuplicate,
+} from './notification-queue';
+import type { AppNotification, NotificationInput, NotificationPatch } from './notification.types';
 
-/** Toasts visible at once. Older ones retire early rather than build a wall. */
-const MAX_VISIBLE = 4;
-/** Entries kept for the bell menu. */
-const MAX_HISTORY = 40;
 /** Must match the exit animation in notifications.css. */
 const EXIT_MS = 180;
-
-/**
- * Time on screen per tone. Typed as a total map over the tone union so a lookup
- * cannot miss — `null` here means "sticky" and must never be coalesced away.
- */
-const DEFAULT_DURATION: Record<NotificationTone, number | null> = {
-  success: 4500,
-  info: 5000,
-  warning: 7000,
-  // Failures stay until acknowledged: an operator must never miss one.
-  error: null,
-};
 
 interface Countdown {
   timeoutId: ReturnType<typeof setTimeout>;
@@ -34,6 +25,16 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const [toasts, setToasts] = useState<AppNotification[]>([]);
   const [history, setHistory] = useState<AppNotification[]>([]);
   const [paused, setPaused] = useState(false);
+  /**
+   * Copia autoritativa de la pila visible.
+   *
+   * Fundir repeticiones y decidir a quién se sacrifica exige LEER la pila antes
+   * de escribirla, y hacerlo dentro de un actualizador de `setState` obligaría a
+   * lanzar temporizadores ahí dentro —efectos que React puede repetir—. Con la
+   * referencia, la decisión se toma fuera y dos avisos levantados en el mismo
+   * tick ven cada uno lo que dejó el anterior, cosa que el estado aún no refleja.
+   */
+  const visible = useRef<AppNotification[]>([]);
   const countdowns = useRef(new Map<string, Countdown>());
   /**
    * Temporizadores de salida en vuelo. Van aparte de `countdowns` porque no se
@@ -43,6 +44,12 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const exits = useRef(new Set<ReturnType<typeof setTimeout>>());
   const sequence = useRef(0);
 
+  /** Única puerta de escritura de la pila: deja copia y estado a la par. */
+  const commit = useCallback((next: AppNotification[]) => {
+    visible.current = next;
+    setToasts(next);
+  }, []);
+
   const clearCountdown = useCallback((id: string) => {
     const countdown = countdowns.current.get(id);
     if (countdown) clearTimeout(countdown.timeoutId);
@@ -50,9 +57,12 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   }, []);
 
   /** Drops a toast from the DOM. Only ever called after the exit animation. */
-  const remove = useCallback((id: string) => {
-    setToasts((current) => current.filter((toast) => toast.id !== id));
-  }, []);
+  const remove = useCallback(
+    (id: string) => {
+      commit(visible.current.filter((toast) => toast.id !== id));
+    },
+    [commit],
+  );
 
   /**
    * Starts the exit animation, then removes on a fixed timer rather than an
@@ -62,8 +72,8 @@ export function NotificationProvider({ children }: PropsWithChildren) {
   const dismiss = useCallback(
     (id: string) => {
       clearCountdown(id);
-      setToasts((current) =>
-        current.map((toast) => (toast.id === id ? { ...toast, leaving: true } : toast)),
+      commit(
+        visible.current.map((toast) => (toast.id === id ? { ...toast, leaving: true } : toast)),
       );
       const exitTimer = setTimeout(() => {
         exits.current.delete(exitTimer);
@@ -71,7 +81,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       }, EXIT_MS);
       exits.current.add(exitTimer);
     },
-    [clearCountdown, remove],
+    [clearCountdown, commit, remove],
   );
 
   const startCountdown = useCallback(
@@ -88,10 +98,36 @@ export function NotificationProvider({ children }: PropsWithChildren) {
 
   const notify = useCallback(
     (input: NotificationInput): string => {
-      sequence.current += 1;
-      const id = `n${sequence.current}-${Date.now()}`;
+      const now = Date.now();
       const tone = input.tone ?? 'info';
       const durationMs = input.durationMs === undefined ? DEFAULT_DURATION[tone] : input.durationMs;
+      const dedupeKey = dedupeKeyFor(input, tone);
+
+      /*
+       * El mismo suceso otra vez no estrena tarjeta: se le sube el contador y se
+       * le repone la cuenta atrás. Un backend caído contestaba a cada reintento
+       * con un aviso nuevo, y cuatro copias del mismo fallo tapaban la pila
+       * entera sin decir nada que la primera no dijera ya.
+       */
+      const duplicate = findDuplicate(visible.current, dedupeKey, now);
+      if (duplicate) {
+        const repeated = {
+          ...duplicate,
+          lastOccurredAt: now,
+          repeatCount: duplicate.repeatCount + 1,
+        };
+        commit(visible.current.map((toast) => (toast.id === duplicate.id ? repeated : toast)));
+        setHistory((current) =>
+          current.map((item) =>
+            item.id === duplicate.id ? { ...item, ...repeated, read: false } : item,
+          ),
+        );
+        if (duplicate.durationMs !== null) startCountdown(duplicate.id, duplicate.durationMs);
+        return duplicate.id;
+      }
+
+      sequence.current += 1;
+      const id = `n${sequence.current}-${now}`;
       const notification: AppNotification = {
         id,
         title: input.title,
@@ -99,24 +135,70 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         action: input.action,
         tone,
         durationMs,
-        createdAt: Date.now(),
+        progress: input.progress,
+        dedupeKey,
+        createdAt: now,
+        lastOccurredAt: now,
+        repeatCount: 1,
         read: false,
         leaving: false,
       };
 
-      setToasts((current) => {
-        const next = [...current, notification];
-        // Retire the surplus oldest toasts, cancelling their pending timers.
-        const surplus = next.slice(0, Math.max(0, next.length - MAX_VISIBLE));
-        surplus.forEach((toast) => clearCountdown(toast.id));
-        return next.slice(-MAX_VISIBLE);
-      });
+      // Al recortar se sacrifica primero lo menos grave, no lo más antiguo.
+      const { kept, evicted } = evictSurplus([...visible.current, notification]);
+      evicted.forEach((toast) => clearCountdown(toast.id));
+      commit(kept);
       setHistory((current) => [notification, ...current].slice(0, MAX_HISTORY));
 
       if (durationMs !== null) startCountdown(id, durationMs);
       return id;
     },
-    [clearCountdown, startCountdown],
+    [clearCountdown, commit, startCountdown],
+  );
+
+  /**
+   * Retoca un aviso vivo en lugar de levantar otro: así una operación larga
+   * cuenta su avance y su desenlace en la misma tarjeta que ya se está mirando.
+   *
+   * Nombrar un tono nuevo recalcula la duración —un «en curso» perpetuo que
+   * termina en éxito tiene que aprender a marcharse solo— y da por cerrado el
+   * avance, salvo que el propio retoque traiga uno.
+   */
+  const update = useCallback(
+    (id: string, patch: NotificationPatch) => {
+      const current = visible.current.find((toast) => toast.id === id);
+      if (!current || current.leaving) return;
+
+      const tone = patch.tone ?? current.tone;
+      const durationMs =
+        patch.durationMs !== undefined
+          ? patch.durationMs
+          : patch.tone
+            ? DEFAULT_DURATION[patch.tone]
+            : current.durationMs;
+      const progress =
+        patch.progress !== undefined ? patch.progress : patch.tone ? undefined : current.progress;
+
+      const next: AppNotification = {
+        ...current,
+        title: patch.title ?? current.title,
+        description: patch.description ?? current.description,
+        action: patch.action ?? current.action,
+        tone,
+        durationMs,
+        progress,
+        lastOccurredAt: Date.now(),
+      };
+
+      commit(visible.current.map((toast) => (toast.id === id ? next : toast)));
+      setHistory((entries) =>
+        entries.map((item) => (item.id === id ? { ...item, ...next, read: false } : item)),
+      );
+
+      clearCountdown(id);
+      if (durationMs !== null) startCountdown(id, durationMs);
+    },
+    [clearCountdown, commit, startCountdown],
   );
 
   /**
@@ -172,6 +254,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       unreadCount,
       paused,
       notify,
+      update,
       dismiss,
       pauseTimers,
       resumeTimers,
@@ -184,6 +267,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       unreadCount,
       paused,
       notify,
+      update,
       dismiss,
       pauseTimers,
       resumeTimers,

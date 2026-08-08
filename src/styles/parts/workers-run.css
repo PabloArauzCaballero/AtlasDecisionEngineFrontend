@@ -181,6 +181,16 @@
   color: var(--danger-text);
 }
 
+/*
+ * La rama del árbol a la que pertenece la categoría. Va inmediatamente bajo el
+ * código y en tono apagado: es contexto de la decisión, no la decisión.
+ */
+.worker-match-path {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
 .worker-match-rationale {
   margin: var(--space-2) 0 0;
   font-size: 0.875rem;

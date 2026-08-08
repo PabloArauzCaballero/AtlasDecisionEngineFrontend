@@ -31,6 +31,7 @@ export const AA_FLOOR = 4.5;
 /** Una ruta por familia de la plataforma: el barrido completo. */
 export const ALL_ROUTES = [
   '/platform-health',
+  '/tutorials',
   '/artifacts',
   '/algorithms',
   '/variables',
