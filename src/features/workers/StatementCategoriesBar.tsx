@@ -1,0 +1,80 @@
+'use client';
+
+import { Tags } from 'lucide-react';
+
+interface StatementCategoriesBarProps {
+  /** Glosas distintas que se van a clasificar. */
+  glosas: number;
+  corriendo: boolean;
+  hechas: number;
+  total: number;
+  /** Glosas distintas que había cuando se rechazó empezar, o `null` si cabían. */
+  demasiadas: number | null;
+  maxGlosas: number;
+  onClasificar: () => void;
+  onParar: () => void;
+}
+
+/**
+ * La barra que ofrece clasificar los movimientos del extracto.
+ *
+ * **Un botón y no un encadenado automático.** Clasificar significa una
+ * ejecución del worker semántico por glosa distinta, y eso son peticiones
+ * contra un motor que corta a 300 por minuto: dispararlas solas al terminar la
+ * conversión convertiría cada extracto convertido en una tanda que nadie pidió.
+ * El número va escrito en el botón para que el coste se vea ANTES de pulsarlo.
+ *
+ * Mientras corre se puede parar, y lo hecho hasta ahí se queda: son
+ * clasificaciones válidas, no un resultado a medias que haya que tirar.
+ */
+export function StatementCategoriesBar({
+  glosas,
+  corriendo,
+  hechas,
+  total,
+  demasiadas,
+  maxGlosas,
+  onClasificar,
+  onParar,
+}: StatementCategoriesBarProps) {
+  if (demasiadas !== null) {
+    return (
+      <p className="worker-categories-note is-blocked" role="status">
+        Este extracto trae {demasiadas} glosas distintas y el límite son {maxGlosas}. No se
+        clasificó ninguna: dejar media tabla con categoría se leería como «esos movimientos no
+        encajan en ninguna» en vez de «no se preguntó».
+      </p>
+    );
+  }
+
+  return (
+    <div className="worker-categories-bar">
+      {corriendo ? (
+        <>
+          {/*
+           * `aria-live="polite"` y no un `role="progressbar"`: lo que importa
+           * anunciar es el avance en glosas, y una barra sin porcentaje exacto
+           * obligaría a inventar uno.
+           */}
+          <p className="worker-categories-progress" aria-live="polite">
+            Clasificando… {hechas} de {total} glosas
+          </p>
+          <button type="button" className="button" onClick={onParar}>
+            Parar
+          </button>
+        </>
+      ) : (
+        <>
+          <button type="button" className="button" onClick={onClasificar}>
+            <Tags size={16} aria-hidden="true" />
+            {hechas > 0 ? 'Volver a clasificar' : `Clasificar ${glosas} glosas distintas`}
+          </button>
+          <p className="worker-categories-note">
+            Una ejecución del análisis semántico por glosa distinta. Las repetidas se preguntan una
+            sola vez.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}

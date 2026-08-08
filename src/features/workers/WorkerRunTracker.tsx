@@ -128,12 +128,12 @@ export function WorkerRunTracker({
       <div className="worker-run-actions">
         {actions}
         {run.status === 'QUEUED' && onCancel ? (
-          <button type="button" className="btn ghost" onClick={onCancel} disabled={cancelling}>
+          <button type="button" className="button" onClick={onCancel} disabled={cancelling}>
             {cancelling ? 'Cancelando…' : 'Cancelar'}
           </button>
         ) : null}
         {isTerminal(run.status) ? (
-          <button type="button" className="btn ghost" onClick={onReset}>
+          <button type="button" className="button" onClick={onReset}>
             Nueva ejecución
           </button>
         ) : null}

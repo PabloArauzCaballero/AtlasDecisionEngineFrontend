@@ -222,3 +222,72 @@
 .worker-table-scroll {
   overflow-x: auto;
 }
+
+/* --- Categorías de los movimientos ----------------------------------------- */
+
+/*
+ * Clasificar es un paso aparte de convertir: su barra va sobre la tabla, no
+ * dentro de la cabecera del panel, porque lo que ofrece es una acción con coste
+ * —N ejecuciones del semántico— y tiene que leerse antes de la tabla, no
+ * buscarse.
+ */
+.worker-categories-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.worker-categories-progress {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.worker-categories-note {
+  flex: 1 1 16rem;
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.worker-categories-note.is-blocked {
+  flex: none;
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  color: var(--warning-text);
+  background: var(--warning-wash);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+}
+
+.worker-categoria {
+  display: grid;
+  gap: 1px;
+}
+
+.worker-categoria small {
+  color: var(--faint);
+  font-size: 0.6875rem;
+}
+
+/* La duda se dice con palabra, no sólo con color: «Ambiguo» es un dato del
+   veredicto, no un adorno de la celda. */
+.worker-categoria-duda {
+  color: var(--warning-text);
+}
+
+.worker-categoria-error {
+  color: var(--danger-text);
+}
+
+/* Celda sin categoría todavía, o sin ella del todo. */
+.worker-faint {
+  color: var(--faint);
+}

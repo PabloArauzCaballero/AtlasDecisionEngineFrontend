@@ -64,7 +64,7 @@ export function StatementUploadField({
         <p className="worker-drop-hint">Arrastra el PDF aquí, o</p>
         <button
           type="button"
-          className="btn ghost"
+          className="button"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
         >
@@ -93,7 +93,7 @@ export function StatementUploadField({
           <span className="worker-file-size">{formatBytes(file.size)}</span>
           <button
             type="button"
-            className="btn ghost"
+            className="button"
             disabled={disabled}
             onClick={() => {
               // También se limpia el input: sin esto, volver a elegir el MISMO

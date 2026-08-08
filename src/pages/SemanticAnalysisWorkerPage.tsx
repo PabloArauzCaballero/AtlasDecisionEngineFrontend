@@ -144,7 +144,7 @@ export function SemanticAnalysisWorkerConsole() {
           <div className="worker-run-actions">
             <button
               type="button"
-              className="btn primary"
+              className="button button-primary"
               disabled={!canSubmit || submit.isPending}
               onClick={() => submit.mutate()}
             >

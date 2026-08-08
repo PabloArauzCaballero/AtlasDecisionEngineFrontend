@@ -1,13 +1,15 @@
 'use client';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Panel } from '../components/Panel';
+import { StatementCategoriesBar } from '../features/workers/StatementCategoriesBar';
 import { StatementResultView } from '../features/workers/StatementResultView';
 import { StatementUploadField } from '../features/workers/StatementUploadField';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
 import { WorkerRunTracker } from '../features/workers/WorkerRunTracker';
+import { useStatementCategories } from '../features/workers/useStatementCategories';
 import { useWorkerRun } from '../features/workers/useWorkerRun';
 import {
   cancelRun,
@@ -20,6 +22,7 @@ import {
 import type { WorkerDescriptor } from '../features/workers/worker-types';
 import { useNotifications } from '../notifications/useNotifications';
 import { saveBlob } from '../utils/download';
+import { asRecord, asRows } from '../utils/records';
 
 const WORKER = 'bank-statement' as const;
 
@@ -111,6 +114,13 @@ export function BankStatementWorkerConsole() {
   const finished =
     run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS';
 
+  const categorias = useStatementCategories();
+  // Las glosas del extracto ya convertido, deduplicadas: son lo que se clasifica.
+  const glosas = useMemo(() => {
+    const filas = asRows(asRecord(run.data?.result).transactions);
+    return [...new Set(filas.map((fila) => String(fila.description ?? '')).filter(Boolean))];
+  }, [run.data?.result]);
+
   return (
     // Contenedor propio por lo mismo que en la consola semántica: el panel de
     // control sigue montado al lado y comparte vocabulario con esta vista.
@@ -148,7 +158,7 @@ export function BankStatementWorkerConsole() {
           <div className="worker-run-actions">
             <button
               type="button"
-              className="btn primary"
+              className="button button-primary"
               disabled={!canSubmit || submit.isPending}
               onClick={() => submit.mutate()}
             >
@@ -185,7 +195,7 @@ export function BankStatementWorkerConsole() {
                     <button
                       key={format}
                       type="button"
-                      className="btn ghost"
+                      className="button"
                       disabled={descargar.isPending}
                       onClick={() => descargar.mutate(format)}
                     >
@@ -201,7 +211,30 @@ export function BankStatementWorkerConsole() {
 
       {run.data?.result ? (
         <Panel title="Movimientos">
-          <StatementResultView result={run.data.result} warnings={run.data.warnings} />
+          {/*
+           * Clasificar es un paso APARTE de convertir, y por eso se pide aquí y
+           * no se encadena solo: el motor no tiene ninguna ruta «extracto →
+           * categorías», así que esto son N ejecuciones del worker semántico
+           * lanzadas desde el navegador. Ofrecerlo con su coste a la vista es lo
+           * honesto; dispararlo solo convertiría cada conversión en una tanda.
+           */}
+          {glosas.length > 0 ? (
+            <StatementCategoriesBar
+              glosas={glosas.length}
+              corriendo={categorias.corriendo}
+              hechas={categorias.hechas}
+              total={categorias.total}
+              demasiadas={categorias.demasiadas}
+              maxGlosas={categorias.maxGlosas}
+              onClasificar={() => void categorias.clasificar(glosas)}
+              onParar={categorias.parar}
+            />
+          ) : null}
+          <StatementResultView
+            result={run.data.result}
+            warnings={run.data.warnings}
+            categorias={categorias.total > 0 ? categorias.veredictos : undefined}
+          />
         </Panel>
       ) : null}
     </div>

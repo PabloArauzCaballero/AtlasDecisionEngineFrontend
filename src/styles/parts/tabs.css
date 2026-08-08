@@ -81,11 +81,13 @@
  * caía por debajo del filete. A 390 px las dos pestañas de worker se leían como
  * un título seguido de un enlace, no como una elección entre dos.
  *
- * Sólo por debajo de 640 px: más ancho, envolver es lo correcto —hay sitio para
- * ver todas las filas—, y convertirlo en un desplazamiento escondería pestañas
- * detrás de un gesto en vistas donde hoy se ven todas.
+ * Sólo por debajo de `sm` (560 px): más ancho, envolver es lo correcto —hay
+ * sitio para ver todas las filas—, y convertirlo en un desplazamiento
+ * escondería pestañas detrás de un gesto en vistas donde hoy se ven todas. El
+ * ancho sale de la escala de `breakpoints.ts`, que es el mismo corte donde la
+ * cabecera de página ya deja de tener sitio para su fila de acciones.
  */
-@media (max-width: 640px) {
+@media (max-width: 560px) {
   .tabs-list {
     flex-wrap: nowrap;
     overflow-x: auto;
