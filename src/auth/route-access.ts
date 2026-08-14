@@ -86,6 +86,10 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     pattern: /^\/security-review\/[^/]+\/?$/,
     roles: accessPolicies.securityReview,
   },
+  // ADR-0031 — consola de consultas SQL. Una sola ruta: las pestañas de consulta viven en
+  // el estado del cliente, no en el enrutador. Es lo mismo que hace la consola de BigQuery,
+  // y evita que una URL cargue el SQL de otra persona por el hecho de compartirla.
+  { pattern: /^\/sql-console\/?$/, roles: accessPolicies.sqlConsole },
   // ADR-0026 — workers adicionales. Una regla por vista y no un comodín
   // `/workers/...`: un comodín daría acceso a cualquier worker que se añada
   // después, sin que nadie lo decida. `/workers` a secas es el concentrador con

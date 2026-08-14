@@ -1,0 +1,140 @@
+/*
+ * Consola de consultas SQL — pestañas, editor y barra de acciones.
+ *
+ * Va después de `sql-console.css`, que declara los tokens de ancho y alto que se usan aquí.
+ */
+
+.sql-workspace {
+  display: grid;
+  /* Pestañas · editor · acciones · resultados. El editor y los resultados se reparten lo
+     que sobra, con el editor algo más alto: se escribe más de lo que se lee de una vez. */
+  grid-template-rows: auto minmax(var(--sql-editor-min), 1.1fr) auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  gap: var(--space-2);
+}
+
+.sql-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.sql-tabs__item {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.sql-tabs__item.is-active {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.sql-tabs__label {
+  max-width: var(--sql-tab-max);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.sql-tabs__item.is-active .sql-tabs__label {
+  color: var(--ink);
+}
+
+.sql-tabs__close,
+.sql-tabs__open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+}
+
+.sql-tabs__close {
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+}
+
+.sql-tabs__open {
+  flex: none;
+  width: var(--space-6);
+  height: var(--space-6);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+
+.sql-tabs__close:hover,
+.sql-tabs__open:hover {
+  color: var(--ink);
+}
+
+.sql-editor,
+.sql-editor__fallback {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sql-editor__fallback {
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  resize: none;
+}
+
+.sql-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sql-actions__run {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  /* La convención del portal para texto sobre `--accent` (ver `controls.css`): el token de
+     superficie, que en cada tema es el contrario del acento. */
+  color: var(--surface);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.sql-actions__run:hover:not(:disabled) {
+  background: var(--accent-strong);
+}
+
+.sql-actions__run:disabled {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.sql-actions__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+}

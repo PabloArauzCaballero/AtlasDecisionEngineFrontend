@@ -1,0 +1,252 @@
+/*
+ * Consola de consultas SQL — panel de resultados y rejilla.
+ *
+ * Una nota sobre el color, porque aquí es donde se decide si la pantalla informa o decora:
+ * los únicos lavados de estado que aparecen son el ÁMBAR del resultado cortado y el ROJO
+ * del fallo, y aparecen porque hay un estado. Un resultado normal, uno vacío y uno de
+ * cuarenta mil filas se pintan los tres en neutro: los tres son lo mismo, una consulta que
+ * terminó.
+ */
+
+.sql-results {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sql-results--idle,
+.sql-results--busy,
+.sql-results--blocked {
+  padding: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.sql-results--busy {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Gira mientras el motor está de verdad ocupado; nada se mueve cuando no pasa nada. */
+.sql-results__spinner {
+  width: var(--space-4);
+  height: var(--space-4);
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: var(--radius-pill);
+  animation: sql-spin var(--dur-loop) linear infinite;
+}
+
+@keyframes sql-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.sql-results--blocked {
+  background: var(--danger-wash);
+  border-color: var(--danger-line);
+  color: var(--danger-text);
+}
+
+.sql-results__blocked-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+
+.sql-results__violations {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.sql-results__at {
+  margin-right: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+}
+
+.sql-results__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0 var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.sql-results__tabs {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.sql-results__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+  cursor: pointer;
+}
+
+.sql-results__tab.is-active {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+}
+
+.sql-results__summary {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * El aviso de corte va ARRIBA, no al pie de la tabla.
+ *
+ * Un resultado truncado sin aviso visible es la forma más silenciosa de sacar una
+ * conclusión falsa: se cuentan diez mil filas y se concluye sobre un universo que tenía
+ * cuatro veces más. Al pie sólo lo ve quien llega al final, que es justo quien ya no lo
+ * necesita.
+ */
+.sql-results__truncated {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--warning-wash);
+  border-bottom: 1px solid var(--warning-line);
+  color: var(--warning-strong);
+  font-size: var(--type-2xs);
+}
+
+.sql-results__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.sql-results__empty {
+  margin: 0;
+  padding: var(--space-5);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.sql-results__json {
+  margin: 0;
+  padding: var(--space-3);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  white-space: pre;
+}
+
+.sql-results__details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+}
+
+.sql-results__details dt {
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+}
+
+.sql-results__details dd {
+  margin: var(--space-1) 0 0;
+  color: var(--ink);
+  font-size: var(--type-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.sql-results__details-wide {
+  grid-column: 1 / -1;
+}
+
+.sql-results__details-wide dd {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+}
+
+/* ── Rejilla ──────────────────────────────────────────────────────────────── */
+
+.sql-grid__scroll {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.sql-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.sql-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sql-grid__name {
+  font-family: var(--font-mono);
+}
+
+/* El tipo bajo el nombre: se lee al pasar, no compite con el nombre de la columna. */
+.sql-grid__kind {
+  display: block;
+  color: var(--faint);
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-regular);
+}
+
+.sql-grid td,
+.sql-grid tbody th {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--text);
+  font-weight: var(--weight-regular);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sql-grid .is-numeric {
+  text-align: right;
+}
+
+/* `null` apagado y en cursiva: se distingue de la cadena "null" de un dato real. */
+.sql-grid .is-null {
+  color: var(--faint);
+  font-style: italic;
+}
+
+.sql-grid__index {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  text-align: right;
+}

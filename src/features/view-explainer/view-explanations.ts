@@ -187,6 +187,13 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
       'Observa decisiones ejecutándose en tiempo real, útil para monitoreo operativo y demostraciones.',
     systems: 'Stream de eventos (SSE) de la ejecución sobre la conexión autenticada, sin polling.',
   },
+  'sql-console': {
+    module: 'Consola de Consultas SQL · Procesamiento',
+    business:
+      'Responde con SQL las preguntas que ninguna pantalla contesta todavía: cruzar decisiones con desenlaces, buscar el segmento donde el modelo falla, medir cuánto tardó la aprobación de un mes concreto. Sirve para no depender de que alguien programe una vista cada vez que cambia la pregunta.',
+    systems:
+      'Sólo lectura, y no por convención sino por construcción: cinco esquemas de vistas gobernadas con el tenant fijado dentro de la propia vista, un rol de base de datos sin permiso de escritura, transacción marcada de sólo lectura y el plan de cada consulta revisado antes de ejecutarla. Cada consulta —incluidas las rechazadas— queda en `sql_console_query_log`.',
+  },
   search: {
     module: 'Búsqueda Global',
     business:

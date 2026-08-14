@@ -100,6 +100,13 @@
 /* Después de `decision-quality.css`: reutiliza su rejilla de formularios y sólo añade lo propio
    de la curva de calibración. */
 @import './parts/risk-governance.css';
+/* Consola de consultas SQL. Las cuatro hojas van juntas y en este orden: el armazón declara
+   los tokens de ancho que usan las otras tres, y la del panel lateral cierra con la consulta
+   de medios que apila las columnas. */
+@import './parts/sql-console.css';
+@import './parts/sql-console-editor.css';
+@import './parts/sql-console-results.css';
+@import './parts/sql-console-side.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
 /* Después de `workers-run.css`: afina lo que aquélla define para la consola de
