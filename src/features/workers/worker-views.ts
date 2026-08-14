@@ -59,7 +59,17 @@ export type WorkerView = (typeof WORKER_VIEWS)[number];
  */
 export const GENERADOR_DOCUMENTAL = 'pdf-generator' as const;
 
-export type TabCode = WorkerCode | typeof GENERADOR_DOCUMENTAL;
+/**
+ * El cuaderno de datos tampoco es un worker del motor.
+ *
+ * Ni siquiera lee del motor: sus datos vienen de la superficie `read_api` de AtlasBackend, y su
+ * Python y su JavaScript corren en la propia pestaña. Está aquí porque «Procesamiento» es donde
+ * se busca una herramienta que trabaja sobre los datos, no porque comparta nada con los cuatro
+ * workers: no tiene catálogo, ni cola, ni ejecuciones que seguir.
+ */
+export const CUADERNO_DATOS = 'data-notebook' as const;
+
+export type TabCode = WorkerCode | typeof GENERADOR_DOCUMENTAL | typeof CUADERNO_DATOS;
 
 /**
  * Categorías y Pendientes son de quien CLASIFICA contra el árbol, no de quien
@@ -96,8 +106,19 @@ const CLASIFICAN: readonly TabCode[] = ['semantic-analysis', 'bank-statement'];
 /** El único con franja de revisión humana entre sus dos umbrales. */
 const REVISAN: readonly TabCode[] = ['identity-verification'];
 
+/**
+ * Los que no tienen panel porque no hay nada que vigilar.
+ *
+ * El panel responde «¿está sano el worker?» leyendo su salud, su latencia y su cola en el motor.
+ * El cuaderno no tiene ninguna de las tres: no hay servicio que se caiga ni trabajos que se
+ * acumulen. Enseñarle un panel obligaría a inventar un estado —y un panel siempre en verde sobre
+ * algo que no se mide es peor que no tenerlo, porque se lee como una comprobación hecha.
+ */
+const SOLO_CONSOLA: readonly TabCode[] = [CUADERNO_DATOS];
+
 export function viewsFor(worker: TabCode): readonly WorkerView[] {
   return WORKER_VIEWS.filter((view) => {
+    if (SOLO_CONSOLA.includes(worker)) return view.id === 'consola';
     if (VISTAS_DEL_CATALOGO.includes(view.id)) return CLASIFICAN.includes(worker);
     if (view.id === 'revision') return REVISAN.includes(worker);
     return true;
@@ -112,5 +133,9 @@ export function viewsFor(worker: TabCode): readonly WorkerView[] {
  * tienen.
  */
 export function resolveView(worker: TabCode, requested: string): string {
-  return viewsFor(worker).some((view) => view.id === requested) ? requested : 'panel';
+  const disponibles = viewsFor(worker);
+  if (disponibles.some((view) => view.id === requested)) return requested;
+  // Cae a la PRIMERA vista que ese worker tenga, no a «panel»: el cuaderno no tiene panel, y
+  // devolver un identificador que no está en su lista dejaba la pestaña vacía sin explicación.
+  return disponibles[0]?.id ?? 'panel';
 }

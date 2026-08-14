@@ -1,7 +1,14 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { AudioLines, FileSpreadsheet, FileText, ScanFace, Sparkles } from 'lucide-react';
+import {
+  AudioLines,
+  FileSpreadsheet,
+  FileText,
+  NotebookPen,
+  ScanFace,
+  Sparkles,
+} from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
@@ -11,6 +18,7 @@ import { WorkerCategoriesConsole } from '../features/workers/WorkerCategoriesCon
 import { WorkerDashboard } from '../features/workers/WorkerDashboard';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
 import {
+  CUADERNO_DATOS,
   GENERADOR_DOCUMENTAL,
   resolveView,
   viewsFor,
@@ -18,6 +26,7 @@ import {
   type TabCode,
 } from '../features/workers/worker-views';
 import { fetchWorkerCatalog, type WorkerCode } from '../features/workers/workers.api';
+import { DataNotebookConsole } from '../features/data-notebook/DataNotebookConsole';
 import { DocumentGeneratorConsole } from '../features/documents/DocumentGeneratorConsole';
 import { DocumentGeneratorPanel } from '../features/documents/DocumentGeneratorPanel';
 import { AudioTtsWorkerConsole } from './AudioTtsWorkerPage';
@@ -87,6 +96,14 @@ const WORKERS: readonly WorkerTab[] = [
     fallbackDescription:
       'Genera un PDF maquetado a partir de una plantilla del catálogo y los datos que declara su contrato.',
     hint: 'Entregas datos estructurados y recibes el documento con el membrete, el pie y la numeración puestos. Los campos que pide cada documento los publica el propio motor: esta pantalla no los conoce de antemano.',
+  },
+  {
+    code: CUADERNO_DATOS,
+    label: 'Cuaderno de datos',
+    icon: NotebookPen,
+    fallbackDescription:
+      'Analiza los datos gobernados de AtlasBackend con Python y JavaScript, en celdas, sin salir del portal.',
+    hint: 'Eliges un dataset y lo trabajas con pandas o con JavaScript, celda a celda. El código corre en tu propia pestaña —no viaja a ningún servidor— y cada tabla se descarga en CSV o JSON.',
   },
 ];
 
@@ -185,6 +202,10 @@ export function WorkersPage({ initialWorker }: { initialWorker?: TabCode }) {
                 ) : workerId === 'audio-tts' ? (
                   <div data-tutorial-id="workers-console">
                     <AudioTtsWorkerConsole />
+                  </div>
+                ) : workerId === CUADERNO_DATOS ? (
+                  <div data-tutorial-id="workers-console">
+                    <DataNotebookConsole />
                   </div>
                 ) : workerId === GENERADOR_DOCUMENTAL ? (
                   <div data-tutorial-id="workers-console">

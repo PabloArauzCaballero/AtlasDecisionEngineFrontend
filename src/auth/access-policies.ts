@@ -131,4 +131,17 @@ export const accessPolicies = {
     'COMPLIANCE',
     'AUDITOR',
   ] as const,
+  // Cuaderno de datos — análisis con Python y JavaScript sobre la superficie `read_api` de
+  // AtlasBackend.
+  //
+  // MÁS ESTRECHO que `workers` a propósito, y por un motivo que no es simétrico con el resto de
+  // pestañas de «Procesamiento»: las otras enseñan la ejecución de un worker —un extracto, una
+  // verificación— mientras que ésta entrega FILAS de clientes, casos y bitácora, en bloque y
+  // descargables. `QA_ANALYST` y `OPERATIONS` quedan fuera por eso: quien diseña artefactos
+  // trabaja contra datos sintéticos y quien opera la cola necesita su caso, no el censo.
+  //
+  // Espeja `DATA_NOTEBOOK_ROLES` de AtlasBackend. Que esta lista fuera más ancha no abriría
+  // nada —el backend revalida— pero dejaría a alguien entrar a una pantalla que responde 403 en
+  // cuanto pide el primer dataset, que es la peor forma de negar un permiso.
+  dataNotebook: ['RISK_ANALYST', 'FRAUD_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
 } as const;

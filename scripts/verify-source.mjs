@@ -25,9 +25,19 @@ const ignoredDirectories = new Set(['.git', 'node_modules', 'coverage', 'docs'])
  * elija quede fuera, no sólo los dos que hoy usamos.
  */
 const isBuildDirectory = (name) => name.startsWith('.next');
+/**
+ * Los tres sitios donde `fetch()` directo es LEGÍTIMO, y por qué son tres y no más.
+ *
+ * La regla existe para que el navegador nunca hable con un backend saltándose la sesión, la
+ * renovación de token y el manejo de errores de `http-client`. Los dos proxis no son el navegador:
+ * corren en el servidor de Next y su trabajo ES reenviar la petición tal como llegó, credencial
+ * incluida. Usar el cliente autorizado ahí sería absurdo —no hay sesión de navegador que
+ * consultar— y además volvería a envolver un cuerpo que sólo tiene que atravesar.
+ */
 const authorizedFetchFiles = new Set([
   'src/api/http-client.ts',
   'src/server/decision-engine-proxy.ts',
+  'src/server/atlas-backend-proxy.ts',
 ]);
 /**
  * Vistas cuya ausencia rompe la navegación del portal aunque nada falle al

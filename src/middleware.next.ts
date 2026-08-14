@@ -17,7 +17,24 @@ function contentSecurityPolicy(nonce: string): string {
   const devOnly = process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : '';
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${devOnly}`,
+    /*
+     * `'wasm-unsafe-eval'` es lo que deja compilar WebAssembly, y NADA más.
+     *
+     * Lo pide el cuaderno de datos: su Python es CPython compilado a WebAssembly (Pyodide),
+     * servido desde `/pyodide/` de este mismo origen. Sin este token el navegador rechaza el
+     * módulo con «WebAssembly.instantiate(): Refused to compile» y la pestaña de Python no
+     * arranca.
+     *
+     * No es `'unsafe-eval'` ni se le parece: `'unsafe-eval'` reabre `eval()` y `new Function()`
+     * para TODO el portal, que es exactamente el vector que un XSS necesita. El token de WASM
+     * autoriza la compilación de WebAssembly y deja la evaluación de cadenas de JavaScript tan
+     * cerrada como estaba. Existe en la especificación precisamente para no tener que elegir
+     * entre las dos cosas.
+     *
+     * El JavaScript de las celdas no necesita nada de esto: se carga como worker desde un
+     * `blob:` (ver `worker-src`), que es cargar un script y no generarlo en caliente.
+     */
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${devOnly}`,
     // Next.js inyecta estilos en línea al hidratar; no hay forma de firmarlos.
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",

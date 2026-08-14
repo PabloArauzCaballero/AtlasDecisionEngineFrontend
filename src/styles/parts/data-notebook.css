@@ -1,0 +1,296 @@
+/*
+ * Cuaderno de datos.
+ *
+ * La forma la manda el contenido: una columna de celdas, cada una con su canalón a la izquierda —
+ * el botón de ejecutar y el número de ejecución— y su salida pegada debajo. Es la disposición de
+ * cualquier cuaderno, y no es estética: lo que se lee es la pareja «este código produjo esta
+ * salida», así que separarlos en dos zonas de la pantalla rompería justamente la unidad que se
+ * está mirando.
+ */
+
+.notebook {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.notebook-loading,
+.notebook-error {
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.notebook-error {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+
+/* ---- Dataset cargado ---- */
+
+.notebook-dataset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.notebook-dataset__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.notebook-dataset__picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 16rem;
+  flex: 1 1 16rem;
+}
+
+.notebook-dataset__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-medium);
+}
+
+.notebook-dataset__description {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.notebook-dataset__scope {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.notebook-dataset__scope code {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-xs);
+  background: var(--surface-inset);
+  color: var(--code-ink);
+}
+
+.notebook-dataset__notice,
+.notebook-dataset__error,
+.notebook-dataset__loading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-xs);
+}
+
+.notebook-dataset__notice {
+  border: 1px solid var(--warning-line);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+
+.notebook-dataset__error {
+  border: 1px solid var(--danger-line);
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+
+.notebook-dataset__loading {
+  color: var(--text-muted);
+}
+
+/* ---- Estado del intérprete ---- */
+
+.notebook-python {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-xs);
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.notebook-python--ready {
+  border-color: var(--success-line);
+  background: var(--success-wash);
+  color: var(--success-text);
+}
+
+.notebook-python--unavailable {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
+
+/* ---- Celdas ---- */
+
+.notebook__cells {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.notebook-cell {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.notebook-cell__gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 3rem;
+  flex: 0 0 3rem;
+}
+
+.notebook-cell__run {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.notebook-cell__run:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--line-strong);
+}
+
+.notebook-cell__run:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.notebook-cell__run:disabled {
+  cursor: progress;
+  color: var(--text-muted);
+}
+
+.notebook-cell__count {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+.notebook-cell__spin {
+  animation: notebook-spin 1s linear infinite;
+}
+
+@keyframes notebook-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-cell__spin {
+    animation: none;
+  }
+}
+
+.notebook-cell__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.notebook-cell__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.notebook-cell__tools {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.notebook-cell__code {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--code-surface);
+  color: var(--code-ink);
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+  resize: vertical;
+  overflow: hidden;
+}
+
+.notebook-cell__code:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.notebook-cell__output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border-left: 3px solid var(--line);
+}
+
+.notebook-cell__output--error {
+  border-left-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.notebook-cell__logs,
+.notebook-cell__error,
+.notebook-cell__value {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.notebook-cell__error {
+  color: var(--danger-text);
+}
+
+.notebook-cell__silent,
+.notebook-cell__timing {
+  margin: 0;
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+}

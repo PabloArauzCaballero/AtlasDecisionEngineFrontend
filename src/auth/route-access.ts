@@ -100,6 +100,9 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/workers\/identity-verification\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/audio-tts\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/pdf-generator\/?$/, roles: accessPolicies.workers },
+  // El cuaderno NO usa `accessPolicies.workers`: entrega filas de personas reales, no la
+  // ejecución de un worker. Su lista es propia y más corta.
+  { pattern: /^\/workers\/data-notebook\/?$/, roles: accessPolicies.dataNotebook },
 ];
 
 /**

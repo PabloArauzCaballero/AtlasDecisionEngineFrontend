@@ -1,0 +1,145 @@
+/*
+ * La tabla del cuaderno, su barra de descargas y su paginador.
+ *
+ * Vive aparte de `data-notebook.css` por el techo de 299 líneas del repositorio, y el corte no es
+ * arbitrario: la tabla la usan dos sitios —la vista previa del dataset y la salida de una celda—
+ * mientras que el resto del archivo describe el cuaderno.
+ */
+
+.notebook-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.notebook-result__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.notebook-result__count {
+  margin: 0;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
+.notebook-result__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/*
+ * El desplazamiento horizontal vive AQUÍ, no en la página.
+ *
+ * Una tabla de treinta columnas es normal en esta pantalla, y sin este contenedor el cuerpo
+ * entero se desplaza de lado: el menú se va, la cabecera se va, y volver a la izquierda es un
+ * gesto que no debería hacer falta para leer una celda.
+ */
+.notebook-result__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.notebook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-xs);
+}
+
+.notebook-table th,
+.notebook-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--line-soft);
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.notebook-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line);
+  font-weight: var(--weight-semibold);
+}
+
+.notebook-table__name {
+  font-family: var(--font-mono);
+}
+
+.notebook-table__index {
+  width: 3rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.notebook-table td {
+  font-family: var(--font-mono);
+  max-width: 28rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notebook-table__empty {
+  color: var(--text-muted);
+  font-family: inherit;
+  text-align: center;
+  padding: var(--space-5);
+}
+
+/*
+ * La política de una columna se dice en su cabecera, no en un aviso general.
+ *
+ * Un cartel arriba diciendo «hay columnas enmascaradas» obliga a adivinar cuáles, y quien agrupe
+ * por la que no debía no se entera. Dicho en la propia columna, la advertencia está donde se toma
+ * la decisión.
+ */
+.notebook-table__policy {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-normal);
+}
+
+.notebook-table__policy--masked {
+  color: var(--warning-text);
+}
+
+.notebook-table__policy--redacted {
+  color: var(--danger-text);
+}
+
+.notebook-result__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.notebook-result__page {
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.notebook-result__size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
+.notebook__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

@@ -32,3 +32,6 @@ test-results/
 # docs/visual-evidence/ SÍ se versionan: esas son documentación, no salida.
 docs/visual-evidence/real/
 .next-audit/
+
+# Pyodide vendorizado por scripts/setup-pyodide.mjs: artefacto reproducible de ~21 MB.
+public/pyodide/
