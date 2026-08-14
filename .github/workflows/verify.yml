@@ -156,8 +156,14 @@ jobs:
       # once CVE altos en `next` sin que nadie se entere.
       #
       # Los once de `next` SÍ eran de producción: esta puerta los habría parado.
+      # `yarn audit --level high` NO hace lo que su nombre promete: en yarn 1 `--level` filtra
+      # lo que se IMPRIME, y el codigo de salida es un mapa de bits con TODAS las severidades
+      # (1 info · 2 low · 4 moderate · 8 high · 16 critical). Con cero avisos altos y cuatro
+      # bajos/moderados salia con 6, asi que este trabajo llevaba rojo por avisos que el
+      # comentario de abajo dice explicitamente NO bloquear — y una puerta siempre roja se
+      # ignora, que es como se acumulan once CVE altos en `next` sin que nadie se entere.
       - name: Audit runtime dependencies
-        run: yarn audit --level high --groups dependencies
+        run: yarn security:audit
 
       # El resto se informa entero, incluidas las de desarrollo y las moderadas.
       # `|| true` porque `yarn audit` sale con código distinto de cero en cuanto

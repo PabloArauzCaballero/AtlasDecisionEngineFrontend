@@ -22,7 +22,9 @@
     "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
     "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build",
     "evidencia:responsive": "node scripts/evidencia-responsive.mjs",
-    "evidencia:responsive:auditar": "node scripts/evidencia-responsive.mjs --solo-auditar"
+    "evidencia:responsive:auditar": "node scripts/evidencia-responsive.mjs --solo-auditar",
+    "security:audit": "node scripts/audit-high.mjs",
+    "security:audit:todo": "node scripts/audit-high.mjs --todos"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -54,5 +56,8 @@
     "typescript-eslint": "^8.35.1",
     "vitest": "^3.2.4"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "resolutions": {
+    "dompurify": "^3.4.13"
+  }
 }
