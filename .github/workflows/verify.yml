@@ -108,3 +108,99 @@ jobs:
           name: playwright-report
           path: test-results/
           retention-days: 7
+
+  # Seguridad de la cadena de suministro.
+  #
+  # No existía, y por eso el portal llegó a acumular 31 avisos de severidad alta
+  # —once de ellos en `next`, incluidos SSRF y saltos de middleware— sin que
+  # ninguna corrida se pusiera roja. Un aviso que hay que acordarse de consultar
+  # no es un control; es una sugerencia.
+  #
+  # Va en trabajo aparte y no dentro de `static` para que un fallo diga qué se
+  # rompió sin tener que leer el registro: «tipos» y «dependencia vulnerable» se
+  # arreglan en sitios distintos y a veces por personas distintas.
+  supply-chain:
+    name: Dependencias, secretos e inventario (SBOM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        # Historia completa: sin ella el escaneo de secretos sólo ve el último
+        # commit, y una credencial se filtra en el commit que la introdujo, no
+        # en el que la borra.
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies from lockfile
+        run: yarn install --frozen-lockfile
+
+      # Bloquea por avisos ALTOS en lo que se despliega.
+      #
+      # `--groups dependencies` deja fuera las herramientas de desarrollo a
+      # propósito, y no para bajar el listón: los avisos que quedan hoy en
+      # `eslint`, `typescript-eslint` y `vitest` son denegaciones de servicio en
+      # procesos que sólo corren aquí, sobre entrada nuestra, y no llegan al
+      # navegador de nadie. Bloquear por ellos obligaría a fijar versiones
+      # transitivas de terceros cada semana, y una puerta que hay que sortear a
+      # mano cada semana acaba desactivada — que es como se llega a acumular
+      # once CVE altos en `next` sin que nadie se entere.
+      #
+      # Los once de `next` SÍ eran de producción: esta puerta los habría parado.
+      - name: Audit runtime dependencies
+        run: yarn audit --level high --groups dependencies
+
+      # El resto se informa entero, incluidas las de desarrollo y las moderadas.
+      # `|| true` porque `yarn audit` sale con código distinto de cero en cuanto
+      # encuentra algo, y aquí el objetivo es dejar el inventario en el registro.
+      - name: Report every advisory (no bloquea)
+        if: always()
+        run: yarn audit || true
+
+      # Inventario de software: hace falta para atestar la procedencia del
+      # artefacto (NIST SSDF, y EO 14028 para cualquier comprador federal).
+      - name: Generate SBOM (CycloneDX)
+        run: npx --yes @cyclonedx/cyclonedx-npm@latest --output-file sbom.json --output-format JSON
+
+      - name: Publish SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+
+      - name: Scan history for leaked secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Análisis estático de seguridad del código propio, que es lo que `yarn audit`
+  # no mira: el audit sólo sabe de dependencias publicadas.
+  codeql:
+    name: Análisis estático de seguridad (CodeQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialise CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: Analyse
+        uses: github/codeql-action/analyze@v3

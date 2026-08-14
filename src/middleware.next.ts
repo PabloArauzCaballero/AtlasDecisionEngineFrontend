@@ -21,6 +21,18 @@ function contentSecurityPolicy(nonce: string): string {
     // Next.js inyecta estilos en línea al hidratar; no hay forma de firmarlos.
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
+    /*
+     * El audio del worker de locución llega como `blob:`, y sin esta línea NO
+     * suena: `media-src` no estaba declarado, así que caía en `default-src
+     * 'self'` y el navegador bloqueaba la reproducción. El fallo era silencioso
+     * en la interfaz —el reproductor aparecía y no hacía nada—; sólo se veía en
+     * la consola del navegador, que es donde nadie mira.
+     *
+     * `blob:` y no un origen: el portal no apunta el `<audio>` al motor, porque
+     * cargar un medio es una navegación del navegador y ahí no viaja el
+     * `Authorization`. Se pide con la credencial puesta y se reproduce local.
+     */
+    "media-src 'self' blob:",
     "font-src 'self' data:",
     // Todo el tráfico de datos es del mismo origen: el proxy `/v1` lo reenvía.
     "connect-src 'self'",

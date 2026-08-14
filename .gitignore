@@ -1,6 +1,10 @@
 .env
 .env.local
 .env.*.local
+# Credenciales de la corrida E2E contra el motor real. Se cargan por entorno y
+# NUNCA se versionan: un valor que entra en el historial de git se considera
+# comprometido para siempre, aunque se borre el archivo después.
+.env.e2e
 
 
 graphify-out/
@@ -27,3 +31,4 @@ test-results/
 # script y no tiene por qué viajar en la historia. Las capturas curadas a mano de
 # docs/visual-evidence/ SÍ se versionan: esas son documentación, no salida.
 docs/visual-evidence/real/
+.next-audit/

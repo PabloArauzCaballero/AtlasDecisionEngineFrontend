@@ -19,19 +19,44 @@ services:
       # su puerto solo en 127.0.0.1 del anfitrión: alcanzable desde el navegador,
       # pero no desde otro contenedor. Contenedor a contenedor no depende de
       # ninguna publicación de puertos.
-      DECISION_ENGINE_URL: ${DECISION_ENGINE_URL:-http://api:3000}
+      #
+      # La variable de override se llama distinto A PROPÓSITO. Con
+      # `${DECISION_ENGINE_URL:-…}`, el `.env` del repositorio —que existe para el
+      # servidor de desarrollo del anfitrión, donde `api` no resuelve— se colaba
+      # dentro del contenedor y ganaba a este valor por omisión. El resultado era
+      # un portal en Docker hablando con el motor por el puerto publicado del
+      # anfitrión: funciona hasta que ese puerto deja de publicarse, y entonces
+      # falla con 502 sin que nada en este archivo lo explique.
+      DECISION_ENGINE_URL: ${FRONTEND_CONTAINER_ENGINE_URL:-http://api:3000}
+      # Sólo `/pdf/generate` y `/pdf/preview` van aquí: son las únicas que
+      # necesitan un navegador, y la imagen de la API del motor no lo lleva. El
+      # resto de `/pdf/*` sigue yendo al motor, que es quien tiene la base.
+      # Sin esta variable, imprimir falla contra el motor con un error explicado
+      # en vez de desviarse en silencio a un servicio que quizá no exista.
+      PDF_WORKER_URL: ${FRONTEND_CONTAINER_PDF_WORKER_URL:-http://pdf-worker:3100}
       TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
-      NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-SANDBOX}
+      DECISION_ENGINE_TIMEOUT_MS: ${DECISION_ENGINE_TIMEOUT_MS:-20000}
+      # Sin valor, /metrics responde 404 y las métricas del motor no salen por
+      # el portal. Es el valor por omisión a propósito: se raspa al motor.
+      METRICS_SCRAPE_TOKEN: ${METRICS_SCRAPE_TOKEN:-}
+      NEXT_PUBLIC_ENVIRONMENT: ${NEXT_PUBLIC_ENVIRONMENT:-DEV}
     networks:
       - default
       - atlas-engine
     restart: unless-stopped
 
 networks:
-  # Red que crea el compose del motor (`name: atlas-decision-engine` → red
-  # `atlas-decision-engine_default`). Es EXTERNA a propósito: este proyecto no la
-  # gestiona, solo se conecta. Hay que levantar el motor primero; si no existe,
-  # Compose lo dice en vez de arrancar un frontend que no llega a ningún sitio.
+  # Red de aplicación que crea el compose del motor (`name: atlas-decision-engine`
+  # → red `atlas-decision-engine_atlas_app`). Es EXTERNA a propósito: este
+  # proyecto no la gestiona, solo se conecta. Hay que levantar el motor primero;
+  # si no existe, Compose lo dice en vez de arrancar un frontend que no llega a
+  # ningún sitio.
+  #
+  # NO es `_default`. El motor segmentó sus redes en `atlas_app` (API y worker) y
+  # `atlas_data` (base y caché), y su red por omisión dejó de tener a nadie
+  # dentro: el portal seguía enganchado a ella creyéndose conectado, `api` no
+  # resolvía, y toda la interfaz respondía 502. `atlas_data` NO se toca —el
+  # portal no habla con la base—.
   atlas-engine:
     external: true
-    name: atlas-decision-engine_default
+    name: atlas-decision-engine_atlas_app
