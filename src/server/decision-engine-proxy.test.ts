@@ -32,6 +32,8 @@ describe('decision engine proxy', () => {
     else process.env.TRUSTED_PROXY = previousTrust;
     if (previousTimeoutMs === undefined) delete process.env.DECISION_ENGINE_TIMEOUT_MS;
     else process.env.DECISION_ENGINE_TIMEOUT_MS = previousTimeoutMs;
+    delete process.env.PDF_WORKER_URL;
+    delete process.env.PDF_WORKER_SERVICE_KEY;
   });
 
   it('resolves DECISION_ENGINE_URL at request time and preserves query parameters', async () => {
@@ -160,5 +162,130 @@ describe('decision engine proxy', () => {
     expect(await response.json()).toEqual(
       expect.objectContaining({ code: 'DECISION_ENGINE_UNAVAILABLE' }),
     );
+  });
+
+  /*
+   * El defecto que estas tres pruebas impiden que vuelva.
+   *
+   * El generador documental dejó de aceptar peticiones anónimas y el portal siguió
+   * reenviando su 401 tal cual. `authorizedFetch` lee CUALQUIER 401 como «la sesión murió»:
+   * renovaba el token, reintentaba, recibía el mismo 401 y llamaba a `expireSession()`. Pulsar
+   * «generar» echaba a la persona del portal con el mensaje «Tu sesión venció» — que manda a
+   * revisar las credenciales de acceso cuando lo que falta es una variable del servidor.
+   */
+  it('un 401 del worker de PDF NO se reenvía como 401: sería echar a quien mira', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('{"code":"SERVICE_UNAUTHORIZED"}', { status: 401 }),
+    );
+
+    const response = await proxyDecisionEngine(request('https://portal.example/pdf/generate'), [
+      'pdf',
+      'generate',
+    ]);
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({ code: 'PDF_WORKER_UNAUTHORIZED' }),
+    );
+  });
+
+  it('lo mismo con un 403 del worker', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 403 }));
+
+    const response = await proxyDecisionEngine(request('https://portal.example/pdf/preview'), [
+      'pdf',
+      'preview',
+    ]);
+
+    expect(response.status).toBe(502);
+  });
+
+  it('un 401 del MOTOR sí se reenvía: ahí la sesión sí es lo que falla', async () => {
+    /*
+     * La otra mitad, y la que impide arreglar esto de más. Si el motor rechaza el token, la
+     * sesión de verdad venció y el portal debe enterarse: convertir también ese 401 en 502
+     * dejaría a alguien con una sesión muerta mirando «no se pudo conectar» para siempre.
+     */
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 401 }));
+
+    const response = await proxyDecisionEngine(request('https://portal.example/v1/artifacts'), [
+      'v1',
+      'artifacts',
+    ]);
+
+    expect(response.status).toBe(401);
+  });
+
+  /*
+   * El «diputado confundido» que salió al arreglar lo anterior.
+   *
+   * El resto de `/pdf/*` va al motor, que exige credencial y roles; `generate` y `preview` se
+   * desvían al worker, que sólo mira la clave de SERVICIO — y esa la pone el portal. Medido
+   * contra el despliegue real: `GET /pdf/templates` sin sesión daba 401 y `POST /pdf/generate`
+   * sin sesión daba 422, es decir, pasaba de largo. Cualquiera que alcanzara el portal podía
+   * fabricar documentos con la identidad institucional.
+   */
+  it('no presta la clave del worker a quien no trae sesión', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
+    const upstream = vi.spyOn(globalThis, 'fetch');
+
+    const anonima = {
+      method: 'POST',
+      headers: new Headers(),
+      nextUrl: new URL('https://portal.example/pdf/generate'),
+      arrayBuffer: async () => new ArrayBuffer(0),
+    } as unknown as NextRequest;
+
+    const response = await proxyDecisionEngine(anonima, ['pdf', 'generate']);
+
+    expect(response.status).toBe(401);
+    // Y lo que más importa: NO se llegó a llamar al worker. Rechazar después de haberle
+    // mandado la petición dejaría la puerta abierta con un portero educado.
+    expect(upstream).not.toHaveBeenCalled();
+  });
+
+  it('con sesión, adjunta la clave de servicio y sólo en el salto al worker', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
+    const upstream = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 200 }));
+
+    const conSesion = {
+      method: 'POST',
+      headers: new Headers({ authorization: 'Bearer portal-token' }),
+      nextUrl: new URL('https://portal.example/pdf/generate'),
+      arrayBuffer: async () => new ArrayBuffer(0),
+    } as unknown as NextRequest;
+
+    await proxyDecisionEngine(conSesion, ['pdf', 'generate']);
+
+    const enviadas = upstream.mock.calls[0]?.[1] as RequestInit;
+    expect(new Headers(enviadas.headers).get('x-pdf-service-key')).toBe('clave-de-servicio');
+  });
+
+  it('al MOTOR nunca le llega la clave del worker', async () => {
+    // Una credencial no viaja a donde no hace falta: mandarla al motor la filtraría a un
+    // destino que no la usa, multiplicando por dos los sitios desde donde se puede escapar.
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+    process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
+    const upstream = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('{}', { status: 200 }));
+
+    await proxyDecisionEngine(request('https://portal.example/v1/artifacts'), ['v1', 'artifacts']);
+
+    const enviadas = upstream.mock.calls[0]?.[1] as RequestInit;
+    expect(new Headers(enviadas.headers).get('x-pdf-service-key')).toBeNull();
   });
 });

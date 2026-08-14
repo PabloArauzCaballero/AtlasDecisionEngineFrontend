@@ -34,6 +34,15 @@ services:
       # Sin esta variable, imprimir falla contra el motor con un error explicado
       # en vez de desviarse en silencio a un servicio que quizá no exista.
       PDF_WORKER_URL: ${FRONTEND_CONTAINER_PDF_WORKER_URL:-http://pdf-worker:3100}
+      # Clave de SERVICIO del generador documental, desde que dejó de aceptar peticiones
+      # anónimas. Sin ella, el worker responde 401 al proxy y hasta ahora eso echaba a la
+      # persona del portal: `authorizedFetch` lee cualquier 401 como «la sesión murió». Hoy el
+      # proxy lo traduce a 502 y la sesión no se toca, pero sin la clave imprimir sigue sin
+      # funcionar — que es un fallo honesto, no una expulsión.
+      #
+      # Debe coincidir con `PDF_SERVICE_API_KEY` del motor. Vacía sólo es válido si el worker
+      # corre con `PDF_SERVICE_AUTH_ENABLED=false`.
+      PDF_WORKER_SERVICE_KEY: ${PDF_WORKER_SERVICE_KEY:-}
       TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
       DECISION_ENGINE_TIMEOUT_MS: ${DECISION_ENGINE_TIMEOUT_MS:-20000}
       # Sin valor, /metrics responde 404 y las métricas del motor no salen por

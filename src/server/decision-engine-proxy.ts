@@ -165,10 +165,39 @@ export async function proxyDecisionEngine(
     headers.set('x-forwarded-proto', request.nextUrl.protocol.replace(':', ''));
     if (clientChain) headers.set('x-forwarded-for', clientChain);
 
-    // La clave del worker SÓLO en el salto que va al worker. Mandarla también al motor
-    // filtraría una credencial de servicio a un destino que no la necesita, y la primera regla
-    // de una credencial es que no viaje a donde no hace falta.
+    /*
+     * Al worker sólo se le presta la clave si QUIEN PIDE trae sesión.
+     *
+     * Sin esta guarda el portal es un «diputado confundido»: el resto de `/pdf/*` va al motor,
+     * que exige credencial y roles, pero `generate` y `preview` se desvían al worker, y el
+     * worker sólo comprueba la clave de SERVICIO — que la pone el portal. Medido:
+     *
+     *     GET  :5180/pdf/templates sin sesión → 401   (va al motor)
+     *     POST :5180/pdf/generate  sin sesión → 422   (pasó de largo)
+     *
+     * O sea que cualquiera que alcanzara el portal podía fabricar documentos con la identidad
+     * institucional. Ya pasaba antes de que el worker tuviera puerta —entonces no pedía nada—,
+     * así que ponerle credencial de servicio no lo arregló: lo disfrazó.
+     *
+     * Se exige el mismo `Authorization` que el motor pediría. NO sustituye a validar el token:
+     * eso lo hace el motor en el resto de rutas y el worker todavía no sabe hacerlo. Lo que
+     * cierra es el acceso anónimo, que es el agujero real; queda anotado que un token caducado
+     * o robado seguiría pasando hasta que el worker valide el JWT.
+     */
     if (imprime) {
+      const credencial = request.headers.get('authorization');
+      if (!credencial) {
+        return NextResponse.json(
+          {
+            code: 'UNAUTHORIZED',
+            message: 'Generar un documento exige una sesión activa.',
+          },
+          { status: 401 },
+        );
+      }
+      // La clave del worker SÓLO en el salto que va al worker. Mandarla también al motor
+      // filtraría una credencial de servicio a un destino que no la necesita, y la primera
+      // regla de una credencial es que no viaje a donde no hace falta.
       const serviceKey = pdfServiceKey();
       if (serviceKey) headers.set('x-pdf-service-key', serviceKey);
     }
@@ -190,6 +219,33 @@ export async function proxyDecisionEngine(
       cache: 'no-store',
       signal: AbortSignal.timeout(timeoutMs),
     });
+    /*
+     * Un 401 del WORKER no es un 401 de quien mira la pantalla.
+     *
+     * Cuando el generador documental rechaza la clave de servicio —o el despliegue no la tiene
+     * configurada— el fallo es del portal hablando con otro servicio, no de la sesión de nadie.
+     * Reenviarlo tal cual tenía una consecuencia desproporcionada y medida: `authorizedFetch`
+     * trata CUALQUIER 401 como «la sesión murió», así que renovaba el token, reintentaba,
+     * recibía el mismo 401 y llamaba a `expireSession()`. Resultado: pulsar «generar» echaba a
+     * la persona del portal con el mensaje «Tu sesión venció», que manda a mirar las
+     * credenciales de acceso cuando lo que falta es una variable de entorno del servidor.
+     *
+     * Se traduce a 502: es exactamente lo que significa —la pasarela no pudo autenticarse
+     * contra su servicio de aguas abajo— y no toca la sesión. El código propio dice dónde
+     * mirar.
+     */
+    if (imprime && (upstream.status === 401 || upstream.status === 403)) {
+      return NextResponse.json(
+        {
+          code: 'PDF_WORKER_UNAUTHORIZED',
+          message:
+            'El portal no pudo acreditarse ante el generador documental. Es un problema de ' +
+            'configuración del servidor (PDF_WORKER_SERVICE_KEY), no de tu sesión.',
+        },
+        { status: 502 },
+      );
+    }
+
     const responseHeaders = new Headers(upstream.headers);
     responseHeadersToRemove.forEach((header) => responseHeaders.delete(header));
 
