@@ -61,6 +61,18 @@ test.describe('cuaderno de datos · Python', () => {
     await expect(salida.locator('.notebook-table tbody tr')).toHaveCount(2);
     await expect(salida).toContainText('SUSPENDED');
     await expect(page.locator('.notebook-python--ready')).toBeVisible();
+
+    // La captura va DESPUÉS de las aserciones, no en su lugar: así la foto sólo existe si lo que
+    // muestra es cierto. Es la única evidencia donde se ve pandas resolviendo de verdad.
+    //
+    // De la ventana y no de la página completa: la barra lateral es `position: fixed` y en una
+    // captura de página entera el navegador la dibuja a la altura del scroll, flotando sobre la
+    // tabla. La imagen se leería como una interfaz rota cuando lo roto seria la forma de mirarla.
+    await page.locator('.notebook-cell').first().scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/visual-evidence/cuaderno/04-celda-python-pandas.png',
+      animations: 'disabled',
+    });
   });
 
   test('print viaja como salida y el traceback de Python se enseña entero', async ({ page }) => {
