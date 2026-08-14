@@ -43,6 +43,23 @@ services:
       # Debe coincidir con `PDF_SERVICE_API_KEY` del motor. Vacía sólo es válido si el worker
       # corre con `PDF_SERVICE_AUTH_ENABLED=false`.
       PDF_WORKER_SERVICE_KEY: ${PDF_WORKER_SERVICE_KEY:-}
+      # Destino del cuaderno de datos. Es OTRO servicio, no el motor: los datasets salen de la
+      # superficie `read_api` de AtlasBackend.
+      #
+      # `atlasbackend-api-1` y no `api`, que sería lo natural. Este contenedor está enganchado a
+      # DOS redes y en ambas hay un servicio llamado `api` —el del motor y el de AtlasBackend—,
+      # así que ese nombre resuelve al que Docker decida y el portal acabaría pidiendo datasets al
+      # motor, que responde 404. El nombre largo es el otro alias del contenedor y no es ambiguo.
+      #
+      # El puerto es 3005 (`APP_PORT` de AtlasBackend), no el 53005 publicado: contenedor a
+      # contenedor no pasa por ninguna publicación de puertos.
+      #
+      # La variable de override se llama distinto A PROPÓSITO, por la misma lección que
+      # `FRONTEND_CONTAINER_ENGINE_URL`: si se llamara `ATLAS_BACKEND_URL`, el `.env` del
+      # repositorio —que apunta a `127.0.0.1:53005` para el servidor de desarrollo del anfitrión—
+      # se colaría dentro del contenedor, donde `127.0.0.1` es el propio contenedor. El cuaderno
+      # respondería 502 sin que nada en este archivo lo explicara.
+      ATLAS_BACKEND_URL: ${FRONTEND_CONTAINER_BACKEND_URL:-http://atlasbackend-api-1:3005}
       TRUSTED_PROXY: ${TRUSTED_PROXY:-false}
       DECISION_ENGINE_TIMEOUT_MS: ${DECISION_ENGINE_TIMEOUT_MS:-20000}
       # Sin valor, /metrics responde 404 y las métricas del motor no salen por
@@ -52,6 +69,7 @@ services:
     networks:
       - default
       - atlas-engine
+      - atlas-backend
     restart: unless-stopped
 
 networks:
@@ -69,3 +87,13 @@ networks:
   atlas-engine:
     external: true
     name: atlas-decision-engine_atlas_app
+
+  # Red del proveedor de identidad (`AtlasBackend`), de donde el cuaderno de datos saca sus
+  # datasets. También EXTERNA: este proyecto no la gestiona, sólo se engancha.
+  #
+  # Hasta ahora el portal no necesitaba hablar con AtlasBackend —la sesión la negocia el motor,
+  # que es quien reenvía el login al proveedor—, así que no compartían ninguna red. El cuaderno es
+  # lo primero que sale directo hacia allí.
+  atlas-backend:
+    external: true
+    name: atlasbackend_default
