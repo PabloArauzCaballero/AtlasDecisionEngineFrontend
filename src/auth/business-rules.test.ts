@@ -10,7 +10,7 @@ import {
 } from './business-rules';
 import { hasAnyRole } from './roles';
 
-const SANDBOX = { code: 'SANDBOX', isProduction: false };
+const DEV = { code: 'DEV', isProduction: false };
 const PROD = { code: 'PROD', isProduction: true };
 
 describe('alta de artefactos', () => {
@@ -64,7 +64,7 @@ describe('qué ambiente cuenta como producción', () => {
 
 describe('promoción de una versión («merge»)', () => {
   it('deja al tester promover a un ambiente de trabajo', () => {
-    expect(canPromoteToEnvironment(['QA_ANALYST'], SANDBOX)).toBe(true);
+    expect(canPromoteToEnvironment(['QA_ANALYST'], DEV)).toBe(true);
     expect(canPromoteToEnvironment(['FRAUD_ANALYST'], { code: 'TEST', isProduction: false })).toBe(
       true,
     );
@@ -77,15 +77,15 @@ describe('promoción de una versión («merge»)', () => {
   });
 
   it('no deja promover a nada al analista de riesgo', () => {
-    expect(canPromoteToEnvironment(['RISK_ANALYST'], SANDBOX)).toBe(false);
+    expect(canPromoteToEnvironment(['RISK_ANALYST'], DEV)).toBe(false);
     expect(canPromoteToEnvironment(['RISK_ANALYST'], PROD)).toBe(false);
   });
 
   it('explica el motivo del bloqueo, distinguiendo producción del resto', () => {
     expect(promotionDenialReason(['PLATFORM_ADMIN'], PROD)).toBeNull();
-    expect(promotionDenialReason(['QA_ANALYST'], SANDBOX)).toBeNull();
+    expect(promotionDenialReason(['QA_ANALYST'], DEV)).toBeNull();
     expect(promotionDenialReason(['QA_ANALYST'], PROD)).toMatch(/Platform Admin/);
-    expect(promotionDenialReason(['RISK_ANALYST'], SANDBOX)).toMatch(/QA Analyst/);
+    expect(promotionDenialReason(['RISK_ANALYST'], DEV)).toMatch(/QA Analyst/);
   });
 });
 

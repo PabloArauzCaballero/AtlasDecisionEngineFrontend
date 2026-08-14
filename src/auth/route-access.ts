@@ -73,6 +73,10 @@ const routeAccessRules: readonly RouteAccessRule[] = [
     roles: accessPolicies.executionAudit,
   },
   { pattern: /^\/audit-events\/?$/, roles: accessPolicies.auditEvents },
+  { pattern: /^\/model-monitoring\/?$/, roles: accessPolicies.modelMonitoring },
+  { pattern: /^\/data-subject-requests\/?$/, roles: accessPolicies.dataSubjectRights },
+  { pattern: /^\/decision-quality\/?$/, roles: accessPolicies.decisionQuality },
+  { pattern: /^\/risk-governance\/?$/, roles: accessPolicies.riskGovernance },
   {
     pattern: /^\/objectives(?:\/[^/]+)?\/?$/,
     roles: accessPolicies.traceability,
@@ -85,10 +89,13 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   // ADR-0026 — workers adicionales. Una regla por vista y no un comodín
   // `/workers/...`: un comodín daría acceso a cualquier worker que se añada
   // después, sin que nadie lo decida. `/workers` a secas es el concentrador con
-  // las dos pestañas, y por eso lleva su propia regla exacta.
+  // las pestañas, y por eso lleva su propia regla exacta.
   { pattern: /^\/workers\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/semantic-analysis\/?$/, roles: accessPolicies.workers },
   { pattern: /^\/workers\/bank-statement\/?$/, roles: accessPolicies.workers },
+  { pattern: /^\/workers\/identity-verification\/?$/, roles: accessPolicies.workers },
+  { pattern: /^\/workers\/audio-tts\/?$/, roles: accessPolicies.workers },
+  { pattern: /^\/workers\/pdf-generator\/?$/, roles: accessPolicies.workers },
 ];
 
 /**

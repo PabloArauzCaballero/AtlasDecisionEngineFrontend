@@ -113,6 +113,38 @@ export function describeLoginError(error: unknown): LoginProblem {
   }
 }
 
+/**
+ * Traduce un fallo del SEGUNDO paso. La diferencia con `describeLoginError` no es cosmética: allí
+ * un 401 significa "credenciales equivocadas" y aquí significa "PIN inválido o vencido", y decirle
+ * a alguien que revise su contraseña cuando lo que falló fue el código lo manda a corregir algo que
+ * tenía bien.
+ *
+ * El motor responde lo mismo para "PIN incorrecto", "PIN caducado" y "desafío inexistente" a
+ * propósito: son tres estados que quien prueba a ciegas no debe poder distinguir. Por eso el texto
+ * los cubre a los tres en vez de afirmar cuál fue.
+ */
+export function describePinError(error: unknown): LoginProblem {
+  if (error instanceof ApiError && error.kind === 'unauthorized') {
+    return {
+      title: 'El código no es válido',
+      body: 'Puede estar mal escrito, ya usado o caducado. Los códigos sirven una sola vez y por pocos minutos.',
+      action: 'Revisa el último correo recibido, o vuelve atrás para pedir uno nuevo.',
+      tone: 'error',
+      retryable: true,
+    };
+  }
+  if (error instanceof ApiError && error.kind === 'validation') {
+    return {
+      title: 'El código no tiene el formato esperado',
+      body: 'Son exactamente seis dígitos, sin espacios ni guiones.',
+      action: 'Escríbelo de nuevo tal y como aparece en el correo.',
+      tone: 'error',
+      retryable: true,
+    };
+  }
+  return describeLoginError(error);
+}
+
 /** Motivo por el que la sesión anterior terminó, según el parámetro de la URL. */
 export function sessionNotice(reason: string | null): string | null {
   if (reason === 'expired') {

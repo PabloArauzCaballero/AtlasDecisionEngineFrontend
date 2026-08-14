@@ -49,6 +49,34 @@ export const accessPolicies = {
   manualReview: ['OPERATIONS', 'RISK_ANALYST', 'FRAUD_ANALYST'] as const,
   executionAudit: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST', 'OPERATIONS'] as const,
   auditEvents: ['AUDITOR', 'COMPLIANCE', 'RISK_ANALYST'] as const,
+  // Monitoreo continuo del modelo desplegado. Espeja los roles que el motor exige en
+  // `/v1/model-monitoring` para los tres análisis de LECTURA (desempeño, estabilidad e impacto
+  // adverso). No incluye `OPERATIONS`: ése es el rol que CARGA desenlaces, y quien alimenta la
+  // medida no tiene por qué ser quien la lee — la separación es lo que hace lícito el autoexamen.
+  modelMonitoring: ['RISK_ANALYST', 'COMPLIANCE', 'AUDITOR', 'RISK_APPROVER'] as const,
+  // Calidad del circuito: cobertura de sujeto, cola de desenlaces por observar y cosechas.
+  // Aquí SÍ entra `OPERATIONS`, al revés que en `modelMonitoring`, y por el mismo argumento:
+  // esta pantalla es donde se CARGAN los desenlaces y se dan de alta los créditos, que es
+  // precisamente su trabajo. La separación se mantiene —quien alimenta la medida sigue sin
+  // poder leer los tres análisis de degradación— pero medir si el sistema de medición está
+  // vivo tiene que poder verlo quien lo alimenta, o nadie se entera de que se paró.
+  decisionQuality: [
+    'OPERATIONS',
+    'RISK_ANALYST',
+    'COMPLIANCE',
+    'AUDITOR',
+    'RISK_APPROVER',
+  ] as const,
+  // Derechos del titular (LGPD art. 18 y 20). Espeja exactamente los roles que el motor exige
+  // en `/v1/data-subject-requests`: consultar todas las decisiones tomadas sobre una persona es
+  // una capacidad distinta de diseñar el artefacto que las toma, y por eso no hay autoría aquí.
+  dataSubjectRights: ['COMPLIANCE', 'OPERATIONS', 'AUDITOR'] as const,
+  // Gobierno del riesgo: apetito de cartera, calibración, licitud vigente, reidentificación y
+  // expediente. La vista es de LECTURA amplia y cada escritura la acota el motor por su cuenta
+  // —un límite de cartera sólo lo mueve `RISK_APPROVER`, un permiso sólo `COMPLIANCE`—. Cerrar
+  // también la lectura dejaría a quien opera sin poder explicar por qué se rechazó una solicitud
+  // buena un 28 de mes, que es justo la pregunta que esta pantalla existe para contestar.
+  riskGovernance: ['RISK_ANALYST', 'RISK_APPROVER', 'COMPLIANCE', 'AUDITOR', 'OPERATIONS'] as const,
   traceability: ['RISK_ANALYST', 'QA_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
   // Fase 7 — nested decision trees. Mirrors the backend's read roles for
   // GET /v1/artifacts/{id}/dependency-graph (see docs/nested-decision-trees.md).

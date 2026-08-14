@@ -17,7 +17,7 @@ import { hasAnyRole } from './roles';
  * merge ni ramas: hay versiones inmutables y despliegues por ambiente
  * (`docs/auditoria-versionado-2026-08-03.md` §1)—:
  *
- * - «mergear a dev»  → promover a un ambiente NO productivo (`SANDBOX`, `TEST`).
+ * - «mergear a dev»  → promover a un ambiente NO productivo (`DEV`, `STAGING`, `TEST`).
  * - «mergear a main» → promover a un ambiente productivo (`isProduction`).
  *
  * Nada de esto es un control de acceso: el backend revalida cada POST con sus
@@ -52,6 +52,15 @@ export const CASE_CONSULT_ROLES = ['RISK_ANALYST', 'FRAUD_ANALYST', 'OPERATIONS'
  * decidir sobre un expediente concreto, no fijar la vara con que se mide.
  */
 export const OBJECTIVE_AUTHORING_ROLES = ['COMPLIANCE'] as const;
+
+/**
+ * Enlazar evidencia a un requisito de política. Son DOS listas porque el motor
+ * las separa: `POST /policies/:id/artifacts` admite RISK_ANALYST y COMPLIANCE;
+ * `POST /policies/:id/test-suites` añade QA_ANALYST. Fundirlas en una pintaría
+ * habilitado un botón que responde 403 al pulsarlo.
+ */
+export const POLICY_ARTIFACT_LINK_ROLES = ['COMPLIANCE', 'RISK_ANALYST'] as const;
+export const POLICY_TEST_LINK_ROLES = ['COMPLIANCE', 'RISK_ANALYST', 'QA_ANALYST'] as const;
 
 /** Ambiente tal como lo devuelve `/v1/environments`, con lo mínimo que hace falta. */
 export interface PromotionTarget {

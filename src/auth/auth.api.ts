@@ -1,6 +1,6 @@
 import { publicApiRequest } from '../api/http-client';
-import { sessionPayloadSchema } from './auth.schemas';
-import type { LoginInput, SessionPayload } from './auth.types';
+import { loginOutcomeSchema, sessionPayloadSchema } from './auth.schemas';
+import type { LoginInput, LoginOutcome, LoginPinInput, SessionPayload } from './auth.types';
 
 const sessionPath = (operation: string) => `/v1/session/${operation}`;
 
@@ -12,8 +12,18 @@ function sessionRequest(operation: string, body: unknown): Promise<SessionPayloa
   });
 }
 
-export function login(input: LoginInput): Promise<SessionPayload> {
-  return sessionRequest('login', input);
+/** Primer paso. Puede terminar en sesión o en desafío de segundo factor; ambos son un éxito. */
+export function login(input: LoginInput): Promise<LoginOutcome> {
+  return publicApiRequest(sessionPath('login'), {
+    method: 'POST',
+    body: input,
+    responseSchema: loginOutcomeSchema,
+  });
+}
+
+/** Segundo paso: el token del desafío y el PIN del correo, a cambio de la sesión. */
+export function verifyLoginPin(input: LoginPinInput): Promise<SessionPayload> {
+  return sessionRequest('login/pin', input);
 }
 
 export function refresh(): Promise<SessionPayload> {
