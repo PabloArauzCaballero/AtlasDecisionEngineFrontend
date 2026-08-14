@@ -37,7 +37,9 @@ export function useNotebookCells() {
   const contador = useRef(0);
 
   const patch = useCallback((id: string, cambio: Partial<NotebookCell>) => {
-    setCells((previas) => previas.map((celda) => (celda.id === id ? { ...celda, ...cambio } : celda)));
+    setCells((previas) =>
+      previas.map((celda) => (celda.id === id ? { ...celda, ...cambio } : celda)),
+    );
   }, []);
 
   const addCell = useCallback((language: NotebookLanguage) => {
@@ -70,7 +72,9 @@ export function useNotebookCells() {
   }, []);
 
   const removeCell = useCallback((id: string) => {
-    setCells((previas) => (previas.length === 1 ? previas : previas.filter((celda) => celda.id !== id)));
+    setCells((previas) =>
+      previas.length === 1 ? previas : previas.filter((celda) => celda.id !== id),
+    );
   }, []);
 
   const duplicateCell = useCallback((id: string) => {
@@ -110,7 +114,9 @@ export function useNotebookCells() {
 
   /** Se llama al cambiar de dataset: los resultados dejan de corresponder a los datos cargados. */
   const clearOutcomes = useCallback(() => {
-    setCells((previas) => previas.map((celda) => ({ ...celda, outcome: null, executionCount: null })));
+    setCells((previas) =>
+      previas.map((celda) => ({ ...celda, outcome: null, executionCount: null })),
+    );
   }, []);
 
   return {

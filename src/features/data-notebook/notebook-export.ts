@@ -69,11 +69,11 @@ export function toJson(tabla: DerivedTable): string {
  * Marca de orden de bytes de UTF-8, escrita por su punto de código y no pegada literal.
  *
  * Va delante del CSV porque Excel en Windows —que es donde se abre— interpreta un CSV sin BOM con
- * la página de códigos del sistema, y «Pérez» aparece como «PÃ©rez». Se escribe con `﻿`
- * porque pegado es un carácter invisible: cualquier limpieza de espacios se lo lleva por delante
- * sin que nadie note que la codificación dejó de anunciarse.
+ * la página de códigos del sistema, y «Pérez» aparece como «PÃ©rez». Se construye por CÓDIGO
+ * y no se pega literal: pegado es un carácter invisible que cualquier limpieza de espacios se
+ * lleva por delante, sin que nadie note que la codificación dejó de anunciarse.
  */
-const BOM = '﻿';
+const BOM = String.fromCharCode(0xfeff);
 
 export function downloadFile(nombre: string, contenido: string, tipo: 'csv' | 'json'): void {
   const cuerpo = tipo === 'csv' ? `${BOM}${contenido}` : contenido;

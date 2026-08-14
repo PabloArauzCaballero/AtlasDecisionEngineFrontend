@@ -75,7 +75,11 @@ test.describe('cuaderno de datos', () => {
     await abrirCuaderno(page);
 
     await page.locator('.notebook-cell__language select').selectOption('javascript');
-    await escribir(page, 0, 'return rows.filter((fila) => fila.status === "SUSPENDED").slice(0, 4);');
+    await escribir(
+      page,
+      0,
+      'return rows.filter((fila) => fila.status === "SUSPENDED").slice(0, 4);',
+    );
     await page.locator('.notebook-cell__run').click();
 
     const salida = page.locator('.notebook-cell__output');
