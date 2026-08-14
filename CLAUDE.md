@@ -395,6 +395,7 @@ uppercase` —secciones del menú, cabeceras de tabla, etiquetas de campo,
 | `/libraries`                   | `pages/LibrariesPage.tsx`             | `accessPolicies.libraryRegistry`   |
 | `/qa-lab`                      | `pages/QaLabPage.tsx`                 | `accessPolicies.qaLab`             |
 | `/workers/audio-tts`           | `pages/AudioTtsWorkerPage.tsx`        | `accessPolicies.workers`           |
+| `/workers/data-notebook`       | `features/data-notebook/`             | `accessPolicies.dataNotebook`      |
 | `/decision-quality`            | `pages/DecisionQualityPage.tsx`       | `accessPolicies.decisionQuality`   |
 | `/data-subject-requests`       | `pages/DataSubjectRequestsPage.tsx`   | `accessPolicies.dataSubjectRights` |
 | `/risk-governance`             | `pages/RiskGovernancePage.tsx`        | `accessPolicies.riskGovernance`    |
@@ -454,6 +455,42 @@ sistema de observación apagado es la lectura peligrosa que esta vista existe pa
   y **atenúa la intensidad con el número de observaciones**: sin eso, la celda más chillona
   sería siempre la cosecha más nueva (tres créditos, uno malo, 33 %) y se leería como que la
   política de este mes es un desastre cuando lo único que hay es poca muestra.
+
+## El cuaderno de datos no ejecuta nada en el servidor
+
+`/workers/data-notebook` está en «Procesamiento» junto a los workers, pero no es uno: no lee del
+motor, no tiene catálogo ni cola, y por eso su pestaña sólo tiene consola y ningún panel —un panel
+siempre en verde sobre algo que no se mide se lee como una comprobación hecha—.
+
+- **El reparto es la decisión, y de ella sale todo lo demás.** Los DATOS los sirve AtlasBackend
+  (`/api/v1/data-notebook`, sobre las siete vistas de `read_api`), acotados por inquilino y con la
+  PII enmascarada. El CÓDIGO corre en la pestaña de quien lo escribe. **No hay ni un endpoint que
+  reciba Python o JavaScript**, así que abrir un cuaderno de análisis no le añade al backend una
+  superficie de ejecución remota — que es el riesgo que suele traer una herramienta con esta forma.
+- **Segundo destino del portal.** `/atlas-backend/*` (`src/server/atlas-backend-proxy.ts`) sale
+  hacia `ATLAS_BACKEND_URL`. NO se escribe con el prefijo `/v1/*`: ése es del motor y
+  `scripts/engine-surface.mjs` lee esos literales para decidir qué operaciones están consumidas, de
+  modo que una ruta de AtlasBackend con ese prefijo daría por cubierta una operación que nadie
+  llama. La credencial es la misma: el token lo emite AtlasBackend y el motor lo reenvía tal cual.
+- **Python es CPython real sobre WebAssembly** (Pyodide, con pandas y numpy), servido desde
+  `/pyodide/` del propio origen. Lo trae `node scripts/setup-pyodide.mjs` (~21 MB, en `.gitignore`:
+  artefacto reproducible, no fuente) resolviendo el cierre de dependencias desde el propio
+  `pyodide-lock.json` — traer pandas sin `python-dateutil` deja un `ModuleNotFound` dentro del
+  intérprete, ya en el navegador y sin pista de qué falta. Sin el artefacto, la pestaña de
+  JavaScript funciona igual y la de Python dice el comando exacto que lo arregla.
+- **La CSP suma `'wasm-unsafe-eval'`, y sólo eso.** No es `'unsafe-eval'` ni se le parece: aquél
+  reabriría `eval()` y `new Function()` para TODO el portal. El JavaScript de las celdas no
+  necesita ninguno de los dos: se carga como worker desde un `blob:` (`worker-src 'self' blob:`),
+  que es cargar un script y no generarlo en caliente.
+- **Corre los E2E contra la BUILD** (`PW_BASE_URL=http://localhost:5188`, tras `next start`). En
+  desarrollo la CSP añade `'unsafe-eval'` y taparía justo el fallo que `e2e/data-notebook-python.spec.ts`
+  existe para detectar.
+- **Dos cosas que la pantalla dice porque cambian lo que significan las conclusiones**: cuántas
+  filas se cargaron —analizar 100 creyendo que son el universo da un número correcto sobre una
+  muestra que nadie eligió— y qué columnas viajan enmascaradas, rotulado EN la cabecera de cada
+  columna y no en un aviso general: agrupar por una columna enmascarada junta a personas distintas
+  bajo la misma máscara y el recuento sale mal sin que nada falle. Cambiar de dataset o de página
+  descarta los resultados por lo mismo.
 
 ## El worker de locución no se parece a los otros tres
 
