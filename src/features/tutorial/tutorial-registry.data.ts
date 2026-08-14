@@ -1,4 +1,5 @@
 import type { TutorialMeta } from './interactive-types';
+import { AUDIT_META_LIST } from './tutorial-registry.data.audit';
 
 /**
  * Fichas del Centro de Tutoriales: qué recorridos hay, en qué categoría, con qué nivel y
@@ -225,29 +226,8 @@ export const TUTORIAL_META_LIST: readonly TutorialMeta[] = [
     estimatedMinutes: 4,
   },
 
-  // — Auditoría y trazabilidad.
-  {
-    id: 'execution-detail',
-    category: 'auditoria',
-    level: 'intermedio',
-    route: '/executions',
-    estimatedMinutes: 5,
-  },
-  {
-    id: 'objective-detail',
-    category: 'auditoria',
-    level: 'intermedio',
-    route: '/objectives',
-    estimatedMinutes: 5,
-  },
-  {
-    id: 'coverage-matrix',
-    category: 'auditoria',
-    level: 'intermedio',
-    route: '/coverage-matrix',
-    estimatedMinutes: 4,
-    prerequisites: ['objective-detail'],
-  },
+  // — Auditoría y trazabilidad: en `tutorial-registry.data.audit.ts`, que se lee entero.
+  ...AUDIT_META_LIST,
 
   // — Errores: se disparan solos desde una notificación, y también se pueden
   //   repasar en frío desde el Centro. Sin ruta: aplican donde ocurra el error.

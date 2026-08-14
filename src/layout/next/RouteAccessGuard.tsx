@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { requiredRolesForPath } from '../../auth/route-access';
 import { hasAnyRole } from '../../auth/roles';
-import { useAuth } from '../../auth/useAuth';
+import { useEffectiveRoles } from '../../auth/useAuth';
 import { ForbiddenRoute } from './ForbiddenRoute';
 
 /**
@@ -15,15 +15,15 @@ import { ForbiddenRoute } from './ForbiddenRoute';
  */
 export function RouteAccessGuard({ children }: PropsWithChildren) {
   const pathname = usePathname() ?? '';
-  const { user } = useAuth();
+
   const requiredRoles = requiredRolesForPath(pathname);
-  const effectiveRoles = [...(user?.roles ?? []), ...(user?.legacyRoles ?? [])];
+  const roles = useEffectiveRoles();
 
   if (requiredRoles === null) {
     return <ForbiddenRoute routeRegistered={false} />;
   }
 
-  if (!hasAnyRole(effectiveRoles, requiredRoles)) {
+  if (!hasAnyRole(roles, requiredRoles)) {
     return <ForbiddenRoute routeRegistered />;
   }
 

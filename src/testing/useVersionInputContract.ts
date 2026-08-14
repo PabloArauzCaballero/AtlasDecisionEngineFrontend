@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../api/http-client';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
+import { isSensitiveClass } from '../utils/sensitivity';
 
 /** Una variable de entrada, ya normalizada para pintar un control. */
 export interface ContractInput {
@@ -65,12 +66,7 @@ function toContractInput(variable: UnknownRecord): ContractInput {
     allowed: Array.isArray(schema.enum) ? schema.enum.map(String) : [],
     // Un valor sensible se puede escribir, pero la vista avisa: un caso de
     // prueba versionado con un dato personal real dentro es una fuga guardada.
-    // La clase se compara contra la lista cerrada y no contra «hay clase»:
-    // `INTERNAL` es una clase y no es sensible.
-    sensitive:
-      variable.sensitive === true || SENSITIVE.includes(display(variable, 'sensitivityClass')),
+    // La lista de clases es la misma que enmascara la traza (`utils/sensitivity`).
+    sensitive: variable.sensitive === true || isSensitiveClass(variable.sensitivityClass),
   };
 }
-
-/** Clases que exigen aviso, las mismas que enmascara la traza de ejecución. */
-const SENSITIVE = ['PII', 'SENSITIVE_PII', 'SECRET'];

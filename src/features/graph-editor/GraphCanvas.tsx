@@ -1,7 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
 import type { DragEvent, KeyboardEvent, PointerEvent } from 'react';
-import { Link2, Plus, X } from 'lucide-react';
-import { Illustration } from '../../components/Illustration';
 import { clamp } from '../../utils/numbers';
 import type { UnknownRecord } from '../../utils/records';
 import { display } from '../../utils/records';
@@ -12,6 +10,7 @@ import { GraphNodeCard } from './GraphNodeCard';
 import { nodeIo } from './node-io';
 import { nodeBadges, nodeSummary } from './node-summary';
 import { CanvasLegend } from './CanvasLegend';
+import { CanvasOverlays } from './CanvasOverlays';
 import type { CanvasZoom } from '../graph-view/useCanvasZoom';
 
 interface GraphCanvasProps {
@@ -23,11 +22,8 @@ interface GraphCanvasProps {
   variables?: UnknownRecord[];
   /** Muestra el lienzo en estado de carga mientras llega el grafo. */
   loading?: boolean;
-  /**
-   * Modo detallado: cada nodo muestra su regla y sus marcas, y las conexiones
-   * llevan la condición que las gobierna. Se puede apagar para recuperar la
-   * vista de conjunto en grafos grandes.
-   */
+  /** Modo detallado: cada nodo enseña su regla y sus marcas, y cada conexión su
+   * condición; se apaga para recuperar la vista de conjunto en grafos grandes. */
   detailed?: boolean;
   selectedKey?: string;
   selectedEdgeKey?: string;
@@ -100,9 +96,8 @@ export function GraphCanvas({
     if (!rect || !rect.width || !rect.height) return { x: 0, y: 0 };
     const offsetX = includeDragOffset ? dragOffset.current.x : 0;
     const offsetY = includeDragOffset ? dragOffset.current.y : 0;
-    // El rect del mundo ya viene desplazado por el scroll y escalado por el zoom,
-    // así que basta con la posición relativa: arrastrar y soltar caen donde toca
-    // aunque el lienzo esté desplazado o con zoom.
+    // El rect del mundo ya viene desplazado por el scroll y escalado por el zoom:
+    // basta la posición relativa para que soltar caiga donde toca.
     return {
       x: clamp(((clientX - offsetX - rect.left) / rect.width) * 100, 0, maxNodeX),
       y: clamp(((clientY - offsetY - rect.top) / rect.height) * 100, 0, maxNodeY),
@@ -163,9 +158,8 @@ export function GraphCanvas({
     onDragEnd(true);
   }
 
-  // El mundo es más grande que la ventana visible, así que un nodo seleccionado
-  // desde fuera del lienzo (checklist de flujo, búsqueda) puede quedar fuera de
-  // pantalla: se trae a la vista sin mover el resto de la página.
+  // Un nodo seleccionado desde fuera del lienzo (checklist, búsqueda) puede caer
+  // fuera de pantalla: se trae a la vista sin mover el resto de la página.
   useEffect(() => {
     if (!selectedKey) return;
     const element = worldRef.current?.querySelector('.graph-node.selected');
@@ -192,7 +186,22 @@ export function GraphCanvas({
           event.dataTransfer.dropEffect = 'copy';
         }}
         onDrop={handleDrop}
-        aria-label="Lienzo del algoritmo de decisión"
+        /*
+          `role` + `tabIndex` van juntos y no son decoración. Un `aria-label` en un
+          elemento SIN rol lo descarta la especificación, así que el lienzo no se
+          anunciaba; y la caja desplazaba en los dos ejes sin ser enfocable, con lo
+          que un nodo fuera de vista no se alcanzaba con teclado (WCAG 2.1.1).
+
+          El rol es `group` y NO `application`: `application` le dice al lector de
+          pantalla que ceda TODAS las pulsaciones a la página, y eso apaga el modo
+          lectura para los nodos de dentro —que son botones y se navegan solos—. Se
+          reserva para widgets que implementan su teclado entero, y aquí el
+          desplazamiento con flechas lo hace el navegador sobre un contenedor
+          enfocable. `group` da el nombre accesible sin quitar nada.
+        */
+        role="group"
+        tabIndex={0}
+        aria-label="Lienzo del algoritmo de decisión. Con las flechas se recorre; con Tab se salta de nodo en nodo."
       >
         {/* Reserva el espacio del mundo ya escalado para que el contenedor genere
             barras de desplazamiento horizontal y vertical de verdad. */}
@@ -228,8 +237,8 @@ export function GraphCanvas({
                 selected={selectedKey === key}
                 connectSource={pendingFrom === key}
                 terminal={Boolean(node.terminal)}
-                // Variables, no conexiones: las conexiones ya se ven dibujadas,
-                // lo que no se veía era qué datos entran y salen de cada paso.
+                // Variables, no conexiones: ésas ya se dibujan; lo que no se veía
+                // era qué datos entran y salen de cada paso.
                 io={nodeIo(node, catalogs)}
                 summary={detailed ? nodeSummary(node, catalogs) : null}
                 badges={detailed ? nodeBadges(node, catalogs) : undefined}
@@ -244,54 +253,15 @@ export function GraphCanvas({
           </div>
         </div>
       </div>
-      {connectMode ? (
-        <div
-          className={`canvas-connection-guide notice-${connectionNotice?.tone ?? 'info'}`}
-          role="status"
-        >
-          <span className="canvas-connection-icon">
-            <Link2 size={15} />
-          </span>
-          <span>
-            <strong>{pendingFrom ? 'Elige el destino' : 'Modo conexión activo'}</strong>
-            <small>
-              {connectionNotice?.text ??
-                'Selecciona primero el nodo de origen y después el nodo de destino.'}
-            </small>
-          </span>
-          {pendingFrom ? (
-            <button type="button" onClick={onCancelConnection} aria-label="Cancelar conexión">
-              <X size={14} />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
-      {/* Cargar un grafo tarda: sin este aviso el lienzo se queda en blanco y
-          se lee como "no hay nada" o como que la aplicación falló. */}
-      {loading ? (
-        <div className="canvas-loading" role="status">
-          <span className="canvas-loading-nodes" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <strong>Cargando el algoritmo…</strong>
-          <p>Estamos trayendo del motor los nodos, las condiciones y las acciones de la versión.</p>
-        </div>
-      ) : null}
-      {!loading && !nodes.length ? (
-        <div className="canvas-empty-state">
-          <Illustration name="graph" size={132} />
-          <strong>Empieza a diseñar tu algoritmo</strong>
-          <p>
-            Un algoritmo es un recorrido de bloques: empieza en Inicio, se bifurca según tus reglas
-            y termina en un Resultado. Agrega el nodo inicial y construye de izquierda a derecha.
-          </p>
-          <button className="button button-primary" type="button" onClick={onAddStart}>
-            <Plus size={16} /> Agregar inicio
-          </button>
-        </div>
-      ) : null}
+      <CanvasOverlays
+        connectMode={connectMode}
+        connectionNotice={connectionNotice}
+        pendingFrom={pendingFrom}
+        loading={loading}
+        isEmpty={!nodes.length}
+        onCancelConnection={onCancelConnection}
+        onAddStart={onAddStart}
+      />
       <CanvasLegend />
     </div>
   );

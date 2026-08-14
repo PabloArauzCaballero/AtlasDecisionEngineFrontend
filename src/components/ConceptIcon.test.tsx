@@ -64,9 +64,9 @@ describe('ConceptChip', () => {
   });
 
   it('permite un texto propio manteniendo la explicación del concepto', () => {
-    render(<ConceptChip concept="environment">SANDBOX</ConceptChip>);
+    render(<ConceptChip concept="environment">DEV</ConceptChip>);
 
-    expect(screen.getByText('SANDBOX')).toBeInTheDocument();
+    expect(screen.getByText('DEV')).toBeInTheDocument();
     expect(screen.getByRole('tooltip')).toHaveTextContent(CONCEPTS.environment.hint);
   });
 });

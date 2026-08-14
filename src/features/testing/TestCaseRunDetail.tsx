@@ -65,9 +65,9 @@ export function TestCaseRunDetail({ caseRun }: Props) {
             <table className="case-run-table">
               <thead>
                 <tr>
-                  <th>Campo</th>
-                  <th>Esperado</th>
-                  <th>Obtenido</th>
+                  <th scope="col">Campo</th>
+                  <th scope="col">Esperado</th>
+                  <th scope="col">Obtenido</th>
                 </tr>
               </thead>
               <tbody>

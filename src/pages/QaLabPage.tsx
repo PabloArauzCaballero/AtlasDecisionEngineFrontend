@@ -1,20 +1,22 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, FlaskConical, Timer } from 'lucide-react';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
-import { EmptyState } from '../components/EmptyState';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
+import { ProgressBar } from '../components/ProgressBar';
 import { Panel } from '../components/Panel';
 import { useAmbientState } from '../components/ambient/useAmbientState';
-import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
 import { QaCounterexampleList } from '../features/qa-lab/QaCounterexampleList';
+import { QaRunHistory } from '../features/qa-lab/QaRunHistory';
+import { useQaRun } from '../features/qa-lab/useQaRun';
+import { usedSeedsOf } from '../features/qa-lab/seed-catalog';
 import {
   DEFAULT_QA_CONFIG,
   QaRunConfigForm,
@@ -33,9 +35,6 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
   const [draftId, setDraftId] = useState(initialVersionId);
   const [versionId, setVersionId] = useState(initialVersionId);
   const [config, setConfig] = useState<QaRunConfig>(DEFAULT_QA_CONFIG);
-  const [lastRunId, setLastRunId] = useState('');
-  const { notify } = useNotifications();
-  const queryClient = useQueryClient();
 
   const runs = useQuery({
     queryKey: ['qa-runs', versionId],
@@ -46,37 +45,17 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
       ),
   });
 
-  const detail = useQuery({
-    queryKey: ['qa-run', lastRunId],
-    queryFn: ({ signal }) =>
-      apiRequest<UnknownRecord>(`/v1/qa-lab/runs/${encodeURIComponent(lastRunId)}`, { signal }),
-    enabled: Boolean(lastRunId),
-  });
+  const tracking = useQaRun(versionId);
+  const { run, active } = tracking;
 
-  const generate = useMutation({
-    mutationFn: () =>
-      apiRequest<UnknownRecord>(`/v1/qa-lab/versions/${encodeURIComponent(versionId)}/runs`, {
-        method: 'POST',
-        body: toBody(config),
-      }),
-    onSuccess: async (run) => {
-      setLastRunId(display(run, 'id'));
-      notify({
-        tone: Number(run.failedCases) > 0 ? 'warning' : 'success',
-        title: `Corrida terminada: ${display(run, 'passedCases')}/${display(run, 'totalCases')} casos correctos`,
-        description:
-          Number(run.failedCases) > 0
-            ? `${display(run, 'failedCases')} caso(s) violan alguna propiedad. Revisa los contraejemplos.`
-            : `Semilla ${display(run, 'seed')} archivada para reproducir la corrida.`,
-      });
-      await queryClient.invalidateQueries({ queryKey: ['qa-runs'] });
-    },
-  });
+  // El fondo se mueve mientras el motor trabaja de verdad, no mientras dura el `POST`:
+  // ése responde en un instante y la corrida sigue otro par de minutos.
+  useAmbientState(active || tracking.launching ? 'running' : 'idle');
 
-  useAmbientState(generate.isPending ? 'running' : 'idle');
-
-  const run = asRecord(detail.data ?? generate.data);
   const history = asRows(asRecord(runs.data).items);
+  const usedSeeds = usedSeedsOf(history.map((entry) => ({ seed: display(entry, 'seed') })));
+  const planned = Number(run.plannedCases ?? 0);
+  const done = Number(run.totalCases ?? 0);
 
   return (
     <>
@@ -112,16 +91,36 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
           <div data-tutorial-id="qa-lab-config">
             <QaRunConfigForm
               config={config}
-              pending={generate.isPending}
+              versionId={versionId}
+              usedSeeds={usedSeeds}
+              // Se bloquea mientras la corrida VIVE, no mientras dura el `POST`: lanzar una
+              // segunda encima de la primera duplica la carga contra el motor y deja en
+              // pantalla dos corridas peleándose por el mismo sitio.
+              pending={active || tracking.launching}
               disabled={!versionId}
               onChange={setConfig}
-              onRun={() => generate.mutate()}
+              onRun={() => tracking.launch(toBody(config))}
             />
           </div>
         </Panel>
       ) : null}
 
-      {generate.isError ? <Alert tone="error">{errorMessage(generate.error)}</Alert> : null}
+      {tracking.error ? <Alert tone="error">{errorMessage(tracking.error)}</Alert> : null}
+
+      {active ? (
+        <Panel title="Corrida en marcha">
+          <ProgressBar
+            value={planned > 0 ? (done / planned) * 100 : 0}
+            tone="info"
+            label="Casos ejecutados de la corrida"
+          />
+          <p className="field-hint">
+            {planned > 0 ? `${done} de ${planned} casos ejecutados.` : `${done} casos ejecutados.`}{' '}
+            La corrida se ejecuta en el motor, no en esta pestaña: puedes irte y volver, o abrirla
+            luego desde el historial. El resultado aparece aquí en cuanto termine.
+          </p>
+        </Panel>
+      ) : null}
 
       {run.id ? (
         <>
@@ -165,54 +164,13 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
       ) : null}
 
       <Panel title="Historial de corridas" meta={`${history.length} corridas`}>
-        {history.length ? (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Inicio</th>
-                <th>Ambiente</th>
-                <th>Semilla</th>
-                <th>Casos</th>
-                <th>Fallos</th>
-                <th>Contraejemplos</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((entry) => (
-                <tr key={display(entry, 'id')}>
-                  <td>{new Date(display(entry, 'startedAt')).toLocaleString()}</td>
-                  <td>{display(entry, 'environmentCode')}</td>
-                  <td>
-                    <code>{display(entry, 'seed')}</code>
-                  </td>
-                  <td>{display(entry, 'totalCases')}</td>
-                  <td>{display(entry, 'failedCases')}</td>
-                  <td>{display(entry, 'counterexamples')}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="button"
-                      onClick={() => {
-                        setLastRunId(display(entry, 'id'));
-                        setConfig((current) => ({ ...current, seed: display(entry, 'seed') }));
-                      }}
-                    >
-                      Ver / reproducir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <EmptyState
-            illustration="tests"
-            title="Sin corridas todavía"
-            description="Elige un algoritmo compilado y lanza una corrida: el generador leerá su contrato y creará casos válidos, de frontera e inválidos por sí solo."
-            example="200 casos con 60 % válidos, 15 % de frontera y 25 % inválidos"
-          />
-        )}
+        <QaRunHistory
+          history={history}
+          onOpen={(runId, seed) => {
+            tracking.inspect(runId);
+            setConfig((current) => ({ ...current, seed }));
+          }}
+        />
       </Panel>
     </>
   );
@@ -230,5 +188,9 @@ function toBody(config: QaRunConfig): UnknownRecord {
     timeoutMs: config.timeoutMs,
     stopOnFirstFailure: config.stopOnFirstFailure,
     checkDeterminism: config.checkDeterminism,
+    coverOutcomes: config.coverOutcomes,
+    // Vacío se OMITE: mandar {} haría que el motor entendiera «reparte» y rechazara la
+    // corrida por no llevar ningún peso mayor que cero.
+    outcomeWeights: Object.keys(config.outcomeWeights).length ? config.outcomeWeights : undefined,
   };
 }

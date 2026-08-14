@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { ActionIcon } from '../../components/ActionIcon';
 import { StatusBadge } from '../../components/StatusBadge';
+import { formatDateTime } from '../../config/locale';
 import { ZoomableFlow } from '../graph-view/ZoomableFlow';
 import { layoutVersionGraph } from './version-graph-layout';
 
@@ -181,15 +182,8 @@ function edgePath(fromLane: number, fromRow: number, toLane: number, toRow: numb
   ].join(' ');
 }
 
+/** Igual que el resto del portal: el formato vive en `config/locale`. */
 function formatDate(value: string): string {
-  if (!value) return '—';
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return value;
-  return parsed.toLocaleString('es', {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const formatted = formatDateTime(value);
+  return formatted === '—' && value ? value : formatted;
 }

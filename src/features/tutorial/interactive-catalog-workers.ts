@@ -67,7 +67,7 @@ export const WORKER_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="coverage-matrix-grid"]',
         title: 'Leer la rejilla',
         content:
-          'Cada fila es un objetivo de negocio y cada columna una política. Completo significa que hay artefacto y prueba; parcial, que existe la regla pero nadie la ha probado; hueco, que no hay ninguna de las dos. Se lee por filas: un objetivo con toda su fila en parcial es la deuda más urgente.',
+          'Cada fila es un objetivo de negocio y cada columna una política. Completo significa que hay artefacto y prueba; parcial, que existe la regla pero nadie la ha probado; hueco, que no hay ninguna de las dos. La raya es una política que pertenece a OTRO objetivo: no se cuenta ni como hueco ni en el porcentaje. Se lee por filas: un objetivo con toda su fila en parcial es la deuda más urgente.',
         optional: true,
       },
       {

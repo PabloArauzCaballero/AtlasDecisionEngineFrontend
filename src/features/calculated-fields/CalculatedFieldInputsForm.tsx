@@ -1,9 +1,9 @@
 'use client';
 
-import { Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import { ConstraintEditor } from '../graph-editor/ConstraintEditor';
 import { DATA_TYPES, DATA_TYPE_LABELS } from '../../contracts/data-types';
+import { CalculatedFieldInputPicker } from './CalculatedFieldInputPicker';
 import type { CalculatedFieldInput } from './calculated-field.types';
 
 interface Props {
@@ -13,36 +13,18 @@ interface Props {
 
 /** Entradas genéricas del campo calculado con sus restricciones (§5.2). */
 export function CalculatedFieldInputsForm({ inputs, onChange }: Props) {
-  const [draftId, setDraftId] = useState('');
-
-  const add = () => {
-    const id = draftId.trim();
-    if (!id || inputs.some((input) => input.id === id)) return;
-    onChange([...inputs, { id, name: id, description: '', dataType: 'DECIMAL', required: true }]);
-    setDraftId('');
-  };
-
   const patch = (id: string, change: Partial<CalculatedFieldInput>) =>
     onChange(inputs.map((input) => (input.id === id ? { ...input, ...change } : input)));
 
   return (
     <div className="calculated-inputs">
-      <div className="output-contract-controls">
-        <input
-          aria-label="Identificador de la nueva entrada"
-          placeholder="ingreso_mensual"
-          value={draftId}
-          onChange={(event) => setDraftId(event.target.value)}
-        />
-        <button
-          className="button button-primary"
-          type="button"
-          disabled={!draftId.trim()}
-          onClick={add}
-        >
-          <Plus size={14} aria-hidden /> Añadir entrada
-        </button>
-      </div>
+      <CalculatedFieldInputPicker
+        taken={inputs.map((input) => input.id)}
+        onAdd={(input) =>
+          onChange(inputs.some((entry) => entry.id === input.id) ? inputs : [...inputs, input])
+        }
+        onConstraints={(id, constraints) => patch(id, { constraints })}
+      />
 
       {inputs.length ? (
         <ul className="calculated-input-list">

@@ -18,6 +18,7 @@ import {
 } from '../testing/testing.schemas';
 import { downloadJson } from '../utils/download';
 import { display } from '../utils/records';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 interface GraphCoveragePageProps {
   initialRunId?: string;
@@ -137,14 +138,14 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
           icon={ListChecks}
         />
         <MetricCard
-          label="Node Coverage"
+          label="Cobertura de nodos"
           value={`${nodePct.toFixed(1)}%`}
           hint="nodes reached"
           icon={GitBranch}
           tone="success"
         />
         <MetricCard
-          label="Edge Coverage"
+          label="Cobertura de aristas"
           value={`${edgePct.toFixed(1)}%`}
           hint="edges traversed"
           icon={Route}
@@ -190,6 +191,7 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
                 </span>
                 <ProgressBar
                   value={Number(value)}
+                  label={String(label)}
                   tone={Number(value) >= 80 ? 'success' : 'warning'}
                 />
               </div>
@@ -198,14 +200,14 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         </Panel>
       </div>
       <Panel title="Rutas No Terminales Detectadas" meta="Trace inspection">
-        <div className="table-wrap">
+        <ScrollRegion label="Cobertura por nodo">
           <table>
             <thead>
               <tr>
-                <th>Caso</th>
-                <th>Resultado</th>
-                <th>Terminal alcanzado</th>
-                <th>Error</th>
+                <th scope="col">Caso</th>
+                <th scope="col">Resultado</th>
+                <th scope="col">Terminal alcanzado</th>
+                <th scope="col">Error</th>
               </tr>
             </thead>
             <tbody>
@@ -221,7 +223,7 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       </Panel>
     </>
   );

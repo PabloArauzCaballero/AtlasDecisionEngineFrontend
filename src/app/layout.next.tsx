@@ -1,9 +1,34 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import '../styles/global.css';
 import { THEME_BOOTSTRAP_SCRIPT } from '../theme/theme';
 import { AppProviders } from './AppProviders';
+
+/**
+ * La tipografía del portal, servida por nosotros.
+ *
+ * `foundation.css` pedía `Inter` desde el principio, pero NADIE la cargaba: no
+ * había `next/font`, ni `@font-face`, ni `public/`. El primer nombre de la pila
+ * no resolvía y el portal entero se pintaba con el siguiente que sí existe —en
+ * Windows, Segoe UI—. La jerarquía tipográfica estaba diseñada contra una fuente
+ * que no llegaba nunca a la pantalla.
+ *
+ * `next/font` la descarga en tiempo de compilación y la sirve desde el mismo
+ * origen, así que no hay petición a un tercero en tiempo de ejecución: la CSP
+ * (`font-src 'self' data:`) la admite sin abrirle la mano a Google, y no se filtra
+ * la IP de quien usa el portal. `display: 'swap'` evita el texto invisible
+ * mientras carga.
+ *
+ * Se expone como variable CSS en vez de como clase para que la pila de respaldo
+ * siga viviendo en `foundation.css`, junto al resto de los fundamentos.
+ */
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -50,7 +75,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const nonce = (await headers()).get('x-nonce') ?? undefined;
 
   return (
-    <html lang="es-BO" suppressHydrationWarning>
+    <html lang="es-BO" className={inter.variable} suppressHydrationWarning>
       <body>
         {/*
           Resuelve el tema antes del primer pintado para que recargar en oscuro

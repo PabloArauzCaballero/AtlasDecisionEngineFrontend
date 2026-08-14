@@ -13,7 +13,13 @@ vi.mock('../api/http-client', () => ({ apiRequest: vi.fn() }));
 vi.mock('../notifications/useNotifications', () => ({
   useNotifications: () => ({ notify }),
 }));
-vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: currentUser }) }));
+vi.mock('../auth/useAuth', () => ({
+  useAuth: () => ({ user: currentUser }),
+  // El doble reproduce la union real (roles + legacyRoles): un mock que
+  // devolviera sólo `roles` volvería a esconder justo el fallo que
+  // `effectiveRoles` existe para evitar.
+  useEffectiveRoles: () => [...(currentUser?.roles ?? []), ...(currentUser?.legacyRoles ?? [])],
+}));
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => (
     <a href={href}>{children}</a>

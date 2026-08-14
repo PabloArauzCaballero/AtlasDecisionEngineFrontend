@@ -119,7 +119,7 @@ describe('reference-authoring', () => {
     const form = {
       ...validForm(),
       versionSelection: 'ACTIVE_IN_ENVIRONMENT' as const,
-      environmentCode: 'SANDBOX',
+      environmentCode: 'DEV',
     };
     expect(referenceErrors('RESULT_1', form)).toEqual([]);
   });
@@ -142,7 +142,7 @@ describe('reference-authoring', () => {
   it('envía la política completa al backend', () => {
     const body = buildReferenceBody('RESULT_1', {
       ...validForm(),
-      environmentCode: 'SANDBOX',
+      environmentCode: 'DEV',
       maxRetries: 2,
       retryDelayMs: 250,
       executionCondition: '{"op":"gt","left":{"var":"score"},"right":{"value":600}}',
@@ -151,7 +151,7 @@ describe('reference-authoring', () => {
       tracePolicy: 'MASKED',
     });
     expect(body).toMatchObject({
-      environmentCode: 'SANDBOX',
+      environmentCode: 'DEV',
       versionSelection: 'EXACT',
       maxRetries: 2,
       retryDelayMs: 250,

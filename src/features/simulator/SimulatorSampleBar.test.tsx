@@ -24,7 +24,7 @@ function renderBar(
     <QueryClientProvider client={client}>
       <SimulatorSampleBar
         artifactCode={artifactCode}
-        environmentCode="SANDBOX"
+        environmentCode="DEV"
         contract={options.contract ?? contract}
         contractLoading={options.contractLoading}
         onLoad={onLoad}
@@ -55,14 +55,59 @@ describe('SimulatorSampleBar', () => {
     } as never);
     const onLoad = renderBar();
 
+    fireEvent.change(screen.getByLabelText('Valores de prueba'), { target: { value: 'VALID' } });
     fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
 
     await waitFor(() => expect(onLoad).toHaveBeenCalledWith({ score: 700, country: 'PE' }));
     const [path, options] = mockedApiRequest.mock.calls[0];
     expect(path).toBe('/v1/simulations/RIESGO/sample-inputs');
-    expect(options?.body).toMatchObject({ environmentCode: 'SANDBOX', kind: 'VALID' });
+    expect(options?.body).toMatchObject({ environmentCode: 'DEV', kind: 'VALID' });
     // La semilla se muestra: sin ella, un caso interesante no se puede volver a obtener.
     expect(await screen.findByText(/semilla k3f2/)).toBeInTheDocument();
+  });
+
+  it('por omisión pide un caso por desenlace y rotula cada uno con el suyo', async () => {
+    mockedApiRequest.mockResolvedValue({
+      seed: 's',
+      kind: 'OUTCOMES',
+      totalOutcomes: 2,
+      cases: [
+        { index: 0, kind: 'OUTCOME', outcome: 'APPROVED', input: { score: 810 } },
+        { index: 1, kind: 'OUTCOME', outcome: 'Revisión manual', input: { score: 640 } },
+      ],
+    } as never);
+    renderBar();
+
+    fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
+
+    await waitFor(() =>
+      expect(mockedApiRequest.mock.calls[0][1]?.body).toMatchObject({ kind: 'OUTCOMES' }),
+    );
+    expect(await screen.findByRole('button', { name: 'Caso 1 · APPROVED' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Caso 2 · Revisión manual' })).toBeInTheDocument();
+  });
+
+  it('avisa de los desenlaces que la tanda NO cubre', async () => {
+    mockedApiRequest.mockResolvedValue({
+      seed: 's',
+      kind: 'OUTCOMES',
+      totalOutcomes: 4,
+      cases: [
+        {
+          index: 0,
+          kind: 'OUTCOME',
+          outcome: 'APPROVED',
+          input: { score: 810 },
+          unresolved: ['e_rev: «dti_alto» no depende de las entradas'],
+        },
+      ],
+    } as never);
+    renderBar();
+
+    fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
+
+    expect(await screen.findByText(/faltan 3 por cubrir/)).toBeInTheDocument();
+    expect(screen.getByText(/no están garantizadas/)).toBeInTheDocument();
   });
 
   it('pasa la clase pedida al backend', async () => {

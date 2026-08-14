@@ -7,6 +7,13 @@
  * aviso que no coincide con el rechazo real — molesto, pero nunca inseguro.
  */
 import { normalizeDataType, NUMERIC_TYPES, type DataType } from './data-types';
+import {
+  parseConditional,
+  parseScoped,
+  SCOPE_AXES,
+  type ConditionalRule,
+  type ScopedConstraint,
+} from './constraint-scopes';
 
 export interface VariableConstraints {
   min?: number;
@@ -24,6 +31,14 @@ export interface VariableConstraints {
   format?: string;
   unique?: boolean;
   itemType?: DataType;
+  /** El valor solo es válido si estos otros campos también vienen informados. */
+  dependsOn?: string[];
+  conditional?: ConditionalRule[];
+  byCountry?: ScopedConstraint[];
+  byProduct?: ScopedConstraint[];
+  byEnvironment?: ScopedConstraint[];
+  byTenant?: ScopedConstraint[];
+  byContractVersion?: ScopedConstraint[];
 }
 
 export const CONSTRAINT_FORMATS = [
@@ -79,10 +94,32 @@ export function parseConstraints(raw: unknown): VariableConstraints {
     format: typeof source.format === 'string' ? source.format.toUpperCase() : undefined,
     unique: typeof source.unique === 'boolean' ? source.unique : undefined,
     itemType: typeof source.itemType === 'string' ? normalizeDataType(source.itemType) : undefined,
+    dependsOn: stringList(source.dependsOn),
+    conditional: parseConditional(source.conditional),
+    ...Object.fromEntries(SCOPE_AXES.map((axis) => [axis.key, parseScoped(source[axis.key])])),
   };
   return Object.fromEntries(
     Object.entries(constraints).filter(([, value]) => value !== undefined),
   ) as VariableConstraints;
+}
+
+function stringList(raw: unknown): string[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const items = raw.filter((item): item is string => typeof item === 'string');
+  return items.length ? items : undefined;
+}
+
+/**
+ * Los valores permitidos, escritos tal como el motor los compara.
+ *
+ * La comparación del motor es por identidad (`===`, con respaldo estructural para
+ * objetos), así que las comillas importan: `"1"` y `1` no son el mismo valor
+ * permitido. Por eso el texto NO es un `String(value)` a secas.
+ */
+export function formatAllowedValue(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (value === null) return 'nulo';
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
 /** Descripción legible de una restricción, para el chip que la resume en la UI. */
@@ -101,9 +138,19 @@ export function describeConstraints(constraints: VariableConstraints): string[] 
   if (constraints.pattern) parts.push('patrón');
   if (constraints.format) parts.push(constraints.format.toLowerCase());
   if (constraints.unique) parts.push('sin duplicados');
-  if (constraints.allowedValues?.length) {
-    parts.push(`${constraints.allowedValues.length} valores permitidos`);
+  // Los valores se NOMBRAN mientras quepan. Decir «4 valores permitidos» obligaba a
+  // abrir el detalle para saber lo único que hacía falta saber: cuáles son.
+  const allowed = (constraints.allowedValues ?? []).map(formatAllowedValue);
+  if (allowed.length) {
+    const inline = allowed.join(', ');
+    parts.push(inline.length <= 60 ? `sólo: ${inline}` : `${allowed.length} valores permitidos`);
   }
+  if (constraints.dependsOn?.length) parts.push(`exige ${constraints.dependsOn.join(', ')}`);
+  if (constraints.conditional?.length) {
+    parts.push(`${constraints.conditional.length} regla(s) condicional(es)`);
+  }
+  const scoped = SCOPE_AXES.filter((axis) => constraints[axis.key]?.length).length;
+  if (scoped) parts.push(`${scoped} eje(s) con tramos propios`);
   return parts;
 }
 

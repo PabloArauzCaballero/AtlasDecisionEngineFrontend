@@ -43,7 +43,7 @@ export const TUTORIAL_STEPS: readonly TutorialStep[] = [
   {
     id: 'simulator-form',
     title: 'Configura una decisión de prueba',
-    body: 'Indica el código del artefacto y el ambiente (usa SANDBOX para no afectar producción), y edita las variables de entrada en formato JSON.',
+    body: 'Indica el código del artefacto y el ambiente (usa DEV para no afectar producción), y edita las variables de entrada en formato JSON.',
     targetSelector: '[data-tutorial-id="simulator-form"]',
   },
   {

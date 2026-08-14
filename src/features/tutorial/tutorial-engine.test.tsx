@@ -133,12 +133,31 @@ describe('reanudar y reiniciar', () => {
     );
     fireEvent.click(screen.getByText('repetir'));
 
+    /*
+     * La repetición se cuenta en LOCAL y el paso viaja al motor, porque son
+     * datos de dueños distintos: `repeatCount` es contabilidad del portal y el
+     * motor no la modela; `lastStep` sí lo guarda él.
+     *
+     * Esta prueba exigía antes `body.repeatCount === 2`, es decir, exigía que el
+     * portal mandara un campo que el motor rechaza con
+     * `400 property repeatCount should not exist`. Estaba en verde fijando el
+     * defecto: como el guardado se envuelve en un `catch`, el 400 no se veía y
+     * el progreso de tutoriales llevaba quién sabe cuánto sin salir del
+     * navegador.
+     */
+    await waitFor(() => {
+      const local = JSON.parse(window.localStorage.getItem(CACHE_KEY) ?? '{}') as Record<
+        string,
+        { repeatCount?: number }
+      >;
+      expect(local.welcome?.repeatCount).toBe(2);
+    });
     await waitFor(() => {
       const put = apiRequest.mock.calls.find(
         (call) => String(call[0]).includes('welcome') && call[1]?.method === 'PUT',
       );
-      expect(put?.[1]?.body?.repeatCount).toBe(2);
       expect(put?.[1]?.body?.lastStep).toBe(0);
+      expect(put?.[1]?.body).not.toHaveProperty('repeatCount');
     });
   });
 });

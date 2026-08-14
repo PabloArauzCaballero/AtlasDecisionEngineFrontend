@@ -78,7 +78,7 @@ describe('fetchDashboard', () => {
       if (path.startsWith('/v1/audit/executions')) {
         return Promise.resolve(page([{ id: '1', status: 'FAILED' }], 128));
       }
-      if (path.startsWith('/v1/environments')) return Promise.resolve([{ code: 'SANDBOX' }]);
+      if (path.startsWith('/v1/environments')) return Promise.resolve([{ code: 'DEV' }]);
       // La calidad se cuenta desde la bitácora: un evento por ejecución de
       // prueba terminada, filtrado por tipo.
       if (path.includes('TEST_RUN_PASSED')) return Promise.resolve(page([], 30));

@@ -4,7 +4,7 @@ const publicEnvironmentSchema = z.object({
   apiBaseUrl: z.string().trim().default('/'),
   apiTimeoutMs: z.coerce.number().int().min(1_000).max(120_000).default(15_000),
   /**
-   * Ambiente en el que corre este frontend (SANDBOX, TEST, PRODUCTION…). Se
+   * Ambiente en el que corre este frontend (DEV, TEST, PRODUCTION…). Se
    * muestra en el acceso cuando no es producción, para que nadie confunda un
    * entorno de pruebas con el real. Vacío = sin declarar, no se muestra nada.
    */

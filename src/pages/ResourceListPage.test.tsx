@@ -6,7 +6,13 @@ import type { ResourceConfig } from '../resources/resource.types';
 
 let currentUser: IdentityUser | null = null;
 
-vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: currentUser }) }));
+vi.mock('../auth/useAuth', () => ({
+  useAuth: () => ({ user: currentUser }),
+  // El doble reproduce la union real (roles + legacyRoles): un mock que
+  // devolviera sólo `roles` volvería a esconder justo el fallo que
+  // `effectiveRoles` existe para evitar.
+  useEffectiveRoles: () => [...(currentUser?.roles ?? []), ...(currentUser?.legacyRoles ?? [])],
+}));
 // Función simple, no `vi.fn().mockResolvedValue(...)`: la configuración del
 // proyecto limpia los mocks entre pruebas y la implementación se perdería,
 // dejando la consulta devolviendo `undefined`.

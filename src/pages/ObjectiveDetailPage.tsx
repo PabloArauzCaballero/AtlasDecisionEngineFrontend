@@ -1,12 +1,20 @@
-import { Link2, TestTube2 } from 'lucide-react';
+'use client';
+
+import { Link2 } from 'lucide-react';
+import { useState } from 'react';
+import { POLICY_ARTIFACT_LINK_ROLES, POLICY_TEST_LINK_ROLES } from '../auth/business-rules';
+import { hasAnyRole } from '../auth/roles';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
+import { PolicyEvidenceDialog } from '../features/objectives/PolicyEvidenceDialog';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 interface ObjectiveDetailPageProps {
   objectiveId: string;
@@ -20,6 +28,10 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
   const objective = asRecord(query.data);
   const policies = asRows(objective.policyRequirements);
   const target = asRecord(objective.targetJson);
+  const roles = useEffectiveRoles();
+  const canLinkArtifact = hasAnyRole(roles, POLICY_ARTIFACT_LINK_ROLES);
+  const canLinkTest = hasAnyRole(roles, POLICY_TEST_LINK_ROLES);
+  const [linking, setLinking] = useState<{ id: string; code: string } | null>(null);
 
   return (
     <>
@@ -27,26 +39,6 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
         eyebrow="F7-03 · Business Traceability"
         title={display(objective, 'name')}
         description={display(objective, 'objectiveCode')}
-        actions={
-          <>
-            <button
-              className="button"
-              type="button"
-              disabled
-              title="El vínculo objetivo→prueba aún no está expuesto por el Decision Engine"
-            >
-              <TestTube2 size={16} /> Vincular Prueba
-            </button>
-            <button
-              className="button button-primary"
-              type="button"
-              disabled
-              title="El vínculo objetivo→versión aún no está expuesto por el Decision Engine"
-            >
-              <Link2 size={16} /> Vincular Versión
-            </button>
-          </>
-        }
       />
       {query.isError ? <Alert tone="error">No fue posible cargar el objetivo.</Alert> : null}
       <div className="objective-layout">
@@ -66,12 +58,12 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
             <div>
               <span>Actual</span>
               <strong>{display(target, 'current', 'actual')}</strong>
-              <ProgressBar value={Number(target.currentPct ?? 42)} />
+              <ProgressBar value={Number(target.currentPct ?? 42)} label="Valor actual" />
             </div>
             <div>
               <span>Target</span>
               <strong>{display(target, 'target', 'value')}</strong>
-              <ProgressBar value={Number(target.targetPct ?? 78)} tone="warning" />
+              <ProgressBar value={Number(target.targetPct ?? 78)} label="Objetivo" tone="warning" />
             </div>
           </div>
         </Panel>
@@ -91,38 +83,64 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
           </div>
         </Panel>
         <Panel title="Matriz de Implementación" meta="Evidence links">
-          <div className="table-wrap" data-tutorial-id="objective-matrix">
+          <ScrollRegion label="Cobertura del objetivo" data-tutorial-id="objective-matrix">
             <table>
               <thead>
                 <tr>
-                  <th>Política</th>
-                  <th>Artefactos</th>
-                  <th>Suites</th>
-                  <th>Estado</th>
+                  <th scope="col">Política</th>
+                  <th scope="col">Artefactos</th>
+                  <th scope="col">Suites</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Evidencia</th>
                 </tr>
               </thead>
               <tbody>
                 {policies.map((policy) => {
                   const artifactLinks = asRows(policy.artifactLinks);
                   const testLinks = asRows(policy.testLinks);
+                  const code = display(policy, 'policyCode');
                   return (
                     <tr key={display(policy, 'id')}>
-                      <td className="mono">{display(policy, 'policyCode')}</td>
+                      <td className="mono">{code}</td>
                       <td>{artifactLinks.length}</td>
                       <td>{testLinks.length}</td>
                       <td>
                         <StatusBadge
-                          value={artifactLinks.length && testLinks.length ? 'COVERED' : 'GAP'}
+                          value={artifactLinks.length && testLinks.length ? 'COMPLETE' : 'GAP'}
                         />
+                      </td>
+                      <td>
+                        <button
+                          className="button"
+                          type="button"
+                          disabled={!canLinkArtifact && !canLinkTest}
+                          title={
+                            canLinkArtifact || canLinkTest
+                              ? `Vincular evidencia a ${code}`
+                              : 'Requiere el rol Compliance, Riesgo o QA'
+                          }
+                          onClick={() => setLinking({ id: display(policy, 'id'), code })}
+                        >
+                          <Link2 size={16} /> Vincular
+                        </button>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
         </Panel>
       </div>
+      {linking ? (
+        <PolicyEvidenceDialog
+          policyId={linking.id}
+          policyCode={linking.code}
+          canLinkArtifact={canLinkArtifact}
+          canLinkTest={canLinkTest}
+          onClose={() => setLinking(null)}
+        />
+      ) : null}
     </>
   );
 }

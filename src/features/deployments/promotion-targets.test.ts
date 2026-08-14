@@ -1,7 +1,7 @@
 import { splitPromotionTargets, type EnvironmentOption } from './promotion-targets';
 
 const environments: EnvironmentOption[] = [
-  { code: 'SANDBOX', name: 'Sandbox', status: 'ACTIVE', isProduction: false },
+  { code: 'DEV', name: 'Development', status: 'ACTIVE', isProduction: false },
   { code: 'TEST', name: 'Test', status: 'ACTIVE', isProduction: false },
   { code: 'PROD', name: 'Producción', status: 'ACTIVE', isProduction: true },
   { code: 'OLD', name: 'Retirado', status: 'DECOMMISSIONED', isProduction: false },
@@ -10,17 +10,13 @@ const environments: EnvironmentOption[] = [
 describe('destinos de promoción', () => {
   it('oculta producción a quien no es administrador y dice cuál retuvo', () => {
     const split = splitPromotionTargets(environments, false);
-    expect(split.allowed.map((environment) => environment.code)).toEqual(['SANDBOX', 'TEST']);
+    expect(split.allowed.map((environment) => environment.code)).toEqual(['DEV', 'TEST']);
     expect(split.withheldProduction.map((environment) => environment.code)).toEqual(['PROD']);
   });
 
   it('ofrece todo al administrador, con producción al final de la lista', () => {
     const split = splitPromotionTargets(environments, true);
-    expect(split.allowed.map((environment) => environment.code)).toEqual([
-      'SANDBOX',
-      'TEST',
-      'PROD',
-    ]);
+    expect(split.allowed.map((environment) => environment.code)).toEqual(['DEV', 'TEST', 'PROD']);
     expect(split.withheldProduction).toEqual([]);
   });
 

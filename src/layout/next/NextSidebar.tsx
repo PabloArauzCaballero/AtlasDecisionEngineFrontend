@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { hasAnyRole } from '../../auth/roles';
 import { canAccessPath } from '../../auth/route-access';
-import { useAuth } from '../../auth/useAuth';
+import { useEffectiveRoles } from '../../auth/useAuth';
 import { NavLink } from '../../navigation/NavLink';
 import { navigation } from '../../navigation/navigation';
 
@@ -96,8 +96,7 @@ function QuickActionMenu({ roles, onNavigate }: { roles: string[]; onNavigate: (
 
 export function NextSidebar({ open, onClose }: NextSidebarProps) {
   const pathname = usePathname() ?? '';
-  const { user } = useAuth();
-  const roles = [...(user?.roles ?? []), ...(user?.legacyRoles ?? [])];
+  const roles = useEffectiveRoles();
 
   return (
     <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>

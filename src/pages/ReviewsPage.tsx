@@ -3,7 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { canProposeArtifactChange } from '../auth/business-rules';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
@@ -18,11 +18,10 @@ export function ReviewsPage() {
   const [requestId, setRequestId] = useState('');
   const [result, setResult] = useState<unknown>(null);
   const { notify } = useNotifications();
-  const { user } = useAuth();
   // Enviar una versión a revisión es el acto de PROPONER el cambio, no el de
   // aprobarlo: lo hace quien lo escribió. Quien sólo revisa o audita entra a
   // esta bandeja a consultar solicitudes, y el formulario se lo dice.
-  const canPropose = canProposeArtifactChange(user?.roles ?? []);
+  const canPropose = canProposeArtifactChange(useEffectiveRoles());
 
   // Rollback on the artifact page deep-links here with the version prefilled;
   // the operator still reviews and confirms the submission by hand.

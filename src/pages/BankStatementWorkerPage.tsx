@@ -4,12 +4,20 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { Panel } from '../components/Panel';
 import { StatementCategoriesBar } from '../features/workers/StatementCategoriesBar';
+import { StatementAnalytics } from '../features/workers/StatementAnalytics';
+import { StatementCategoriesChart } from '../features/workers/StatementCategoriesChart';
+import { StatementDownloads } from '../features/workers/StatementDownloads';
 import { StatementResultView } from '../features/workers/StatementResultView';
 import { StatementUploadField } from '../features/workers/StatementUploadField';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
 import { WorkerRunTracker } from '../features/workers/WorkerRunTracker';
-import { useStatementCategories } from '../features/workers/useStatementCategories';
+import {
+  claveMovimiento,
+  useStatementCategories,
+} from '../features/workers/useStatementCategories';
+import { resumirCategorias } from '../features/workers/statement-category-summary';
+import { resumirExtracto } from '../features/workers/statement-analytics';
 import { useWorkerRun } from '../features/workers/useWorkerRun';
 import {
   cancelRun,
@@ -26,12 +34,6 @@ import { saveBlob } from '../utils/download';
 import { asRecord, asRows } from '../utils/records';
 
 const WORKER = 'bank-statement' as const;
-
-const DESCARGAS: ReadonlyArray<{ format: StatementFormat; label: string }> = [
-  { format: 'csv', label: 'Descargar CSV' },
-  { format: 'json', label: 'Movimientos (JSON)' },
-  { format: 'normalized', label: 'Contrato completo' },
-];
 
 /**
  * Consola de extractos: subir un PDF y obtener sus movimientos normalizados.
@@ -130,11 +132,44 @@ export function BankStatementWorkerConsole() {
     categorias.corriendo,
     `Una clasificación de movimientos en curso (${categorias.hechas} de ${categorias.total} glosas).`,
   );
-  // Las glosas del extracto ya convertido, deduplicadas: son lo que se clasifica.
-  const glosas = useMemo(() => {
-    const filas = asRows(asRecord(run.data?.result).transactions);
-    return [...new Set(filas.map((fila) => String(fila.description ?? '')).filter(Boolean))];
-  }, [run.data?.result]);
+  /*
+   * Los movimientos que se clasifican, con su SENTIDO.
+   *
+   * No basta la glosa: el mismo texto aparece como cargo y como abono en el
+   * mismo extracto —`TRASPASO ENTRE CAJAS DE AHORRO (MOVIL)` lo hace— y sin el
+   * tipo las dos filas compartían veredicto, de modo que un ingreso quedaba
+   * rotulado «Transferencia enviada». La deduplicación real la hace el propio
+   * hook, por glosa y sentido.
+   */
+  const movimientos = useMemo(
+    () =>
+      asRows(asRecord(run.data?.result).transactions)
+        .map((fila) => ({
+          descripcion: String(fila.description ?? ''),
+          movementType: String(fila.movementType ?? ''),
+        }))
+        .filter((movimiento) => movimiento.descripcion !== ''),
+    [run.data?.result],
+  );
+  const glosas = useMemo(
+    () => new Set(movimientos.map((movimiento) => claveMovimiento(movimiento))).size,
+    [movimientos],
+  );
+  /*
+   * El reparto por categoría se recalcula mientras la clasificación avanza: cada
+   * veredicto que llega mueve una barra, que es la forma honesta de enseñar que
+   * el trabajo está ocurriendo —y no una animación inventada sobre datos quietos—.
+   */
+  const resumen = useMemo(
+    () => resumirCategorias(run.data?.result, categorias.veredictos),
+    [run.data?.result, categorias.veredictos],
+  );
+  /*
+   * Las cuentas del periodo NO dependen de haber clasificado: suman movimientos.
+   * Por eso se calculan aparte y se enseñan siempre, mientras que el reparto por
+   * categoría espera a que haya categorías que repartir.
+   */
+  const cuentas = useMemo(() => resumirExtracto(run.data?.result), [run.data?.result]);
 
   return (
     // Contenedor propio por lo mismo que en la consola semántica: el panel de
@@ -192,32 +227,20 @@ export function BankStatementWorkerConsole() {
       {requestId && run.data ? (
         <Panel title="Ejecución">
           <WorkerRunTracker
+            worker={WORKER}
             run={run.data}
             onCancel={() => cancel.mutate()}
             cancelling={cancel.isPending}
             onReset={reset}
             actions={
               finished ? (
-                <>
-                  {/*
-                   * Botones y no enlaces: un `<a href="/v1/…">` es una navegación
-                   * del navegador y ahí no viaja el token de la sesión, que esta
-                   * aplicación guarda en memoria. Los tres devolvían 401 y el
-                   * usuario se llevaba el error como archivo. El nombre lo sigue
-                   * decidiendo el servidor por `Content-Disposition`.
-                   */}
-                  {DESCARGAS.map(({ format, label }) => (
-                    <button
-                      key={format}
-                      type="button"
-                      className="button"
-                      disabled={descargar.isPending}
-                      onClick={() => descargar.mutate(format)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </>
+                <StatementDownloads
+                  result={run.data.result}
+                  veredictos={categorias.veredictos}
+                  clasificadas={categorias.total}
+                  descargando={descargar.isPending}
+                  onDescargarDelMotor={(format) => descargar.mutate(format)}
+                />
               ) : null
             }
           />
@@ -233,23 +256,36 @@ export function BankStatementWorkerConsole() {
            * lanzadas desde el navegador. Ofrecerlo con su coste a la vista es lo
            * honesto; dispararlo solo convertiría cada conversión en una tanda.
            */}
-          {glosas.length > 0 ? (
+          {glosas > 0 ? (
             <StatementCategoriesBar
-              glosas={glosas.length}
+              glosas={glosas}
               corriendo={categorias.corriendo}
               hechas={categorias.hechas}
               total={categorias.total}
               demasiadas={categorias.demasiadas}
               maxGlosas={categorias.maxGlosas}
-              onClasificar={() => void categorias.clasificar(glosas)}
+              onClasificar={() => void categorias.clasificar(movimientos)}
               onParar={categorias.parar}
             />
           ) : null}
+          {/*
+           * El resumen del periodo va ANTES de la tabla: es la pregunta que se
+           * hace primero —cuánto entró, cuánto salió, qué quedó— y se responde
+           * con todos los movimientos, clasificados o no.
+           */}
+          <StatementAnalytics resumen={cuentas} />
           <StatementResultView
             result={run.data.result}
             warnings={run.data.warnings}
             categorias={categorias.total > 0 ? categorias.veredictos : undefined}
           />
+          {/*
+           * El reparto va DEBAJO de la tabla y no encima: primero el dato —cada
+           * movimiento con su categoría— y después el resumen, que es una
+           * lectura de ese dato. Aparece sólo cuando hay algo clasificado; antes
+           * de pulsar «Clasificar» sería un gráfico de una sola barra gris.
+           */}
+          {categorias.total > 0 ? <StatementCategoriesChart resumen={resumen} /> : null}
         </Panel>
       ) : null}
     </div>

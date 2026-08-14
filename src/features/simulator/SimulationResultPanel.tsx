@@ -16,6 +16,14 @@ interface Props {
   entries: readonly BatchEntry[];
   index: number;
   onIndex: (index: number) => void;
+  /**
+   * Nombre legible de cada variable de salida, por su código.
+   *
+   * Opcional a propósito: si el contrato todavía no ha llegado —o el artefacto
+   * no publica nombre para una salida— se enseña el código, que es lo que había
+   * antes. Nunca se inventa un rótulo.
+   */
+  names?: Record<string, string>;
   children?: React.ReactNode;
 }
 
@@ -26,7 +34,9 @@ interface Props {
  * cinco decisiones distintas, y antes sólo se veía la última. Recorrerlas de una
  * en una es lo que permite comparar por qué una se aprueba y otra no.
  */
-export function SimulationResultPanel({ entries, index, onIndex, children }: Props) {
+export function SimulationResultPanel({ entries, index, onIndex, names, children }: Props) {
+  /** Rótulo publicado por el contrato, o el código si no publica ninguno. */
+  const label = (code: string): string => names?.[code] ?? code;
   const active = entries[index];
   const result = active?.decision;
   const primaryResult = result?.primaryResult;
@@ -75,13 +85,25 @@ export function SimulationResultPanel({ entries, index, onIndex, children }: Pro
         <StatusBadge value={result?.outcome ?? 'WAITING'} />
         <strong>{formatValue(primaryResult?.value ?? result?.outcome)}</strong>
         {primaryResult ? (
-          <small className="primary-result-label">Resultado principal · {primaryResult.code}</small>
+          <small className="primary-result-label">
+            Resultado principal · {label(primaryResult.code)}
+          </small>
         ) : null}
         <dl className="dynamic-output-grid">
           {Object.entries(result?.output ?? {}).map(([key, value]) => (
             <div key={key}>
-              <dt>{key}</dt>
+              {/*
+               * Manda el nombre legible y el código baja al pie, igual que en el
+               * formulario de entrada de al lado. La rejilla decía
+               * `ingreso_verificado` y `decision_extracto` mientras el contrato
+               * publicaba «Ingreso verificado» y «Decisión sobre el extracto»:
+               * quien lee una decisión tenía que traducir cada rótulo de cabeza.
+               * El código no se esconde —es la clave del contrato y la que se
+               * usa al integrarse— pero deja de ser lo primero que se lee.
+               */}
+              <dt>{label(key)}</dt>
               <dd>{formatValue(value)}</dd>
+              {label(key) === key ? null : <small className="output-code">{key}</small>}
             </div>
           ))}
         </dl>

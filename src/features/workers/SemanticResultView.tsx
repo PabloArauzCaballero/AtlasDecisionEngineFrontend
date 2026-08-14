@@ -1,6 +1,7 @@
 'use client';
 
 import { StatusBadge } from '../../components/StatusBadge';
+import { formatNumber } from '../../config/locale';
 import { asRecord, asRows, asStrings, type UnknownRecord } from '../../utils/records';
 
 /**
@@ -43,7 +44,7 @@ export function SemanticResultView({ result }: { result: unknown }) {
         </div>
         <div>
           <dt>Tiempo de análisis</dt>
-          <dd>{Number(data.processingTimeMs ?? 0).toLocaleString('es-BO')} ms</dd>
+          <dd>{formatNumber(Number(data.processingTimeMs ?? 0))} ms</dd>
         </div>
       </dl>
 

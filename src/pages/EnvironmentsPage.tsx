@@ -7,6 +7,7 @@ import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
 import { asRecord, asRows, display, resolvePath } from '../utils/records';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 export function EnvironmentsPage() {
   const [selectedCode, setSelectedCode] = useState('');
@@ -101,11 +102,11 @@ export function EnvironmentsPage() {
           );
         })}
       </div>
-      <section className="panel">
+      <section className="panel" aria-labelledby="deployments-title">
         <div className="panel-title">
-          <span>
-            Historial de Despliegues{selectedCode ? ` · ${selectedCode}` : ' por Ambiente'}
-          </span>
+          <h2 id="deployments-title">
+            Historial de despliegues{selectedCode ? ` · ${selectedCode}` : ' por ambiente'}
+          </h2>
           <small>{deployments.isFetching ? 'Consultando…' : 'Actividad reciente'}</small>
         </div>
         {!selectedCode ? (
@@ -119,15 +120,15 @@ export function EnvironmentsPage() {
               : `Sin despliegues registrados para ${selectedCode}.`}
           </div>
         ) : (
-          <div className="table-wrap">
+          <ScrollRegion label="Historial de despliegues">
             <table>
               <thead>
                 <tr>
-                  <th>Artefacto</th>
-                  <th>Versión</th>
-                  <th>Desplegado por</th>
-                  <th>Fecha</th>
-                  <th>Resultado</th>
+                  <th scope="col">Artefacto</th>
+                  <th scope="col">Versión</th>
+                  <th scope="col">Desplegado por</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Resultado</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,7 +147,7 @@ export function EnvironmentsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
         )}
       </section>
     </>

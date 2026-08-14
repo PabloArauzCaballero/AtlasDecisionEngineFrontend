@@ -80,4 +80,22 @@ describe('cableado de los recorridos a sus pantallas', () => {
       expect(tutorialsForRoute(route), route).not.toEqual([]);
     }
   });
+
+  it('la sección «Auditoría» entera tiene recorrido', () => {
+    // Las seis pantallas del menú de Auditoría se entregaron sin ayuda guiada, y son las
+    // que usa gente que no diseñó el sistema: un auditor externo, cumplimiento, el canal
+    // de atención al titular. `/executions` era el caso engañoso — tenía recorrido de
+    // FICHA (`execution-detail`), así que en el Centro parecía cubierto, pero quien
+    // abría el listado no encontraba nada.
+    for (const route of [
+      '/executions',
+      '/audit-events',
+      '/model-monitoring',
+      '/decision-quality',
+      '/risk-governance',
+      '/data-subject-requests',
+    ]) {
+      expect(tutorialsForRoute(route), route).not.toEqual([]);
+    }
+  });
 });

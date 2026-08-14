@@ -1,5 +1,6 @@
 import { dataTypeLabel } from '../../contracts/data-types';
 import { display, type UnknownRecord } from '../../utils/records';
+import { maskValue } from '../../utils/sensitivity';
 
 /**
  * Las tablas del estado de variables de un nodo.
@@ -32,11 +33,11 @@ export function ValueGroup({
           <table className="node-state-table">
             <thead>
               <tr>
-                <th>Variable</th>
-                <th>Tipo</th>
-                <th>Estado</th>
-                <th>Origen</th>
-                <th>Valor</th>
+                <th scope="col">Variable</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Origen</th>
+                <th scope="col">Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -94,12 +95,12 @@ export function IntermediateGroup({
           <table className="node-state-table">
             <thead>
               <tr>
-                <th>Variable</th>
-                <th>Antes</th>
-                <th>Después</th>
-                <th>Producida por</th>
-                <th>Creada en</th>
-                <th>Consumida por</th>
+                <th scope="col">Variable</th>
+                <th scope="col">Antes</th>
+                <th scope="col">Después</th>
+                <th scope="col">Producida por</th>
+                <th scope="col">Creada en</th>
+                <th scope="col">Consumida por</th>
               </tr>
             </thead>
             <tbody>
@@ -188,11 +189,10 @@ function StateChip({ state }: { state: string }) {
   );
 }
 
-/** Un valor sensible nunca se pinta en claro, aunque el backend lo hubiera enviado. */
-function renderValue(value: unknown, sensitivityClass: unknown): string {
-  const sensitive = ['PII', 'SENSITIVE_PII', 'SECRET'].includes(String(sensitivityClass ?? ''));
-  if (value === null || value === undefined) return '—';
-  if (sensitive) return '•••';
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
-}
+/**
+ * Un valor sensible nunca se pinta en claro, aunque el backend lo hubiera
+ * enviado. La regla vive en `utils/sensitivity` porque esta tabla era la ÚNICA
+ * que la aplicaba, y las que pintan el mismo dato en el expediente y en la
+ * ejecución no la tenían.
+ */
+const renderValue = maskValue;

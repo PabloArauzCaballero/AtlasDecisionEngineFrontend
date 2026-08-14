@@ -6,9 +6,12 @@ const success = new Set([
   'HEALTHY',
   'COMPILED',
   'VALID',
+  // Cobertura: un cruce con artefacto Y prueba. Sin esto los tres estados de la
+  // matriz caían en `neutral` y COMPLETO se veía igual que HUECO.
+  'COMPLETE',
 ]);
 const danger = new Set(['FAILED', 'REJECTED', 'SUSPENDED', 'ERROR', 'CRITICAL', 'INVALID']);
-const warning = new Set(['PENDING', 'DRAFT', 'REVIEW', 'RUNNING', 'QUEUED', 'WARNING']);
+const warning = new Set(['PENDING', 'DRAFT', 'REVIEW', 'RUNNING', 'QUEUED', 'WARNING', 'PARTIAL']);
 // Sentido de una variable: se pinta con los mismos colores que los distintivos
 // entrada/salida del editor, para que la diferencia se vea igual en todo el portal.
 const inbound = new Set(['ENTRADA', 'INPUT']);

@@ -75,8 +75,12 @@ export function SearchResultsPage() {
       ) : null}
       <div className="search-results-groups">
         {groups.map((group) => (
-          <section className="panel" key={group.entityType}>
-            <h2>{entityTypeLabel(group.entityType)}</h2>
+          <section
+            className="panel"
+            key={group.entityType}
+            aria-labelledby={`search-group-${group.entityType}`}
+          >
+            <h2 id={`search-group-${group.entityType}`}>{entityTypeLabel(group.entityType)}</h2>
             {group.hits.map((hit) => {
               const href = hitHref(hit);
               const body = (

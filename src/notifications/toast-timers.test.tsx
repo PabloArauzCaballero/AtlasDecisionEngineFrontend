@@ -33,15 +33,15 @@ describe('cuentas atrás de los avisos', () => {
     // 3 s de los 4,5 s del aviso de éxito transcurren a la vista.
     act(() => void vi.advanceTimersByTime(3000));
     // El ratón entra y, acto seguido, el foco cae dentro: dos pausas seguidas.
-    act(() => viewport.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })));
-    act(() => viewport.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
+    act(() => void viewport.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })));
+    act(() => void viewport.dispatchEvent(new FocusEvent('focusin', { bubbles: true })));
     act(() => void vi.advanceTimersByTime(10_000));
 
     // Sigue en pantalla: mientras se lee, la cuenta atrás no corre.
     expect(screen.getByText('Guardado')).toBeInTheDocument();
 
     // Al salir el ratón quedaba 1,5 s de verdad, no cero.
-    act(() => viewport.dispatchEvent(new MouseEvent('mouseout', { bubbles: true })));
+    act(() => void viewport.dispatchEvent(new MouseEvent('mouseout', { bubbles: true })));
     act(() => void vi.advanceTimersByTime(1000));
     expect(screen.getByText('Guardado')).toBeInTheDocument();
   });

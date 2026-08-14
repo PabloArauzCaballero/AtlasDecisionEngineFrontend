@@ -74,7 +74,11 @@ export function PlaybackGraph({
       <div
         className={`graph-canvas-viewport ${zoom.panning ? 'is-panning' : ''}`.trim()}
         ref={viewport}
-        aria-label="Recorrido de la ejecución"
+        /* Igual que el lienzo del editor: sin rol, el `aria-label` se descarta, y
+           sin `tabIndex` la caja desplaza pero no se alcanza con teclado. */
+        role="group"
+        tabIndex={0}
+        aria-label="Recorrido de la ejecución. Usa las flechas para recorrerlo."
       >
         <div
           className="graph-canvas-scroll"

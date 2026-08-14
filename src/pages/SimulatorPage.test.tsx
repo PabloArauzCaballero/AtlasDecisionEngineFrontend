@@ -32,9 +32,9 @@ describe('SimulatorPage', () => {
         return [
           {
             id: '1',
-            code: 'SANDBOX',
-            name: 'Sandbox',
-            environmentType: 'SANDBOX',
+            code: 'DEV',
+            name: 'Development',
+            environmentType: 'DEV',
             status: 'ACTIVE',
             isProduction: false,
           },
@@ -73,7 +73,7 @@ describe('SimulatorPage', () => {
           code: 'POLICY',
           versionId: '3',
           deploymentId: '4',
-          environment: 'SANDBOX',
+          environment: 'DEV',
           checksum: 'checksum',
         },
         trace: { nodes: ['START', 'APPROVE'], edges: ['EDGE_1'], terminal: 'APPROVE' },
@@ -84,7 +84,7 @@ describe('SimulatorPage', () => {
 
   it('offers only non-production environments and calls the dry-run endpoint', async () => {
     renderPage();
-    expect(await screen.findByRole('option', { name: /Sandbox/ })).toBeInTheDocument();
+    expect(await screen.findByRole('option', { name: /Development/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Production/ })).not.toBeInTheDocument();
 
     expect(
@@ -98,7 +98,7 @@ describe('SimulatorPage', () => {
         '/v1/simulations/POLICY',
         expect.objectContaining({
           method: 'POST',
-          body: expect.objectContaining({ environmentCode: 'SANDBOX' }),
+          body: expect.objectContaining({ environmentCode: 'DEV' }),
         }),
       ),
     );

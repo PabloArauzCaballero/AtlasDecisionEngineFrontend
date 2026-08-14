@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { AlertTriangle, GitBranch, Play } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
@@ -19,6 +19,7 @@ import {
 } from '../features/simulator/simulation-batch';
 import { SimulationResultPanel } from '../features/simulator/SimulationResultPanel';
 import { SimulatorInputEditor } from '../features/simulator/SimulatorInputEditor';
+import { useArtifactContract, variableNames } from '../features/simulator/useArtifactContract';
 import { useArtifactDeployments } from '../features/simulator/useArtifactDeployments';
 import { useSafeEnvironments } from '../features/simulator/useSafeEnvironments';
 import { useNotifications } from '../notifications/useNotifications';
@@ -122,6 +123,15 @@ export function SimulatorPage() {
   });
   const entries: BatchEntry[] = simulation.data ?? [];
   const result: SimulationResponse | undefined = entries[activeResult]?.decision;
+  /*
+   * Los nombres se piden para el artefacto que PRODUJO el resultado, no para el
+   * que esté elegido ahora: cambiar de artefacto tras simular dejaría la
+   * decisión anterior en pantalla rotulada con los nombres de otro contrato.
+   * Mientras no se cambia —el caso normal— es la misma consulta que ya hizo el
+   * editor de entrada, así que comparten clave y no se pide dos veces.
+   */
+  const contract = useArtifactContract(result?.artifact.code ?? artifactCode);
+  const outputNames = useMemo(() => variableNames(contract.data), [contract.data]);
   const traceSteps = asRows(asRecord(result?.trace).nodes).length > 0;
   /*
    * Recorrido con el estado de las variables en cada paso. El motor lo devuelve
@@ -221,6 +231,7 @@ export function SimulatorPage() {
         <SimulationResultPanel
           entries={entries}
           index={activeResult}
+          names={outputNames}
           onIndex={(next) => {
             setActiveResult(next);
             // La traza pertenece al caso que se estaba mirando: dejarla abierta

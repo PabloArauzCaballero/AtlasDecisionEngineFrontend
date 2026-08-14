@@ -11,8 +11,19 @@ import type { SampleKind } from './suite-types';
 
 const sampleSchema = z.object({
   seed: z.string(),
-  cases: z.array(z.object({ input: z.record(z.unknown()) })).min(1),
+  totalOutcomes: z.number().optional(),
+  cases: z
+    .array(
+      z.object({
+        input: z.record(z.unknown()),
+        outcome: z.string().optional(),
+        unresolved: z.array(z.string()).optional(),
+      }),
+    )
+    .min(1),
 });
+
+type SampleCase = z.infer<typeof sampleSchema>['cases'][number];
 
 interface Props {
   /** Versión que la suite prueba: de ahí sale el contrato, no de un ambiente. */
@@ -45,6 +56,9 @@ export function GenerateCaseInputButton({
 }: Props) {
   const [kind, setKind] = useState<SampleKind>(defaultKind);
   const [seed, setSeed] = useState('');
+  /** Con `OUTCOMES` el motor devuelve una entrada por desenlace: se eligen aquí. */
+  const [outcomes, setOutcomes] = useState<SampleCase[]>([]);
+  const [chosen, setChosen] = useState(0);
 
   // Cambiar el tipo de suite cambia lo que corresponde generar. Sin esto, elegir
   // «Generada del contrato» seguía sembrando casos cómodos porque el selector se
@@ -60,9 +74,18 @@ export function GenerateCaseInputButton({
       }),
     onSuccess: (data) => {
       setSeed(data.seed);
+      // Un caso de suite afirma UN resultado, así que se carga uno y se ofrecen los
+      // demás: sin la lista, «un caso por desenlace» acabaría siendo siempre el primero.
+      setOutcomes(kind === 'OUTCOMES' ? data.cases : []);
+      setChosen(0);
       onGenerated(data.cases[0].input);
     },
   });
+
+  function pickOutcome(index: number) {
+    setChosen(index);
+    onGenerated(outcomes[index].input);
+  }
 
   return (
     <div className="sample-bar">
@@ -70,6 +93,7 @@ export function GenerateCaseInputButton({
         <label className="field sample-bar-kind">
           <span>Generar entrada de ejemplo</span>
           <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
+            <option value="OUTCOMES">Una por cada resultado posible</option>
             <option value="VALID">Válida</option>
             <option value="BOUNDARY">En el límite del contrato</option>
             <option value="INVALID">Inválida (el caso debe rechazarse)</option>
@@ -85,12 +109,34 @@ export function GenerateCaseInputButton({
         </button>
       </div>
       {kindReason ? <small className="field-hint">{kindReason}</small> : null}
+      {outcomes.length ? (
+        <div className="sample-bar-cases" role="group" aria-label="Resultados que puede tomar">
+          {outcomes.map((sample, index) => (
+            <button
+              key={sample.outcome ?? index}
+              type="button"
+              className="sample-case-chip"
+              aria-pressed={index === chosen}
+              onClick={() => pickOutcome(index)}
+            >
+              {sample.outcome ?? `Resultado ${index + 1}`}
+              {sample.unresolved?.length ? ' ⚠' : ''}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {generate.isError ? <Alert tone="error">{errorMessage(generate.error)}</Alert> : null}
       {seed && !generate.isError ? (
         <small className="field-hint">
           Entrada generada del contrato de la versión · semilla {seed}. El resultado esperado lo
           decides tú: es lo que la prueba afirma.
         </small>
+      ) : null}
+      {outcomes[chosen]?.unresolved?.length ? (
+        <Alert tone="warning">
+          Este resultado depende de valores que calcula el propio grafo, así que la entrada no
+          garantiza llegar a él: {outcomes[chosen].unresolved?.join('; ')}
+        </Alert>
       ) : null}
     </div>
   );

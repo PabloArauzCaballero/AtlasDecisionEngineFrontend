@@ -16,11 +16,19 @@ export function PageHeader({ eyebrow, title, description, actions, hint }: PageH
     <header className="page-header">
       <div>
         <p className="eyebrow">{eyebrow}</p>
-        <h1 className="page-title-line">
-          {title}
+        {/*
+          Los dos controles van JUNTO al `<h1>`, no dentro.
+          Dentro, su texto entraba en el nombre accesible del encabezado de todas
+          las páginas del portal: un lector de pantalla anunciaba «Matriz de
+          Cobertura Qué es: Matriz de Cobertura Ayuda de esta pantalla» como si
+          fuera el título. El envoltorio conserva la misma línea y el mismo
+          `flex`, así que visualmente no se mueve nada.
+        */}
+        <div className="page-title-line">
+          <h1>{title}</h1>
           {hint ? <InfoHint text={hint} label={`Qué es: ${title}`} /> : null}
           <TutorialMenu />
-        </h1>
+        </div>
         <p className="page-description">{description}</p>
       </div>
       {actions ? <div className="page-actions">{actions}</div> : null}

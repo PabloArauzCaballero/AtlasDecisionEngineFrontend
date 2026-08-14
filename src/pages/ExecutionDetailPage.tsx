@@ -2,6 +2,7 @@ import { Copy, GitBranch } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert } from '../components/Alert';
+import { ConfirmButton } from '../components/ConfirmButton';
 import type { AmbientState } from '../components/AmbientBackground';
 import { useAmbientState } from '../components/ambient/useAmbientState';
 import { ExecutionPlayback } from '../features/execution-playback/ExecutionPlayback';
@@ -15,6 +16,8 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Timeline } from '../components/Timeline';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
+import { maskValue, sensitiveCodesOfExecution } from '../utils/sensitivity';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 interface ExecutionDetailPageProps {
   executionId: string;
@@ -28,6 +31,13 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const execution = asRecord(query.data);
   const variables = asRows(execution.variables);
   const trace = asRows(execution.traceSteps ?? execution.trace);
+  /*
+   * Qué variables clasificó el catálogo como personales. La traza por nodo ya
+   * las enmascaraba; esta pantalla —la tabla de variables resueltas y los dos
+   * paneles de JSON— las pintaba en claro, y además las ofrecía en el
+   * portapapeles y en un archivo descargable.
+   */
+  const sensitiveCodes = sensitiveCodesOfExecution(execution);
   const versionId = display(execution, 'artifactVersionId', 'versionId');
   const router = useRouter();
   // El grafo de la versión ejecutada es lo que da forma a la reproducción. Se
@@ -41,8 +51,15 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const steps = normalizeTrace(execution);
 
   /**
-   * Hands the original input to the simulator through sessionStorage — the
-   * payload can exceed what a query string tolerates — and navigates there.
+   * Entrega la entrada original al simulador por `sessionStorage` —el payload
+   * excede lo que tolera una cadena de consulta— y navega allí.
+   *
+   * Va SIN enmascarar a propósito: reproducir una decisión con `•••` en lugar
+   * del ingreso o del documento no reproduce nada. Por eso el gesto se confirma
+   * cuando hay datos personales de por medio (ver abajo): es la única vía del
+   * portal que copia el expediente en claro a otro sitio —`sessionStorage`, que
+   * sobrevive a la navegación y no se borra al cambiar de vista—, y quien la usa
+   * debe saber que lo está haciendo.
    */
   const cloneToSimulator = () => {
     const input = asRecord(execution.inputJson ?? execution.inputSnapshot);
@@ -70,20 +87,47 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F6-02 · Audit"
-        title="Ejecución de Transacción"
+        eyebrow="F6-02 · Auditoría"
+        title="Ejecución de la transacción"
         description={`${display(execution, 'requestId')} · ${display(execution, 'artifactCode')}`}
         actions={
           <>
-            <button
-              className="button"
-              type="button"
-              disabled={!query.data}
-              onClick={cloneToSimulator}
-              title="Reproducir esta transacción en el simulador"
-            >
-              <Copy size={16} /> Clonar
-            </button>
+            {/*
+              Se confirma SÓLO si la ejecución trae datos clasificados. Preguntar
+              siempre convertiría el aviso en un trámite que se acepta sin leer, y
+              entonces dejaría de avisar de nada.
+            */}
+            {sensitiveCodes.size ? (
+              <ConfirmButton
+                className="button"
+                title="Clonar copia datos personales"
+                confirmLabel="Clonar de todos modos"
+                description={
+                  <>
+                    Esta ejecución contiene {sensitiveCodes.size}{' '}
+                    {sensitiveCodes.size === 1 ? 'variable clasificada' : 'variables clasificadas'}{' '}
+                    como dato personal ({[...sensitiveCodes].slice(0, 4).join(', ')}
+                    {sensitiveCodes.size > 4 ? '…' : ''}). El simulador las recibe{' '}
+                    <strong>en claro</strong>, porque con la máscara puesta no reproducirían la
+                    decisión, y quedan en el almacenamiento de esta pestaña hasta que la cierres.
+                  </>
+                }
+                disabled={!query.data}
+                onConfirm={cloneToSimulator}
+              >
+                <Copy size={16} /> Clonar
+              </ConfirmButton>
+            ) : (
+              <button
+                className="button"
+                type="button"
+                disabled={!query.data}
+                onClick={cloneToSimulator}
+                title="Reproducir esta transacción en el simulador"
+              >
+                <Copy size={16} /> Clonar
+              </button>
+            )}
             {versionId !== '—' ? (
               <Link
                 className="button button-primary"
@@ -110,47 +154,53 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
         <strong>{display(execution, 'outcome')}</strong>
         <span>{display(execution, 'durationMs')} ms</span>
       </div>
-      <Panel title="Metadatos de Contexto" meta="Immutable snapshot">
+      <Panel title="Metadatos de contexto" meta="instantánea inmutable">
         <DefinitionGrid
           record={execution}
           items={[
-            { label: 'Request ID', keys: ['requestId'], mono: true },
-            { label: 'Artifact', keys: ['artifactCode'], mono: true },
-            { label: 'Version', keys: ['versionNumber', 'semanticVersion'] },
-            { label: 'Environment', keys: ['environmentCode'] },
+            { label: 'ID de petición', keys: ['requestId'], mono: true },
+            { label: 'Artefacto', keys: ['artifactCode'], mono: true },
+            { label: 'Versión', keys: ['versionNumber', 'semanticVersion'] },
+            { label: 'Ambiente', keys: ['environmentCode'] },
             { label: 'Principal', keys: ['principalId'], mono: true },
-            { label: 'Created At', keys: ['createdAt'] },
+            { label: 'Ejecutada', keys: ['createdAt'] },
           ]}
         />
       </Panel>
       <Panel title="Reproducción de la decisión" meta={`${steps.length} pasos trazados`}>
         <ExecutionPlayback steps={steps} nodes={asRows(graph.nodes)} edges={asRows(graph.edges)} />
       </Panel>
+      {/* Columnas de maquetación, no landmarks: el `<main>` del portal es el de
+          `NextAppShell` y sólo puede haber uno. */}
       <div className="execution-detail-grid">
-        <main>
+        <div>
           <JsonPanel
-            label="Input Payload"
+            label="Entrada original"
+            tutorialId="execution-input"
             value={execution.inputJson ?? execution.inputSnapshot ?? {}}
+            sensitiveCodes={sensitiveCodes}
           />
           <JsonPanel
-            label="Output Snapshot"
+            label="Salida de la decisión"
+            tutorialId="execution-output"
             value={execution.outputJson ?? execution.output ?? {}}
+            sensitiveCodes={sensitiveCodes}
           />
-          <Panel title="Variables Resueltas" meta={`${variables.length} variables`}>
-            <div className="table-wrap">
+          <Panel title="Variables resueltas" meta={`${variables.length} variables`}>
+            <ScrollRegion label="Variables resueltas">
               <table>
                 <thead>
                   <tr>
-                    <th>Nombre Variable</th>
-                    <th>Valor Final</th>
-                    <th>Origen (Resolver)</th>
+                    <th scope="col">Nombre de la variable</th>
+                    <th scope="col">Valor final</th>
+                    <th scope="col">Origen (resolutor)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {variables.map((item) => (
                     <tr key={display(item, 'id', 'variableCode')}>
                       <td className="mono">{display(item, 'variableCode', 'name')}</td>
-                      <td>{display(item, 'valueJson', 'value')}</td>
+                      <td>{maskValue(item.valueJson ?? item.value, item.sensitivityClass)}</td>
                       <td>
                         <StatusBadge value={item.sourceType ?? item.source} />
                       </td>
@@ -158,11 +208,11 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
           </Panel>
-        </main>
-        <aside>
-          <Panel title="Timeline de Ejecución" meta={`${trace.length} steps`}>
+        </div>
+        <div className="execution-detail-side">
+          <Panel title="Línea de tiempo de la ejecución" meta={`${trace.length} pasos`}>
             <Timeline
               items={trace.map((item) => ({
                 title: display(item, 'nodeKey', 'nodeType'),
@@ -171,7 +221,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
               }))}
             />
           </Panel>
-        </aside>
+        </div>
       </div>
       {/*
         El estado por nodo va a lo ancho, fuera de la rejilla.

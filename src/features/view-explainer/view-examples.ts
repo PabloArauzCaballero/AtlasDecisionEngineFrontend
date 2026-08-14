@@ -37,13 +37,21 @@ export const viewExamples: Readonly<Record<string, string>> = {
   reviews:
     'Mandas la versión 3 a revisión. Un compañero con permiso de riesgo la aprueba o la devuelve con comentarios; tú no puedes aprobar la tuya.',
   environments:
-    'Compruebas qué versión está activa en SANDBOX, en TEST y en producción. Tres respuestas distintas para la misma pregunta, y aquí se ven juntas.',
+    'Compruebas qué versión está activa en DEV, en TEST, en STAGING y en producción. Cuatro respuestas distintas para la misma pregunta, y aquí se ven juntas.',
   'platform-health':
     'De un vistazo: el motor responde, la cola de trabajos está vacía y la última decisión tardó 60 ms. Si algo va mal, se ve aquí antes de que lo reporte un cliente.',
   executions:
     'Un cliente reclama que le rechazaron. Buscas su solicitud, abres la traza y ves el camino exacto que siguió la decisión y con qué datos.',
   'audit-events':
     'Alguien cambió una regla el martes. Aquí queda quién fue, cuándo y qué cambió exactamente, sin poder borrarlo.',
+  'decision-quality':
+    'El tablero dice que el modelo va bien, pero aquí ves que sólo el 12 % de las decisiones de la última semana identifica al solicitante. No es que acierte: es que casi nada se puede medir.',
+  'model-monitoring':
+    'La versión 4 lleva tres meses aprobando igual que siempre, pero el índice de estabilidad de «ingreso mensual» subió a 0,31: ya no le llega la misma gente, y el corte que era bueno dejó de serlo.',
+  'risk-governance':
+    'Estrenas un límite de concentración por sector en modo «sólo mide». A las tres semanas ves que va por el 92 % y lo pones a bloquear, antes de que topar sea una sorpresa de fin de mes.',
+  'data-subject-requests':
+    'Alguien llama preguntando por qué le negaron el crédito. Registras un acceso con su referencia y salen todas las decisiones sobre esa persona con los motivos que se le pueden leer — y queda constancia de que alguien las consultó.',
   deployments:
     'Publicas la versión 3 en TEST, la pruebas, y si algo va mal vuelves a la 2 con un clic. El historial guarda ambas cosas.',
   objectives:

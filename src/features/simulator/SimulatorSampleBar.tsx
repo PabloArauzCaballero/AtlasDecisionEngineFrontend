@@ -3,7 +3,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { Dices, Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { z } from 'zod';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
@@ -18,26 +17,13 @@ import {
 } from './document-input';
 import { parseSampleFile, type ImportField, type ImportedCase } from './sample-import';
 
-const sampleInputsSchema = z.object({
-  seed: z.string(),
-  kind: z.string(),
-  cases: z.array(
-    z.object({
-      index: z.number(),
-      kind: z.string(),
-      mutation: z.string().optional(),
-      input: z.record(z.unknown()),
-    }),
-  ),
-});
-
-type Kind = 'VALID' | 'BOUNDARY' | 'INVALID';
-
-const KIND_LABEL: Record<Kind, string> = {
-  VALID: 'válidos',
-  BOUNDARY: 'en el límite',
-  INVALID: 'inválidos',
-};
+import {
+  KIND_OPTIONS,
+  readBatch,
+  SAMPLE_KINDS,
+  sampleInputsSchema,
+  type SampleKind,
+} from './sample-batch';
 
 interface Props {
   artifactCode: string;
@@ -92,7 +78,9 @@ export function SimulatorSampleBar({
   onCases,
   onActive,
 }: Props) {
-  const [kind, setKind] = useState<Kind>('VALID');
+  // Por desenlace es lo que casi siempre se quiere al abrir el simulador: probar QUÉ
+  // decide el algoritmo, no comprobar por enésima vez que su contrato valida.
+  const [kind, setKind] = useState<SampleKind>('OUTCOMES');
   const [count, setCount] = useState(3);
   const [cases, setCases] = useState<ImportedCase[]>([]);
   const [active, setActive] = useState(0);
@@ -119,13 +107,8 @@ export function SimulatorSampleBar({
         responseSchema: sampleInputsSchema,
       }),
     onSuccess: (data) => {
-      show(
-        data.cases.map((generated) => ({
-          label: `Caso ${generated.index + 1}${generated.mutation ? ` · ${generated.mutation}` : ''}`,
-          input: generated.input,
-        })),
-        `${data.cases.length} casos ${KIND_LABEL[kind]} generados desde el contrato desplegado · semilla ${data.seed}`,
-      );
+      const reading = readBatch(kind, data);
+      show(reading.cases, reading.text, reading.tone);
     },
     onError: (error) => setNotice({ tone: 'error', text: errorMessage(error) }),
   });
@@ -217,24 +200,38 @@ export function SimulatorSampleBar({
       <div className="sample-bar-actions">
         <label className="field sample-bar-kind">
           <span>Valores de prueba</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as Kind)}>
-            <option value="VALID">Válidos</option>
-            <option value="BOUNDARY">En el límite del contrato</option>
-            <option value="INVALID">Inválidos (deben rechazarse)</option>
+          <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
+            {SAMPLE_KINDS.map((option) => (
+              <option key={option} value={option}>
+                {KIND_OPTIONS[option]}
+              </option>
+            ))}
           </select>
         </label>
-        <label className="field sample-bar-count">
-          <span>Casos</span>
-          <input
-            type="number"
-            min={1}
-            max={20}
-            value={count}
-            onChange={(event) =>
-              setCount(Math.min(20, Math.max(1, Number(event.target.value) || 1)))
-            }
-          />
-        </label>
+        {/*
+         * El número de casos DESAPARECE con «uno por cada resultado»: no es que no se
+         * pueda tocar, es que no existe —lo fija el grafo—. Dejarlo deshabilitado con un
+         * marcador recortado invitaba a intentar escribir en él.
+         */}
+        {kind === 'OUTCOMES' ? null : (
+          <label className="field sample-bar-count">
+            <span>Casos</span>
+            {/*
+             * Con «uno por cada resultado» el número lo fija el grafo, no quien pulsa:
+             * pedir tres casos a un algoritmo con cinco finales dejaría dos decisiones
+             * sin probar y la tanda parecería completa.
+             */}
+            <input
+              type="number"
+              min={1}
+              max={20}
+              value={count}
+              onChange={(event) =>
+                setCount(Math.min(20, Math.max(1, Number(event.target.value) || 1)))
+              }
+            />
+          </label>
+        )}
         <button
           type="button"
           className="button"

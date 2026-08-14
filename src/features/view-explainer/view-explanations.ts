@@ -118,6 +118,41 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
     systems:
       'Eventos encadenados por hash (anterior/actual): cualquier alteración rompe la cadena y se detecta.',
   },
+  /*
+   * Las tres pantallas de medición van seguidas y en su orden, porque el orden es
+   * justamente lo que se confunde: si hay datos con los que medir, si el modelo se
+   * degrada y bajo qué condiciones se le deja operar. Sin explicador, las cuatro
+   * pantallas nuevas de «Auditoría» se abrían sin decir qué preguntan, que es peor
+   * aquí que en un catálogo: las usa gente que no diseñó el sistema.
+   */
+  'decision-quality': {
+    module: 'Calidad de la Decisión · Auditoría',
+    business:
+      'Mide el sistema de medición: cuántas decisiones saben a quién decidieron y cuántas ventanas de observación vencidas cerró alguien. Es la pregunta ANTERIOR a la degradación del modelo — un tablero en verde sobre un sistema de observación apagado es la lectura peligrosa que esta pantalla existe para impedir.',
+    systems:
+      'Cobertura de sujeto y de desenlace por ventana, cola de ventanas vencidas, carga en lote validada antes de escribir, punto de corte y matriz de cosechas. Una medida que no se pudo tomar sale como «—» en tono neutro, nunca como 0 en rojo.',
+  },
+  'model-monitoring': {
+    module: 'Monitoreo del Modelo · Auditoría',
+    business:
+      'Vigila si una versión desplegada se está degradando: si sigue acertando, si le siguen llegando los mismos solicitantes y si trata igual a grupos comparables. Un acierto estable sobre una población que cambió no es un buen modelo: es uno al que todavía no le ha tocado.',
+    systems:
+      'Tres análisis de lectura sobre una versión y una ventana: desempeño observado, estabilidad poblacional (PSI contra una referencia que se declara a mano, para que la cifra sea reproducible) e impacto adverso por atributo en bandas, apartando los grupos con muestra pequeña.',
+  },
+  'risk-governance': {
+    module: 'Gobierno del Riesgo · Condiciones de operación',
+    business:
+      'Lo que condiciona una decisión sin tomarla: apetito de cartera, calibración, licitud vigente, reidentificación y expediente del modelo. Están juntas porque comparten una propiedad incómoda — son las que se saltan cuando hay prisa.',
+    systems:
+      'Límites de exposición con su modo (bloquea o sólo mide, y se ven distinto), curva de calibración construida sólo con desenlaces observados, permisos con vigencia, reidentificación con doble firma y expediente de validación con fecha de próxima revisión.',
+  },
+  'data-subject-requests': {
+    module: 'Derechos del Titular · Auditoría',
+    business:
+      'Registra y resuelve lo que una persona pide sobre sus propios datos: acceso a las decisiones que se tomaron sobre ella, portabilidad, eliminación y revisión humana de una decisión automática. Son derechos con plazo legal (LGPD art. 18 y 20; CCPA/CPRA), no consultas de cortesía.',
+    systems:
+      'La referencia del titular viaja siempre en el cuerpo de la petición, nunca en la URL —tampoco para consultar el historial—, porque un identificador en una dirección acaba en el registro de acceso, en el proxy y en la traza. Registrar la solicitud la resuelve contra el historial en la misma llamada y sólo entrega los motivos públicos.',
+  },
   deployments: {
     module: 'Historial de Despliegues · F4-07',
     business:

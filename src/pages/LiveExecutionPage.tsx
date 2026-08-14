@@ -29,7 +29,7 @@ interface NestedExecutionEntry {
 /**
  * Live execution (Fase 8): streams real node-by-node progress over SSE while a
  * decision actually executes — see docs/live-execution.md. This is a dry-run
- * preview tool (SANDBOX/TEST only, no persistence), same policy as the
+ * preview tool (non-production environments only, no persistence), same policy as the
  * Simulator. Not wired to Rebanada 1's event bus (still in progress on a
  * separate branch); this view drives the engine directly over its own SSE
  * connection and needs nothing from that bus to work.
@@ -174,7 +174,7 @@ export function LiveExecutionPage() {
   return (
     <>
       <div className="sandbox-banner">
-        <AlertTriangle /> Vista previa en vivo — SANDBOX/TEST solamente
+        <AlertTriangle /> Vista previa en vivo — sólo ambientes no productivos
       </div>
       <PageHeader
         eyebrow="F8 · Live Execution"

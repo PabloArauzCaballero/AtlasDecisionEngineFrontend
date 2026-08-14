@@ -15,7 +15,7 @@ describe('buildDiffBases', () => {
     const { bases } = buildDiffBases({
       versionId: '9',
       sourceVersionId: '8',
-      heads: [head('PROD', '5'), head('SANDBOX', '7')],
+      heads: [head('PROD', '5'), head('DEV', '7')],
     });
     expect(bases.map((base) => base.versionId)).toEqual(['8', '5', '7']);
     expect(bases[0].label).toBe('Versión de origen');
@@ -45,7 +45,7 @@ describe('buildDiffBases', () => {
     const { movedAhead } = buildDiffBases({
       versionId: '9',
       sourceVersionId: '4',
-      heads: [head('PROD', '6'), head('SANDBOX', '4')],
+      heads: [head('PROD', '6'), head('DEV', '4')],
     });
     expect(movedAhead.map((entry) => entry.environmentCode)).toEqual(['PROD']);
   });

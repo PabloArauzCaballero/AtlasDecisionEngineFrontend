@@ -1,8 +1,10 @@
 'use client';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Panel } from '../components/Panel';
+import { formatNumber } from '../config/locale';
+import { ForceFreshRun } from '../features/workers/ForceFreshRun';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
 import { WorkerRunTracker } from '../features/workers/WorkerRunTracker';
@@ -14,9 +16,11 @@ import {
   fetchWorkerCatalog,
 } from '../features/workers/workers.api';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
+import { isTerminal } from '../features/workers/worker-types';
 import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { SemanticResultView } from '../features/workers/SemanticResultView';
+import { asRecord } from '../utils/records';
 
 const WORKER = 'semantic-analysis' as const;
 
@@ -37,6 +41,7 @@ export function SemanticAnalysisWorkerConsole() {
   const [text, setText] = useState('');
   const [fixtureCode, setFixtureCode] = useState('');
   const [requestId, setRequestId] = useState<string | null>(null);
+  const [forzar, setForzar] = useState(false);
 
   const catalog = useQuery({
     queryKey: ['worker-catalog'],
@@ -54,9 +59,44 @@ export function SemanticAnalysisWorkerConsole() {
 
   const run = useWorkerRun(WORKER, requestId);
 
+  /*
+   * La abstención se ANUNCIA, igual que la revisión humana en identidad.
+   *
+   * `UNKNOWN` y `AMBIGUOUS` no son errores: son el motor negándose a inventar
+   * una categoría. Pero abren un pendiente en la bandeja, y quien sólo mira el
+   * resultado de SU texto no tiene por qué saberlo: el valor quedaba esperando
+   * en «Pendientes» sin que nadie supiera que había que pasar por ahí.
+   */
+  const anunciado = useRef<string | null>(null);
+  const estadoSemantico = String((asRecord(run.data?.result) as { status?: unknown }).status ?? '');
+  useEffect(() => {
+    if (requestId === null || anunciado.current === requestId) return;
+    if (!run.data || !isTerminal(run.data.status)) return;
+    if (estadoSemantico !== 'UNKNOWN' && estadoSemantico !== 'AMBIGUOUS') return;
+    anunciado.current = requestId;
+    notify({
+      tone: 'warning',
+      title: 'Quedó pendiente de clasificar',
+      description:
+        estadoSemantico === 'UNKNOWN'
+          ? 'El motor se abstuvo: no hay evidencia suficiente para ninguna categoría. El valor espera en la pestaña «Pendientes».'
+          : 'Varias categorías compiten sin ganadora clara. El valor espera en la pestaña «Pendientes».',
+    });
+  }, [requestId, run.data, estadoSemantico, notify]);
+
+  /*
+   * El motor deriva la clave del CONTENIDO, así que reenviar la misma glosa
+   * devuelve la ejecución vieja —incluida su categoría— aunque el catálogo haya
+   * cambiado desde entonces. Es lo correcto por omisión y la trampa evidente
+   * después de corregir el árbol: la casilla manda una clave nueva, que es la
+   * vía que el motor documenta para volver a preguntar.
+   */
   const submit = useMutation({
     mutationFn: () =>
-      createSemanticRun(mode === 'fixture' ? { fixtureCode } : { text: text.trim() }),
+      createSemanticRun({
+        ...(mode === 'fixture' ? { fixtureCode } : { text: text.trim() }),
+        ...(forzar ? { idempotencyKey: crypto.randomUUID() } : {}),
+      }),
     onSuccess: (created) => {
       setRequestId(created.requestId);
       notify({
@@ -145,8 +185,7 @@ export function SemanticAnalysisWorkerConsole() {
               id="worker-text-help"
               className={text.length > maxLength ? 'field-help is-error' : 'field-help'}
             >
-              {text.length.toLocaleString('es-BO')} de {maxLength.toLocaleString('es-BO')}{' '}
-              caracteres
+              {formatNumber(text.length)} de {formatNumber(maxLength)} caracteres
               {text.length > maxLength ? ' — excede el máximo permitido' : ''}
             </small>
           </label>
@@ -154,6 +193,12 @@ export function SemanticAnalysisWorkerConsole() {
 
         {requestId === null ? (
           <div className="worker-run-actions">
+            <ForceFreshRun
+              checked={forzar}
+              onChange={setForzar}
+              label="Forzar un análisis nuevo"
+              help="Sin marcar, reenviar el mismo texto devuelve la ejecución que ya existe, con la categoría que tenía. Márcalo si corregiste el catálogo y quieres volver a preguntar."
+            />
             <button
               type="button"
               className="button button-primary"
@@ -175,6 +220,7 @@ export function SemanticAnalysisWorkerConsole() {
       {requestId && run.data ? (
         <Panel title="Ejecución">
           <WorkerRunTracker
+            worker={WORKER}
             run={run.data}
             onCancel={() => cancel.mutate()}
             cancelling={cancel.isPending}

@@ -1,7 +1,9 @@
+import { AUDIT_TUTORIALS } from './interactive-catalog-audit';
 import { DETAIL_TUTORIALS } from './interactive-catalog-detail';
 import { EDITOR_TUTORIALS } from './interactive-catalog-editor';
 import { ERROR_LINKS, ERROR_TUTORIAL_DEFS } from './interactive-catalog-errors';
 import { LAB_TUTORIALS } from './interactive-catalog-lab';
+import { MEASURE_TUTORIALS } from './interactive-catalog-measure';
 import { ONBOARDING_TUTORIALS } from './interactive-catalog-onboarding';
 import { OPS_TUTORIALS } from './interactive-catalog-ops';
 import { TOOL_TUTORIALS } from './interactive-catalog-tools';
@@ -17,6 +19,8 @@ export const TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   ...OPS_TUTORIALS,
   ...LAB_TUTORIALS,
   ...WORKER_TUTORIALS,
+  ...AUDIT_TUTORIALS,
+  ...MEASURE_TUTORIALS,
   ...ERROR_TUTORIAL_DEFS,
 };
 
@@ -74,6 +78,15 @@ const ROUTE_TUTORIAL: Readonly<Record<string, string>> = {
   '/qa-lab': 'qa-lab',
   '/coverage-matrix': 'coverage-matrix',
   '/workers': 'workers',
+  // La sección «Auditoría» entera se entregó sin ayuda guiada. Es la que usa gente
+  // que no diseñó el sistema —un auditor externo, cumplimiento, el canal de
+  // atención—, así que era justo donde más falta hacía.
+  '/executions': 'executions',
+  '/audit-events': 'audit-events',
+  '/decision-quality': 'decision-quality',
+  '/model-monitoring': 'model-monitoring',
+  '/risk-governance': 'risk-governance',
+  '/data-subject-requests': 'data-subject-requests',
 };
 
 /** Detail/editor routes (dynamic) → their interactive tutorial id. */

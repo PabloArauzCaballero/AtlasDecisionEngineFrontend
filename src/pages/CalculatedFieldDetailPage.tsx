@@ -10,6 +10,7 @@ import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
+import { CalculatedFieldUsagePanel } from '../features/calculated-fields/CalculatedFieldUsagePanel';
 import { CalculatedFieldVersionForm } from '../features/calculated-fields/CalculatedFieldVersionForm';
 import { CalculatedFieldVersionList } from '../features/calculated-fields/CalculatedFieldVersionList';
 import {
@@ -37,6 +38,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
   });
   const field = asRecord(query.data);
   const versions = asRows(field.versions);
+  const usageCount = versions.reduce((total, version) => total + asRows(version.usedBy).length, 0);
 
   const createVersion = useMutation({
     mutationFn: () =>
@@ -139,6 +141,13 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
             onPromote={(versionId, status) => promote.mutate({ versionId, status })}
           />
         </div>
+      </Panel>
+
+      <Panel
+        title="Quién lo usa"
+        meta={`${usageCount} ${usageCount === 1 ? 'invocación' : 'invocaciones'}`}
+      >
+        <CalculatedFieldUsagePanel versions={versions} />
       </Panel>
 
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}

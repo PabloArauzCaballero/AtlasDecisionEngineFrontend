@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, type PropsWithChildren } from 'react';
+import { SessionSecurityNotice } from '../../auth/SessionSecurityNotice';
 import { AmbientProvider } from '../../components/ambient/AmbientProvider';
 import { InteractiveTutorialProvider } from '../../features/tutorial/InteractiveTutorialProvider';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
@@ -55,6 +56,10 @@ export function NextAppShell({ children }: PropsWithChildren) {
             arrival. Query data survives it — the cache lives in QueryProvider.
           */}
                   <div className="route-view" key={pathname}>
+                    {/* Va dentro del `key={pathname}` a propósito: si el motor
+                        marca la credencial para cambio, el aviso reaparece en
+                        cada vista y no se pierde tras la primera navegación. */}
+                    <SessionSecurityNotice />
                     <ViewExplainer />
                     {/* Sólo en la pantalla de entrada: ofrecer el recorrido
                         encima del trabajo de alguien enseña a cerrar la ayuda

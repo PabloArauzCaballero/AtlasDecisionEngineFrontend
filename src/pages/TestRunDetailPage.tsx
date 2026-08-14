@@ -81,7 +81,7 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
           icon={Clock3}
         />
         <MetricCard
-          label="Node Coverage"
+          label="Cobertura de nodos"
           value={`${nodeCoverage.toFixed(1)}%`}
           hint="graph nodes"
           icon={Route}

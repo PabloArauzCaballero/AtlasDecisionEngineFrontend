@@ -12,8 +12,14 @@
  * cómodos no encuentra nada —los defectos viven en los límites del contrato—.
  */
 
-/** Clases de entrada que sabe generar el QA Lab a partir del contrato. */
-export type SampleKind = 'VALID' | 'BOUNDARY' | 'INVALID';
+/**
+ * Clases de entrada que sabe generar el QA Lab.
+ *
+ * Las tres primeras describen la ENTRADA; `OUTCOMES` describe el FINAL: pide una
+ * entrada por cada desenlace del grafo, que es lo que hace falta para que una suite
+ * afirme algo sobre cada decisión que el algoritmo puede tomar.
+ */
+export type SampleKind = 'VALID' | 'BOUNDARY' | 'INVALID' | 'OUTCOMES';
 
 export interface SuiteType {
   code: string;

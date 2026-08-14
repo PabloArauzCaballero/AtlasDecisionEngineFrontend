@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../api/http-client';
 import { canPromoteToEnvironment } from '../../auth/business-rules';
-import { useAuth } from '../../auth/useAuth';
+import { useEffectiveRoles } from '../../auth/useAuth';
 import { environmentsSchema } from '../../testing/testing.schemas';
 import { splitPromotionTargets, type EnvironmentOption } from './promotion-targets';
 
@@ -20,8 +20,7 @@ const NONE: EnvironmentOption[] = [];
  * formulario lo dice. Ofrecer un `PROD` supuesto sería peor que no ofrecer nada.
  */
 export function usePromotionTargets() {
-  const { user } = useAuth();
-  const roles = user?.roles ?? [];
+  const roles = useEffectiveRoles();
   const canPromoteToProduction = canPromoteToEnvironment(roles, {
     code: 'PROD',
     isProduction: true,

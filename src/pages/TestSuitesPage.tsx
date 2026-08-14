@@ -15,6 +15,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
 import { CreateTestSuiteForm } from '../testing/CreateTestSuiteForm';
+import { ScrollRegion } from '../components/ScrollRegion';
 import {
   coveragePercentage,
   queuedTestRunSchema,
@@ -170,17 +171,17 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
         <Alert tone="error">{errorMessage(query.error ?? run.error)}</Alert>
       ) : null}
       {!versionId ? (
-        <section className="panel">
+        <div className="panel">
           <EmptyState
             illustration="graph"
             title="Elige una versión para ver sus pruebas"
             description="Las suites pertenecen a una versión concreta del algoritmo: así se sabe exactamente qué comportamiento se está verificando."
             example="Selecciona arriba el artefacto y su versión, y pulsa «Load suites»."
           />
-        </section>
+        </div>
       ) : null}
       {versionId && !query.isLoading && !rows.length ? (
-        <section className="panel">
+        <div className="panel">
           <EmptyState
             illustration="tests"
             title="Todavía no existen suites de prueba"
@@ -199,21 +200,21 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               </>
             }
           />
-        </section>
+        </div>
       ) : null}
-      <section className="panel" hidden={!rows.length}>
-        <div className="table-wrap">
+      <div className="panel" hidden={!rows.length}>
+        <ScrollRegion label="Suites de prueba">
           <table>
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Bloqueante</th>
-                <th>Casos Activos</th>
-                <th>Último Resultado</th>
-                <th>Cobertura</th>
-                <th>Acciones</th>
+                <th scope="col">Código</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Bloqueante</th>
+                <th scope="col">Casos Activos</th>
+                <th scope="col">Último Resultado</th>
+                <th scope="col">Cobertura</th>
+                <th scope="col">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -233,7 +234,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
                       <StatusBadge value={latest?.status ?? 'NOT_RUN'} />
                     </td>
                     <td className="coverage-cell">
-                      <ProgressBar value={coverage} />
+                      <ProgressBar value={coverage} label={`Cobertura de ${suite.suiteCode}`} />
                       <span>{coverage.toFixed(1)}%</span>
                     </td>
                     <td>
@@ -256,8 +257,8 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               })}
             </tbody>
           </table>
-        </div>
-      </section>
+        </ScrollRegion>
+      </div>
     </>
   );
 }

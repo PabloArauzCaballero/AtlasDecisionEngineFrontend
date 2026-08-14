@@ -4,22 +4,49 @@ import { Plus, Trash2 } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
 
 export interface TrafficRuleDraft {
+  /*
+   * Identidad estable de la fila, sólo para React. No viaja al motor.
+   *
+   * Con `key={index}`, quitar una regla intermedia hacía que React reutilizara
+   * la fila borrada para la siguiente: los valores se repintaban bien —son
+   * campos controlados— pero el foco y la selección de texto se quedaban en la
+   * fila equivocada, justo mientras alguien reparte porcentajes de tráfico de
+   * producción.
+   */
+  id: string;
   segmentKey: string;
   trafficPercentage: string;
   priority: string;
 }
 
+let nextRuleId = 0;
+
 export function createTrafficRule(index: number): TrafficRuleDraft {
-  return { segmentKey: '', trafficPercentage: '', priority: String(index + 1) };
+  nextRuleId += 1;
+  return {
+    id: `rule-${nextRuleId}`,
+    segmentKey: '',
+    trafficPercentage: '',
+    priority: String(index + 1),
+  };
 }
 
+/*
+ * Las dos reglas puras piden sólo los campos que leen, no el borrador entero:
+ * el `id` existe para React y obligarlas a exigirlo haría que cada prueba
+ * tuviera que inventarse uno para comprobar una suma.
+ */
+type TrafficRuleValues = Pick<TrafficRuleDraft, 'segmentKey' | 'trafficPercentage'>;
+
 /** Sum of the entered percentages (blank/NaN counts as 0). */
-export function trafficTotal(rules: readonly TrafficRuleDraft[]): number {
+export function trafficTotal(
+  rules: readonly Pick<TrafficRuleDraft, 'trafficPercentage'>[],
+): number {
   return rules.reduce((sum, rule) => sum + (Number(rule.trafficPercentage) || 0), 0);
 }
 
 /** Rules are optional; if present, segments must be named and total exactly 100. */
-export function trafficRulesValid(rules: readonly TrafficRuleDraft[]): boolean {
+export function trafficRulesValid(rules: readonly TrafficRuleValues[]): boolean {
   if (!rules.length) return true;
   const named = rules.every(
     (rule) => rule.segmentKey.trim() !== '' && rule.trafficPercentage !== '',
@@ -41,7 +68,7 @@ export function TrafficRulesEditor({ rules, onChange }: TrafficRulesEditorProps)
     <section>
       <h3>Reglas de tráfico</h3>
       {rules.map((rule, index) => (
-        <div key={index} className="traffic-rule">
+        <div key={rule.id} className="traffic-rule">
           <div className="form-row">
             <label className="field">
               <span>Segmento</span>

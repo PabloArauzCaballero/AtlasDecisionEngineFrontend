@@ -3,7 +3,7 @@ import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { hasAnyRole } from '../auth/roles';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DataTable } from '../components/DataTable';
 import { FilterSelect } from '../components/FilterSelect';
@@ -48,8 +48,8 @@ export function ResourceListPage({
   // Algunos recursos se consultan con el permiso de la ruta pero se dan de alta
   // con uno más estrecho (`createRoles`). Sin declaración, alta y lectura son lo
   // mismo, que es el caso normal.
-  const { user } = useAuth();
-  const canCreate = !config.createRoles || hasAnyRole(user?.roles ?? [], config.createRoles);
+  const roles = useEffectiveRoles();
+  const canCreate = !config.createRoles || hasAnyRole(roles, config.createRoles);
   const query = useQuery({
     queryKey: ['resource', config.key, page, filter, extraFilters],
     queryFn: ({ signal }) => listResource(config, { page, filter, filters: extraFilters }, signal),
@@ -244,9 +244,13 @@ export function ResourceListPage({
         />
       ) : null}
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
-      <section className="panel" data-tutorial-id="resource-table">
+      <section
+        className="panel"
+        data-tutorial-id="resource-table"
+        aria-labelledby="resource-table-title"
+      >
         <div className="panel-title">
-          <span>{query.data?.total ?? 0} registros</span>
+          <h2 id="resource-table-title">{query.data?.total ?? 0} registros</h2>
           <small>{query.isFetching ? 'Actualizando…' : 'Datos en vivo'}</small>
         </div>
         <DataTable

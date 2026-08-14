@@ -10,8 +10,8 @@ import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
-import { dataTypeLabel } from '../contracts/data-types';
-import { describeConstraints, parseConstraints } from '../contracts/constraints';
+import { VariableIdentity } from '../features/variables/VariableIdentity';
+import { VariableVersionList } from '../features/variables/VariableVersionList';
 import {
   VariableContractEditor,
   emptyContractDraft,
@@ -117,39 +117,15 @@ export function VariableContractPage({ definitionId }: Props) {
         </Panel>
       ) : null}
 
-      <Panel title="Versiones del contrato" meta={`${versions.length} versiones`}>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Versión</th>
-              <th>Tipo</th>
-              <th>Admite nulos</th>
-              <th>Restricciones</th>
-              <th>Origen</th>
-              <th>Vigente desde</th>
-            </tr>
-          </thead>
-          <tbody>
-            {versions.map((version) => (
-              <tr key={display(version, 'id')}>
-                <td>v{display(version, 'versionNumber')}</td>
-                <td>{dataTypeLabel(version.dataType)}</td>
-                <td>{version.nullable ? 'sí' : 'no'}</td>
-                <td>
-                  {describeConstraints(
-                    parseConstraints(version.constraintsJson ?? version.validationSchemaJson),
-                  ).join(' · ') || '—'}
-                </td>
-                <td>{display(version, 'expectedOrigin') || '—'}</td>
-                <td>
-                  {display(version, 'effectiveFrom')
-                    ? new Date(display(version, 'effectiveFrom')).toLocaleDateString()
-                    : '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <Panel title="Ficha de la variable">
+        <VariableIdentity variable={variable} />
+      </Panel>
+
+      <Panel
+        title="Qué valores acepta esta variable"
+        meta={`${versions.length} versión(es) del contrato`}
+      >
+        <VariableVersionList versions={versions} />
       </Panel>
 
       <Panel
@@ -160,11 +136,11 @@ export function VariableContractPage({ definitionId }: Props) {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Algoritmo</th>
-                <th>Versión</th>
-                <th>Estado</th>
-                <th>Uso</th>
-                <th>Obligatoria</th>
+                <th scope="col">Algoritmo</th>
+                <th scope="col">Versión</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Uso</th>
+                <th scope="col">Obligatoria</th>
               </tr>
             </thead>
             <tbody>

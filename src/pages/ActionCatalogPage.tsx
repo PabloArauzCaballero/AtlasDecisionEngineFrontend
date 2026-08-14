@@ -216,15 +216,15 @@ export function ActionCatalogPage() {
       ) : null}
 
       {bank.isLoading ? (
-        <section className="panel">
+        <div className="panel">
           <div className="empty-state">Reuniendo las acciones de todos los algoritmos…</div>
-        </section>
+        </div>
       ) : bank.entries.length ? (
-        <section className="panel">
+        <section className="panel" aria-labelledby="action-bank-title">
           <div className="panel-title">
-            <span>
+            <h2 id="action-bank-title">
               {visible.length} de {bank.entries.length} acciones
-            </span>
+            </h2>
             <small>{bank.versions.length} algoritmos revisados</small>
           </div>
           <DataTable
@@ -237,7 +237,7 @@ export function ActionCatalogPage() {
           />
         </section>
       ) : (
-        <section className="panel">
+        <div className="panel">
           <EmptyState
             illustration="empty"
             title="Todavía no hay ninguna acción"
@@ -249,7 +249,7 @@ export function ActionCatalogPage() {
               </button>
             }
           />
-        </section>
+        </div>
       )}
     </>
   );

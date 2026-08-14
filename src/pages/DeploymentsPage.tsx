@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { canPromoteToEnvironment, canProposeArtifactChange } from '../auth/business-rules';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { DeploymentCreateForm } from '../features/deployments/DeploymentCreateForm';
 import { resources } from '../resources/resource.config';
 import { ResourceListPage } from './ResourceListPage';
 
 export function DeploymentsPage() {
-  const { user } = useAuth();
   const [creating, setCreating] = useState(false);
-  const roles = user?.roles ?? [];
+  const roles = useEffectiveRoles();
   // Abrir el formulario ya no exige ser administrador: quien propone cambios
   // promueve a los ambientes de trabajo. Es el ambiente elegido dentro del
   // formulario el que decide si hace falta un Platform Admin.

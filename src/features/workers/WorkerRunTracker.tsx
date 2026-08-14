@@ -1,7 +1,10 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { FileJson } from 'lucide-react';
 import { StatusBadge } from '../../components/StatusBadge';
+import { formatDateTime } from '../../config/locale';
+import { downloadRunTrace } from './run-trace';
 import {
   elapsedLabel,
   isTerminal,
@@ -12,6 +15,8 @@ import {
 } from './worker-types';
 
 interface WorkerRunTrackerProps {
+  /** Código del worker: nombra el archivo de la traza descargable. */
+  worker: string;
   run: WorkerRun;
   /** Acciones propias de cada worker (descargas, por ejemplo). */
   actions?: ReactNode;
@@ -37,6 +42,7 @@ interface WorkerRunTrackerProps {
  *    usuario estaba mirando otra cosa.
  */
 export function WorkerRunTracker({
+  worker,
   run,
   actions,
   onCancel,
@@ -92,7 +98,7 @@ export function WorkerRunTracker({
         </div>
         <div>
           <dt>Encolada</dt>
-          <dd>{new Date(run.queuedAt).toLocaleString('es-BO')}</dd>
+          <dd>{formatDateTime(run.queuedAt)}</dd>
         </div>
         {elapsed ? (
           <div>
@@ -127,6 +133,21 @@ export function WorkerRunTracker({
 
       <div className="worker-run-actions">
         {actions}
+        {/*
+         * La traza sólo cuando la ejecución terminó: a medio camino describiría
+         * un estado que ya no existe al abrir el archivo. Lleva lo que el motor
+         * publicó —resultado completo, diagnóstico, advertencias, correlación—,
+         * que es lo que hace depurable un «salió mal» sin volver a ejecutarlo.
+         */}
+        {isTerminal(run.status) ? (
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={() => downloadRunTrace(worker, run)}
+          >
+            <FileJson size={15} aria-hidden="true" /> Descargar traza (.json)
+          </button>
+        ) : null}
         {run.status === 'QUEUED' && onCancel ? (
           <button type="button" className="button" onClick={onCancel} disabled={cancelling}>
             {cancelling ? 'Cancelando…' : 'Cancelar'}

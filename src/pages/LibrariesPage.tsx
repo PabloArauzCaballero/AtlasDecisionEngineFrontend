@@ -7,6 +7,7 @@ import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
+import { formatDate } from '../config/locale';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
 import { LibraryChip } from '../features/libraries/LibraryChip';
 
@@ -83,13 +84,13 @@ export function LibrariesPage() {
             <table className="data-table" data-tutorial-id="library-table">
               <thead>
                 <tr>
-                  <th>Librería</th>
-                  <th>Paquete real</th>
-                  <th>Lenguaje</th>
-                  <th>Funciones permitidas</th>
-                  <th>Ambientes</th>
-                  <th>Estado</th>
-                  <th>Revisada</th>
+                  <th scope="col">Librería</th>
+                  <th scope="col">Paquete real</th>
+                  <th scope="col">Lenguaje</th>
+                  <th scope="col">Funciones permitidas</th>
+                  <th scope="col">Ambientes</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Revisada</th>
                 </tr>
               </thead>
               <tbody>
@@ -118,11 +119,7 @@ export function LibrariesPage() {
                     <td>
                       <StatusBadge value={display(library, 'status')} />
                     </td>
-                    <td>
-                      {display(library, 'reviewedAt')
-                        ? new Date(display(library, 'reviewedAt')).toLocaleDateString()
-                        : '—'}
-                    </td>
+                    <td>{formatDate(display(library, 'reviewedAt'))}</td>
                   </tr>
                 ))}
               </tbody>

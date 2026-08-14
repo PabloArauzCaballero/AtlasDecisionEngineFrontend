@@ -11,6 +11,7 @@ import { InfoHint } from './InfoHint';
 import { StatusBadge } from './StatusBadge';
 import { formatCell } from './table-format';
 import { nextSort, quickFilterRows, sortRows, type SortState } from './table-tools';
+import { ScrollRegion } from './ScrollRegion';
 
 export interface TableColumn<T> {
   key: keyof T & string;
@@ -126,7 +127,7 @@ export function DataTable<T extends Record<string, unknown>>({
           onClearSort={() => setSort(null)}
         />
       ) : null}
-      <div className="table-wrap">
+      <ScrollRegion label="Tabla de resultados">
         <table>
           <thead>
             <tr>
@@ -249,7 +250,7 @@ export function DataTable<T extends Record<string, unknown>>({
             ) : null}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
     </div>
   );
 }

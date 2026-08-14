@@ -16,6 +16,15 @@ export interface TabDefinition {
   icon?: LucideIcon;
   /** Explicación de qué contiene la pestaña, como tooltip. */
   hint?: string;
+  /**
+   * Ancla para los recorridos guiados (`data-tutorial-id`).
+   *
+   * En una vista por pestañas, el contenido de la que no está activa se monta
+   * con `hidden`: un paso que apunte ahí dentro resaltaría un rectángulo vacío.
+   * Por eso el recorrido señala la PESTAÑA y espera el clic, y sólo después
+   * habla de lo que hay dentro.
+   */
+  tutorialId?: string;
 }
 
 interface TabsProps {
@@ -89,6 +98,7 @@ export function Tabs({
               tabIndex={selected ? 0 : -1}
               disabled={tab.disabled}
               className={selected ? 'tabs-tab active' : 'tabs-tab'}
+              data-tutorial-id={tab.tutorialId}
               title={tab.hint}
               onClick={() => onChange(tab.id)}
             >

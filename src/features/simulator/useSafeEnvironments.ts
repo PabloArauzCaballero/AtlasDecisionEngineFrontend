@@ -24,8 +24,8 @@ const NONE: Environment[] = [];
  * sin persistencia y no deben poder apuntar a donde se atiende a clientes.
  *
  * El código seleccionado se corrige solo cuando no está en la lista real, así
- * que la vista arranca sin ninguno elegido y no inventa un `SANDBOX` que quizá
- * no exista.
+ * que la vista arranca sin ninguno elegido y no inventa un `DEV` que quizá no
+ * exista.
  */
 export function useSafeEnvironments(selected: string, onSelect: (code: string) => void) {
   const query = useQuery({

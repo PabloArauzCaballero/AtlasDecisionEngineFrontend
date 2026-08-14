@@ -28,7 +28,7 @@ function renderBar(artifactCode = 'BNPL_CREDIT_DECISION') {
     <QueryClientProvider client={client}>
       <LiveExecutionSampleBar
         artifactCode={artifactCode}
-        environmentCode="SANDBOX"
+        environmentCode="DEV"
         onLoad={() => undefined}
       />
     </QueryClientProvider>,

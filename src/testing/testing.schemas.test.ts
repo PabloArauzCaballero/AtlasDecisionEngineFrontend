@@ -60,7 +60,7 @@ describe('testing API contracts', () => {
           code: 'POLICY',
           versionId: '1',
           deploymentId: '2',
-          environment: 'SANDBOX',
+          environment: 'DEV',
           checksum: 'abc',
         },
         trace: { nodes: [], edges: [], terminal: null },

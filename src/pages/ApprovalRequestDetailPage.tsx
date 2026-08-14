@@ -130,7 +130,7 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
         </Alert>
       ) : null}
       <div className="governance-detail">
-        <main>
+        <div>
           <Panel title="Metadatos de Versión" meta={display(request, 'status')}>
             <DefinitionGrid
               record={{ ...request, ...version }}
@@ -196,8 +196,8 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
               </Link>
             </div>
           ) : null}
-        </main>
-        <aside>
+        </div>
+        <div>
           <Panel title="Decisión de Aprobación" meta={gate.requiredRole ?? 'Sin rol declarado'}>
             <div className="approval-steps">
               {steps.map((step) => (
@@ -245,7 +245,7 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
               </Alert>
             )}
           </Panel>
-        </aside>
+        </div>
       </div>
       {confirming ? (
         <DecisionConfirmDialog

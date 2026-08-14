@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, asRows, type UnknownRecord } from '../../utils/records';
 import { CalculatedFieldInputsForm } from './CalculatedFieldInputsForm';
+import { CalculatedFieldTryPanel } from './CalculatedFieldTryPanel';
 import { CodeImplementationEditor } from './CodeImplementationEditor';
 import { OperationBuilder } from './OperationBuilder';
 import { ReturnContractForm } from './ReturnContractForm';
@@ -94,6 +95,24 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
             onChangeLibraries={(libraryIds) => patch({ libraryIds })}
           />
         )}
+      </fieldset>
+
+      {/*
+       * Probar ANTES de crear, y aquí mismo.
+       *
+       * El ensayo iba en el detalle de una versión ya guardada, así que para ver qué
+       * calculaba una fórmula había que crear el campo, crear su versión y descubrir
+       * entonces que la política de error no era la que se quería. El motor ejecuta el
+       * borrador sin persistir nada, y el panel es exactamente el mismo que el de una
+       * versión guardada: no es una maqueta, es el motor.
+       */}
+      <fieldset>
+        <legend>Probar antes de crear</legend>
+        <CalculatedFieldTryPanel
+          target={{ kind: 'DRAFT', draft }}
+          inputs={draft.inputs as unknown as UnknownRecord[]}
+          testCases={[]}
+        />
       </fieldset>
 
       <fieldset>

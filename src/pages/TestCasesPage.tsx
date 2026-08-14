@@ -17,6 +17,7 @@ import {
   testCasesSchema,
 } from '../testing/testing.schemas';
 import { asRecord, asRows, display } from '../utils/records';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 interface TestCasesPageProps {
   initialSuiteId?: string;
@@ -127,7 +128,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
 
   return (
     <div className="test-cases-layout">
-      <aside className="filters-panel">
+      <div className="filters-panel">
         <h2>Filtros</h2>
         <label className="field">
           <span>Buscar caso o tag</span>
@@ -145,8 +146,8 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
           CSV: caseCode, testName, inputJson, expectedResultJson; tagsJson e isActive son
           opcionales.
         </small>
-      </aside>
-      <main>
+      </div>
+      <div className="test-cases-main">
         <PageHeader
           eyebrow="F3-03 · Quality"
           title={suiteId ? `Casos de la suite ${suiteId}` : 'Casos de prueba'}
@@ -234,17 +235,17 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
             {importError ?? errorMessage(query.error ?? run.error ?? importCases.error)}
           </Alert>
         ) : null}
-        <section className="panel">
-          <div className="table-wrap">
+        <div className="panel">
+          <ScrollRegion label="Casos de prueba">
             <table className="test-cases-table">
               <thead>
                 <tr>
-                  <th>ID Caso</th>
-                  <th>Nombre del Escenario</th>
-                  <th>Tags</th>
-                  <th>Entrada (Payload)</th>
-                  <th>Resultado Esperado</th>
-                  <th>Estado</th>
+                  <th scope="col">ID Caso</th>
+                  <th scope="col">Nombre del Escenario</th>
+                  <th scope="col">Tags</th>
+                  <th scope="col">Entrada (Payload)</th>
+                  <th scope="col">Resultado Esperado</th>
+                  <th scope="col">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -258,9 +259,9 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
                 ))}
               </tbody>
             </table>
-          </div>
-        </section>
-      </main>
+          </ScrollRegion>
+        </div>
+      </div>
     </div>
   );
 }

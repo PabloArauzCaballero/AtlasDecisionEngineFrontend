@@ -72,7 +72,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       },
       {
         id: 'input',
-        target: '[aria-label="Input Payload"]',
+        target: '[data-tutorial-id="execution-input"]',
         title: 'Qué datos entraron',
         content:
           'La petición original. Cambiá entre Tabla (atributo→valor, legible) y JSON (crudo) con las pestañas del panel: la misma información, dos formas de leerla.',
@@ -80,7 +80,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       },
       {
         id: 'output',
-        target: '[aria-label="Output Snapshot"]',
+        target: '[data-tutorial-id="execution-output"]',
         title: 'Qué decidió el sistema',
         content:
           'La respuesta que devolvió el motor. Comparala con lo que entró para entender qué reglas se activaron.',
@@ -88,7 +88,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       },
       {
         id: 'timeline',
-        target: '.execution-detail-grid aside',
+        target: '.execution-detail-side',
         title: 'El camino que siguió',
         content:
           'La línea de tiempo lista cada nodo que evaluó la decisión, en orden y con su duración. Es el “paso a paso” que explica el resultado.',
@@ -111,7 +111,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       }),
       {
         id: 'input',
-        target: '[aria-label="Input Snapshot"]',
+        target: '[data-tutorial-id="case-input"]',
         title: 'La evidencia del caso',
         content:
           'Es la foto de los datos con los que se ejecutó la decisión. Revisala en Tabla o JSON antes de resolver: tu decisión debe apoyarse en esto.',

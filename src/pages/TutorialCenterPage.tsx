@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import {
   TUTORIAL_CATEGORY_LABELS,
   type TutorialListing,
@@ -46,11 +46,7 @@ function groupByCategory(listings: readonly TutorialListing[]) {
  * "Comenzar", el proveedor navega a la pantalla del tutorial y toma el mando.
  */
 export function TutorialCenterPage() {
-  const { user } = useAuth();
-  const roles = useMemo(
-    () => [...(user?.roles ?? []), ...(user?.legacyRoles ?? [])],
-    [user?.roles, user?.legacyRoles],
-  );
+  const roles = useEffectiveRoles();
   const { progress, isCompleted } = useTutorialProgress();
   const { start } = useInteractiveTutorial();
   const [filters, setFilters] = useState<CenterFilters>(EMPTY_FILTERS);

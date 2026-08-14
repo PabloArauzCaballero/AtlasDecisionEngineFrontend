@@ -141,7 +141,7 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
     steps: [
       {
         title: 'Ambientes',
-        body: 'SANDBOX y TEST son para probar; PROD es producción real. Un despliegue lleva una versión concreta a un ambiente concreto.',
+        body: 'DEV, TEST y STAGING son para probar —DEV para diseñar, TEST para la regresión, STAGING como ensayo de producción—; PROD es producción real. Un despliegue lleva una versión concreta a un ambiente concreto.',
       },
       {
         title: 'Estrategias de tráfico',

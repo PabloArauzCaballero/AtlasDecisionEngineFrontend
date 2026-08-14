@@ -1,4 +1,5 @@
 import type { IdentityUser } from '../../auth/auth.types';
+import { effectiveRoles } from '../../auth/effective-roles';
 import { hasAnyRole } from '../../auth/roles';
 import { asRows, type UnknownRecord } from '../../utils/records';
 
@@ -119,7 +120,7 @@ export function evaluateDecisionGate(
   }
 
   const required = requiredRole ? [requiredRole] : [...FALLBACK_APPROVER_ROLES];
-  if (!hasAnyRole(user.roles, required)) {
+  if (!hasAnyRole(effectiveRoles(user), required)) {
     return blocked(
       requiredRole
         ? `Este paso requiere el rol ${requiredRole}; tu sesión no lo tiene.`

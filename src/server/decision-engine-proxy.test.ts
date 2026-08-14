@@ -23,12 +23,15 @@ const SPOOFED = {
 describe('decision engine proxy', () => {
   const previousUrl = process.env.DECISION_ENGINE_URL;
   const previousTrust = process.env.TRUSTED_PROXY;
+  const previousTimeoutMs = process.env.DECISION_ENGINE_TIMEOUT_MS;
 
   afterEach(() => {
     if (previousUrl === undefined) delete process.env.DECISION_ENGINE_URL;
     else process.env.DECISION_ENGINE_URL = previousUrl;
     if (previousTrust === undefined) delete process.env.TRUSTED_PROXY;
     else process.env.TRUSTED_PROXY = previousTrust;
+    if (previousTimeoutMs === undefined) delete process.env.DECISION_ENGINE_TIMEOUT_MS;
+    else process.env.DECISION_ENGINE_TIMEOUT_MS = previousTimeoutMs;
   });
 
   it('resolves DECISION_ENGINE_URL at request time and preserves query parameters', async () => {
@@ -111,5 +114,51 @@ describe('decision engine proxy', () => {
 
     expect(response.status).toBe(502);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('corta el salto al motor cuando no responde, y lo distingue de no llegar', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    // El plazo se resuelve por petición, así que la prueba puede acortarlo en vez
+    // de esperar veinte segundos de reloj para comprobar una rama.
+    process.env.DECISION_ENGINE_TIMEOUT_MS = '50';
+
+    // Un motor que acepta la conexión y se queda callado: sin plazo, esta
+    // petición retenía un hueco del servidor de Next para siempre.
+    vi.spyOn(globalThis, 'fetch').mockImplementation((_url, init) => {
+      const signal = (init as RequestInit | undefined)?.signal;
+      expect(signal).toBeInstanceOf(AbortSignal);
+      return new Promise((_resolve, reject) => {
+        signal?.addEventListener('abort', () => {
+          const error = new Error('The operation was aborted due to timeout');
+          error.name = 'TimeoutError';
+          reject(error);
+        });
+      });
+    });
+
+    const response = await proxyDecisionEngine(request('https://portal.example/v1/environments'), [
+      'v1',
+      'environments',
+    ]);
+
+    expect(response.status).toBe(504);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({ code: 'DECISION_ENGINE_TIMEOUT' }),
+    );
+  });
+
+  it('sigue devolviendo 502 cuando el problema es llegar, no esperar', async () => {
+    process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('fetch failed'));
+
+    const response = await proxyDecisionEngine(request('https://portal.example/v1/environments'), [
+      'v1',
+      'environments',
+    ]);
+
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual(
+      expect.objectContaining({ code: 'DECISION_ENGINE_UNAVAILABLE' }),
+    );
   });
 });

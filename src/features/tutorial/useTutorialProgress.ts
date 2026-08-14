@@ -62,6 +62,31 @@ function nextEntry(
 }
 
 /**
+ * Los cuatro campos que el motor modela, y sólo esos.
+ *
+ * El registro local lleva además `startedAt`, `lastInteractionAt`, `repeatCount`
+ * y `completedAt`. Los tres primeros son contabilidad del cliente que el motor
+ * no guarda a propósito —su DTO lo dice: el contenido del tutorial es del
+ * portal—, y `completedAt` lo DERIVA él de `status`, así que mandarlo sería que
+ * el cliente afirmara una verdad del servidor.
+ *
+ * Se mandaban los ocho, y el motor valida con lista blanca: respondía
+ * `400 property startedAt should not exist` a cada guardado. Como el fallo se
+ * traga —para que una caída del backend no rompa el tutorial—, el progreso
+ * llevaba quién sabe cuánto sin salir de `localStorage`: se veía bien en el
+ * navegador de siempre y desaparecía en cualquier otro. Un contrato roto se
+ * disfrazaba de backend caído.
+ */
+function cuerpoQueElMotorAcepta(entry: TutorialProgress) {
+  return {
+    status: entry.status,
+    lastStep: entry.lastStep,
+    version: entry.version,
+    autoShow: entry.autoShow,
+  };
+}
+
+/**
  * Progreso de tutoriales por usuario. La fuente de verdad es el backend
  * (`/v1/tutorial-progress`), pero `localStorage` actúa como caché para respuesta
  * instantánea y para no perder progreso si el backend no está disponible: cada
@@ -118,16 +143,7 @@ export function useTutorialProgress() {
         // distinto del de la URL y dejar el registro en un tutorial ajeno.
         await apiRequest(`/v1/tutorial-progress/${encodeURIComponent(tutorialId)}`, {
           method: 'PUT',
-          body: {
-            status: entry.status,
-            lastStep: entry.lastStep,
-            version: entry.version,
-            autoShow: entry.autoShow,
-            startedAt: entry.startedAt,
-            completedAt: entry.completedAt,
-            lastInteractionAt: entry.lastInteractionAt,
-            repeatCount: entry.repeatCount,
-          },
+          body: cuerpoQueElMotorAcepta(entry),
         });
       } catch {
         // Guardado local; se re-sincroniza cuando el backend vuelva.

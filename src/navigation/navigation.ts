@@ -1,7 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
 import {
   Activity,
-  Bot,
   Boxes,
   Braces,
   Calculator,
@@ -10,8 +8,8 @@ import {
   FileCode2,
   FileSearch,
   FlaskConical,
+  Gauge,
   GitBranch,
-  Goal,
   GraduationCap,
   History,
   Layers,
@@ -22,23 +20,17 @@ import {
   Rocket,
   ScanSearch,
   ScrollText,
+  Scale,
   Search,
   ShieldCheck,
+  UserSearch,
   Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
+import { navigationTail } from './navigation-tail';
+import type { NavigationSection } from './navigation-types';
 
-export interface NavigationItem {
-  label: string;
-  path: string;
-  icon: LucideIcon;
-  roles: readonly string[];
-}
-
-export interface NavigationSection {
-  label: string;
-  items: readonly NavigationItem[];
-}
+export type { NavigationItem, NavigationSection } from './navigation-types';
 
 export const navigation: readonly NavigationSection[] = [
   {
@@ -226,50 +218,42 @@ export const navigation: readonly NavigationSection[] = [
         icon: ScrollText,
         roles: accessPolicies.auditEvents,
       },
-    ],
-  },
-  {
-    /*
-     * ADR-0026 — workers adicionales.
-     *
-     * Una sección con dos entradas, y no dos entradas sueltas en la raíz: esta
-     * navegación agrupa por dominio (Diseño, Calidad, Gobierno, Operación,
-     * Auditoría), y dos workers colgando del primer nivel romperían esa lectura.
-     * Tampoco se meten en «Operación»: allí vive lo que actúa sobre decisiones
-     * en curso, y esto procesa documentos y textos que todavía no lo son.
-     */
-    label: 'Procesamiento',
-    items: [
       {
         /*
-         * Una entrada y no una por worker. Eran dos vistas sueltas, cada una
-         * con su formulario y nada más: se podía mandar trabajo pero no saber
-         * si el worker estaba sano, qué tenía encolado ni con qué fallaba.
-         * `/workers` las reúne como pestañas y le da a cada una su panel de
-         * control; los enlaces directos a cada worker siguen existiendo.
+         * El motor calculaba desempeño, estabilidad e impacto adverso desde hacía tiempo y no
+         * había ninguna pantalla que los pidiera: quien tiene que vigilar la degradación no
+         * podía verla. Va en «Auditoría» y no en «Operación» porque no actúa sobre ninguna
+         * decisión en curso — mide las que ya se tomaron.
          */
-        label: 'Workers',
-        path: '/workers',
-        icon: Bot,
-        roles: accessPolicies.workers,
+        label: 'Monitoreo del Modelo',
+        path: '/model-monitoring',
+        icon: Activity,
+        roles: accessPolicies.modelMonitoring,
+      },
+      {
+        // Debajo del monitoreo y no dentro: aquél mide si el modelo se degrada, ésta si hay
+        // datos con los que medirlo. Un tablero verde sobre un sistema de observación apagado
+        // es la lectura peligrosa que esta entrada existe para impedir.
+        label: 'Calidad de la Decisión',
+        path: '/decision-quality',
+        icon: Gauge,
+        roles: accessPolicies.decisionQuality,
+      },
+      {
+        // En «Gobierno» y no en «Auditoría»: no mide lo que pasó, fija las condiciones de lo
+        // que puede pasar. Auditar es mirar hacia atrás; esto es poner el marco.
+        label: 'Gobierno del Riesgo',
+        path: '/risk-governance',
+        icon: Scale,
+        roles: accessPolicies.riskGovernance,
+      },
+      {
+        label: 'Derechos del Titular',
+        path: '/data-subject-requests',
+        icon: UserSearch,
+        roles: accessPolicies.dataSubjectRights,
       },
     ],
   },
-  {
-    label: 'Trazabilidad',
-    items: [
-      {
-        label: 'Objetivos',
-        path: '/objectives',
-        icon: Goal,
-        roles: accessPolicies.traceability,
-      },
-      {
-        label: 'Matriz de Cobertura',
-        path: '/coverage-matrix',
-        icon: ShieldCheck,
-        roles: accessPolicies.traceability,
-      },
-    ],
-  },
+  ...navigationTail,
 ] as const;

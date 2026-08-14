@@ -1,6 +1,7 @@
 'use client';
 
 import type { WorkerDescriptor } from './worker-types';
+import { formatNumber } from '../../config/locale';
 
 /**
  * Encabezado de un worker: qué acepta, con qué límites y si está disponible.
@@ -68,13 +69,24 @@ export function WorkerHeaderFacts({
   );
 }
 
-/** Nombres en español para los límites que publica el motor. */
+/**
+ * Nombres en español para los límites que publica el motor.
+ *
+ * La ficha sin traducir enseña la clave del contrato en mayúsculas
+ * —`OCRPROVIDER`— justo donde se espera una etiqueta. Se descubrió mirando la
+ * captura de evidencia del worker de identidad, que publica cuatro claves que
+ * este mapa no tenía.
+ */
 function limitLabel(key: string): string {
   const labels: Record<string, string> = {
     maxTextLength: 'Longitud máxima',
     maxUploadBytes: 'Tamaño máximo',
     maxFiles: 'Archivos por ejecución',
     acceptedMimeTypes: 'Formato admitido',
+    ocrProvider: 'Lectura del documento',
+    faceProvider: 'Comparación de rostros',
+    livenessProvider: 'Prueba de vida',
+    thresholdProfile: 'Perfil de umbrales',
   };
   return labels[key] ?? key;
 }
@@ -84,7 +96,30 @@ function formatLimit(key: string, value: number | string): string {
     return `${Math.round(value / 1_048_576)} MiB`;
   }
   if (key === 'maxTextLength' && typeof value === 'number') {
-    return `${value.toLocaleString('es-BO')} caracteres`;
+    return `${formatNumber(value)} caracteres`;
+  }
+  /*
+   * Los proveedores y el perfil de umbrales se traducen a lo que significan
+   * para quien mira. `unconfigured` es el aviso de que toda verificación va a
+   * terminar en revisión manual, y un perfil `sintetico-…` el de que el corte se
+   * midió sobre rostros dibujados y no predice la tasa de error sobre personas.
+   * Dejarlos en su forma técnica los convertía en palabras que sólo entiende
+   * quien configuró el motor.
+   */
+  if (key.endsWith('Provider')) {
+    if (value === 'tesseract') return 'Local, sin conexión';
+    if (value === 'human') return 'Biometría local, sin conexión';
+    if (value === 'disabled') return 'Deshabilitada';
+    // `mock` ya no lo emite el motor. Se conserva la traducción porque un motor
+    // más antiguo detrás de este portal seguiría publicándolo, y enseñar
+    // «mock» a secas no avisaría de nada a quien lo lee.
+    if (value === 'mock') return 'Simulado (no es un proveedor real)';
+  }
+  if (key === 'thresholdProfile') {
+    if (value === 'unconfigured') return 'Sin calibrar';
+    if (typeof value === 'string' && value.startsWith('sintetico')) {
+      return `${value} · calibrado sobre rostros sintéticos`;
+    }
   }
   return String(value);
 }

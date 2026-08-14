@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { canRequestCaseInformation } from '../auth/business-rules';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
@@ -36,14 +36,14 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   const [comments, setComments] = useState('');
   const [askingInformation, setAskingInformation] = useState(false);
   const { notify } = useNotifications();
-  const { user } = useAuth();
+  const roles = useEffectiveRoles();
   const { startForError } = useInteractiveTutorial();
   const query = useDetailQuery<unknown>(
     'manual-review',
     caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
   );
   const review = asRecord(query.data);
-  const canAskInformation = canRequestCaseInformation(user?.roles ?? []);
+  const canAskInformation = canRequestCaseInformation(roles);
   // El caso puede traer la ejecución anidada o sólo su identificador plano.
   const executionId = String(
     resolvePath(review, 'execution.id') ?? review.executionId ?? review.decisionExecutionId ?? '',
@@ -75,8 +75,8 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   return (
     <>
       <PageHeader
-        eyebrow="F5-04 · Manual Review"
-        title={`Case #REV-${display(review, 'id')}`}
+        eyebrow="F5-04 · Revisión manual"
+        title={`Caso #REV-${display(review, 'id')}`}
         description={`${display(review, 'queueCode')} · ${display(review, 'reason')}`}
         actions={
           <>
@@ -99,7 +99,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
               disabled
               title="La asignación de casos aún no está expuesta por el Decision Engine; resuelve el caso desde el formulario"
             >
-              <UserCheck size={16} /> Assign to me
+              <UserCheck size={16} /> Asignármelo
             </button>
           </>
         }
@@ -115,30 +115,30 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         <Alert tone="error">{errorMessage(query.error ?? resolve.error)}</Alert>
       ) : null}
       <div className="review-detail-grid">
-        <main>
-          <Panel title="Case Metadata" meta={display(review, 'status')}>
+        <div>
+          <Panel title="Datos del caso" meta={display(review, 'status')}>
             <DefinitionGrid
               record={review}
               items={[
-                { label: 'Priority', keys: ['priority'] },
-                { label: 'Queue', keys: ['queueCode'] },
-                { label: 'Artifact', keys: ['artifactCode'] },
-                { label: 'Customer Ref', keys: ['subjectReference'], mono: true },
-                { label: 'Assigned To', keys: ['assignedTo'] },
-                { label: 'SLA Due', keys: ['slaDueAt'] },
+                { label: 'Prioridad', keys: ['priority'] },
+                { label: 'Cola', keys: ['queueCode'] },
+                { label: 'Artefacto', keys: ['artifactCode'] },
+                { label: 'Referencia del cliente', keys: ['subjectReference'], mono: true },
+                { label: 'Asignado a', keys: ['assignedTo'] },
+                { label: 'Vence (SLA)', keys: ['slaDueAt'] },
               ]}
             />
           </Panel>
-          <Panel title="Transaction Audit Timeline" meta="Immutable">
+          <Panel title="Auditoría de la transacción" meta="inmutable">
             <Timeline
               items={[
                 {
-                  title: 'Decision executed',
+                  title: 'Decisión ejecutada',
                   detail: display(review, 'reason'),
                   meta: display(review, 'createdAt'),
                 },
                 {
-                  title: 'Case routed to manual review',
+                  title: 'Caso derivado a revisión manual',
                   detail: display(review, 'queueCode'),
                   meta: display(review, 'updatedAt'),
                 },
@@ -151,20 +151,20 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             para valorar el caso. Antes sólo había una instantánea cruda.
           */}
           <CaseFilePanel executionId={executionId} />
-        </main>
-        <aside data-tutorial-id="review-resolution">
-          <Panel title="Resolution Form" meta="Required">
+        </div>
+        <div data-tutorial-id="review-resolution">
+          <Panel title="Resolver el caso" meta="obligatorio">
             <label className="field">
-              <span>Decision</span>
+              <span>Decisión</span>
               <select value={resolution} onChange={(event) => setResolution(event.target.value)}>
                 <option value="">Elegir una decisión…</option>
-                <option value="APPROVE">Approve</option>
-                <option value="REJECT">Reject</option>
-                <option value="ESCALATE">Escalate</option>
+                <option value="APPROVE">Aprobar</option>
+                <option value="REJECT">Rechazar</option>
+                <option value="ESCALATE">Escalar</option>
               </select>
             </label>
             <label className="field">
-              <span>Mandatory comments</span>
+              <span>Comentarios (obligatorios)</span>
               <textarea
                 rows={8}
                 value={comments}
@@ -182,10 +182,10 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
               ) : (
                 <CheckCircle2 size={16} />
               )}
-              {resolve.isPending ? 'Enviando…' : 'Submit Decision'}
+              {resolve.isPending ? 'Enviando…' : 'Registrar la decisión'}
             </button>
           </Panel>
-        </aside>
+        </div>
       </div>
     </>
   );

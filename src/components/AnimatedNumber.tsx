@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from '../hooks/useMotionPreferences';
+import { formatNumber } from '../config/locale';
 
 interface AnimatedNumberProps {
   value: number;
@@ -54,7 +55,7 @@ export function AnimatedNumber({
   }, [duration, reduced, value]);
 
   const format = (input: number) =>
-    `${input.toLocaleString('es-ES', {
+    `${formatNumber(input, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     })}${suffix}`;

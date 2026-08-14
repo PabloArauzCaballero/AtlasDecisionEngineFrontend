@@ -1,12 +1,11 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { JsonTextarea } from '../../components/JsonTextarea';
 import { isOutput, VariableList } from '../../components/VariableIo';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { useArtifactContract } from './useArtifactContract';
 import type { ImportedCase, ImportField } from './sample-import';
 import { FieldControl } from './SimulatorFieldControl';
 import { missingRequired, seedPayload } from './simulator-payload';
@@ -40,14 +39,7 @@ export function SimulatorInputEditor({
   onActiveCase,
 }: Props) {
   const [view, setView] = useState<View>('form');
-  const contract = useQuery({
-    queryKey: ['artifact-input-contract', artifactCode],
-    enabled: artifactCode.trim() !== '',
-    queryFn: () =>
-      apiRequest<UnknownRecord>(
-        `/v1/views/artifact-inputs?artifactCode=${encodeURIComponent(artifactCode.trim())}`,
-      ),
-  });
+  const contract = useArtifactContract(artifactCode);
   const variables = asRows(contract.data?.variables);
   const inputs = variables.filter((variable) => !isOutput(variable.usageType));
   const outputs = variables.filter((variable) => isOutput(variable.usageType));

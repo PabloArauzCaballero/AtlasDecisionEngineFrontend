@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { canProposeArtifactChange } from '../auth/business-rules';
-import { useAuth } from '../auth/useAuth';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
@@ -19,6 +19,7 @@ import {
   type ImplementationKind,
 } from '../features/calculated-fields/calculated-field.types';
 import { CalculatedFieldCreateWizard } from '../features/calculated-fields/CalculatedFieldCreateWizard';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 /**
  * Catálogo de campos calculados reutilizables (§5).
@@ -32,10 +33,10 @@ export function CalculatedFieldsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const { notify } = useNotifications();
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const roles = useEffectiveRoles();
   // El código de un campo calculado corre dentro de decisiones reales: crearlo
   // es autoría, no consulta. El catálogo se lee con el permiso de la ruta.
-  const canCreate = canProposeArtifactChange(user?.roles ?? []);
+  const canCreate = canProposeArtifactChange(roles);
 
   const query = useQuery({
     queryKey: ['calculated-fields', search],
@@ -105,17 +106,20 @@ export function CalculatedFieldsPage() {
              siete columnas no caben en 320 px, y sin él la tabla entera —con sus
              cabeceras y sus insignias— se salía por la derecha. Es lo que ya
              hacen las demás tablas del portal. */
-          <div className="table-wrap" data-tutorial-id="calculated-field-catalog">
+          <ScrollRegion
+            label="Catálogo de campos calculados"
+            data-tutorial-id="calculated-field-catalog"
+          >
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Código</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Modalidad</th>
-                  <th>Devuelve</th>
-                  <th>Estado</th>
-                  <th>Versión</th>
+                  <th scope="col">Código</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Categoría</th>
+                  <th scope="col">Modalidad</th>
+                  <th scope="col">Devuelve</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Versión</th>
                 </tr>
               </thead>
               <tbody>
@@ -142,7 +146,7 @@ export function CalculatedFieldsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
         ) : (
           <EmptyState
             illustration="empty"

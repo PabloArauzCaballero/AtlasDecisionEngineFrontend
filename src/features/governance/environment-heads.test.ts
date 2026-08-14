@@ -18,10 +18,11 @@ describe('deriveEnvironmentHeads', () => {
   it('devuelve el despliegue activo más reciente de cada ambiente', () => {
     const heads = deriveEnvironmentHeads([
       deployment('PROD', '4', '2026-07-01T10:00:00Z'),
-      deployment('SANDBOX', '9', '2026-07-20T10:00:00Z'),
+      deployment('DEV', '9', '2026-07-20T10:00:00Z'),
     ]);
-    expect(heads.map((head) => head.environmentCode)).toEqual(['PROD', 'SANDBOX']);
-    expect(heads[0].versionLabel).toBe('1.4.0');
+    // Orden alfabético por código de ambiente: DEV va antes que PROD.
+    expect(heads.map((head) => head.environmentCode)).toEqual(['DEV', 'PROD']);
+    expect(heads.find((head) => head.environmentCode === 'PROD')?.versionLabel).toBe('1.4.0');
     expect(heads[0].activeCount).toBe(1);
   });
 

@@ -49,7 +49,10 @@ export function ReferenceNodeEditor({
     mutationFn: () => createReference(versionId, buildReferenceBody(nodeKey, form)),
     onSuccess: () => {
       onOutputAssignments(outputAssignmentsOf(form));
-      client.invalidateQueries({ queryKey: ['references', versionId] });
+      // `void`: el refresco se lanza y no se espera a propósito. Devolverlo
+      // retrasaría el `isSuccess` de la mutación hasta que la lista volviera del
+      // motor, y el aviso de abajo llegaría tarde sin ninguna razón.
+      void client.invalidateQueries({ queryKey: ['references', versionId] });
       notify({
         tone: 'success',
         title: 'Referencia vinculada',

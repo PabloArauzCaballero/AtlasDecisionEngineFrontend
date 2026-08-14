@@ -46,6 +46,35 @@ describe('useTutorialProgress', () => {
     expect(putCall?.[1]).toMatchObject({ method: 'PUT' });
   });
 
+  /*
+   * El motor valida con lista blanca (`UpsertTutorialProgressDto`): un campo de
+   * más no se ignora, devuelve 400. Y como el guardado se envuelve en un `catch`
+   * para sobrevivir a una caída del backend, ese 400 no se veía por ninguna
+   * parte: el portal mandaba `startedAt`, `completedAt`, `lastInteractionAt` y
+   * `repeatCount` —contabilidad suya, que el motor no modela—, cada PUT se
+   * rechazaba y el progreso vivía sólo en `localStorage`.
+   *
+   * La prueba que había comprobaba `{ method: 'PUT' }`, que seguía en verde con
+   * el cuerpo entero mal. Por eso ésta mira las CLAVES EXACTAS: de más rompe el
+   * guardado, de menos pierde un dato que el motor sí guarda.
+   */
+  it('el PUT manda exactamente los campos que el motor acepta', async () => {
+    apiRequest.mockResolvedValueOnce([]); // carga inicial
+    const { result } = renderHook(() => useTutorialProgress());
+    await waitFor(() => expect(apiRequest).toHaveBeenCalledTimes(1));
+
+    apiRequest.mockResolvedValueOnce({});
+    await act(async () => {
+      await result.current.markCompleted('graph-editor:design');
+    });
+
+    const putCall = apiRequest.mock.calls.find((call) =>
+      String(call[0]).includes('graph-editor%3Adesign'),
+    );
+    const body = (putCall?.[1] as { body: Record<string, unknown> }).body;
+    expect(Object.keys(body).sort()).toEqual(['autoShow', 'lastStep', 'status', 'version']);
+  });
+
   it('si el backend falla al cargar, conserva la caché local', async () => {
     window.localStorage.setItem(
       'atlas.tutorial.progress',

@@ -117,6 +117,25 @@ export const SENSITIVITY_LABELS: Readonly<Record<SensitivityClass, string>> = {
   SECRET: 'Secreto',
 };
 
+/**
+ * De dónde tiene que llegar el valor (`expectedOrigin`). Un código desconocido se
+ * devuelve tal cual: la base tiene orígenes sembrados fuera de esta lista
+ * (`ATLAS_BACKEND`) y traducirlos a «—» escondería de dónde sale el dato.
+ */
+export const VARIABLE_ORIGIN_LABELS: Readonly<Record<string, string>> = {
+  REQUEST: 'Lo aporta quien pide la decisión',
+  PROVIDER: 'Lo trae un proveedor externo',
+  DERIVED: 'Lo calcula el motor durante la ejecución',
+  CALCULATED_FIELD: 'Lo produce un campo calculado',
+  GRAPH_NODE: 'Lo produce un nodo del grafo',
+};
+
+export function variableOriginLabel(raw: unknown): string {
+  const code = String(raw ?? '').trim();
+  if (!code) return '—';
+  return VARIABLE_ORIGIN_LABELS[code.toUpperCase()] ?? code;
+}
+
 /** Política de inclusión en la traza (§2.2). */
 export const TRACE_POLICIES = ['FULL', 'MASKED', 'REDACTED', 'EXCLUDED'] as const;
 export type TracePolicy = (typeof TRACE_POLICIES)[number];

@@ -12,6 +12,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { AlgorithmVersions } from '../features/algorithms/AlgorithmVersions';
 import type { PagedResponse, ResourceRow } from '../resources/resource.types';
 import { asRows, display } from '../utils/records';
+import { ScrollRegion } from '../components/ScrollRegion';
 
 const STATUSES = [
   'DRAFT',
@@ -105,12 +106,12 @@ export function AlgorithmsPage() {
 
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
 
-      <section className="panel">
+      <section className="panel" aria-labelledby="algorithms-title">
         <div className="panel-title">
-          <span>{query.data?.total ?? 0} algoritmos</span>
+          <h2 id="algorithms-title">{query.data?.total ?? 0} algoritmos</h2>
           <small>{query.isFetching ? 'Actualizando…' : 'Datos en vivo'}</small>
         </div>
-        <div className="table-wrap">
+        <ScrollRegion label="Algoritmos">
           <table className="algo-table">
             <thead>
               <tr>
@@ -187,7 +188,7 @@ export function AlgorithmsPage() {
               ) : null}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
         {query.data ? (
           <div className="pagination">
             <button

@@ -7,7 +7,13 @@ const start = vi.hoisted(() => vi.fn());
 let currentUser: IdentityUser | null = null;
 
 vi.mock('../api/http-client', () => ({ apiRequest }));
-vi.mock('../auth/useAuth', () => ({ useAuth: () => ({ user: currentUser }) }));
+vi.mock('../auth/useAuth', () => ({
+  useAuth: () => ({ user: currentUser }),
+  // El doble reproduce la union real (roles + legacyRoles): un mock que
+  // devolviera sólo `roles` volvería a esconder justo el fallo que
+  // `effectiveRoles` existe para evitar.
+  useEffectiveRoles: () => [...(currentUser?.roles ?? []), ...(currentUser?.legacyRoles ?? [])],
+}));
 vi.mock('../features/tutorial/useInteractiveTutorial', () => ({
   useInteractiveTutorial: () => ({ start }),
 }));

@@ -98,7 +98,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
         }
       />
       <div className="wizard-layout">
-        <aside className="wizard-steps">
+        <div className="wizard-steps">
           <ol>
             {LIFECYCLE_STEPS.map((step, index) => {
               const done = guidance.stepIndex > index;
@@ -114,8 +114,8 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
               );
             })}
           </ol>
-        </aside>
-        <main className="wizard-main">
+        </div>
+        <div className="wizard-main">
           <Panel title="Versión" meta={status ?? 'sin elegir'}>
             <ArtifactVersionPicker
               versionId={versionId}
@@ -191,7 +191,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
           {action.data && action.variables === 'compile' ? (
             <JsonPanel label="Artefacto compilado" value={action.data} />
           ) : null}
-        </main>
+        </div>
       </div>
     </>
   );

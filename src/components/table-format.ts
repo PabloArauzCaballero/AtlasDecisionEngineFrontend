@@ -1,3 +1,5 @@
+import { formatDateTime } from '../config/locale';
+
 const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
 
 /**
@@ -14,16 +16,8 @@ export function formatCell(value: unknown): string {
   if (typeof value === 'boolean') return value ? 'Sí' : 'No';
   if (typeof value === 'object') return JSON.stringify(value);
   if (typeof value === 'string' && ISO_DATETIME.test(value)) {
-    const parsed = new Date(value);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleString('es', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
+    const formatted = formatDateTime(value);
+    if (formatted !== '—') return formatted;
   }
   return String(value);
 }

@@ -26,6 +26,13 @@ interface StatementCategoriesBarProps {
  *
  * Mientras corre se puede parar, y lo hecho hasta ahí se queda: son
  * clasificaciones válidas, no un resultado a medias que haya que tirar.
+ *
+ * **El botón pregunta de verdad, cada vez.** El motor deduplica por contenido y
+ * sin caducidad, así que la petición tal cual devolvía el veredicto guardado —el
+ * de cuando el catálogo de categorías era otro— y pulsar no podía cambiar nada:
+ * la tabla enseñaba «Sin determinar» en movimientos cuya hoja ya existía. Cada
+ * tanda manda ahora su propia clave de idempotencia, y por eso el texto puede
+ * prometer una ejecución por glosa sin mentir.
  */
 export function StatementCategoriesBar({
   glosas,
@@ -86,8 +93,8 @@ export function StatementCategoriesBar({
             {hechas > 0 ? 'Volver a clasificar' : `Clasificar ${glosas} glosas distintas`}
           </button>
           <p className="worker-categories-note">
-            Una ejecución del análisis semántico por glosa distinta. Las repetidas se preguntan una
-            sola vez.
+            Una ejecución del análisis semántico por glosa distinta, contra el catálogo de
+            categorías de hoy. Las repetidas se preguntan una sola vez.
           </p>
         </>
       )}

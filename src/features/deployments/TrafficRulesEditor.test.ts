@@ -24,7 +24,11 @@ describe('traffic rules', () => {
   });
 
   it('seeds a new rule with an index-based priority', () => {
-    expect(createTrafficRule(0)).toEqual({ segmentKey: '', trafficPercentage: '', priority: '1' });
+    expect(createTrafficRule(0)).toMatchObject({
+      segmentKey: '',
+      trafficPercentage: '',
+      priority: '1',
+    });
     expect(createTrafficRule(2).priority).toBe('3');
   });
 });
