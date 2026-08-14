@@ -29,12 +29,20 @@ test.describe('cuaderno de datos · Python', () => {
     await expect(page.locator('.notebook')).toBeVisible({ timeout: 30_000 });
   }
 
-  /** Falla con el motivo que la pantalla enseña, en vez de con un tiempo agotado sin explicación. */
+  /**
+   * Falla con el motivo que la pantalla enseña, en vez de con un tiempo agotado sin explicación.
+   *
+   * El `.first()` del final NO es cosmético. Cuando el intérprete no está, la pantalla enseña las
+   * DOS cosas —el aviso de que falta y el error dentro de la celda—, y un `or()` que resuelve a
+   * dos elementos revienta por modo estricto de Playwright con «strict mode violation», que es un
+   * mensaje sobre el localizador y no sobre el defecto. Justo en el caso que esta guarda existe
+   * para explicar bien.
+   */
   async function esperarSalida(page: Page) {
     const salida = page.locator('.notebook-cell__output').first();
     const caido = page.locator('.notebook-python--unavailable');
 
-    await expect(salida.or(caido)).toBeVisible({ timeout: PLAZO_INTERPRETE });
+    await expect(salida.or(caido).first()).toBeVisible({ timeout: PLAZO_INTERPRETE });
     if (await caido.isVisible()) {
       throw new Error(`El intérprete no arrancó: ${await caido.innerText()}`);
     }
