@@ -38,11 +38,11 @@ normal.
 por ambiente (`docs/auditoria-versionado-2026-08-03.md` §1). El vocabulario de
 git se traduce así:
 
-| Encargo            | Sistema real                                                  |
-| ------------------ | ------------------------------------------------------------- |
-| Pull request       | Crear una versión y enviarla a revisión (`submit-for-review`) |
-| Mergear a **dev**  | Promover a un ambiente NO productivo (`SANDBOX`, `TEST`)      |
-| Mergear a **main** | Promover a un ambiente con `isProduction` (`PROD`)            |
+| Encargo            | Sistema real                                                    |
+| ------------------ | --------------------------------------------------------------- |
+| Pull request       | Crear una versión y enviarla a revisión (`submit-for-review`)   |
+| Mergear a **dev**  | Promover a un ambiente NO productivo (`DEV`, `STAGING`, `TEST`) |
+| Mergear a **main** | Promover a un ambiente con `isProduction` (`PROD`)              |
 
 El tester (`QA_ANALYST`) y el analista de fraude (`FRAUD_ANALYST`) crean
 versiones, las prueban, las compilan, las envían a revisión y las promueven a un

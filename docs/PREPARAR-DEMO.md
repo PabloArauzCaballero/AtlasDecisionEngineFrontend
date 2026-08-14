@@ -19,7 +19,7 @@ npx ts-node --transpile-only prisma/clean-test-data.ts
 Además, el test `code-import.e2e-spec.ts` ahora **limpia lo que crea** en su
 `afterAll`, así que no volverá a acumularse.
 
-## 2. Desplegar el demo en SANDBOX/TEST
+## 2. Desplegar el demo en DEV/STAGING/TEST
 
 El Simulador solo ofrece ambientes no productivos, pero el demo se sembraba solo
 en PROD. Despliégalo en los otros ambientes (idempotente):
@@ -71,5 +71,5 @@ los cinco motivos emitidos como acciones `EMIT_REASON`.
 
 ---
 
-Tras 1 y 2, el Simulador corre `BNPL_CREDIT_DECISION` en SANDBOX, y el listado de
+Tras 1 y 2, el Simulador corre `BNPL_CREDIT_DECISION` en DEV, y el listado de
 artefactos queda limpio de basura de tests.

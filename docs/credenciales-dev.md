@@ -51,12 +51,23 @@ El portal no tiene usuarios propios: la sesión la emite el proveedor de identid
 `development/20260704121500-seed-pablo-admin-user`, que **falla a propósito si
 `NODE_ENV=production`**.
 
-| Campo          | Valor                                          |
-| -------------- | ---------------------------------------------- |
-| Email          | `pablo@atlas.internal`                         |
-| Contraseña     | No versionada — la tiene el dueño de la cuenta |
-| Rol en la base | `admin`                                        |
-| Tenant         | `1`                                            |
+| Campo          | Valor                                                           |
+| -------------- | --------------------------------------------------------------- |
+| Email          | El buzón real del dueño (ver abajo; era `pablo@atlas.internal`) |
+| Contraseña     | No versionada — la tiene el dueño de la cuenta                  |
+| Rol en la base | `admin`                                                         |
+| Tenant         | `1`                                                             |
+
+El seeder sigue creando la cuenta con `pablo@atlas.internal`, pero en la base de
+esta máquina el correo se cambió por uno real: con el segundo factor encendido, el
+PIN va a esa dirección y `.internal` no tiene buzón. Consúltalo cuando lo
+necesites, no lo supongas:
+
+```bash
+cd AtlasBackend
+docker compose exec -T postgres psql -U atlas -d atlas -c \
+  "SELECT _id, email, role_code FROM iam.internal_users WHERE _id = 1;"
+```
 
 El seeder describe esta cuenta con `SUPER_ADMIN`, `SYSTEMS_ADMIN` y
 `DATA_GOVERNANCE_MANAGER`, pero lo que hay grabado en `iam.internal_users` es
@@ -65,6 +76,50 @@ El seeder describe esta cuenta con `SUPER_ADMIN`, `SYSTEMS_ADMIN` y
 Para rotarla: genera el hash con `hashPassword()`
 (`AtlasBackend/src/common/utils/crypto/password.util.ts`) y actualiza el seeder.
 **Nunca** escribas la contraseña en claro en un archivo versionado.
+
+### El segundo factor: cómo se enciende y cómo se apaga
+
+Para un actor INTERNO el 2FA no es una preferencia de la cuenta: es obligatorio
+en cuanto el proveedor tiene por dónde entregar el PIN, y desaparece —en
+silencio— si no lo tiene. Eso lo decide la configuración del despliegue, no la
+columna `iam.internal_users.mfa_enabled`, que **no la escribe ningún camino de
+código**.
+
+Encenderlo en local exige dos cosas, y la segunda es la que muerde:
+
+1. **Un canal de correo que llegue al contenedor.** `docker-compose.yml` no tiene
+   `env_file`, así que sólo llega lo que está escrito en `x-atlas-env`; ahí se
+   pasan ya `NOTIFICATION_EMAIL_PROVIDER`, las cuatro `GMAIL_*`, las
+   `MAILSENDER_*` y `AUTH_LOGIN_PIN_ENABLED`, tomadas del `.env` de la máquina.
+   Con el `.env` configurado basta con reconstruir el contenedor.
+
+2. **Un correo que puedas LEER en la ficha del usuario.** El PIN se manda a
+   `iam.internal_users.email`. El usuario sembrado trae `pablo@atlas.internal`, un
+   TLD reservado sin buzón: con el canal encendido y ese correo, nadie puede
+   entrar. Cámbialo antes de reiniciar:
+
+   ```bash
+   cd AtlasBackend
+   docker compose exec -T postgres psql -U atlas -d atlas -c \
+     "UPDATE iam.internal_users SET email='<tu-correo-real>', _updated_at=now()
+      WHERE email='pablo@atlas.internal' AND _deleted = false;"
+   docker compose --profile app up -d --build api worker
+   ```
+
+**Apagarlo** —si te quedas fuera, o para una demostración sin correo— es una
+variable y un reinicio:
+
+```bash
+echo "AUTH_LOGIN_PIN_ENABLED=false" >> AtlasBackend/.env
+cd AtlasBackend && docker compose --profile app up -d api worker
+```
+
+En producción esa combinación no arranca a propósito (`env-cross-checks.ts`):
+un despliegue que renuncia al segundo factor interno tiene que escribirlo, y aun
+así se le exige un canal de correo, porque el mismo canal entrega el reset de
+contraseña. El canal por `webhook` **no** cuenta como canal de producción: es la
+forma que tiene el recolector de las pruebas, y admitirlo allí permitiría
+desviar los segundos factores de todo un despliegue a un buzón cualquiera.
 
 ### Las demás cuentas sembradas NO pueden iniciar sesión
 
@@ -209,7 +264,7 @@ docker compose exec -T postgres psql -U atlas -d atlas_decision -c "SELECT count
 | Dato                | Valor                                                  |
 | ------------------- | ------------------------------------------------------ |
 | Tenant              | `1`                                                    |
-| Ambientes           | `SANDBOX` (1), `PROD` (2), `TEST` (3)                  |
+| Ambientes           | `DEV` (1), `PROD` (2), `TEST` (3) y `STAGING`          |
 | Algoritmo principal | `BNPL_CREDIT_DECISION` · v2.3.0 · desplegado           |
 | Segundo algoritmo   | `COLLECTIONS_PRIORITIZATION` · v1.0.0 · activo en TEST |
 | Demo de contratos   | `AFFORDABILITY_CONTRACT_DEMO` · v1.2.0                 |
@@ -239,6 +294,69 @@ docker compose run --rm seed
   cortados.
 - **Las superficies de trabajo no llevan fondo ambiental** (editor, calidad,
   despliegues, ejecuciones). Se conserva en el panel principal y en el acceso.
+
+## Una cuenta para las pruebas contra el motor real
+
+Las especificaciones `e2e/portal-real-*.spec.ts` entran por la pantalla de
+acceso, así que necesitan una cuenta que **pueda iniciar sesión de verdad**.
+Usar la del dueño del entorno obliga a compartir su contraseña; en su lugar se
+provisiona una cuenta de desarrollo con el rol MÍNIMO que la vista bajo prueba
+exige, que además hace que la corrida compruebe los `@Roles` del motor en vez de
+saltárselos con un administrador.
+
+`risk.ops@atlas.test` ya existe en el directorio como ficha sin credencial. Se le
+da una así —**la contraseña se genera en el momento y no se escribe en ningún
+archivo versionado**—:
+
+```bash
+cd AtlasBackend
+# 1. Una contraseña nueva, sólo para este entorno.
+PASS=$(node -e "console.log(require('crypto').randomBytes(18).toString('base64url'))")
+
+# 2. Su hash Argon2id, con los mismos parámetros que usa el backend.
+HASH=$(docker compose exec -T -e P="$PASS" api node -e \
+  "const a=require('argon2');a.hash(process.env.P,{type:a.argon2id,memoryCost:19456,timeCost:2,parallelism:1}).then(h=>console.log(h))")
+
+# 3. La credencial y los roles. `internal_user_roles` es lo que llena el array
+#    `roles` de la sesión: sin filas ahí, la cuenta entra pero el portal no le
+#    enseña ninguna sección, que parece un fallo del portal y no lo es.
+docker compose exec -T postgres psql -U atlas -d atlas -c "
+  INSERT INTO iam.auth_credentials (_tenant_id, actor_type, actor_id, password_hash,
+         token_version, failed_login_attempts, _created_at, _updated_at, _deleted, mfa_enabled)
+  VALUES (1, 'internal_user', 2, '$HASH', 1, 0, now(), now(), false, false)
+  ON CONFLICT DO NOTHING;
+  INSERT INTO iam.internal_user_roles (_tenant_id, internal_user_id, role_id, assigned_at, _created_at, _updated_at)
+  SELECT 1, 2, r._id, now(), now(), now() FROM iam.internal_roles r
+  WHERE r.role_code IN ('RISK_ANALYST','FRAUD_ANALYST') AND r._deleted = false
+    AND NOT EXISTS (SELECT 1 FROM iam.internal_user_roles ur
+                    WHERE ur.internal_user_id = 2 AND ur.role_id = r._id AND ur.revoked_at IS NULL);"
+
+echo "$PASS"   # cópiala al .env.e2e del portal y bórrala de la terminal
+```
+
+En el portal, `AtlasDecisionEngineFrontend/.env.e2e` —**ignorado por git**—:
+
+```dotenv
+PW_BASE_URL=http://localhost:5180
+PW_TENANT_ID=1
+PW_USER=risk.ops@atlas.test
+PW_PASSWORD=<la que imprimió el paso anterior>
+# Sólo si el proveedor exige segundo factor: puerto del recolector de correo que
+# levanta la propia batería para leer el PIN (ver CLAUDE.md).
+PW_PIN_INBOX_PORT=5199
+```
+
+Con el segundo factor encendido, esta cuenta **también** recibe PIN, y su correo
+(`risk.ops@atlas.test`) tampoco es un buzón real. Por eso la batería no lee un
+buzón sino el recolector: se apunta el canal del proveedor al webhook
+(`NOTIFICATION_EMAIL_PROVIDER=webhook`,
+`NOTIFICATION_EMAIL_WEBHOOK_URL=http://host.docker.internal:5199/correo`) y el
+PIN se lee por donde de verdad salió. La alternativa —apagar el 2FA mientras
+corren las pruebas— deja la corrida en verde sin haber probado el acceso real.
+
+Para deshacerlo: `UPDATE iam.auth_credentials SET _deleted = true WHERE
+actor_type = 'internal_user' AND actor_id = 2;` y `UPDATE iam.internal_user_roles
+SET revoked_at = now() WHERE internal_user_id = 2;`.
 
 ## Comprobar que todo responde
 

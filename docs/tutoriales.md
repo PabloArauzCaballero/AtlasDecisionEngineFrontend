@@ -24,8 +24,11 @@ src/features/tutorial/
 ├── interactive-catalog-editor.ts   Editor de grafo: mapa de herramientas + construcción guiada
 ├── interactive-catalog-lab.ts      Campos calculados, librerías y QA Lab (§5–§10)
 ├── interactive-catalog-workers.ts  Workers de procesamiento y matriz de cobertura
+├── interactive-catalog-audit.ts    La traza: ejecuciones, bitácora y derechos del titular
+├── interactive-catalog-measure.ts  Las tres pantallas de medición, en su orden
 ├── interactive-catalog-errors.ts   Recorridos de corrección de errores
 ├── tutorial-registry.data.ts       Fichas del Centro (categoría, nivel, ruta, prerrequisitos)
+├── tutorial-registry.data.audit.ts Fichas de «Auditoría» y trazabilidad (bloque que se lee entero)
 ├── tutorial-registry.ts            Lectura del registro + filtrado por rol
 ├── tutorial-navigation.ts          Rutas por paso, pasos aplicables, acotado del progreso
 ├── tutorial-center-state.ts        Estado, filtros y resumen de avance (lógica pura)
@@ -120,6 +123,18 @@ Un tutorial tiene **dos partes**, deliberadamente separadas:
 
 Usa un atributo estable, nunca una clase CSS: las clases se renombran al
 rediseñar y el recorrido se queda apuntando a la nada.
+
+Dos componentes compartidos aceptan el ancla como prop, para no envolverlos en un
+`<div>` que cambiaría el espaciado de la página:
+
+```tsx
+<Panel title="Cobertura del circuito" tutorialId="quality-coverage">…</Panel>
+{ id: 'apetito', label: 'Apetito', tutorialId: 'risk-tab-appetite' }  // TabDefinition
+```
+
+En una vista por pestañas, señala **la pestaña** y espera el clic antes de hablar
+de lo que hay dentro: el contenido de la pestaña inactiva se monta con `hidden`, y
+un paso que apunte ahí resaltaría un rectángulo vacío.
 
 **Paso 2 — escribe los pasos** en el catálogo del módulo que corresponda:
 
