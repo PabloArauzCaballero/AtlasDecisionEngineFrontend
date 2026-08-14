@@ -1,15 +1,30 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 import process from 'node:process';
+import { verifyEngineSurface } from './engine-surface.mjs';
 import {
   verifyColorTokens,
   verifyCustomProperties,
+  verifyEffectiveRoles,
   verifyRouteAccess,
+  verifyTypographyTokens,
 } from './verify-conventions.mjs';
 
 const root = process.cwd();
 const codeExtensions = new Set(['.ts', '.tsx', '.js', '.mjs', '.css']);
-const ignoredDirectories = new Set(['.git', '.next', 'node_modules', 'coverage', 'docs']);
+const ignoredDirectories = new Set(['.git', 'node_modules', 'coverage', 'docs']);
+/**
+ * Cualquier directorio de compilación de Next, no sólo `.next`.
+ *
+ * `CLAUDE.md` recomienda `NEXT_DIST_DIR=.next-audit yarn build` para verificar la
+ * build SIN parar el servidor de desarrollo, y este recorrido —que lee el disco,
+ * no `git ls-files`— se metía dentro y medía los fragmentos generados contra el
+ * tope de 299 líneas. O sea: el flujo que documenta el repositorio rompía el
+ * gate del repositorio, con un fallo que no señala ninguna línea de código
+ * fuente. Se ignora el prefijo entero para que cualquier `distDir` que alguien
+ * elija quede fuera, no sólo los dos que hoy usamos.
+ */
+const isBuildDirectory = (name) => name.startsWith('.next');
 const authorizedFetchFiles = new Set([
   'src/api/http-client.ts',
   'src/server/decision-engine-proxy.ts',
@@ -26,7 +41,10 @@ const requiredRoutes = [
 
 function collectFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    // El prefijo sólo se juzga en directorios: un ARCHIVO que empiece por `.next`
+    // —hoy ninguno, mañana quién sabe— es fuente y debe verificarse.
     if (ignoredDirectories.has(entry.name)) return [];
+    if (entry.isDirectory() && isBuildDirectory(entry.name)) return [];
     const absolutePath = join(directory, entry.name);
     return entry.isDirectory() ? collectFiles(absolutePath) : [absolutePath];
   });
@@ -64,6 +82,9 @@ failures.push(
   ...verifyRouteAccess(root),
   ...verifyCustomProperties(root),
   ...verifyColorTokens(root),
+  ...verifyTypographyTokens(root),
+  ...verifyEffectiveRoles(root),
+  ...verifyEngineSurface(root),
 );
 
 if (failures.length) {

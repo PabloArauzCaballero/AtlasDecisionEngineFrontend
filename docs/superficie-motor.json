@@ -1,0 +1,1187 @@
+{
+  "title": "ATLAS Decision Platform API",
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "operationId": "healthLiveAlias",
+      "tag": "Health"
+    },
+    {
+      "method": "GET",
+      "path": "/health/data-sources",
+      "operationId": "healthDataSources",
+      "tag": "Health"
+    },
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "operationId": "healthLive",
+      "tag": "Health"
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "operationId": "healthReady",
+      "tag": "Health"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/admin/templates",
+      "operationId": "pdfTemplateAdminInventory",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/admin/templates",
+      "operationId": "pdfTemplateAdminPublish",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "DELETE",
+      "path": "/pdf/admin/templates/{p}/{p}",
+      "operationId": "pdfTemplateAdminRemove",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/admin/templates/{p}/{p}/deprecate",
+      "operationId": "pdfTemplateAdminDeprecate",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/admin/templates/{p}/{p}/source",
+      "operationId": "pdfTemplateAdminSource",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/errors",
+      "operationId": "pdfTemplateAdminErrorCatalog",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/generate",
+      "operationId": "pdfGenerationGeneratePdf",
+      "tag": "pdf"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/generate/async",
+      "operationId": "pdfGenerationGenerateAsync",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/health",
+      "operationId": "pdfCatalogHealthReport",
+      "tag": "pdf"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/preview",
+      "operationId": "pdfGenerationPreviewTemplate",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/template-format/example",
+      "operationId": "pdfTemplateAdminExampleBundle",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/template-format/schema",
+      "operationId": "pdfTemplateAdminFormatSchema",
+      "tag": "pdf-templates"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates",
+      "operationId": "pdfCatalogListTemplates",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates/{p}",
+      "operationId": "pdfCatalogDefinition",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates/{p}/schema",
+      "operationId": "pdfCatalogSchema",
+      "tag": "pdf"
+    },
+    {
+      "method": "POST",
+      "path": "/pdf/templates/{p}/validate",
+      "operationId": "pdfCatalogValidatePayload",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates/{p}/versions",
+      "operationId": "pdfCatalogVersions",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/ready",
+      "operationId": "healthReadyAlias",
+      "tag": "Health"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/approval-requests",
+      "operationId": "governanceList",
+      "tag": "Decision Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/approval-requests/{p}",
+      "operationId": "governanceGet",
+      "tag": "Decision Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/approval-steps/{p}/decisions",
+      "operationId": "governanceDecide",
+      "tag": "Decision Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifact-versions/{p}",
+      "operationId": "artifactGetVersion",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/clone",
+      "operationId": "artifactClone",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/compile",
+      "operationId": "artifactCompile",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/deployments",
+      "operationId": "deploymentDeploy",
+      "tag": "Decision Deployments"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifact-versions/{p}/diff/{p}",
+      "operationId": "artifactDiff",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifact-versions/{p}/graph",
+      "operationId": "artifactGetGraph",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/artifact-versions/{p}/graph",
+      "operationId": "artifactReplaceGraph",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/artifact-versions/{p}/notes",
+      "operationId": "artifactUpdateNotes",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/artifact-versions/{p}/processing-basis",
+      "operationId": "artifactUpdateProcessingBasis",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifact-versions/{p}/references",
+      "operationId": "nestedTreeList",
+      "tag": "Nested Decision Trees"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/references",
+      "operationId": "nestedTreeCreate",
+      "tag": "Nested Decision Trees"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/artifact-versions/{p}/references/{p}",
+      "operationId": "nestedTreeRemove",
+      "tag": "Nested Decision Trees"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/artifact-versions/{p}/references/{p}",
+      "operationId": "nestedTreeUpdate",
+      "tag": "Nested Decision Trees"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/submit-for-review",
+      "operationId": "governanceSubmit",
+      "tag": "Decision Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifact-versions/{p}/test-suites",
+      "operationId": "testingListSuites",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/test-suites",
+      "operationId": "testingCreateSuite",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/validate",
+      "operationId": "artifactValidate",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifact-versions/{p}/validate-and-compile",
+      "operationId": "artifactValidateAndCompile",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifacts",
+      "operationId": "artifactList",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/artifacts",
+      "operationId": "artifactCreate",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifacts/{p}",
+      "operationId": "artifactGet",
+      "tag": "Decision Artifacts"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artifacts/{p}/dependency-graph",
+      "operationId": "dependencyGraphGet",
+      "tag": "Nested Decision Trees"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/chain/verify",
+      "operationId": "auditQueryVerify",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/events",
+      "operationId": "auditQueryEvents",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/events/cursor",
+      "operationId": "auditQueryEventsByCursor",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/executions",
+      "operationId": "auditQuerySearch",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/executions/{p}",
+      "operationId": "auditQueryGetExecution",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/audit/metrics",
+      "operationId": "auditQueryMetrics",
+      "tag": "Audit and Observability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/calculated-fields",
+      "operationId": "calculatedFieldList",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields",
+      "operationId": "calculatedFieldCreate",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/calculated-fields/{p}",
+      "operationId": "calculatedFieldGet",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/{p}/versions",
+      "operationId": "calculatedFieldCreateVersion",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/calculated-fields/operations",
+      "operationId": "calculatedFieldOperations",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/preview/outcomes",
+      "operationId": "calculatedFieldPreviewOutcomes",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/preview/sample-inputs",
+      "operationId": "calculatedFieldPreviewSampleInputs",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/preview/test",
+      "operationId": "calculatedFieldPreviewTest",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/preview/try",
+      "operationId": "calculatedFieldPreviewTry",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/versions/{p}/outcomes",
+      "operationId": "calculatedFieldOutcomes",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/versions/{p}/promote",
+      "operationId": "calculatedFieldPromote",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/versions/{p}/sample-inputs",
+      "operationId": "calculatedFieldSampleInputs",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/versions/{p}/test",
+      "operationId": "calculatedFieldTest",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/calculated-fields/versions/{p}/try",
+      "operationId": "calculatedFieldTryRun",
+      "tag": "Calculated Fields"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/code-imports",
+      "operationId": "codeImportList",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/code-imports",
+      "operationId": "codeImportAnalyze",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/code-imports/{p}",
+      "operationId": "codeImportGet",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/code-imports/{p}/cancel",
+      "operationId": "codeImportCancel",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/code-imports/{p}/confirm",
+      "operationId": "codeImportConfirm",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/code-imports/{p}/save-draft",
+      "operationId": "codeImportSaveDraft",
+      "tag": "Code to Flow Import"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/data-subject-requests",
+      "operationId": "dataSubjectSubmit",
+      "tag": "Data Subject Rights"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/data-subject-requests/history",
+      "operationId": "dataSubjectHistory",
+      "tag": "Data Subject Rights"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/decisions/{p}",
+      "operationId": "runtimeExecute",
+      "tag": "Decision Runtime"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/deployments",
+      "operationId": "deploymentList",
+      "tag": "Decision Deployments"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deployments/{p}/rollback",
+      "operationId": "deploymentRollback",
+      "tag": "Decision Deployments"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/deployments/{p}/suspend",
+      "operationId": "deploymentSuspend",
+      "tag": "Decision Deployments"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/environments",
+      "operationId": "deploymentEnvironments",
+      "tag": "Decision Deployments"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/libraries",
+      "operationId": "libraryList",
+      "tag": "Approved Libraries"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/libraries",
+      "operationId": "libraryUpsert",
+      "tag": "Approved Libraries"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/libraries/preludes",
+      "operationId": "libraryPreludes",
+      "tag": "Approved Libraries"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/live-executions/stream",
+      "operationId": "liveExecutionStream",
+      "tag": "Live Execution"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/manual-reviews",
+      "operationId": "manualReviewList",
+      "tag": "Manual Review"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/manual-reviews/{p}",
+      "operationId": "manualReviewGet",
+      "tag": "Manual Review"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/manual-reviews/{p}/assign",
+      "operationId": "manualReviewAssign",
+      "tag": "Manual Review"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/manual-reviews/{p}/resolve",
+      "operationId": "manualReviewResolve",
+      "tag": "Manual Review"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/model-monitoring/ab",
+      "operationId": "modelMonitoringAbComparison",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/model-monitoring/adverse-impact",
+      "operationId": "modelMonitoringAdverseImpact",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/model-monitoring/attributes",
+      "operationId": "modelMonitoringRecordAttributes",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/model-monitoring/coverage",
+      "operationId": "modelMonitoringCoverage",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/model-monitoring/cutoff-analysis",
+      "operationId": "modelMonitoringCutoffAnalysis",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/model-monitoring/outcomes",
+      "operationId": "modelMonitoringRecordOutcomes",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/model-monitoring/performance",
+      "operationId": "modelMonitoringPerformance",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/model-monitoring/stability",
+      "operationId": "modelMonitoringStability",
+      "tag": "Model Monitoring"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/notifications",
+      "operationId": "notificationList",
+      "tag": "Notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/notifications/{p}/read",
+      "operationId": "notificationMarkRead",
+      "tag": "Notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/notifications/read-all",
+      "operationId": "notificationMarkAllRead",
+      "tag": "Notifications"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/notifications/unread-count",
+      "operationId": "notificationUnreadCount",
+      "tag": "Notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/outcomes/batch",
+      "operationId": "outcomeIngestionRecordBatch",
+      "tag": "Outcome Ingestion"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/outcomes/facilities",
+      "operationId": "outcomeIngestionRegisterFacilities",
+      "tag": "Outcome Ingestion"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/outcomes/pending",
+      "operationId": "outcomeIngestionPending",
+      "tag": "Outcome Ingestion"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/outcomes/vintage",
+      "operationId": "outcomeIngestionVintage",
+      "tag": "Outcome Ingestion"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/qa-lab/counterexamples/{p}/replay",
+      "operationId": "qaLabReplay",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/qa-lab/properties",
+      "operationId": "qaLabProperties",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/qa-lab/runs",
+      "operationId": "qaLabListRuns",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/qa-lab/runs/{p}",
+      "operationId": "qaLabGetRun",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/qa-lab/versions/{p}/outcomes",
+      "operationId": "qaLabListOutcomes",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/qa-lab/versions/{p}/runs",
+      "operationId": "qaLabRun",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/qa-lab/versions/{p}/sample-inputs",
+      "operationId": "qaLabSampleInputs",
+      "tag": "QA Lab"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/reason-codes",
+      "operationId": "variableListReasons",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/reason-codes",
+      "operationId": "variableCreateReason",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk-governance/calibration",
+      "operationId": "riskGovernanceStoredCalibration",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/calibration",
+      "operationId": "riskGovernanceCalibrate",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/consents",
+      "operationId": "riskGovernanceRecordConsent",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/consents/lookup",
+      "operationId": "riskGovernanceConsents",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/consents/revoke",
+      "operationId": "riskGovernanceRevokeConsent",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk-governance/limits",
+      "operationId": "riskGovernanceListLimits",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/limits",
+      "operationId": "riskGovernanceUpsertLimit",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/model-dossier",
+      "operationId": "riskGovernanceRecordDossier",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/portfolio-state",
+      "operationId": "riskGovernanceRecordPortfolioState",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk-governance/reidentifications",
+      "operationId": "riskGovernanceListReidentifications",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/reidentifications",
+      "operationId": "riskGovernanceRequestReidentification",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/risk-governance/reidentifications/decide",
+      "operationId": "riskGovernanceDecideReidentification",
+      "tag": "Risk Governance"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/security-review/versions/{p}",
+      "operationId": "securityReviewGet",
+      "tag": "Security Review"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/security-review/versions/{p}/export",
+      "operationId": "securityReviewExport",
+      "tag": "Security Review"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/login",
+      "operationId": "identitySessionLogin",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/login/pin",
+      "operationId": "identitySessionVerifyLoginPin",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/logout",
+      "operationId": "identitySessionLogout",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/refresh",
+      "operationId": "identitySessionRefresh",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/simulations/{p}",
+      "operationId": "simulationSimulate",
+      "tag": "Decision Simulation"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/simulations/{p}/sample-inputs",
+      "operationId": "simulationGenerateSampleInputs",
+      "tag": "Decision Simulation"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/test-runs/{p}",
+      "operationId": "testingGetRun",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/test-suites/{p}/cases",
+      "operationId": "testingListCases",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/test-suites/{p}/cases",
+      "operationId": "testingCreateCase",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/test-suites/{p}/cases/import",
+      "operationId": "testingImportCases",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/test-suites/{p}/runs",
+      "operationId": "testingRun",
+      "tag": "Decision Testing"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/traceability/coverage-matrix",
+      "operationId": "traceabilityCoverageMatrix",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/traceability/objectives",
+      "operationId": "traceabilityList",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/traceability/objectives",
+      "operationId": "traceabilityCreate",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/traceability/objectives/{p}",
+      "operationId": "traceabilityGetObjective",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/traceability/policies/{p}/artifacts",
+      "operationId": "traceabilityLinkArtifact",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/traceability/policies/{p}/test-suites",
+      "operationId": "traceabilityLinkTest",
+      "tag": "Requirements Traceability"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tutorial-progress",
+      "operationId": "tutorialList",
+      "tag": "Tutorials"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/tutorial-progress/{p}",
+      "operationId": "tutorialUpsert",
+      "tag": "Tutorials"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/variables",
+      "operationId": "variableList",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/variables",
+      "operationId": "variableCreate",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/variables/{p}",
+      "operationId": "variableGet",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/variables/{p}/compatibility",
+      "operationId": "variableCompatibility",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/variables/{p}/dependencies",
+      "operationId": "variableDependencies",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/variables/{p}/versions",
+      "operationId": "variableCreateVersion",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/variables/validate-contract",
+      "operationId": "variableValidateContract",
+      "tag": "Variable Catalog"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/artifact-inputs",
+      "operationId": "viewsArtifactInputs",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/options",
+      "operationId": "viewsOptions",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/pickers/artifact-versions",
+      "operationId": "viewsArtifactVersions",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/pickers/artifacts",
+      "operationId": "viewsArtifacts",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/pickers/test-runs",
+      "operationId": "viewsTestRuns",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/pickers/test-suites",
+      "operationId": "viewsTestSuites",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/pickers/variables",
+      "operationId": "viewsVariables",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/scripts",
+      "operationId": "viewsScripts",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/views/search",
+      "operationId": "viewsSearch",
+      "tag": "Read Model Views"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers",
+      "operationId": "workersList",
+      "tag": "Workers"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/{p}/metrics",
+      "operationId": "workersWorkerMetrics",
+      "tag": "Workers"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/audio-tts/fixtures",
+      "operationId": "audioTtsListFixtures",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/audio-tts/runs",
+      "operationId": "audioTtsListRuns",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/audio-tts/runs",
+      "operationId": "audioTtsCreateRun",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/audio-tts/runs/{p}",
+      "operationId": "audioTtsGetRun",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/audio-tts/runs/{p}/audio",
+      "operationId": "audioTtsAudioOf",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/audio-tts/runs/{p}/cancel",
+      "operationId": "audioTtsCancelRun",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/audio-tts/templates",
+      "operationId": "audioTtsListTemplates",
+      "tag": "Workers · Locución"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/fixtures",
+      "operationId": "bankStatementListFixtures",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/runs",
+      "operationId": "bankStatementListRuns",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/runs",
+      "operationId": "bankStatementCreateRun",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/runs/{p}",
+      "operationId": "bankStatementGetRun",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/runs/{p}/cancel",
+      "operationId": "bankStatementCancelRun",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/runs/{p}/download",
+      "operationId": "bankStatementDownload",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/fixtures",
+      "operationId": "identityVerificationListFixtures",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/runs",
+      "operationId": "identityVerificationListRuns",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/identity-verification/runs",
+      "operationId": "identityVerificationCreateRun",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/runs/{p}",
+      "operationId": "identityVerificationGetRun",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/identity-verification/runs/{p}/cancel",
+      "operationId": "identityVerificationCancelRun",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/categories",
+      "operationId": "semanticCategoryList",
+      "tag": "Workers · Categorías semánticas"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/categories",
+      "operationId": "semanticCategoryCreate",
+      "tag": "Workers · Categorías semánticas"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/workers/semantic-analysis/categories/{p}",
+      "operationId": "semanticCategoryDeactivate",
+      "tag": "Workers · Categorías semánticas"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/workers/semantic-analysis/categories/{p}",
+      "operationId": "semanticCategoryUpdate",
+      "tag": "Workers · Categorías semánticas"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/categories/import",
+      "operationId": "semanticCategoryImport",
+      "tag": "Workers · Categorías semánticas"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/fixtures",
+      "operationId": "semanticAnalysisListFixtures",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/runs",
+      "operationId": "semanticAnalysisListRuns",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/runs",
+      "operationId": "semanticAnalysisCreateRun",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/runs/{p}",
+      "operationId": "semanticAnalysisGetRun",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/runs/{p}/cancel",
+      "operationId": "semanticAnalysisCancelRun",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/unresolved",
+      "operationId": "unresolvedClassificationList",
+      "tag": "Workers · Pendientes de clasificación"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/unresolved/{p}/resolve",
+      "operationId": "unresolvedClassificationResolve",
+      "tag": "Workers · Pendientes de clasificación"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/unresolved/count",
+      "operationId": "unresolvedClassificationCount",
+      "tag": "Workers · Pendientes de clasificación"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/unresolved/reevaluate",
+      "operationId": "unresolvedClassificationReevaluate",
+      "tag": "Workers · Pendientes de clasificación"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/unresolved/reevaluate/status",
+      "operationId": "unresolvedClassificationReevaluationStatus",
+      "tag": "Workers · Pendientes de clasificación"
+    }
+  ]
+}
