@@ -27,6 +27,13 @@ RUN addgroup --system --gid 1001 nodejs \
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# `public/` NO viaja dentro de `standalone`: Next lo deja fuera a proposito y su documentacion
+# pide copiarlo aparte, igual que `.next/static`. Sin esta linea la imagen no servia NADA de
+# `public/`, y el fallo era invisible mientras el directorio estuvo vacio. Dejo de serlo con el
+# cuaderno de datos: su interprete de Python vive en `public/pyodide/`, y en el contenedor la
+# pestana respondia «no se encontro el interprete» mientras en el servidor de desarrollo iba bien
+# — la peor forma de encontrarse un fallo, porque solo aparece en el artefacto que se despliega.
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 EXPOSE 3000
