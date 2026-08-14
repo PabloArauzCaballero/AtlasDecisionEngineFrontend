@@ -189,15 +189,33 @@ describe('ApprovalRequestDetailPage', () => {
           artifactVersion: { ...REQUEST.artifactVersion, sourceVersionId: '54' },
         };
       }
-      if (path === '/v1/artifact-versions/54/graph') {
-        return { nodes: [{ key: 'EVAL', type: 'CONDITION', label: 'Evalúa score' }] };
-      }
-      if (path === '/v1/artifact-versions/55/graph') {
+      /*
+       * La comparación la responde el MOTOR, no el portal.
+       *
+       * Antes esta prueba simulaba los DOS grafos porque la pantalla se los traía y calculaba
+       * el diff por su cuenta — dos implementaciones de la misma comparación que podían
+       * discrepar sobre un artefacto de gobierno. Ahora se simula lo que de verdad se pide:
+       * `…/diff/…`, con el veredicto ya tomado. El portal sólo lo explica campo a campo, y eso
+       * es lo que estas aserciones siguen midiendo.
+       */
+      if (path === '/v1/artifact-versions/54/diff/55') {
         return {
-          nodes: [
-            { key: 'EVAL', type: 'CONDITION', label: 'Evalúa buró' },
-            { key: 'REVISION', type: 'RESULT', label: 'Revisión manual' },
-          ],
+          left: { versionId: '54' },
+          right: { versionId: '55' },
+          nodes: {
+            added: [{ key: 'REVISION', type: 'RESULT', label: 'Revisión manual' }],
+            removed: [],
+            changed: [
+              {
+                before: { key: 'EVAL', type: 'CONDITION', label: 'Evalúa score' },
+                after: { key: 'EVAL', type: 'CONDITION', label: 'Evalúa buró' },
+              },
+            ],
+          },
+          edges: { added: [], removed: [], changed: [] },
+          conditions: { added: [], removed: [], changed: [] },
+          actions: { added: [], removed: [], changed: [] },
+          variables: { added: [], removed: [], changed: [] },
         };
       }
       return {};
