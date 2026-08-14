@@ -1,0 +1,189 @@
+/*
+ * Consola de consultas SQL (ADR-0031) — armazón y explorador.
+ *
+ * El reparto es de tres columnas: explorador · área de trabajo · panel lateral, y la del
+ * medio es la que crece. Ese reparto es lo que resuelve el problema de consultar: hay que
+ * ver a la vez qué tablas existen, qué se está escribiendo y qué salió, y cualquier otro
+ * obliga a memorizar nombres de columna entre pantallas.
+ *
+ * La consola ocupa cuatro hojas, importadas en este orden: ésta (armazón y explorador),
+ * `sql-console-editor.css`, `sql-console-results.css` y `sql-console-side.css`. El corte va
+ * por zona de la pantalla y no por tamaño de archivo, así que cada hoja se lee entera junto
+ * al componente que la usa.
+ */
+
+:root {
+  /* Anchos de las dos columnas fijas. Van como token porque los usa también la consulta de
+     medios de `sql-console-side.css`, y dos números que tienen que coincidir escritos en
+     dos hojas distintas acaban dejando de coincidir. */
+  --sql-explorer-width: 15rem;
+  --sql-side-width: 20rem;
+  /* Altura mínima del editor: por debajo de esto no cabe una consulta con GROUP BY sin
+     desplazarse, y desplazarse dentro de lo que estás escribiendo es lo que hace que se
+     pierdan los paréntesis. */
+  --sql-editor-min: 12rem;
+  --sql-tab-max: 13rem;
+  /* Alto máximo de las columnas laterales cuando se apilan en pantalla estrecha. */
+  --sql-stacked-max: 18rem;
+}
+
+.sql-console {
+  display: grid;
+  grid-template-columns: var(--sql-explorer-width) minmax(0, 1fr) var(--sql-side-width);
+  gap: var(--space-3);
+  align-items: stretch;
+  /*
+   * `100dvh` y no `100vh`: en el móvil la barra del navegador se retrae al desplazar, y con
+   * `vh` el panel de resultados queda cortado justo por debajo del borde todo el rato.
+   */
+  min-height: calc(100dvh - var(--shell-head) - var(--space-7));
+}
+
+.sql-explorer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.sql-explorer__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--muted);
+}
+
+.sql-explorer__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--type-sm);
+}
+
+.sql-explorer__search input:focus-visible {
+  outline: none;
+}
+
+.sql-explorer__tree {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.sql-explorer__empty {
+  margin: 0;
+  padding: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.sql-explorer__dataset-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sql-explorer__dataset-head:hover,
+.sql-explorer__table:hover {
+  background: var(--surface-hover);
+}
+
+.sql-explorer__dataset-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sql-explorer__count {
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.sql-explorer__tables {
+  margin: 0 0 var(--space-2);
+  padding: 0 0 0 var(--space-4);
+  list-style: none;
+}
+
+.sql-explorer__tables li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.sql-explorer__table {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--type-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sql-explorer__table span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sql-explorer__table.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * El botón de insertar aparece al apuntar la fila o al enfocarla con el teclado.
+ *
+ * `:focus-within` no es un adorno: sin él, quien navega con tabulador llega a un botón
+ * invisible, que es peor que no tenerlo.
+ */
+.sql-explorer__insert {
+  flex: none;
+  width: var(--space-5);
+  height: var(--space-5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--faint);
+  font-size: var(--type-sm);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sql-explorer__tables li:hover .sql-explorer__insert,
+.sql-explorer__tables li:focus-within .sql-explorer__insert {
+  opacity: 1;
+}
+
+.sql-explorer__insert:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}

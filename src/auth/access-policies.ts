@@ -105,6 +105,18 @@ export const accessPolicies = {
   ] as const,
   // §10 — QA Lab. Mismos roles que la autoría de calidad: una corrida ejecuta el motor.
   qaLab: ['QA_ANALYST', 'FRAUD_ANALYST'] as const,
+  // ADR-0031 — consola de consultas SQL gobernada.
+  //
+  // Espeja EXACTAMENTE los cinco roles que el motor exige en `/v1/sql-console`. Que sea la
+  // misma lista importa más aquí que en otras pantallas: la consola no tiene botones que
+  // ocultar —es un cuadro de texto— así que un permiso de más no se notaría como un control
+  // apagado, sino como un 403 al ejecutar, después de haber escrito la consulta entera.
+  //
+  // `OPERATIONS` y `QA_ANALYST` quedan fuera a propósito, y el motivo está escrito en el
+  // controlador del motor: quien CARGA desenlaces no es quien los interpreta, y quien diseña
+  // artefactos trabaja contra datos sintéticos, mientras que los cinco datasets de la consola
+  // contienen decisiones sobre personas reales.
+  sqlConsole: ['RISK_ANALYST', 'FRAUD_ANALYST', 'RISK_APPROVER', 'COMPLIANCE', 'AUDITOR'] as const,
   // ADR-0026 — workers adicionales (análisis semántico y extractos bancarios).
   //
   // Es el permiso de VER la pestaña, y por eso es amplio: incluye a quien
