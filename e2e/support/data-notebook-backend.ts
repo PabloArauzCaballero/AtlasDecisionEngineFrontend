@@ -2,6 +2,18 @@ import type { Page } from '@playwright/test';
 import { mockBackend } from './backend-mock';
 
 /**
+ * AtlasBackend envuelve TODA respuesta en .
+ *
+ * El simulado devolvia el objeto PELADO, o sea una forma que el backend nunca produce, y por eso
+ * veintiuna pruebas pasaron en verde sobre un camino que en el navegador fallaba siempre con «No
+ * fue posible leer el catalogo». Un simulado que no imita la forma real no prueba la integracion:
+ * prueba que la pantalla sabe pintar lo que el propio simulado inventó.
+ */
+function sobre(data: unknown) {
+  return { requestId: 'e2e-cuaderno', data, timestamp: '2026-08-14T20:00:00.000Z' };
+}
+
+/**
  * AtlasBackend simulado para el cuaderno de datos.
  *
  * El simulado general cubre `/v1/**` —el motor— y el cuaderno no lee de ahí: lee de
@@ -111,14 +123,14 @@ export async function mockDataNotebookBackend(page: Page): Promise<void> {
         errorMessage: cuerpo.errorMessage ?? null,
         createdAt: '2026-08-14T20:00:00.000Z',
       });
-      await route.fulfill({ json: { id: String(historial.length) } });
+      await route.fulfill({ json: sobre({ id: String(historial.length) }) });
       return;
     }
-    await route.fulfill({ json: historial });
+    await route.fulfill({ json: sobre(historial) });
   });
 
   await page.route('**/atlas-backend/data-notebook/datasets', async (route) => {
-    await route.fulfill({ json: CATALOGO });
+    await route.fulfill({ json: sobre(CATALOGO) });
   });
 
   await page.route('**/atlas-backend/data-notebook/datasets/*/rows*', async (route) => {
@@ -129,7 +141,7 @@ export async function mockDataNotebookBackend(page: Page): Promise<void> {
       CATALOGO.datasets.find((candidato) => candidato.code === codigo) ?? CATALOGO.datasets[0];
 
     await route.fulfill({
-      json: {
+      json: sobre({
         dataset: { code: dataset.code, label: dataset.label, view: dataset.view },
         columns: COLUMNAS,
         rows: filas(pagina),
@@ -138,7 +150,9 @@ export async function mockDataNotebookBackend(page: Page): Promise<void> {
         total: TOTAL,
         totalIsExact: true,
         masked: true,
-      },
+        bytes: 1024,
+        droppedRows: 0,
+      }),
     });
   });
 }

@@ -9,6 +9,31 @@ import { apiRequest } from '../../api/http-client';
  */
 const BASE = '/atlas-backend/data-notebook';
 
+/**
+ * AtlasBackend envuelve TODA respuesta en `{ requestId, data, timestamp }`. El motor no.
+ *
+ * Es la diferencia que dejó el cuaderno en blanco con el mensaje «No fue posible leer el catálogo»:
+ * los esquemas describían el contenido y la respuesta traía el sobre, así que la validación fallaba
+ * siempre — contra el backend real, y sólo contra él.
+ *
+ * No lo detectó nada, y merece la pena entender por qué: las pruebas E2E simulaban esta API con el
+ * objeto PELADO, o sea con una forma que el backend nunca devuelve, así que verificaban que la
+ * pantalla sabe pintar algo que no existe. Y las comprobaciones con `curl` leían el JSON a ojo, sin
+ * pasar por el cliente. Veintiuna pruebas en verde sobre un camino que nunca funcionó.
+ *
+ * Se admite también la forma pelada porque el `requestId` no es obligatorio en todas las rutas y
+ * porque un backend que un día deje de envolver no debería vaciar la pantalla.
+ */
+function sobre<S extends z.ZodTypeAny>(esquema: S) {
+  return z.preprocess(
+    (cuerpo) =>
+      cuerpo && typeof cuerpo === 'object' && 'data' in cuerpo
+        ? (cuerpo as { data: unknown }).data
+        : cuerpo,
+    esquema,
+  );
+}
+
 export const notebookColumnSchema = z.object({
   name: z.string(),
   dataType: z.string().nullish(),
@@ -99,19 +124,19 @@ export function recordNotebookHistory(entry: NotebookHistoryEntry): Promise<{ id
   return apiRequest(`${BASE}/history`, {
     method: 'POST',
     body: entry,
-    responseSchema: z.object({ id: z.string() }),
+    responseSchema: sobre(z.object({ id: z.string() })),
   });
 }
 
 export function fetchNotebookHistory(signal?: AbortSignal): Promise<NotebookHistoryRow[]> {
   return apiRequest(`${BASE}/history`, {
     signal,
-    responseSchema: z.array(notebookHistoryRowSchema),
+    responseSchema: sobre(z.array(notebookHistoryRowSchema)),
   });
 }
 
 export function fetchNotebookCatalog(signal?: AbortSignal): Promise<NotebookCatalog> {
-  return apiRequest(`${BASE}/datasets`, { signal, responseSchema: notebookCatalogSchema });
+  return apiRequest(`${BASE}/datasets`, { signal, responseSchema: sobre(notebookCatalogSchema) });
 }
 
 export interface NotebookPageQuery {
@@ -135,6 +160,6 @@ export function fetchNotebookPage(
 
   return apiRequest(`${BASE}/datasets/${encodeURIComponent(code)}/rows?${params}`, {
     signal,
-    responseSchema: notebookPageSchema,
+    responseSchema: sobre(notebookPageSchema),
   });
 }
