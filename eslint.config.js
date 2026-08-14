@@ -32,6 +32,17 @@ export default tseslint.config(
       '.next-*',
       'playwright-report',
       'test-results',
+      /*
+       * `public/` es material servido tal cual, no código de este repositorio.
+       *
+       * Entró con el intérprete de Python vendorizado (`public/pyodide`, ~21 MB de
+       * JavaScript compilado desde C). ESLint lo analizaba y devolvía 5244 errores sobre
+       * código que nadie de aquí escribió ni va a corregir, con dos efectos: `yarn lint`
+       * —y con él `yarn verify`— quedaba en rojo permanente, y los errores reales del
+       * portal se perdían entre miles de líneas de ruido. Está en `.gitignore`, pero eso
+       * sólo lo esconde de git: ESLint recorre el disco.
+       */
+      'public',
     ],
   },
   js.configs.recommended,
