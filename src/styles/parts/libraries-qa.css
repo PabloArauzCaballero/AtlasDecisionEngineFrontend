@@ -169,3 +169,52 @@
   font-size: var(--type-base);
   color: var(--text-muted);
 }
+
+/*
+ * Integridad de la cadena de auditoría y preludios de las librerías.
+ *
+ * Las dos son listas donde cada elemento es un HECHO que se lee entero, no una fila de tabla que
+ * se escanea: por eso llevan aire entre elementos y no separadores. Un separador invita a
+ * comparar filas; aquí lo que hay que hacer es leer cada una.
+ */
+.audit-integrity {
+  display: grid;
+  gap: var(--space-2);
+}
+.audit-integrity-verdict {
+  margin: 0;
+}
+.audit-integrity-issues {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Cada eslabón que no verifica es su propio bloque: mezclarlos esconde cuántos hay. */
+.audit-integrity-issues li {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+.audit-integrity-issues p {
+  margin: var(--space-1) 0 0;
+}
+
+.library-preludes {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.library-preludes li {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+.library-preludes p {
+  margin: var(--space-1) 0 0;
+}

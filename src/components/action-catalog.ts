@@ -17,6 +17,8 @@ import {
   Trash2,
   Workflow,
   type LucideIcon,
+  Undo2,
+  PauseOctagon,
 } from 'lucide-react';
 
 export type ActionVariant = 'default' | 'primary' | 'danger';
@@ -105,6 +107,25 @@ export const ACTIONS = {
       body: 'Esta acción no se puede deshacer. ¿Seguro que quieres eliminarlo?',
       confirmLabel: 'Eliminar',
     },
+  },
+  /*
+   * Revertir y suspender un despliegue.
+   *
+   * No llevan `confirm` del catálogo aunque sean las dos acciones más graves del portal, y la
+   * excepción es deliberada: el motor EXIGE un motivo escrito, así que la confirmación no puede
+   * ser un «¿continuar?» de sí o no. Abren un diálogo propio que pide ese motivo y no deja
+   * ejecutar sin él — que es una confirmación más fuerte, no más débil: obliga a formular por
+   * qué, y eso es lo que después lee quien audita.
+   */
+  rollback: {
+    icon: Undo2,
+    label: 'Revertir al despliegue anterior',
+    variant: 'danger',
+  },
+  suspend: {
+    icon: PauseOctagon,
+    label: 'Suspender el despliegue',
+    variant: 'danger',
   },
 } as const satisfies Record<string, ActionDefinition>;
 

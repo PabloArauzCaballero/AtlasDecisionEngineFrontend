@@ -1,16 +1,17 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { hasAnyRole } from '../auth/roles';
 import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
-import { DataTable } from '../components/DataTable';
+import { DataTable, type RowAction } from '../components/DataTable';
 import { FilterSelect } from '../components/FilterSelect';
 import { PageHeader } from '../components/PageHeader';
 import { ActiveFilterChips } from '../resources/ActiveFilterChips';
 import { ExportDialog } from '../resources/ExportDialog';
 import { listResource } from '../resources/resource.api';
+import { useUrlFilters } from '../resources/useUrlFilters';
 import { ResourceCreateForm } from '../resources/ResourceCreateForm';
 import { ResourceListActions } from '../resources/ResourceListActions';
 import { ResourceExtraFilters } from '../resources/ResourceExtraFilters';
@@ -21,6 +22,15 @@ interface ResourceListPageProps {
   onPrimaryAction?: () => void;
   primaryActionDisabled?: boolean;
   primaryActionTitle?: string;
+  /**
+   * Acciones por fila, cuando el recurso tiene operaciones que no son «ver detalle».
+   *
+   * Existe porque los despliegues necesitan revertirse y suspenderse desde el listado: son
+   * acciones sobre una fila concreta y no hay pantalla de detalle donde ponerlas. Se pasa como
+   * función y no como configuración estática porque la decisión depende de la FILA —sólo un
+   * despliegue vivo se puede revertir— y de los roles de quien mira.
+   */
+  rowActions?: (row: Record<string, unknown>) => RowAction[];
 }
 
 export function ResourceListPage({
@@ -28,17 +38,32 @@ export function ResourceListPage({
   onPrimaryAction,
   primaryActionDisabled = false,
   primaryActionTitle,
+  rowActions,
 }: ResourceListPageProps) {
   const [page, setPage] = useState(1);
-  const [draftFilter, setDraftFilter] = useState('');
-  const [filter, setFilter] = useState('');
-  const [showExtraFilters, setShowExtraFilters] = useState(false);
   const [creating, setCreating] = useState(false);
   const [exporting, setExporting] = useState(false);
-  // `extraFilters` drives the query; `draftExtra` holds in-progress edits. Selects
-  // apply instantly; free-text extra filters apply on submit alongside the search.
-  const [extraFilters, setExtraFilters] = useState<Record<string, string>>({});
-  const [draftExtra, setDraftExtra] = useState<Record<string, string>>({});
+  /*
+   * Los filtros viven en la URL y los gobierna `useUrlFilters`.
+   *
+   * `extraFilters` alimenta la consulta; `draftExtra` guarda la edición en curso. Los selectores
+   * aplican al instante; el texto libre aplica al enviar, junto con la búsqueda.
+   */
+  const {
+    filter,
+    draftFilter,
+    setDraftFilter,
+    extraFilters,
+    draftExtra,
+    setDraftExtra,
+    showExtraFilters,
+    setShowExtraFilters,
+    apply,
+    applyNow,
+    clear,
+    hasActiveFilters,
+    activeExtraCount,
+  } = useUrlFilters(config, () => setPage(1));
 
   // Resources that declare `createFields` get a built-in inline form; others may
   // supply a bespoke dialog via `onPrimaryAction`. Without either the alta stays
@@ -56,87 +81,25 @@ export function ResourceListPage({
     placeholderData: keepPreviousData,
   });
 
-  /**
-   * Read filters from the URL on mount: detail pages deep-link with `?filter=`,
-   * and any shared/bookmarked filtered view restores its extra filters too.
-   * Applied after mount so server and client render identically.
-   */
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initial = params.get('filter');
-    if (initial) {
-      setDraftFilter(initial);
-      setFilter(initial);
-    }
-    const extra: Record<string, string> = {};
-    for (const entry of config.filters ?? []) {
-      const value = params.get(entry.param);
-      if (value) extra[entry.param] = value;
-    }
-    if (Object.keys(extra).length) {
-      setDraftExtra(extra);
-      setExtraFilters(extra);
-      setShowExtraFilters(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  /**
-   * Keep the URL in sync with the APPLIED filters (not the drafts) so a filtered
-   * view is shareable and survives a refresh. replaceState avoids a history spam.
-   */
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    params.delete('filter');
-    for (const entry of config.filters ?? []) params.delete(entry.param);
-    if (filter.trim()) params.set('filter', filter.trim());
-    for (const [param, value] of Object.entries(extraFilters)) {
-      if (value.trim()) params.set(param, value.trim());
-    }
-    const qs = params.toString();
-    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [filter, extraFilters, config.filters]);
-
-  const hasActiveFilters =
-    filter.trim() !== '' || Object.values(extraFilters).some((value) => value.trim() !== '');
-  const activeExtraCount = Object.values(extraFilters).filter(
-    (value) => value.trim() !== '',
-  ).length;
-
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    setPage(1);
-    setFilter(draftFilter);
-    setExtraFilters(draftExtra);
+    apply();
   };
 
-  const clearFilters = () => {
-    setDraftFilter('');
-    setFilter('');
-    setDraftExtra({});
-    setExtraFilters({});
-    setPage(1);
-  };
+  const clearFilters = clear;
 
   /** Quita un filtro concreto desde su chip; `null` es el filtro principal. */
   const removeFilter = (param: string | null) => {
-    setPage(1);
     if (param === null) {
-      setDraftFilter('');
-      setFilter('');
+      applyNow({ filter: '' });
       return;
     }
-    const next = { ...extraFilters, [param]: '' };
-    setDraftExtra((current) => ({ ...current, [param]: '' }));
-    setExtraFilters(next);
+    applyNow({ extra: { ...extraFilters, [param]: '' } });
   };
 
   // A dropdown reads as "apply now"; commit it to the query immediately.
   const applySelectFilter = (param: string, value: string) => {
-    const next = { ...draftExtra, [param]: value };
-    setDraftExtra(next);
-    setExtraFilters(next);
-    setPage(1);
+    applyNow({ extra: { ...draftExtra, [param]: value } });
   };
 
   const rows = query.data?.items ?? [];
@@ -170,11 +133,7 @@ export function ResourceListPage({
               valueKey={config.filterPicker.valueKey}
               labelKeys={config.filterPicker.labelKeys}
               placeholder={config.filterPlaceholder}
-              onChange={(value) => {
-                setDraftFilter(value);
-                setFilter(value);
-                setPage(1);
-              }}
+              onChange={(value) => applyNow({ filter: value })}
             />
           ) : (
             <label>
@@ -258,6 +217,7 @@ export function ResourceListPage({
           columns={config.columns}
           getRowKey={rowKey}
           detailPath={config.detailPath}
+          rowActions={rowActions}
         />
         {!config.unpaged && query.data ? (
           <div className="pagination">

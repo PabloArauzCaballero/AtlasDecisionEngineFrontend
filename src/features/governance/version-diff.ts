@@ -16,7 +16,7 @@ import { asRows, type UnknownRecord } from '../../utils/records';
 
 export type ChangeKind = 'added' | 'removed' | 'changed';
 
-interface CollectionSpec {
+export interface CollectionSpec {
   key: string;
   label: string;
   /** Campos candidatos a identificador estable, en orden de preferencia. */
@@ -24,7 +24,7 @@ interface CollectionSpec {
 }
 
 /** Colecciones del grafo y con qué campo se identifica cada elemento. */
-const COLLECTIONS: readonly CollectionSpec[] = [
+export const COLLECTIONS: readonly CollectionSpec[] = [
   { key: 'nodes', label: 'Nodos', idFields: ['key', 'code', 'id'] },
   { key: 'edges', label: 'Conexiones', idFields: ['key', 'id'] },
   { key: 'conditions', label: 'Condiciones', idFields: ['code', 'id'] },
@@ -169,4 +169,37 @@ export function groupByCollection(diff: GraphDiff): { label: string; entries: Di
     label: spec.label,
     entries: diff.entries.filter((change) => change.collection === spec.key),
   })).filter((group) => group.entries.length > 0);
+}
+
+/**
+ * Traduce el veredicto del motor a entradas de pantalla.
+ *
+ * Recibe QUÉ cambió ya decidido —añadidos, quitados y cambiados con su `before` y su `after`— y
+ * sólo produce la explicación: el desglose campo a campo de lo cambiado y la marca de cosmético.
+ * No vuelve a comparar colecciones ni a emparejar elementos, que es justo la parte que dejó de
+ * hacer el portal para que exista una sola respuesta a «qué cambió».
+ *
+ * Reutiliza `compareEntity` a propósito: el desglose campo a campo de dos objetos es el mismo
+ * cálculo lo decida quien lo decida, y duplicarlo reintroduciría por la puerta de atrás la
+ * divergencia que se acaba de cerrar.
+ */
+export function describirCambios(
+  spec: CollectionSpec,
+  cambios: {
+    added: readonly { id: string; valor: UnknownRecord }[];
+    removed: readonly { id: string; valor: UnknownRecord }[];
+    changed: readonly { id: string; antes: UnknownRecord; despues: UnknownRecord }[];
+  },
+): DiffEntry[] {
+  const entradas: DiffEntry[] = [];
+  for (const { id, valor } of cambios.added) {
+    entradas.push(entry(spec, id, null, 'added', null, stringify(valor)));
+  }
+  for (const { id, valor } of cambios.removed) {
+    entradas.push(entry(spec, id, null, 'removed', stringify(valor), null));
+  }
+  for (const { id, antes, despues } of cambios.changed) {
+    entradas.push(...compareEntity(spec, id, antes, despues));
+  }
+  return entradas;
 }

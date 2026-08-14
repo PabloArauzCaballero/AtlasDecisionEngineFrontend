@@ -1,5 +1,10 @@
 # Auditoría integral — Portal + Motor (13 de agosto de 2026)
 
+> **ESTADO: REMEDIADA el mismo día.** Todo lo que sigue describe el estado en que se encontró el
+> sistema. Al final del documento, en §9, está lo que se hizo, verificado, y lo que queda.
+> Las ocho puertas en rojo son hoy cero; las tres CVE altas, cero; la deuda de gobierno de la
+> Fase 4, cerrada entera.
+
 Auditoría ejecutada, no leída: cada afirmación de este documento sale de correr la
 puerta correspondiente o de una petición real contra el servicio en marcha. Donde
 sólo hay lectura de código, se dice.
@@ -717,3 +722,101 @@ vivas. Y comprobar que `coverage/`, `dist/`, `logs/`, `backups/` y `site/` está
 _Auditoría ejecutada el 13 de agosto de 2026. Las puertas se corrieron sobre el
 árbol de trabajo, no sobre HEAD: con 415 y 203 ficheros sin commitear, HEAD no
 describe lo que hay._
+
+---
+
+## 9. Remediación (mismo día)
+
+Todo verificado con el comando que lo cierra, no con una afirmación.
+
+### Puertas: de 8 en rojo a 0
+
+| Puerta                       | Antes              | Ahora                 |
+| ---------------------------- | ------------------ | --------------------- |
+| Motor · `format:check`       | ❌ 50 ficheros     | ✅                    |
+| Motor · `migration:validate` | ❌                 | ✅ 43 migraciones     |
+| Motor · `security:audit`     | ❌ 3 altas         | ✅ 0 vulnerabilidades |
+| Motor · `docs:openapi:check` | ❌ 8 sin esquema   | ✅ **200/200**        |
+| Motor · `docs:coverage`      | ❌ 65 ops, 87 vars | ✅ 197/197 · 246/246  |
+| Motor · `docs:links`         | ❌ 5 huérfanos     | ✅ 0                  |
+| Portal · `format:check`      | ❌                 | ✅                    |
+| Portal · `verify:source`     | ❌ 301 líneas      | ✅ 911 ficheros       |
+
+### P0-1 · El worker de PDF, verificado en vivo
+
+```
+                                  ANTES        AHORA
+GET  :3100/pdf/templates sin clave  200    →    401
+POST :3100/pdf/generate  sin clave  422    →    401
+POST :3100/pdf/preview   sin clave  422    →    401
+GET  :3100/pdf/templates CON clave   —     →    200
+GET  :3100/pdf/health    sin clave  200    →    200   (sonda del contenedor)
+puerto                       0.0.0.0:3100  →    127.0.0.1:3100
+```
+
+Guardia global sólo en modo suelto, encendido por omisión y con arranque abortado sin clave;
+helmet y CORS cerrado; Swagger apagado por omisión en el código. El motor sigue en pie —el mismo
+módulo dentro de él no exige clave porque autentica el anfitrión—, y **ese caso lo detectó una
+prueba existente** al ponerse roja: la primera versión metía la exigencia en el esquema de
+entorno y habría impedido arrancar el motor entero.
+
+### P0-2 · Cero vulnerabilidades
+
+`pdfjs-dist` 5→6.2.108, `sharp` 0.34→0.35.3, `js-yaml` fijado a ≥4.3.1. Los dos majores
+rompieron de verdad: pdfjs 6 retiró `PDFDocumentProxy.destroy()` y el bloque de limpieza lanzaba
+`TypeError`, con lo que cinco pruebas decían «no se pudo leer la estructura del PDF» sobre PDF
+leídos enteros y bien. Se libera la TAREA de carga, que además cierra el worker de pdfjs.
+270/270 pruebas de los workers afectados en verde.
+
+### Hallazgo NUEVO, encontrado al remediar
+
+**`yarn audit --level high` no hace lo que su nombre promete.** En yarn 1, `--level` filtra el
+informe; el código de salida es un mapa de bits de TODAS las severidades (1 info · 2 low ·
+4 moderate · 8 high · 16 critical). Con cero avisos altos y cuatro bajos/moderados salía con 6,
+así que el trabajo `supply-chain` de la CI llevaba rojo desde siempre **por avisos que su propio
+comentario dice explícitamente no bloquear**. `scripts/audit-high.mjs` decide por el contenido
+del informe. Al ponerlo a funcionar aparecieron cuatro avisos de `dompurify` vía `monaco-editor`,
+dos de XSS: fijado a ≥3.4.13, porque en el sanitizador que protege de XSS «moderado» no es un
+matiz.
+
+### Fase 4 · La deuda de gobierno, cerrada entera
+
+De **36 operaciones sin consumir a 27**, y las nueve que salieron eran las que importaban:
+
+- **Reversión y suspensión de despliegues.** Acciones por fila, sólo sobre despliegues vivos,
+  sólo `PLATFORM_ADMIN`, con **motivo obligatorio** y mínimo real —el motor sólo exige que
+  exista, y un campo que acepta «x» cumple el contrato sin informar a nadie—. El diálogo dice la
+  consecuencia antes de actuar, distingue las dos cosas (revertir devuelve el ambiente al
+  despliegue anterior; suspender lo deja SIN versión activa) y dice lo que NO cambia: lo ya
+  decidido no se reescribe.
+- **Integridad de la cadena de auditoría**, encabezando `/audit-events`. Tres estados y no dos:
+  `HASH_KEY_UNAVAILABLE` es «no se pudo comprobar», no «está mal».
+- **Asignación de revisión manual.** El botón existía, deshabilitado, con el título «aún no está
+  expuesta por el Decision Engine». Lo estaba.
+- **Propiedades de QA Lab** desde el motor, con el mapa local degradado a respaldo.
+- **Un solo diff de versiones.** El motor decide QUÉ cambió; el portal sólo explica su respuesta
+  campo a campo. No se borró el código del cliente: el motor compara por entidad y la pantalla
+  necesita el detalle por campo, así que borrarlo habría cambiado un problema de coherencia por
+  uno de información.
+- **Preludios de las librerías**: qué funciones existen dentro del sandbox, por lenguaje.
+- **Exportación de revisión de seguridad**: nunca fue deuda. El botón existía y el gate no lo
+  veía porque la ruta se construía interpolando — la trampa que el `CLAUDE.md` advierte, vista
+  desde el otro lado.
+
+### Pruebas
+
+Los cinco controladores sin cobertura ya la tienen. Ningún controlador del motor queda sin
+prueba. En el portal, la cobertura se mide por primera vez y dos `test.skip(count() === 0)`
+pasaron a ser afirmaciones; las suites de aislamiento por inquilino **ya no pueden saltarse en
+CI**.
+
+### Lo que sigue abierto, y por qué
+
+- **Cobertura de líneas del portal al 43 %.** Está medida y con suelo, que es lo que faltaba.
+  Subirla es escribir pruebas, no configurar nada: semanas de trabajo, no una sesión.
+- **27 operaciones sin consumir.** Todas con motivo escrito y responsable: sondas de
+  infraestructura, la superficie del worker de PDF —servicio aparte con su propio panel—, la
+  ejecución real que piden los sistemas integradores, y los atributos de sesgo, que sólo carga
+  `COMPLIANCE` y a propósito.
+- **Batería de integración del motor.** Necesita Postgres con migraciones aplicadas; se corrió
+  la unitaria completa.

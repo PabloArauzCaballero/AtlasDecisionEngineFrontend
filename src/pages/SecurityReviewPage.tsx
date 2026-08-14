@@ -60,7 +60,20 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
   });
 
   const exportReview = useMutation({
-    mutationFn: () => apiRequest<unknown>(`${path}/export`),
+    /*
+     * La ruta se escribe ENTERA, no como `${path}/export`.
+     *
+     * El gate de superficie (`scripts/engine-surface.mjs`) sigue la pista hasta el literal
+     * `/v1/…` que haya en el mismo archivo. Interpolando sobre `path`, veía
+     * `/v1/security-review/versions/{p}` y NO veía `/…/export`, así que daba esta operación por
+     * no consumida — y la lista de deuda llevaba una fila de algo que llevaba tiempo hecho.
+     * Una lista de deuda con entradas saldadas dentro deja de leerse, que es exactamente lo que
+     * ese fichero existe para evitar.
+     */
+    mutationFn: () =>
+      apiRequest<unknown>(
+        `/v1/security-review/versions/${encodeURIComponent(versionId ?? '')}/export`,
+      ),
     onSuccess: (data) => downloadJson(`security-review-${versionId}.json`, data),
   });
 

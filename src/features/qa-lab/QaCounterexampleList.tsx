@@ -5,19 +5,11 @@ import { useState } from 'react';
 import { CheckCircle2, RotateCcw, XCircle } from 'lucide-react';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { useQaPropertyLabels } from './qa-properties';
 
 interface Props {
   counterexamples: UnknownRecord[];
 }
-
-const PROPERTY_LABELS: Record<string, string> = {
-  INPUT_CONTRACT_ENFORCED: 'El contrato de entrada se impone',
-  OUTPUT_CONTRACT_RESPECTED: 'La salida cumple el contrato',
-  OUTPUT_TYPES_MATCH_CONTRACT: 'Los tipos de salida coinciden',
-  NO_INTERMEDIATE_LEAK: 'Ninguna intermedia se filtra',
-  NO_SENSITIVE_LEAK: 'Ningún dato sensible se filtra',
-  DETERMINISM: 'La misma entrada da el mismo resultado',
-};
 
 /**
  * Contraejemplos mínimos de una corrida (§10.5).
@@ -46,6 +38,15 @@ export function QaCounterexampleList({ counterexamples }: Props) {
 function QaCounterexampleRow({ entry }: { entry: UnknownRecord }) {
   const [showOriginal, setShowOriginal] = useState(false);
   const property = display(entry, 'property');
+  /*
+   * Las etiquetas las publica el MOTOR, con respaldo local.
+   *
+   * Estaban fijadas aquí, y la exención de la superficie lo decía con precisión: «una propiedad
+   * nueva del motor no aparece sola». Es el mismo fallo que el gate persigue, una capa más
+   * adentro — el motor gana una comprobación, empieza a encontrar una clase entera de defectos,
+   * y el portal la enseña con su código crudo donde debería ir la explicación.
+   */
+  const etiquetas = useQaPropertyLabels();
 
   const replay = useMutation({
     mutationFn: () =>
@@ -59,7 +60,7 @@ function QaCounterexampleRow({ entry }: { entry: UnknownRecord }) {
   return (
     <li className="qa-counterexample">
       <div className="qa-counterexample-head">
-        <span className="qa-property">{PROPERTY_LABELS[property] ?? property}</span>
+        <span className="qa-property">{etiquetas[property] ?? property}</span>
         <code>{display(entry, 'failureCode')}</code>
       </div>
       <p>{display(entry, 'failureMessage')}</p>

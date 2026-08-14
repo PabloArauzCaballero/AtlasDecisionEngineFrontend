@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { apiRequest } from '../../api/http-client';
 import { Panel } from '../../components/Panel';
 import type { UnknownRecord } from '../../utils/records';
-import { diffGraphs, groupByCollection, type DiffEntry } from './version-diff';
+import { groupByCollection, type DiffEntry } from './version-diff';
+import { adaptarDiffDelMotor } from './version-diff-remote';
 
 export interface DiffBase {
   versionId: string;
@@ -21,15 +22,27 @@ interface VersionDiffPanelProps {
   bases: DiffBase[];
 }
 
-function useGraph(versionId: string | null) {
+/**
+ * La comparación la pide al MOTOR.
+ *
+ * Antes esta pantalla se traía los DOS grafos y calculaba el diff por su cuenta, mientras el
+ * motor publicaba `…/diff/…` sin que nadie lo llamara: dos implementaciones de la misma
+ * comparación que podían discrepar, sobre un artefacto de gobierno. Dos respuestas distintas a
+ * «qué cambió» es peor que ninguna, porque las dos parecen autoritativas.
+ *
+ * Ahora hay una sola respuesta —la del motor— y el portal sólo la explica campo a campo
+ * (`adaptarDiffDelMotor`). De regalo, una petición en vez de dos.
+ */
+function useRemoteDiff(leftVersionId: string | null, rightVersionId: string | null) {
   return useQuery({
-    queryKey: ['version-graph', versionId],
+    queryKey: ['version-diff', leftVersionId, rightVersionId],
     queryFn: () =>
       apiRequest<UnknownRecord>(
-        `/v1/artifact-versions/${encodeURIComponent(versionId as string)}/graph`,
+        `/v1/artifact-versions/${encodeURIComponent(leftVersionId as string)}` +
+          `/diff/${encodeURIComponent(rightVersionId as string)}`,
       ),
-    enabled: Boolean(versionId),
-    // El grafo de una versión es inmutable: no hace falta refrescarlo.
+    enabled: Boolean(leftVersionId) && Boolean(rightVersionId),
+    // Dos versiones publicadas son inmutables, así que su diferencia también lo es.
     staleTime: Infinity,
   });
 }
@@ -65,11 +78,10 @@ function DiffRow({ change }: { change: DiffEntry }) {
 export function VersionDiffPanel({ targetVersionId, targetLabel, bases }: VersionDiffPanelProps) {
   const [baseId, setBaseId] = useState(bases[0]?.versionId ?? '');
   const base = bases.find((candidate) => candidate.versionId === baseId) ?? bases[0];
-  const baseGraph = useGraph(base?.versionId ?? null);
-  const targetGraph = useGraph(targetVersionId || null);
-  const loading = baseGraph.isPending || targetGraph.isPending;
-  const failed = baseGraph.isError || targetGraph.isError;
-  const diff = !loading && !failed ? diffGraphs(baseGraph.data, targetGraph.data) : null;
+  const comparacion = useRemoteDiff(base?.versionId ?? null, targetVersionId || null);
+  const loading = comparacion.isPending;
+  const failed = comparacion.isError;
+  const diff = !loading && !failed ? adaptarDiffDelMotor(comparacion.data) : null;
   const groups = diff ? groupByCollection(diff) : [];
 
   return (

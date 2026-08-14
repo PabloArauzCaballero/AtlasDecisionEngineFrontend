@@ -6,6 +6,7 @@ import { apiRequest } from '../api/http-client';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { LibraryPreludesPanel } from '../features/libraries/LibraryPreludesPanel';
 import { StatusBadge } from '../components/StatusBadge';
 import { formatDate } from '../config/locale';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
@@ -51,6 +52,7 @@ export function LibrariesPage() {
         hint="Seleccionar una librería no genera una importación: solo habilita funciones ya revisadas dentro del entorno aislado donde corre el código."
       />
 
+      <LibraryPreludesPanel />
       <Panel title="Filtros">
         <div className="output-contract-controls" data-tutorial-id="library-filters">
           <input
