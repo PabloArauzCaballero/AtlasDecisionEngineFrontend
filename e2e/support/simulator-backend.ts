@@ -19,9 +19,9 @@ const ARTIFACT = 'EXTRACTO_CAPACIDAD_PAGO';
 const ENVIRONMENTS = [
   {
     id: '1',
-    code: 'SANDBOX',
-    name: 'Sandbox',
-    environmentType: 'SANDBOX',
+    code: 'DEV',
+    name: 'Development',
+    environmentType: 'DEV',
     status: 'ACTIVE',
     isProduction: false,
     createdAt: '2026-08-02T23:37:40.068Z',
@@ -113,7 +113,7 @@ const SIMULATION = {
     code: ARTIFACT,
     versionId: '1089',
     deploymentId: '127',
-    environment: 'SANDBOX',
+    environment: 'DEV',
     checksum: 'c6249fa1',
   },
   trace: {

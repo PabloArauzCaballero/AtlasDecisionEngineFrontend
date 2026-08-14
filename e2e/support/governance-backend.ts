@@ -89,7 +89,7 @@ const DEPLOYMENTS = {
     },
     {
       id: 'dep-3',
-      environment: { code: 'SANDBOX' },
+      environment: { code: 'DEV' },
       deploymentStatus: 'ACTIVE',
       deployedAt: '2026-07-28T12:00:00Z',
       deployedBy: 'riesgo@atlas.bo',
@@ -157,7 +157,9 @@ export async function governanceBackend(page: Page): Promise<void> {
       });
     }
     if (url.includes('/v1/environments')) {
-      return route.fulfill({ json: [{ code: 'PROD' }, { code: 'SANDBOX' }] });
+      return route.fulfill({
+        json: [{ code: 'PROD' }, { code: 'DEV' }, { code: 'TEST' }, { code: 'STAGING' }],
+      });
     }
     return route.fulfill({ json: EMPTY_PAGE });
   });

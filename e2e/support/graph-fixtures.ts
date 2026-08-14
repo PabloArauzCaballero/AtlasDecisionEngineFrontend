@@ -13,7 +13,7 @@ export const EXECUTION = {
   // su modo de sólo línea de tiempo; la evidencia debe mostrar el caso completo.
   artifactVersionId: 'ver-demo',
   artifactCode: 'SCORING_CREDITO_CONSUMO',
-  environmentCode: 'SANDBOX',
+  environmentCode: 'DEV',
   status: 'COMPLETED',
   outcome: 'APPROVED',
   durationMs: 42,

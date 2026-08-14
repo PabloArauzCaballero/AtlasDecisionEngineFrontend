@@ -3,7 +3,7 @@ import { collectProblems } from './support/backend-mock';
 import { mockWorkersBackend } from './support/workers-backend';
 
 /**
- * Las dos vistas de worker, con un ciclo de vida que avanza de verdad.
+ * Las vistas de worker, con un ciclo de vida que avanza de verdad.
  *
  * Contra el motor simulado normal estas pantallas sólo pintan su cabecera y el
  * formulario: se estaría midiendo el encabezado creyendo medir la vista. El
@@ -14,6 +14,7 @@ import { mockWorkersBackend } from './support/workers-backend';
 const RUTAS = {
   semantico: '/workers/semantic-analysis',
   extractos: '/workers/bank-statement',
+  locucion: '/workers/audio-tts',
 } as const;
 
 /**
@@ -34,7 +35,7 @@ async function abrirConsola(page: Page) {
 test.describe('pestaña Procesamiento', () => {
   test.setTimeout(180_000);
 
-  test('una sola entrada de navegación reúne los dos workers', async ({ page }) => {
+  test('una sola entrada de navegación reúne todos los workers', async ({ page }) => {
     await mockWorkersBackend(page);
     await page.goto(RUTAS.semantico, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
@@ -45,10 +46,12 @@ test.describe('pestaña Procesamiento', () => {
     await expect(cajon.getByText('Procesamiento', { exact: false })).toBeVisible();
     await expect(cajon.getByRole('link', { name: /^Workers$/i })).toBeVisible();
 
-    // Y desde ahí se llega a los dos, sin volver al cajón.
+    // Y desde ahí se llega a todos, sin volver al cajón.
     await expect(page.getByRole('tab', { name: 'Análisis Semántico' })).toBeVisible();
     await page.getByRole('tab', { name: 'Extractos Bancarios' }).click();
     await expect(page.getByRole('heading', { name: 'Extractos Bancarios' })).toBeVisible();
+    await page.getByRole('tab', { name: 'Locución' }).click();
+    await expect(page.getByRole('heading', { name: 'Locución' })).toBeVisible();
   });
 
   test('el panel de control mide salud, latencia, cola e incidencias', async ({ page }) => {
@@ -141,8 +144,16 @@ test.describe('pestaña Procesamiento', () => {
 
     await expect(consola.getByText('Completado con advertencias')).toBeVisible({ timeout: 30_000 });
     await expect(consola.getByText('******7890')).toBeVisible();
-    await expect(consola.getByText('PAGO SERVICIOS (CUOTA 3)')).toBeVisible();
-    await expect(consola.getByText('DEPOSITO EN EFECTIVO')).toBeVisible();
+    /*
+     * Acotado a la CELDA, y no a cualquier texto de la consola.
+     *
+     * La misma glosa aparece ahora dos veces: en la tabla de movimientos y en
+     * los destacados que resume `StatementAnalytics`. Las dos son legítimas, así
+     * que un localizador por texto suelto casa con ambas y falla por ambigüedad.
+     * Lo que esta prueba afirma es que el movimiento SE LISTA, y eso es la fila.
+     */
+    await expect(consola.getByRole('cell', { name: 'PAGO SERVICIOS (CUOTA 3)' })).toBeVisible();
+    await expect(consola.getByRole('cell', { name: 'DEPOSITO EN EFECTIVO' })).toBeVisible();
 
     // La garantía de privacidad, comprobada sobre el DOM ya pintado y no sólo
     // sobre el contrato: el número completo no puede aparecer en ninguna parte.
@@ -151,9 +162,57 @@ test.describe('pestaña Procesamiento', () => {
     // Las tres descargas aparecen sólo cuando hay resultado. Son botones y no
     // enlaces: seguir un `<a href="/v1/…">` es una navegación del navegador, ahí
     // no viaja el token de la sesión y las tres devolvían 401.
-    for (const nombre of [/Descargar CSV/i, /Movimientos \(JSON\)/i, /Contrato completo/i]) {
+    // Los nombres salen de `StatementDownloads`, que separa las descargas DEL
+    // MOTOR de las que arma el navegador con las categorías. El primero pasó de
+    // «Descargar CSV» a «CSV» al agruparlos bajo ese rótulo, y esta prueba se
+    // quedó con el nombre viejo.
+    for (const nombre of [/^CSV$/, /Movimientos \(JSON\)/i, /Contrato completo/i]) {
       await expect(consola.getByRole('button', { name: nombre })).toBeVisible();
     }
+  });
+
+  test('la locución dice qué se sirvió y con qué voz, y deja oírlo', async ({ page }) => {
+    const problemas = collectProblems(page);
+    await mockWorkersBackend(page);
+    await page.goto(RUTAS.locucion, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    const consola = await abrirConsola(page);
+
+    await consola.locator('.worker-fixtures select').selectOption('bienvenida-con-nombre');
+    await consola.getByRole('button', { name: 'Locutar' }).click();
+
+    await expect(consola.getByText('En cola')).toBeVisible({ timeout: 20_000 });
+    await expect(consola.getByText('Completado con advertencias')).toBeVisible({ timeout: 30_000 });
+
+    /*
+     * El desenlace se dice, no se deduce del reproductor.
+     *
+     * `FALLBACK` es el final que más fácil se confunde con un éxito —hay audio y
+     * suena—, así que la vista tiene que decir que lo que sonó es el respaldo Y
+     * por qué. Sin esas dos frases, quien lo escucha da por buena una locución
+     * genérica creyendo que oyó la que pidió.
+     */
+    await expect(consola.getByText('Se sirvió el respaldo')).toBeVisible();
+    await expect(consola.getByText(/cupo de locuciones de hoy/i)).toBeVisible();
+
+    // La voz, con su VERSIÓN: sin ella dos audios distintos parecen el mismo.
+    await expect(consola.getByText('brand_es_latam_v1 v1 · eleven_v3')).toBeVisible();
+    /*
+     * Y qué costó, que es la única pregunta propia de este worker. Aquí sonó el
+     * respaldo porque NO se pudo generar nada, así que decir «se generó»
+     * afirmaría un gasto que no ocurrió: son tres casos, no dos.
+     */
+    await expect(consola.getByText('Ninguno: no se llegó a generar')).toBeVisible();
+
+    /*
+     * El reproductor recibe un blob local, no un `src` al motor: cargar un medio
+     * es una petición del navegador y ahí no viaja el `Authorization`, así que
+     * apuntarlo al motor lo dejaría mudo con un 401.
+     */
+    const audio = consola.locator('.worker-audio-player audio');
+    await expect(audio).toBeVisible({ timeout: 30_000 });
+    await expect(audio).toHaveAttribute('src', /^blob:/);
+
+    expect(problemas, problemas.join('\n')).toEqual([]);
   });
 
   test('la carga de archivos es alcanzable con teclado', async ({ page }) => {

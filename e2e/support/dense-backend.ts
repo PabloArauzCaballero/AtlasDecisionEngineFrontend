@@ -63,7 +63,7 @@ function denseRow(index: number) {
     dataType: 'NUMBER',
     artifactType: 'DECISION_TREE',
     ownerTeam: 'Riesgo de Crédito y Cobranzas',
-    environmentCode: index % 2 === 0 ? 'SANDBOX' : 'TEST',
+    environmentCode: index % 2 === 0 ? 'DEV' : 'TEST',
     latestVersion: `${index}.0.0`,
     lastValidatedAt: '2026-07-20T10:00:00Z',
     createdAt: '2026-07-20T10:00:00Z',
@@ -88,7 +88,9 @@ export async function denseBackend(page: Page): Promise<void> {
     const url = route.request().url();
     if (url.includes('/v1/session/')) return route.fulfill({ json: MOCK_SESSION });
     if (url.includes('/v1/environments')) {
-      return route.fulfill({ json: [{ code: 'SANDBOX' }, { code: 'TEST' }] });
+      return route.fulfill({
+        json: [{ code: 'DEV' }, { code: 'TEST' }, { code: 'STAGING' }, { code: 'PROD' }],
+      });
     }
     // Los contadores del panel de inicio piden totales, no listas.
     if (url.includes('unread-count')) return route.fulfill({ json: { unread: 4 } });

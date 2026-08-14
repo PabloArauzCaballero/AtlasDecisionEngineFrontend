@@ -131,3 +131,31 @@ export const STATEMENT_RESULT = {
     errors: [],
   },
 };
+
+/**
+ * Resultado de una locución servida DEL RESPALDO.
+ *
+ * No el camino feliz a propósito: `FALLBACK` es el desenlace que más fácil se
+ * confunde con un éxito —hay audio, suena— y es justo el que la vista tiene que
+ * distinguir. Con `READY` la prueba no mediría nada que un `SUCCEEDED` no
+ * midiera ya.
+ */
+export const AUDIO_RESULT = {
+  outcome: 'FALLBACK',
+  cacheHit: false,
+  generated: false,
+  audioAvailable: true,
+  reason: 'Se agotó el cupo de locuciones de hoy para esta cuenta.',
+  templateCode: 'onboarding.fallback.generic',
+  templateVersion: 1,
+  language: 'es-419',
+  provider: 'fake',
+  model: 'eleven_v3',
+  voiceProfile: 'brand_es_latam_v1',
+  voiceVersion: 1,
+  outputFormat: 'mp3_44100_128',
+  sampleRate: 44100,
+  mimeType: 'audio/mpeg',
+  bytes: 48384,
+  checksumSha256: 'c'.repeat(64),
+};

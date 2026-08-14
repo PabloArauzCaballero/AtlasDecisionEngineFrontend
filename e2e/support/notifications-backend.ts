@@ -27,9 +27,9 @@ const VERSIONES = [
 const AMBIENTES = [
   {
     id: '1',
-    code: 'SANDBOX',
-    name: 'Sandbox',
-    environmentType: 'SANDBOX',
+    code: 'DEV',
+    name: 'Development',
+    environmentType: 'DEV',
     status: 'ACTIVE',
     isProduction: false,
   },

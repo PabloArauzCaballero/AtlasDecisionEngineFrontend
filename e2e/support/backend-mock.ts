@@ -70,7 +70,7 @@ export const EXECUTIONS_PAGE = {
       id: 'exec-1',
       requestId: 'REQ-1',
       artifactCode: 'SCORING_CREDITO',
-      environmentCode: 'SANDBOX',
+      environmentCode: 'DEV',
       status: 'COMPLETED',
       createdAt: '2026-07-20T10:00:00Z',
     },
@@ -120,7 +120,9 @@ export async function mockBackend(page: Page, options: MockOptions = {}): Promis
     if (url.includes('TEST_RUN_FAILED'))
       return route.fulfill({ json: { ...EMPTY_PAGE, total: 10 } });
     if (url.includes('/v1/environments')) {
-      return route.fulfill({ json: [{ code: 'SANDBOX' }, { code: 'TEST' }] });
+      return route.fulfill({
+        json: [{ code: 'DEV' }, { code: 'TEST' }, { code: 'STAGING' }, { code: 'PROD' }],
+      });
     }
     return route.fulfill({ json: EMPTY_PAGE });
   });

@@ -81,7 +81,9 @@ async function mockBackend(page: Page): Promise<void> {
       return route.fulfill({ json: { ...EMPTY_PAGE, items: VARIABLES, total: VARIABLES.length } });
     }
     if (url.includes('/v1/environments')) {
-      return route.fulfill({ json: [{ code: 'SANDBOX' }, { code: 'TEST' }] });
+      return route.fulfill({
+        json: [{ code: 'DEV' }, { code: 'TEST' }, { code: 'STAGING' }, { code: 'PROD' }],
+      });
     }
     return route.fulfill({ json: EMPTY_PAGE });
   });

@@ -89,7 +89,9 @@ test('los casos de prueba caben en su columna con payloads reales', async ({ pag
   // Y la tabla se desplaza DENTRO de su caja en vez de estirar el layout.
   const cabe = await page.evaluate(() => {
     const wrap = document.querySelector<HTMLElement>('.table-wrap');
-    const main = document.querySelector<HTMLElement>('.test-cases-layout > main');
+    // Era `> main`. La columna dejó de ser un `<main>` porque el portal ya tiene
+    // el suyo en el armazón y sólo puede haber uno por documento.
+    const main = document.querySelector<HTMLElement>('.test-cases-layout > .test-cases-main');
     return {
       minWidth: main ? getComputedStyle(main).minWidth : null,
       tablaCabe: wrap ? wrap.scrollWidth <= wrap.clientWidth + 1 : false,
@@ -125,7 +127,9 @@ test('un caso se despliega y enseña sus payloads legibles', async ({ page }) =>
 /**
  * La barra superior está pegada al borde (`position: sticky; top: 0`), así que
  * un globo anclado con `bottom: 100%` se pintaba ARRIBA de la ventana: medido,
- * `y = -19,5`. Se abría y no se veía nunca.
+ * `y = -19,5`. Se abría y no se veía nunca. Hoy el globo se monta en
+ * `document.body` y `useHintBubble` lo abre hacia abajo cuando arriba no hay
+ * sitio, así que se localiza por su estado abierto, no por su contenedor.
  */
 test('los tooltips de la barra superior se ven', async ({ page }) => {
   await page.goto('/platform-health');
@@ -135,7 +139,7 @@ test('los tooltips de la barra superior se ven', async ({ page }) => {
   await expect(envoltorio).toBeVisible();
   await envoltorio.hover();
 
-  const globo = page.locator('.topbar .tooltip-bubble').first();
+  const globo = page.locator('.tooltip-bubble[data-open="true"]').first();
   const caja = await globo.boundingBox();
   expect(caja, 'el globo debe tener caja al pasar el ratón').not.toBeNull();
   expect(caja!.y, 'el globo se pintaba en y negativa, fuera de la ventana').toBeGreaterThan(0);

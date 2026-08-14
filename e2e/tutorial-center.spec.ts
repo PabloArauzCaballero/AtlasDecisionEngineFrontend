@@ -52,7 +52,7 @@ async function mockPortal(page: Page): Promise<Map<string, unknown>> {
     }
 
     if (url.includes('/v1/environments')) {
-      return route.fulfill({ json: [{ code: 'SANDBOX' }] });
+      return route.fulfill({ json: [{ code: 'DEV' }] });
     }
     return route.fulfill({ json: EMPTY_PAGE });
   });

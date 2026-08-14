@@ -61,7 +61,7 @@ export async function editorTablesBackend(page: Page): Promise<void> {
   await page.route('**/v1/**', (route) => {
     const url = route.request().url();
     if (url.includes('/v1/session/')) return route.fulfill({ json: MOCK_SESSION });
-    if (url.includes('/v1/environments')) return route.fulfill({ json: [{ code: 'SANDBOX' }] });
+    if (url.includes('/v1/environments')) return route.fulfill({ json: [{ code: 'DEV' }] });
     if (url.includes('unread-count')) return route.fulfill({ json: { unread: 0 } });
     if (url.includes('/pickers/test-suites')) return route.fulfill({ json: SUITE_PICKER });
     if (url.includes('/pickers/artifact-versions')) return route.fulfill({ json: VERSION_PICKER });

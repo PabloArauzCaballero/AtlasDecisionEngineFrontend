@@ -1,7 +1,9 @@
 import type { Page } from '@playwright/test';
 import { MOCK_SESSION } from './backend-mock';
+import { IDENTITY_RESULT } from './identity-result';
+import { AUDIO_BYTES, AUDIO_TEMPLATES, CATALOG, FIXTURES } from './workers-catalog';
 import { WORKER_HISTORY, WORKER_METRICS } from './workers-history';
-import { SEMANTIC_RESULT, STATEMENT_RESULT } from './workers-results';
+import { AUDIO_RESULT, SEMANTIC_RESULT, STATEMENT_RESULT } from './workers-results';
 
 /**
  * Motor simulado para las vistas de worker.
@@ -17,87 +19,11 @@ import { SEMANTIC_RESULT, STATEMENT_RESULT } from './workers-results';
  * ve así.
  */
 
-/**
- * Catálogo: es lo que gobierna límites y disponibilidad en la vista.
- *
- * Array desnudo, NO `{ items }`. Es la convención del motor para colecciones no
- * paginadas (`ApiArrayResponse`), y el simulado la tenía mal: envolvía la
- * respuesta y por eso el E2E pasaba contra un contrato que el motor real no
- * sirve. Lo destapó el smoke por HTTP, no esta prueba.
- */
-const CATALOG = [
-  {
-    code: 'semantic-analysis',
-    name: 'Clasificación de gastos',
-    description:
-      'Clasifica la descripción de un movimiento contra el árbol de categorías de gasto e ingreso.',
-    acceptedInputs: ['Texto libre', 'Escenario de prueba'],
-    limits: { maxTextLength: 8000 },
-    available: true,
-    fixturesEnabled: true,
-  },
-  {
-    code: 'bank-statement',
-    name: 'Extractos bancarios',
-    description: 'Convierte un extracto boliviano en PDF a movimientos normalizados.',
-    acceptedInputs: ['Archivo PDF', 'Escenario de prueba'],
-    limits: { maxUploadBytes: 10485760, maxFiles: 1, acceptedMimeTypes: 'application/pdf' },
-    available: true,
-    fixturesEnabled: true,
-  },
-];
-
-/**
- * Escenarios, **uno por worker**.
- *
- * Los dos publican catálogos independientes y sus códigos no coinciden: el
- * clasificador sirve `gasto-claro` y el de extractos `valid-basic`. El simulado
- * los tenía fundidos en una sola lista, y funcionaba sólo porque entonces los
- * dos usaban el mismo código; en cuanto dejaron de coincidir, la vista de
- * extractos recibió el catálogo del clasificador y su selector se quedó sin la
- * opción que la prueba elige. Un simulado que reparte el mismo catálogo a todo
- * el mundo no prueba el catálogo, prueba la coincidencia.
- */
-const FIXTURES = {
-  'semantic-analysis': [
-    {
-      code: 'gasto-claro',
-      name: 'Gasto de categoría clara',
-      description: 'El camino feliz: debe terminar en éxito.',
-      preview: 'COMPRA EN SUPERMERCADO HIPERMAXI SUCURSAL NORTE BS 487,90',
-      expectsFailure: false,
-    },
-    {
-      code: 'invalid-example',
-      name: 'Entrada inválida',
-      description: 'Debe rechazarse con un error controlado.',
-      preview: '(texto vacío tras normalizar)',
-      expectsFailure: true,
-    },
-  ],
-  'bank-statement': [
-    {
-      code: 'valid-basic',
-      name: 'Caso básico',
-      description: 'El camino feliz: debe terminar en éxito.',
-      preview: 'Extracto de una página con dos movimientos.',
-      expectsFailure: false,
-    },
-    {
-      code: 'invalid-example',
-      name: 'Entrada inválida',
-      description: 'Debe rechazarse con un error controlado.',
-      preview: '(PDF ilegible)',
-      expectsFailure: true,
-    },
-  ],
-} as const;
-
-function runEnvelope(worker: 'semantic-analysis' | 'bank-statement', poll: number) {
+function runEnvelope(worker: keyof typeof FIXTURES, poll: number) {
   const base = {
     requestId: `run-${worker}`,
     inputSource: 'FIXTURE',
-    fixtureCode: worker === 'semantic-analysis' ? 'gasto-claro' : 'valid-basic',
+    fixtureCode: FIXTURES[worker][0].code,
     attemptCount: 1,
     queuedAt: '2026-08-04T10:00:00.000Z',
     requestedBy: 'pablo@atlas',
@@ -124,13 +50,26 @@ function runEnvelope(worker: 'semantic-analysis' | 'bank-statement', poll: numbe
     progress: 100,
     startedAt: '2026-08-04T10:00:01.000Z',
     finishedAt: '2026-08-04T10:00:04.000Z',
-    result: worker === 'semantic-analysis' ? SEMANTIC_RESULT : STATEMENT_RESULT,
-    warnings:
-      worker === 'semantic-analysis'
-        ? ['presupuesto del tenant al 90%']
-        : STATEMENT_RESULT.quality.warnings,
+    result: RESULT_OF[worker],
+    warnings: WARNINGS_OF[worker],
   };
 }
+
+const RESULT_OF: Record<keyof typeof FIXTURES, unknown> = {
+  'semantic-analysis': SEMANTIC_RESULT,
+  'bank-statement': STATEMENT_RESULT,
+  'identity-verification': IDENTITY_RESULT,
+  'audio-tts': AUDIO_RESULT,
+};
+
+const WARNINGS_OF: Record<keyof typeof FIXTURES, string[]> = {
+  'semantic-analysis': ['presupuesto del tenant al 90%'],
+  'bank-statement': STATEMENT_RESULT.quality.warnings,
+  // Lo que el motor guarda en `warnings_json`: los motivos de la decisión más
+  // las marcas de riesgo, deduplicados.
+  'identity-verification': [...IDENTITY_RESULT.reasonCodes, ...IDENTITY_RESULT.riskFlags],
+  'audio-tts': ['Se sirvió el audio de respaldo, no el que se pidió.'],
+};
 
 /**
  * A qué worker se dirige la petición.
@@ -139,6 +78,8 @@ function runEnvelope(worker: 'semantic-analysis' | 'bank-statement', poll: numbe
  * las rutas a la vez: las dos consolas conviven montadas en la misma pestaña.
  */
 function workerOf(url: string): keyof typeof FIXTURES {
+  if (url.includes('identity-verification')) return 'identity-verification';
+  if (url.includes('audio-tts')) return 'audio-tts';
   return url.includes('bank-statement') ? 'bank-statement' : 'semantic-analysis';
 }
 
@@ -157,6 +98,14 @@ export async function mockWorkersBackend(page: Page): Promise<void> {
     // Salud del worker: la calcula el motor, la vista sólo la pinta.
     if (url.includes('/v1/workers/') && url.includes('/metrics')) {
       return route.fulfill({ json: { ...WORKER_METRICS, worker: workerOf(url) } });
+    }
+    if (url.includes('/v1/workers/audio-tts/templates')) {
+      return route.fulfill({ json: AUDIO_TEMPLATES });
+    }
+    // El audio va por la puerta autenticada, no por un `src` directo: la
+    // consola lo pide con la credencial puesta y lo reproduce como blob.
+    if (url.includes('/v1/workers/audio-tts/runs/') && url.endsWith('/audio')) {
+      return route.fulfill({ contentType: 'audio/mpeg', body: AUDIO_BYTES });
     }
     if (/\/v1\/workers\/?(\?|$)/.test(url)) return route.fulfill({ json: CATALOG });
 

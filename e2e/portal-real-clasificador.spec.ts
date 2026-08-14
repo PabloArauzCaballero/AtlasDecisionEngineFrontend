@@ -45,7 +45,7 @@ test.describe('clasificador de gastos · motor real', () => {
 
   test('el clasificador clasifica un gasto real y enseña su rama del árbol', async ({ page }) => {
     test.setTimeout(10 * 60_000);
-    let ruta = '/workers/semantic-analysis';
+    const ruta = '/workers/semantic-analysis';
     const problemas = vigilar(page, () => ruta);
     await entrar(page);
 
