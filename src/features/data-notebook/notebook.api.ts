@@ -36,6 +36,9 @@ const notebookCatalogSchema = z.object({
     maxDatasetRows: z.number(),
     countCeiling: z.number(),
     ratePerMinute: z.number(),
+    // Con respaldo porque el portal puede desplegarse antes que la API que lo publica: sin él,
+    // `undefined` acabaría escrito como «NaN MB» en el aviso de recorte.
+    maxResponseBytes: z.number().default(8 * 1024 * 1024),
   }),
   reveal: z.boolean(),
 });
@@ -51,9 +54,61 @@ const notebookPageSchema = z.object({
   total: z.number(),
   totalIsExact: z.boolean(),
   masked: z.boolean(),
+  // Opcionales para no romper contra un backend anterior al techo de bytes: un portal que se
+  // despliega antes que su API no debe quedarse en blanco, sólo sin el aviso de truncado.
+  bytes: z.number().optional(),
+  droppedRows: z.number().optional(),
 });
 
 export type NotebookPage = z.infer<typeof notebookPageSchema>;
+
+/**
+ * Lo que se registra de una celda ejecutada. Fíjate en lo que NO viaja.
+ *
+ * No hay campo para las filas devueltas, y el backend además lo rechaza: guardar el resultado
+ * convertiría el historial en una segunda copia de datos personales fuera de `read_api`, sin
+ * enmascarado y sin caducidad. Lo que se guarda es el CÓDIGO, que es lo reproducible.
+ */
+export interface NotebookHistoryEntry {
+  language: 'python' | 'javascript';
+  source: string;
+  datasetCode?: string;
+  datasetPage?: number;
+  rowCount?: number;
+  durationMs?: number;
+  status: 'ok' | 'error';
+  errorMessage?: string;
+}
+
+const notebookHistoryRowSchema = z.object({
+  id: z.string(),
+  language: z.string(),
+  source: z.string(),
+  datasetCode: z.string().nullable(),
+  datasetPage: z.number().nullable(),
+  rowCount: z.number().nullable(),
+  durationMs: z.number().nullable(),
+  status: z.string(),
+  errorMessage: z.string().nullable(),
+  createdAt: z.string(),
+});
+
+export type NotebookHistoryRow = z.infer<typeof notebookHistoryRowSchema>;
+
+export function recordNotebookHistory(entry: NotebookHistoryEntry): Promise<{ id: string }> {
+  return apiRequest(`${BASE}/history`, {
+    method: 'POST',
+    body: entry,
+    responseSchema: z.object({ id: z.string() }),
+  });
+}
+
+export function fetchNotebookHistory(signal?: AbortSignal): Promise<NotebookHistoryRow[]> {
+  return apiRequest(`${BASE}/history`, {
+    signal,
+    responseSchema: z.array(notebookHistoryRowSchema),
+  });
+}
 
 export function fetchNotebookCatalog(signal?: AbortSignal): Promise<NotebookCatalog> {
   return apiRequest(`${BASE}/datasets`, { signal, responseSchema: notebookCatalogSchema });

@@ -42,8 +42,9 @@ export function useNotebookCells() {
     );
   }, []);
 
-  const addCell = useCallback((language: NotebookLanguage) => {
-    setCells((previas) => [...previas, nuevaCelda(language)]);
+  /** Con `source` se reusa una celda del historial; sin él se añade una en blanco. */
+  const addCell = useCallback((language: NotebookLanguage, source?: string) => {
+    setCells((previas) => [...previas, nuevaCelda(language, source)]);
   }, []);
 
   const setSource = useCallback(

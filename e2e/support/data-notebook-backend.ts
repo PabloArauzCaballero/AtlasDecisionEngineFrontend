@@ -35,6 +35,7 @@ const CATALOGO = {
     maxDatasetRows: 20_000,
     countCeiling: 200_000,
     ratePerMinute: 60,
+    maxResponseBytes: 8 * 1024 * 1024,
   },
   reveal: false,
 };
@@ -78,8 +79,43 @@ function filas(pagina: number) {
   });
 }
 
+/** Historial en memoria: la prueba tiene que ver crecer la lista al ejecutar una celda. */
+const historial: Record<string, unknown>[] = [];
+
+export function limpiarHistorialSimulado(): void {
+  historial.length = 0;
+}
+
 export async function mockDataNotebookBackend(page: Page): Promise<void> {
   await mockBackend(page);
+  limpiarHistorialSimulado();
+
+  await page.route('**/atlas-backend/data-notebook/history*', async (route) => {
+    if (route.request().method() === 'POST') {
+      const cuerpo = JSON.parse(route.request().postData() ?? '{}');
+      // El simulado afirma lo mismo que el backend: si llegan resultados, se rechaza. Sin esta
+      // comprobación la prueba pasaría contra un cliente que empezara a mandarlos.
+      if ('rows' in cuerpo || 'result' in cuerpo) {
+        await route.fulfill({ status: 400, json: { error: { code: 'VALIDATION_ERROR' } } });
+        return;
+      }
+      historial.unshift({
+        id: String(historial.length + 1),
+        language: cuerpo.language,
+        source: cuerpo.source,
+        datasetCode: cuerpo.datasetCode ?? null,
+        datasetPage: cuerpo.datasetPage ?? null,
+        rowCount: cuerpo.rowCount ?? null,
+        durationMs: cuerpo.durationMs ?? null,
+        status: cuerpo.status,
+        errorMessage: cuerpo.errorMessage ?? null,
+        createdAt: '2026-08-14T20:00:00.000Z',
+      });
+      await route.fulfill({ json: { id: String(historial.length) } });
+      return;
+    }
+    await route.fulfill({ json: historial });
+  });
 
   await page.route('**/atlas-backend/data-notebook/datasets', async (route) => {
     await route.fulfill({ json: CATALOGO });

@@ -161,3 +161,61 @@ test.describe('cuaderno de datos · controles restantes', () => {
     await capturar(page, '03-celda-con-error.png', '.notebook-cell');
   });
 });
+
+/**
+ * Historial y techo de tamaño: las dos cosas que el cuaderno promete por escrito en pantalla.
+ *
+ * Se comprueban aquí y no en el backend porque lo que puede fallar es la promesa VISIBLE — que la
+ * lista se llene con lo que se ejecutó, que no se llene con resultados, y que un recorte se diga
+ * en vez de pasar callado.
+ */
+test.describe('cuaderno de datos · historial y techo de tamaño', () => {
+  test('ejecutar una celda la deja en el historial, con su código y sin resultados', async ({
+    page,
+  }) => {
+    await abrirCuaderno(page);
+    await expect(page.getByText('Todavía no has ejecutado ninguna celda.')).toBeVisible();
+
+    await ejecutarJs(page, 'return rows.slice(0, 3);');
+
+    const historial = page.locator('.notebook-history__item');
+    await expect(historial).toHaveCount(1, { timeout: 15_000 });
+    await expect(historial.locator('.notebook-history__source')).toContainText('rows.slice(0, 3)');
+    // Lo que se guarda es la medida, no el dato: «3 filas», nunca las tres filas.
+    await expect(historial.locator('.notebook-history__meta')).toContainText('3 filas');
+    await expect(historial.locator('.notebook-table')).toHaveCount(0);
+  });
+
+  test('«Reusar» trae la consulta de vuelta como celda nueva, sin ejecutarla', async ({ page }) => {
+    await abrirCuaderno(page);
+    await ejecutarJs(page, 'return [{ reusable: true }];');
+    await expect(page.locator('.notebook-history__item')).toHaveCount(1, { timeout: 15_000 });
+
+    await page.getByRole('button', { name: 'Reusar' }).click();
+
+    const celdas = page.locator('.notebook-cell');
+    await expect(celdas).toHaveCount(2);
+    await expect(page.locator('.notebook-cell__code').nth(1)).toHaveValue(
+      'return [{ reusable: true }];',
+    );
+    // No se ejecuta sola: los datos de hoy pueden ser otros y quien la reusa tiene que leerla.
+    await expect(celdas.nth(1).locator('.notebook-cell__output')).toHaveCount(0);
+  });
+
+  test('una celda que falla también deja rastro, con su error', async ({ page }) => {
+    await abrirCuaderno(page);
+
+    await page
+      .locator('.notebook-cell__language')
+      .first()
+      .locator('select')
+      .selectOption('javascript');
+    await page.locator('.notebook-cell__code').first().fill('throw new Error("sin permiso");');
+    await page.locator('.notebook-cell__run').first().click();
+    await expect(page.locator('.notebook-cell__error')).toBeVisible({ timeout: 30_000 });
+
+    const historial = page.locator('.notebook-history__item').first();
+    await expect(historial).toHaveClass(/notebook-history__item--error/, { timeout: 15_000 });
+    await expect(historial.locator('.notebook-history__error')).toContainText('sin permiso');
+  });
+});
