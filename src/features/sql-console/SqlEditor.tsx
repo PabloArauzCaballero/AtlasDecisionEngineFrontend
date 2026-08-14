@@ -17,7 +17,17 @@ interface Props {
   tabId: string;
   initialValue: string;
   onChange: (value: string) => void;
-  onRun: () => void;
+  /**
+   * Ejecutar. Recibe el texto LEÍDO DEL EDITOR en el momento de la pulsación.
+   *
+   * No es un parámetro de conveniencia. Sin él, quien atendía el atajo leía la consulta del
+   * estado de React, y ese estado va un paso por detrás de lo que hay escrito: entre teclear
+   * y pulsar Ctrl+Enter cabe un render. En la primera carga —la lenta, la que paga la
+   * descarga de Monaco— esa ventana se ensancha lo suficiente como para que el atajo
+   * encuentre la consulta VACÍA y no haga nada, sin decir por qué. El editor siempre sabe
+   * qué hay escrito; el estado, sólo qué había.
+   */
+  onRun: (statement: string) => void;
   datasets: CatalogDataset[];
   violations: QueryViolation[];
   write: EditorWrite | null;
@@ -181,7 +191,7 @@ export function SqlEditor({
       id: 'atlas.sql-console.run',
       label: 'Ejecutar la consulta',
       keybindings: [instance.KeyMod.CtrlCmd | instance.KeyCode.Enter],
-      run: () => runRef.current(),
+      run: (instance) => runRef.current(instance.getValue()),
     });
 
     /*
@@ -204,7 +214,7 @@ export function SqlEditor({
       if (!event.ctrlKey && !event.metaKey) return;
       event.preventDefault();
       event.stopPropagation();
-      runRef.current();
+      runRef.current(editor.getValue());
     });
   };
 

@@ -110,11 +110,23 @@ export function SqlConsolePage() {
 
   const statement = active?.statement ?? '';
 
-  const ejecutar = useCallback(() => {
-    const trimmed = statement.trim();
-    if (trimmed.length === 0 || run.isPending) return;
-    run.mutate(trimmed);
-  }, [run, statement]);
+  /*
+   * `desdeElEditor` llega cuando el disparo viene del propio editor (Ctrl+Enter).
+   *
+   * Se prefiere al estado porque el estado va un paso por detrás: entre teclear y pulsar el
+   * atajo cabe un render, y en la primera carga —la que paga la descarga de Monaco— esa
+   * ventana bastaba para que el atajo leyera la consulta vacía y no hiciera nada, en
+   * silencio. El botón no necesita el argumento: para pulsarlo hay que mover el ratón, y
+   * para entonces el render ya ocurrió.
+   */
+  const ejecutar = useCallback(
+    (desdeElEditor?: string) => {
+      const trimmed = (desdeElEditor ?? statement).trim();
+      if (trimmed.length === 0 || run.isPending) return;
+      run.mutate(trimmed);
+    },
+    [run, statement],
+  );
 
   /** Sustituye el texto del editor y deja el estado de la pestaña al día. */
   const escribirEnEditor = useCallback(
@@ -187,7 +199,9 @@ export function SqlConsolePage() {
             <button
               type="button"
               className="sql-actions__run"
-              onClick={ejecutar}
+              // Sin argumento a propósito: el `onClick` pasaría el evento del ratón como si
+              // fuera la consulta.
+              onClick={() => ejecutar()}
               disabled={run.isPending || statement.trim().length === 0}
             >
               <Play size={15} aria-hidden />
