@@ -68,7 +68,16 @@ test.describe('circuito de la decisión · motor real', () => {
 
     for (const nombre of [/desenlaces/i, /cosechas/i]) {
       const pestana = page.getByRole('tab', { name: nombre }).first();
-      test.skip((await pestana.count()) === 0, 'Esta build no expone las pestañas de calidad.');
+      /*
+       * AFIRMACIÓN, no salto.
+       *
+       * Antes esto era `test.skip(count() === 0)`, y con eso una regresión que borrara la
+       * pestaña dejaba la prueba EN VERDE: el único caso que la prueba existe para detectar era
+       * también el único que la hacía saltar. Un salto por CONFIGURACIÓN es legítimo —sin
+       * credenciales no hay nada que medir—; un salto por DATOS o por interfaz ausente es el
+       * defecto disfrazado de exención.
+       */
+      await expect(pestana).toBeVisible({ timeout: 30_000 });
       await pestana.click();
       await esperarVista(page);
 
@@ -121,7 +130,13 @@ test.describe('circuito de la decisión · motor real', () => {
     await esperarVista(page);
 
     const campo = page.getByRole('textbox').first();
-    test.skip((await campo.count()) === 0, 'Esta build no expone el formulario del titular.');
+    /*
+     * AFIRMACIÓN, no salto. Antes esto era `test.skip(count() === 0)`, y con eso una regresión
+     * que borrara el control dejaba la prueba EN VERDE: el único caso que la prueba existe
+     * para detectar era también el único que la hacía saltar. Un salto por CONFIGURACIÓN es
+     * legítimo —sin credenciales no hay nada que medir—; uno por interfaz ausente no.
+     */
+    await expect(campo).toBeVisible({ timeout: 30_000 });
     await campo.fill('PRUEBA-REFERENCIA-E2E');
 
     /*

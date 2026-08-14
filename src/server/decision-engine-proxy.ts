@@ -97,6 +97,19 @@ function pdfWorkerBaseUrl(): URL | undefined {
   return url;
 }
 
+/**
+ * Credencial del worker de PDF suelto.
+ *
+ * El worker exige clave de servicio desde que se descubrió que respondía sin ninguna: la misma
+ * `GET /pdf/templates` daba 401 por el motor y 200 por el worker. Sólo viaja en el salto que va
+ * al worker —nunca al motor, que autentica con la sesión de quien pide— y sólo desde el
+ * servidor: esta función no se ejecuta en el navegador, así que la clave no llega al cliente.
+ */
+function pdfServiceKey(): string | undefined {
+  const raw = process.env.PDF_WORKER_SERVICE_KEY?.trim();
+  return raw ? raw : undefined;
+}
+
 function decisionEngineBaseUrl(): URL {
   const raw = process.env.DECISION_ENGINE_URL ?? 'http://localhost:3000';
   const url = new URL(raw);
@@ -151,6 +164,14 @@ export async function proxyDecisionEngine(
     headers.set('x-forwarded-host', request.nextUrl.host);
     headers.set('x-forwarded-proto', request.nextUrl.protocol.replace(':', ''));
     if (clientChain) headers.set('x-forwarded-for', clientChain);
+
+    // La clave del worker SÓLO en el salto que va al worker. Mandarla también al motor
+    // filtraría una credencial de servicio a un destino que no la necesita, y la primera regla
+    // de una credencial es que no viaje a donde no hace falta.
+    if (imprime) {
+      const serviceKey = pdfServiceKey();
+      if (serviceKey) headers.set('x-pdf-service-key', serviceKey);
+    }
 
     const canHaveBody = request.method !== 'GET' && request.method !== 'HEAD';
     const body = canHaveBody ? await request.arrayBuffer() : undefined;

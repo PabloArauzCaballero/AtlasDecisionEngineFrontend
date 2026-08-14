@@ -35,7 +35,13 @@ test.describe('generadores de datos de prueba · motor real', () => {
     // La vista tiene que ofrecer de verdad un generador; si no, lo que sigue
     // mediría una pantalla vacía y pasaría en verde sin probar nada.
     const generar = page.getByRole('button', { name: /generar|ejecutar|crear casos/i }).first();
-    test.skip((await generar.count()) === 0, 'Esta build no expone el generador en /qa-lab.');
+    /*
+     * AFIRMACIÓN, no salto. Antes esto era `test.skip(count() === 0)`, y con eso una regresión
+     * que borrara el control dejaba la prueba EN VERDE: el único caso que la prueba existe
+     * para detectar era también el único que la hacía saltar. Un salto por CONFIGURACIÓN es
+     * legítimo —sin credenciales no hay nada que medir—; uno por interfaz ausente no.
+     */
+    await expect(generar).toBeVisible({ timeout: 30_000 });
 
     if (await generar.isEnabled()) {
       await generar.click();

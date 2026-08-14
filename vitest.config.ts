@@ -29,5 +29,45 @@ export default defineConfig({
      */
     testTimeout: 20_000,
     hookTimeout: 20_000,
+
+    /*
+     * Cobertura MEDIDA, con suelo.
+     *
+     * No había ninguna: 1.092 pruebas sin saber qué tocaban. Eso no es un detalle de higiene —
+     * es que nadie podía distinguir un módulo bien probado de uno que sólo tiene una prueba de
+     * humo, y por tanto nadie podía decir dónde faltaba trabajo.
+     *
+     * Los umbrales son SUELO y no objetivo, y se fijan justo por debajo de lo medido hoy: un
+     * umbral por encima de lo real deja la CI roja de forma permanente, y una CI roja
+     * permanente se ignora. Cuando suba de verdad, se sube también este número.
+     *
+     * Se excluye lo que no es lógica: los `.tsx` de ruta de Next (`layout`, `page`, `error`)
+     * son cableado que el e2e recorre entero, y contarlos aquí sólo diluye el número que sí
+     * dice algo.
+     */
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'json-summary', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/test/**',
+        'src/app/**/{layout,page,error,loading,not-found}.next.tsx',
+        'src/**/*.d.ts',
+      ],
+      /*
+       * Medido el 13/08/2026: líneas 43,84 · ramas 78,96 · funciones 61,39.
+       *
+       * El suelo va JUSTO por debajo de eso. La primera versión de este bloque puso 60/60/70/60
+       * a ojo, antes de medir, y la corrida se puso roja al instante — que es precisamente el
+       * error contra el que advierte el comentario de arriba: un umbral por encima de lo real
+       * deja la CI roja de forma permanente, y una CI roja permanente se ignora.
+       *
+       * Que las RAMAS (79 %) estén muy por encima de las líneas (44 %) no es una anomalía: lo
+       * que está sin cubrir son módulos enteros que ninguna prueba toca, no caminos olvidados
+       * dentro de lo que sí se prueba. Ahí es donde hay que mirar para subir el número.
+       */
+      thresholds: { lines: 43, functions: 60, branches: 78, statements: 43 },
+    },
   },
 });

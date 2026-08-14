@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Panel } from '../components/Panel';
 import { ForceFreshRun } from '../features/workers/ForceFreshRun';
-import { IdentityImageField } from '../features/workers/IdentityImageField';
+import { IdentityImagePicker } from '../features/workers/IdentityImagePicker';
 import { IdentityResultView } from '../features/workers/IdentityResultView';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
@@ -189,53 +189,25 @@ export function IdentityVerificationWorkerConsole() {
           ownLabel="Cargar mis propias imágenes"
           disabled={requestId !== null}
         >
-          <div className="identity-images">
-            <IdentityImageField
-              id="identity-document"
-              label="Documento (anverso)"
-              hint="La cara del documento con la foto. JPEG, PNG o WebP."
-              file={document}
-              error={documentError}
-              maxBytes={maxBytes}
-              disabled={requestId !== null}
-              onChange={(file, error) => {
-                setDocument(file);
-                setDocumentError(error);
-              }}
-            />
-            <IdentityImageField
-              id="identity-document-back"
-              label="Documento (reverso)"
-              hint="Sólo si el documento tiene dos caras: se contrasta que sean la misma."
-              file={documentBack}
-              error={documentBackError}
-              maxBytes={maxBytes}
-              optional
-              disabled={requestId !== null}
-              onChange={(file, error) => {
-                setDocumentBack(file);
-                setDocumentBackError(error);
-              }}
-            />
-            <IdentityImageField
-              id="identity-selfie"
-              label="Selfie"
-              hint="Un solo rostro, de frente y sin nada que lo tape. Puedes subirla o tomarla con la cámara."
-              file={selfie}
-              error={selfieError}
-              maxBytes={maxBytes}
-              camera
-              disabled={requestId !== null}
-              onChange={(file, error) => {
-                setSelfie(file);
-                setSelfieError(error);
-              }}
-            />
-          </div>
-          <p className="worker-privacy-note">
-            Las imágenes se usan para verificar y <strong>no se conservan</strong>: el motor las
-            borra en cuanto hay veredicto. El número del documento se publica siempre enmascarado.
-          </p>
+          <IdentityImagePicker
+            document={{ file: document, error: documentError }}
+            documentBack={{ file: documentBack, error: documentBackError }}
+            selfie={{ file: selfie, error: selfieError }}
+            maxBytes={maxBytes}
+            disabled={requestId !== null}
+            onDocumentChange={(file, error) => {
+              setDocument(file);
+              setDocumentError(error);
+            }}
+            onDocumentBackChange={(file, error) => {
+              setDocumentBack(file);
+              setDocumentBackError(error);
+            }}
+            onSelfieChange={(file, error) => {
+              setSelfie(file);
+              setSelfieError(error);
+            }}
+          />
         </WorkerInputChoice>
 
         {requestId === null ? (
