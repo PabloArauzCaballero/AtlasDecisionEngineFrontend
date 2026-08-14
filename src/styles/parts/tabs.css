@@ -18,8 +18,8 @@
   border: 0;
   background: transparent;
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: var(--type-md);
+  font-weight: var(--weight-semibold);
   color: var(--muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -56,11 +56,11 @@
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--canvas);
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
 }
 
 .tabs-tab.active .tabs-count {

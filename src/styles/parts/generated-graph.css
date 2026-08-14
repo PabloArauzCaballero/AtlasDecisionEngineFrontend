@@ -6,7 +6,7 @@
   margin: 8px 0 14px;
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background:
     radial-gradient(circle at 50% 0%, rgba(216, 251, 245, 0.4), transparent 40%),
     radial-gradient(rgba(148, 163, 184, 0.4) 0.8px, transparent 0.8px) 0 0 / 20px 20px,
@@ -32,20 +32,18 @@
   padding-left: 12px;
   border-left: 2px solid var(--line-strong);
   color: var(--faint);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-normal);
 }
 .generated-graph-yes {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   color: var(--success);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-normal);
 }
 .generated-graph-node {
   display: inline-flex;
@@ -55,7 +53,7 @@
   padding: 10px 13px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--node-color, var(--muted));
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
@@ -69,9 +67,9 @@
   line-height: 1.25;
 }
 .generated-graph-node-copy strong {
-  font-size: 13px;
+  font-size: var(--type-base);
 }
 .generated-graph-node-copy small {
-  font-size: 11px;
+  font-size: var(--type-xs);
   color: var(--muted);
 }

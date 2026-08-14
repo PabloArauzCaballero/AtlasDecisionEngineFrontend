@@ -1,0 +1,229 @@
+/*
+ * Ficha del contrato de una variable: qué valores acepta el motor, versión a
+ * versión. Todo el color sale de tokens; aquí se muestran estados (vigente,
+ * reemplazada, ejemplo válido/inválido) que tienen que leerse en los dos temas.
+ */
+
+.variable-version-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.variable-version {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.variable-version-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.variable-version-head b {
+  font-size: var(--type-lg);
+}
+
+.variable-version-head small {
+  color: var(--text-muted);
+  margin-inline-start: auto;
+}
+
+.version-state {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+}
+
+.version-state.is-current {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+
+/* --- Restricciones ----------------------------------------------------------- */
+
+.constraint-details {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.constraint-shape {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.constraint-allowed h4,
+.constraint-scopes h4,
+.variable-version-origins h4 {
+  margin: 0 0 6px;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+}
+
+.constraint-count {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.allowed-values {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.allowed-values code {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  overflow-wrap: anywhere;
+}
+
+.constraint-note,
+.constraint-none {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.constraint-none {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.constraint-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.constraint-rows > li {
+  display: grid;
+  grid-template-columns: minmax(140px, auto) minmax(60px, auto) 1fr auto;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.constraint-row-label {
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-sm);
+}
+
+.constraint-row-value {
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  overflow-wrap: anywhere;
+}
+
+.constraint-row-note {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.constraint-row-code {
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  color: var(--text-muted);
+}
+
+.constraint-example {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--type-sm);
+}
+
+.constraint-example.is-valid {
+  color: var(--success-text);
+}
+
+.constraint-example.is-invalid {
+  color: var(--danger-text);
+}
+
+/* --- Tramos condicionales, fuentes y reglas ---------------------------------- */
+
+.constraint-scopes,
+.variable-version-origins {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.constraint-rules,
+.variable-source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.constraint-rules > li,
+.variable-source-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-sm);
+}
+
+.constraint-rules span,
+.variable-source-list span {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.variable-source-list code {
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
+  overflow-wrap: anywhere;
+}
+
+.source-authoritative {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--success-text);
+}
+
+/* `sm` de la escala (breakpoints.ts): a ese ancho la fila de cuatro columnas de
+   cada restricción deja de caber sin partir el valor de su etiqueta. */
+@media (max-width: 560px) {
+  .constraint-rows > li {
+    grid-template-columns: 1fr;
+  }
+}

@@ -18,6 +18,24 @@
   flex-wrap: wrap;
   gap: 6px;
 }
+/*
+ * Por qué hay `•••` donde debería haber un dato. Sin decirlo, la máscara se lee
+ * como un valor corrupto y alguien va a buscar el original por otra vía —que es
+ * exactamente lo que enmascarar pretende evitar—. `margin-right: auto` lo deja
+ * junto al título y empuja las acciones al otro extremo, que es donde estaban.
+ */
+.panel-title .json-panel-masked {
+  margin-right: auto;
+  padding: 2px 8px;
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-pill);
+  background: var(--warning-wash);
+  color: var(--warning-strong);
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-normal);
+  white-space: nowrap;
+}
 .json-view-tabs {
   flex-wrap: wrap;
 }
@@ -28,9 +46,9 @@
   border: 1px solid var(--line);
   background: var(--surface);
   padding: 4px 10px;
-  border-radius: 7px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
   color: var(--muted);
   cursor: pointer;
   transition:
@@ -52,7 +70,7 @@
   gap: 4px;
   background: var(--line-soft);
   padding: 3px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .json-view-tabs button {
   display: inline-flex;
@@ -61,9 +79,9 @@
   border: 0;
   background: none;
   padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.74rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
   color: var(--muted);
   cursor: pointer;
 }
@@ -85,8 +103,8 @@
   max-width: 320px;
   padding: 6px 10px;
   border: 1px solid var(--line);
-  border-radius: 7px;
-  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--type-base);
 }
 .json-table-empty {
   text-align: center;
@@ -100,7 +118,7 @@
 .json-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
 }
 .json-table th,
 .json-table td {
@@ -113,9 +131,8 @@
   position: sticky;
   top: 0;
   background: var(--canvas);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-xs);
+  letter-spacing: var(--track-normal);
   color: var(--muted);
 }
 .json-table td.mono {
@@ -162,14 +179,14 @@
   border-radius: 50%;
   background: var(--info);
   color: var(--surface);
-  font-size: 0.78rem;
-  font-weight: 700;
-  box-shadow: 0 0 0 4px #eff6ff;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+  box-shadow: 0 0 0 4px var(--ring-info);
 }
 .timeline-card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 11px;
+  border-radius: var(--radius-md);
   padding: 11px 13px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07);
 }
@@ -180,16 +197,15 @@
   flex-wrap: wrap;
 }
 .timeline-head b {
-  font-size: 0.88rem;
+  font-size: var(--type-md);
   color: var(--ink-strong);
 }
 .timeline-type {
-  font-size: 0.64rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-normal);
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--info-wash);
   color: var(--info);
 }
@@ -202,7 +218,7 @@
 .timeline-meta div {
   display: flex;
   gap: 6px;
-  font-size: 0.76rem;
+  font-size: var(--type-sm);
 }
 .timeline-meta dt {
   color: var(--faint);
@@ -210,7 +226,7 @@
 .timeline-meta dd {
   margin: 0;
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 /* Gráfico fallback: árbol jerárquico indentado. */
@@ -226,10 +242,10 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: baseline;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
 }
 .json-tree-key {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--info);
 }
 .json-tree-value {

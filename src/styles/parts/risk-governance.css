@@ -1,0 +1,60 @@
+/*
+ * Gobierno del riesgo: apetito de cartera, curva de calibración, permisos y expediente.
+ *
+ * Se apoya en `decision-quality.css`, que ya define la rejilla de formularios (`quality-form-grid`),
+ * la fila de acciones y los tonos de nota. Aquí sólo va lo propio de la calibración, que es la
+ * única pieza con forma visual que no existía.
+ */
+
+.quality-field-wide {
+  grid-column: 1 / -1;
+}
+
+.calibration-summary {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+  font-size: var(--type-sm);
+  color: var(--text-muted);
+}
+
+.calibration-summary strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.calibration-table td,
+.calibration-table th[scope='row'] {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Predicho y observado, uno encima de otro y a la misma escala.
+ *
+ * Dos barras superpuestas y no dos columnas de números: lo que hay que ver de un vistazo es en QUÉ
+ * decil se separan, porque el estadístico agregado dice que el ajuste es malo y no dónde.
+ * Equivocarse en la cola de riesgo alto cuesta pérdidas; en la baja, negocio.
+ */
+.calibration-bars {
+  min-width: 8rem;
+  position: relative;
+  padding: var(--space-2) 0;
+}
+
+.calibration-bar {
+  display: block;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  transition: width var(--duration-quick, 120ms) ease;
+}
+
+.calibration-predicted {
+  background: var(--line-strong);
+  margin-bottom: 2px;
+}
+
+/* La observada en el color de la señal: es la que manda cuando las dos discrepan. */
+.calibration-observed {
+  background: var(--accent);
+}

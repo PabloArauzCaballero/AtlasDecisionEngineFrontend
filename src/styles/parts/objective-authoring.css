@@ -13,7 +13,7 @@
   max-height: calc(var(--viewport-h) - 48px);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
   animation: dialog-enter 0.18s ease-out;
@@ -40,10 +40,10 @@
   height: 46px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--success-wash);
   color: var(--accent);
-  box-shadow: inset 0 0 0 1px #b7eee7;
+  box-shadow: inset 0 0 0 1px var(--ring-accent-line);
 }
 .dialog-heading p,
 .dialog-heading h2,
@@ -53,21 +53,20 @@
 .dialog-heading p {
   margin-bottom: 4px;
   color: var(--accent);
-  font-size: 9px;
-  font-weight: 850;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .dialog-heading h2 {
   color: var(--ink-strong);
-  font-size: 19px;
+  font-size: var(--type-xl);
   line-height: 1.25;
 }
 .dialog-heading div > span {
   display: block;
   margin-top: 5px;
   color: var(--faint);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.45;
 }
 .dialog-body {
@@ -75,13 +74,13 @@
   padding: 20px 22px 6px;
   background: var(--canvas);
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .objective-form-section {
   margin-bottom: 16px;
   padding: 17px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
@@ -100,8 +99,8 @@
   border-radius: 50%;
   background: var(--accent-wash);
   color: var(--accent);
-  font-size: 10px;
-  font-weight: 850;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-black);
 }
 .objective-section-heading strong,
 .objective-section-heading small {
@@ -109,12 +108,12 @@
 }
 .objective-section-heading strong {
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .objective-section-heading small {
   margin-top: 2px;
   color: var(--faint);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   line-height: 1.4;
 }
 .objective-policies-heading {
@@ -133,8 +132,8 @@
 }
 .objective-form-grid .field > small {
   color: var(--faint);
-  font-size: 8.5px;
-  font-weight: 500;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-medium);
   line-height: 1.35;
 }
 .objective-field-wide {
@@ -149,10 +148,10 @@
   gap: 8px;
   padding: 12px;
   border: 1px dashed var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--success-wash);
   color: var(--accent);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .objective-policies-empty svg {
   flex: 0 0 auto;
@@ -165,7 +164,7 @@
 .objective-policy-card {
   padding: 13px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface-inset);
 }
 .objective-policy-card > header {
@@ -176,7 +175,7 @@
 }
 .objective-policy-card > header strong {
   color: var(--text);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .objective-policy-card > header button {
   width: 28px;
@@ -185,7 +184,7 @@
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--danger);
   cursor: pointer;

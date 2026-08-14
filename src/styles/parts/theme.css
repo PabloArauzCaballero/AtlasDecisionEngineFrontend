@@ -9,6 +9,15 @@
  * escribe un script en línea antes del primer pintado (ver `layout.next.tsx`).
  * Esto evita el destello blanco al recargar en oscuro y, al no formar parte del
  * HTML que renderiza React, tampoco provoca discrepancias de hidratación.
+ *
+ * ── Los grises son NEUTROS a propósito ──────────────────────────────────────
+ *
+ * Antes iban tintados de azul (`#f8fafc`, `#344054`, `#dbe2ea`). Un gris azulado
+ * sumado a un acento verde da dos temperaturas peleándose en cada pantalla: la
+ * interfaz se lee como "coloreada" aunque nadie eligiera un color. Con la escala
+ * neutra el único color de la pantalla es el que significa algo —el acento de
+ * marca y los cuatro estados—, que es exactamente lo que debería destacar en una
+ * consola donde el color es señal.
  */
 
 :root,
@@ -16,55 +25,58 @@
   color-scheme: light;
 
   /* Superficies, de la más al fondo a la más elevada. */
-  --canvas: #f8fafc;
+  --canvas: #f5f5f7;
   --surface: #ffffff;
-  --surface-sunken: #f6f8fb;
+  --surface-sunken: #fafafa;
   --surface-raised: #ffffff;
-  --surface-hover: #f2f4f7;
-  --surface-inset: #fbfcfe;
+  --surface-hover: #f0f0f3;
+  --surface-inset: #fbfbfd;
   /* Superficie grande de página: deja pasar un punto del fondo ambiental para
      que su deriva se perciba también donde hay contenido. Ver `surface-live.css`. */
-  --panel-live: rgba(255, 255, 255, 0.92);
+  --panel-live: rgba(255, 255, 255, 0.94);
 
-  /* Texto. */
-  --ink: #111827;
-  --ink-strong: #0f172a;
-  --text: #344054;
-  /* Se oscurece un punto respecto de #64748b, que se quedaba en 4,47:1 sobre
-     `--surface-sunken`: aprobaba en casi todas las superficies menos en una, y
-     "casi" no es una categoría útil cuando alguien lee esto ocho horas. */
-  --muted: #5b6678;
-  /* 4,97:1 sobre `--surface` y 4,51:1 sobre `--surface-hover`. El gris anterior
-     (#98a2b3) daba 2,58:1, por debajo incluso del mínimo para texto grande, y
-     se usa en rótulos de 9 px en versalitas: era el texto menos legible del
-     portal. Ver `theme-contrast.test.ts`, que fija el umbral. */
-  --faint: #667085;
+  /* Texto. Los valores están medidos contra TODAS las superficies de arriba:
+     `theme-contrast.test.ts` falla si alguno baja de 4,5:1 en la peor de ellas. */
+  --ink: #1d1d1f;
+  --ink-strong: #0b0b0c;
+  --text: #38383d;
+  --muted: #5a5a63;
+  /* 4,63:1 en la peor superficie. Se usa en rótulos pequeños, que es donde
+     primero se pierde legibilidad: "casi" no es una categoría útil cuando
+     alguien lee esto ocho horas. */
+  --faint: #6b6b75;
 
-  /* Trazos. */
-  --line: #dbe2ea;
-  --line-strong: #c2ccd9;
-  --line-soft: #eef2f6;
+  /* Trazos. Finos y neutros: en un sistema de superficies planas el borde es
+     lo que separa una caja de otra, no la sombra. */
+  --line: #e4e4e7;
+  --line-strong: #c9c9cf;
+  --line-soft: #efeff1;
 
-  /* Acento e identidad. */
+  /* Acento e identidad. `--accent-soft` era un menta luminoso (#86f2e4) que se
+     usaba como FONDO de la navegación activa y de las pestañas: una mancha de
+     color saturado del tamaño de un botón, compitiendo con el contenido. Ahora
+     es un tinte, y quien lleva el color es la letra. */
   --accent: #006a61;
-  --accent-strong: #00554e;
-  --accent-soft: #86f2e4;
-  --accent-wash: #e6fffb;
-  --navy: #000000;
+  --accent-strong: #00544d;
+  --accent-soft: #d9ebe8;
+  --accent-wash: #f0f8f7;
+  --navy: #1d1d1f;
 
-  /* Semánticos: color + su fondo tenue + su borde. */
+  /* Semánticos: color + su fondo tenue + su borde. Los fondos son casi blancos
+     a propósito: un aviso debe destacar por su icono y su letra, no pintando un
+     tercio de la pantalla de amarillo. */
   --danger: #b42318;
-  --danger-wash: #fff4f2;
-  --danger-line: #fecdca;
-  --warning: #b54708;
-  --warning-wash: #fff8ef;
-  --warning-line: #f6d4ab;
-  --success: #067647;
-  --success-wash: #ecfdf3;
-  --success-line: #abefc6;
-  --info: #175cd3;
-  --info-wash: #eff8ff;
-  --info-line: #b2ddff;
+  --danger-wash: #fdf3f2;
+  --danger-line: #f4cfcb;
+  --warning: #a34a05;
+  --warning-wash: #fdf6ec;
+  --warning-line: #f0d9b6;
+  --success: #0a6b45;
+  --success-wash: #f0f9f4;
+  --success-line: #bfe4d0;
+  --info: #1358c8;
+  --info-wash: #f1f6fd;
+  --info-line: #c6dbf6;
 
   /*
    * Variante profunda de cada estado, para texto sobre su propio fondo tenue.
@@ -73,9 +85,9 @@
    * wash, y ahí el token base se queda justo de contraste.
    */
   --danger-strong: #912018;
-  --warning-strong: #93370d;
-  --success-strong: #05603a;
-  --info-strong: #1849a9;
+  --warning-strong: #8a3d05;
+  --success-strong: #065239;
+  --info-strong: #12459c;
 
   /*
    * Énfasis. No es el acento de la marca ni un estado: marca lo que el sistema
@@ -83,23 +95,53 @@
    * nodo, una pista activa).
    */
   --highlight: #4338ca;
-  --highlight-wash: #eef2ff;
-  --highlight-line: #c7d2fe;
+  --highlight-wash: #f2f2fc;
+  --highlight-line: #d5d5f5;
 
   /*
    * Superficie de código: oscura en los DOS temas a propósito. Un bloque de
    * código o una consola se leen mejor invertidos, y cambiarlos con el tema
    * haría que el mismo fragmento se viera distinto según la hora del día.
    */
-  --code-surface: #101828;
-  --code-ink: #e6edf7;
+  --code-surface: #16161a;
+  --code-ink: #e9e9ee;
 
-  /* Sombras: en claro dan volumen; en oscuro casi no se ven y el relieve lo
-     aporta el borde, por eso el token existe en los dos temas. */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
-  --shadow-md: 0 6px 16px -6px rgba(16, 24, 40, 0.18), 0 2px 5px -2px rgba(16, 24, 40, 0.1);
-  --shadow-lg: 0 24px 60px -24px rgba(16, 24, 40, 0.22);
-  --focus-ring: rgba(37, 99, 235, 0.3);
+  /*
+   * Sombras.
+   *
+   * Cortas, muy transparentes y sin desenfoque de escaparate: en este sistema
+   * la elevación la comunica el borde y el escalón de superficie, y la sombra
+   * sólo confirma que algo flota (un menú, un diálogo). Una sombra larga bajo
+   * cada panel de una vista densa convierte la página en una pila de tarjetas
+   * recortadas, que es el tic visual que delata una plantilla.
+   */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px -4px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 20px 48px -20px rgba(0, 0, 0, 0.18), 0 4px 12px -6px rgba(0, 0, 0, 0.08);
+  --focus-ring: rgba(0, 106, 97, 0.3);
+
+  /*
+   * Adornos: anillos, halos y barras de desplazamiento.
+   *
+   * `verify-conventions.mjs` eximía de la regla de color a `shadow` y a
+   * `scrollbar`, y por esa rendija se colaron nueve literales de tema CLARO que
+   * ningún `[data-theme='dark']` corregía. No era cosmético: la cabecera anclada
+   * de las tablas dibujaba una línea gris CLARA a media tabla oscura y el pulgar
+   * de la barra de desplazamiento quedaba casi blanco sobre el panel oscuro.
+   *
+   * Con estos tokens la excepción sobraba, así que ya no está: un anillo y una
+   * barra son colores de la paleta como cualquier otro. Un adorno sigue sin ser
+   * texto —no entra en el gate de contraste—, pero sí tiene que seguir al tema.
+   */
+  --scrollbar-thumb: #c9c9cf;
+  /* Halo suave bajo el anillo de foco de los campos. */
+  --ring-accent: rgba(0, 106, 97, 0.12);
+  /* Perfil interior de los medallones sobre `--accent-wash`/`--success-wash`. */
+  --ring-accent-line: #c8e3de;
+  /* Aureola del hito activo de una línea de tiempo, sobre la superficie. */
+  --ring-info: #eaf2fd;
+  /* Aureola del punto «en vivo» del pie de la barra lateral. */
+  --ring-success: #d6efe2;
 
   /*
    * Carriles del historial de versiones.
@@ -108,52 +150,50 @@
    * igual que en cualquier visor de git. Por eso es una secuencia propia y no
    * reutiliza `--danger`/`--success`: un carril rojo se leería como «esta rama
    * va mal», que es exactamente lo que no dice.
-   *
-   * Vivían escritos a mano dentro del componente, con el punto perfilado en
-   * `#ffffff`: al conmutar a oscuro el perfil quedaba como un halo blanco y los
-   * seis tonos, calculados para fondo claro, se apagaban contra el fondo.
    */
-  --lane-1: #d81b60;
-  --lane-2: #8e24aa;
-  --lane-3: #5e35b1;
-  --lane-4: #1e88e5;
-  --lane-5: #00897b;
-  --lane-6: #ef6c00;
+  --lane-1: #c2185b;
+  --lane-2: #7b1fa2;
+  --lane-3: #4527a0;
+  --lane-4: #1565c0;
+  --lane-5: #00796b;
+  --lane-6: #d84315;
 }
 
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* Azules muy desaturados en vez de grises puros: el negro absoluto sobre
-     pantallas OLED produce halos alrededor del texto y cansa en jornadas
-     largas, que es como se usa una consola de operaciones. */
-  --canvas: #0b1120;
-  --surface: #131c2e;
-  --surface-sunken: #0f1728;
-  --surface-raised: #1a2438;
-  --surface-hover: #1e293f;
-  --surface-inset: #162034;
-  --panel-live: rgba(19, 28, 46, 0.92);
+  /*
+   * Grises neutros, no azules. El azul desaturado que había antes tiñe de frío
+   * cada superficie y hace que el acento verde parezca fuera de sitio; un gris
+   * neutro deja que el único color de la pantalla sea el que significa algo.
+   * Tampoco se usa negro absoluto: sobre OLED produce halos alrededor del texto
+   * y cansa en jornadas largas, que es como se usa una consola de operaciones.
+   */
+  --canvas: #0a0a0c;
+  --surface: #151518;
+  --surface-sunken: #101013;
+  --surface-raised: #1c1c20;
+  --surface-hover: #222227;
+  --surface-inset: #18181c;
+  --panel-live: rgba(21, 21, 24, 0.94);
 
   /* Blanco puro sobre fondo oscuro "vibra": se rebaja a un gris muy claro. */
-  --ink: #e8edf6;
-  --ink-strong: #f4f7fb;
-  --text: #cbd5e6;
-  --muted: #94a3b8;
-  /* Mismo motivo que en claro: #6b7a90 se quedaba en 3,33:1 sobre las
-     superficies elevadas. Éste da 4,72:1 en la peor de ellas. */
-  --faint: #8494ad;
+  --ink: #f2f2f5;
+  --ink-strong: #fbfbfd;
+  --text: #d2d2d9;
+  --muted: #9b9ba5;
+  --faint: #8d8d98;
 
-  --line: #2a3550;
-  --line-strong: #3b4864;
-  --line-soft: #202b42;
+  --line: #2b2b31;
+  --line-strong: #3d3d45;
+  --line-soft: #212126;
 
   /* El verde corporativo se aclara para conservar contraste sobre oscuro. */
   --accent: #2dd4bf;
   --accent-strong: #5eead4;
-  --accent-soft: #134e4a;
-  --accent-wash: #10302f;
-  --navy: #e8edf6;
+  --accent-soft: #17383a;
+  --accent-wash: #0f2f2c;
+  --navy: #f2f2f5;
 
   --danger: #fda29b;
   --danger-wash: #2a1512;
@@ -181,13 +221,23 @@
 
   /* La superficie de código no se invierte: ya lo estaba. Sólo se asienta un
      punto más para no competir con los paneles del propio tema oscuro. */
-  --code-surface: #0b1120;
-  --code-ink: #e6edf7;
+  --code-surface: #08080a;
+  --code-ink: #e9e9ee;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 6px 16px -6px rgba(0, 0, 0, 0.55), 0 2px 5px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
-  --focus-ring: rgba(132, 202, 255, 0.45);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px -4px rgba(0, 0, 0, 0.6), 0 1px 3px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 48px -20px rgba(0, 0, 0, 0.8), 0 4px 12px -6px rgba(0, 0, 0, 0.5);
+  --focus-ring: rgba(45, 212, 191, 0.45);
+
+  /*
+   * Los mismos adornos, resueltos para fondo oscuro. Antes no existían: las
+   * hojas escribían el valor claro y aquí no lo corregía nadie.
+   */
+  --scrollbar-thumb: #3d3d45;
+  --ring-accent: rgba(45, 212, 191, 0.16);
+  --ring-accent-line: #1f5f58;
+  --ring-info: #10243d;
+  --ring-success: #0d2a1c;
 
   /* Los mismos carriles, subidos de luminosidad: los tonos de fondo claro se
      apagan contra el fondo oscuro y las ramas dejan de distinguirse. */

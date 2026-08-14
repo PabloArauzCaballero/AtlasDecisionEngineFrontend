@@ -37,7 +37,7 @@
 }
 .case-run-code {
   flex: 0 0 auto;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   color: var(--muted);
 }
 /* El nombre se lleva el espacio sobrante y se recorta antes de empujar la fila. */
@@ -47,12 +47,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
 }
 .case-run-time {
   flex: 0 0 auto;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--type-xs);
 }
 .case-run-chevron {
   flex: 0 0 auto;
@@ -75,13 +75,12 @@
   gap: 5px;
   margin: 0 0 var(--space-2);
   color: var(--muted);
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--type-xs);
+  letter-spacing: var(--track-normal);
 }
 .case-run-table {
   width: 100%;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .case-run-table td,
 .case-run-table th {
@@ -108,7 +107,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: var(--surface);
-  font-size: 0.68rem;
+  font-size: var(--type-xs);
 }
 .case-run-path li:not(:last-child)::after {
   content: ' →';
@@ -120,7 +119,7 @@
   align-items: center;
   gap: 5px;
   margin: var(--space-2) 0 0;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .case-run-terminal {
   color: var(--muted);
@@ -146,12 +145,12 @@
 }
 .case-run-inputs dt {
   color: var(--muted);
-  font-size: 0.64rem;
+  font-size: var(--type-2xs);
   overflow-wrap: anywhere;
 }
 .case-run-inputs dd {
   margin: 2px 0 0;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   overflow-wrap: anywhere;
 }
 .case-run-assertions {
@@ -159,7 +158,7 @@
   gap: 4px;
   margin: 0;
   padding-inline-start: 1.1rem;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .case-run-assertions .is-pass {
   color: var(--muted);

@@ -9,25 +9,26 @@
 /* -------------------------------------------------------- formulario */
 
 .login-panel {
-  padding: 28px 30px 24px;
+  padding: var(--space-6) var(--space-6) var(--space-5);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  /* La única caja del producto que merece el radio grande de verdad: es una
+     tarjeta suelta sobre una portada, no un panel dentro de una rejilla. */
+  border-radius: 20px;
   background: var(--surface);
-  box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 24px 60px -24px rgba(16, 24, 40, 0.22);
+  box-shadow: var(--shadow-lg);
 }
 .login-panel-head h1 {
-  margin: 4px 0 6px;
+  margin: var(--space-1) 0 var(--space-2);
   color: var(--ink);
-  font-size: 23px;
-  letter-spacing: -0.01em;
+  font-size: var(--type-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-display);
 }
 .login-panel-head > p:last-of-type,
 .login-panel-head > p:nth-of-type(2) {
   margin: 0;
   color: var(--muted);
-  font-size: 12.5px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .login-environment {
@@ -35,20 +36,20 @@
   margin-top: 10px !important;
   padding: 5px 11px;
   border: 1px solid var(--warning-line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--warning-wash);
   color: var(--warning) !important;
-  font-size: 11px !important;
-  font-weight: 700;
+  font-size: var(--type-xs) !important;
+  font-weight: var(--weight-bold);
 }
 .login-notice {
   margin: 14px 0 0;
   padding: 10px 12px;
   border: 1px solid var(--info-line);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--info-wash);
   color: var(--info);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.45;
 }
 .login-problem {
@@ -57,7 +58,7 @@
   margin-top: 14px;
   padding: 12px 13px;
   border: 1px solid var(--danger-line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--danger-wash);
   color: var(--danger);
   animation: fade-rise var(--dur-base) var(--ease-out) both;
@@ -69,11 +70,11 @@
 }
 .login-problem strong {
   display: block;
-  font-size: 13px;
+  font-size: var(--type-base);
 }
 .login-problem p {
   margin: 5px 0 0;
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .login-problem-action {
@@ -86,7 +87,7 @@
 }
 .login-help {
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: var(--type-2xs);
   line-height: 1.4;
 }
 .input-with-icon.has-error input {
@@ -123,13 +124,13 @@
   gap: 8px;
   min-height: 32px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-sm);
   cursor: pointer;
 }
 .login-recover {
   color: var(--accent);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
   text-decoration: none;
 }
 .login-recover:hover {
@@ -143,6 +144,29 @@
   width: 100%;
   min-height: 44px;
 }
+/* ------------------------------------------------- segundo factor (PIN) */
+
+/*
+ * Seis dígitos, muy separados y en monoespaciada: se teclean mirando el correo, y con la
+ * tipografía normal es fácil saltarse uno o repetirlo sin notarlo.
+ */
+.login-pin-input {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xl);
+  letter-spacing: 0.4em;
+  text-align: center;
+}
+.login-pin-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 38px;
+  color: var(--muted);
+  font-size: var(--type-sm);
+}
+
 .login-security {
   display: flex;
   align-items: flex-start;
@@ -151,7 +175,7 @@
   padding-top: 14px;
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.5;
 }
 .login-foot {
@@ -159,6 +183,6 @@
   z-index: 1;
   margin: 26px auto 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
   text-align: center;
 }

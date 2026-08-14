@@ -1,0 +1,107 @@
+/* --- Problemas de una subida masiva -----------------------------------------
+ *
+ * Tres columnas por fila —dónde · qué pasa · código— porque son tres preguntas
+ * distintas y quien arregla el archivo las hace en ese orden. El código va a la
+ * vista y no a la consola: es lo que se pega en un mensaje para pedir ayuda.
+ *
+ * Error y aviso se distinguen por el filo de color Y por el icono: uno impide
+ * subir, el otro dice que el árbol se comportará distinto de lo que aparenta.
+ * Sólo con color, en escala de grises o con daltonismo serían lo mismo.
+ */
+.subida-problemas {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.subida-bloque {
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+.subida-bloque.es-error {
+  border-inline-start-color: var(--danger);
+  background: var(--danger-wash);
+}
+.subida-bloque.es-aviso {
+  border-inline-start-color: var(--warning);
+  background: var(--warning-wash);
+}
+
+.subida-bloque-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+}
+.subida-bloque.es-error .subida-bloque-titulo {
+  color: var(--danger-text);
+}
+.subida-bloque.es-aviso .subida-bloque-titulo {
+  color: var(--warning-text);
+}
+
+.subida-lista {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.subida-lista li {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--line-soft);
+}
+.subida-lista li:first-child {
+  border-top: 0;
+}
+
+.subida-donde {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-bold);
+}
+.subida-detalle {
+  min-width: 0;
+}
+.subida-mensaje {
+  margin: 0;
+  font-size: var(--type-2xs);
+}
+/* El arreglo en gris y debajo: se lee después de saber qué pasó, no antes. */
+.subida-arreglo {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+}
+.subida-codigo {
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+}
+
+.categoria-import-formatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Estrecho: el código de error deja de tener columna propia y el dónde se pone
+   encima. Con tres columnas en un teléfono, el mensaje quedaba en dos palabras
+   por línea. El ancho sale de la escala del repositorio, no de tantear. */
+@media (max-width: 560px) {
+  .subida-lista li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}

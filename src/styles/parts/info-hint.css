@@ -1,12 +1,22 @@
 /* Accessible "?" tooltip for demystifying jargon (see InfoHint.tsx). */
 .info-hint {
-  position: relative;
   display: inline-flex;
   vertical-align: middle;
 }
+/*
+ * Envuelve al `<h1>` y a sus dos controles (la ayuda y el menú de tutoriales).
+ *
+ * Antes esta clase iba EN el `<h1>` y los controles vivían dentro, lo que metía
+ * su texto en el nombre accesible del título de todas las páginas. Ahora es un
+ * envoltorio: mismo `inline-flex`, mismo hueco, misma línea. `flex-wrap` porque
+ * el título ya no es el contenedor y un título largo debe poder bajar los
+ * controles en vez de desbordar.
+ */
 .page-title-line {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 9px;
 }
 th .info-hint {
@@ -34,32 +44,33 @@ th .info-hint {
 .info-hint-trigger:focus-visible {
   color: var(--highlight);
 }
+/*
+ * El globo se monta en `document.body` (ver `InfoHint.tsx`) y `useHintBubble`
+ * escribe sus coordenadas en `--bubble-top`/`--bubble-left` al abrirse, sujeto
+ * a los bordes de la ventana. Eso retira las listas de contenedores «anclados a
+ * la derecha» que crecían con cada medición nueva, y sobre todo lo saca del
+ * contexto de apilamiento del disparador: dentro de él, ningún `z-index` lo
+ * salvaba de quedar tapado por la barra superior o una cabecera pegajosa, ni
+ * de que un contenedor con `overflow` lo recortara. Los respaldos lo aparcan
+ * fuera de la ventana mientras nadie lo ha abierto.
+ */
 .info-hint-bubble {
-  position: absolute;
-  bottom: calc(100% + 7px);
-  /*
-   * Centrado sobre el disparador, y anclado a un lado SÓLO donde hace falta
-   * (más abajo).
-   *
-   * Se probó anclarlo a la derecha por omisión, para no ir enumerando
-   * contenedores uno a uno. Fue peor: cambió 12 desbordes por la derecha por 21
-   * por la izquierda —cada globo de una cabecera de tabla o de un panel estrecho
-   * pasaba a crecer hacia fuera de la pantalla por el otro lado—. CSS no puede
-   * saber dónde está el disparador, así que el lado se decide por contenedor,
-   * que es lo que ya hacían los tooltips de `action-icons.css`.
-   */
-  left: 50%;
-  z-index: 40;
+  position: fixed;
+  top: var(--bubble-top, -9999px);
+  left: var(--bubble-left, -9999px);
+  /* Como `.tooltip-bubble`: sobre el fondo de los modales (100), bajo el
+     recorrido guiado (120). */
+  z-index: 110;
   width: max-content;
   /* Segundo término: lo ata al ancho disponible, igual que `.tooltip-bubble`. */
   max-width: min(240px, calc(100vw - 2 * var(--gutter)));
-  transform: translateX(-50%) translateY(4px);
+  transform: translateY(4px);
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--ink-strong);
   color: var(--canvas);
-  font-size: 0.74rem;
-  font-weight: 400;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-regular);
   line-height: 1.4;
   text-transform: none;
   letter-spacing: 0;
@@ -70,76 +81,37 @@ th .info-hint {
     opacity var(--dur-fast) var(--ease-standard, ease),
     transform var(--dur-fast) var(--ease-standard, ease);
 }
-/*
- * Anclaje a la derecha donde el disparador vive pegado al borde derecho de la
- * pantalla: cabeceras de tabla, títulos de panel y de página, cabecera del
- * contrato de salida. Ahí el globo centrado se salía —medido a 320 px: 91 px en
- * una cabecera de tabla, 92 en el título de `/actions`, 47 en el de
- * `/workers/bank-statement`—. Anclado a la derecha crece hacia dentro.
- *
- * La lista se amplía cuando la medición encuentra un sitio nuevo, no por
- * intuición: `e2e/responsive.spec.ts` mide los DOS bordes, así que un anclaje
- * puesto donde no tocaba se delata solo en la corrida siguiente.
- */
-th .info-hint-bubble,
-.panel-title .info-hint-bubble,
-.page-title-line .info-hint-bubble,
-.output-contract-heading .info-hint-bubble,
-.action-catalog-heading .info-hint-bubble {
-  left: auto;
-  right: 0;
-  transform: translateY(4px);
+/* La animación de entrada llega desde el lado por el que abre el globo. */
+.info-hint-bubble[data-placement='below'] {
+  transform: translateY(-4px);
 }
-th .info-hint:hover .info-hint-bubble,
-th .info-hint-trigger:focus-visible + .info-hint-bubble,
-.panel-title .info-hint:hover .info-hint-bubble,
-.panel-title .info-hint-trigger:focus-visible + .info-hint-bubble,
-.page-title-line .info-hint:hover .info-hint-bubble,
-.page-title-line .info-hint-trigger:focus-visible + .info-hint-bubble,
-.output-contract-heading .info-hint:hover .info-hint-bubble,
-.output-contract-heading .info-hint-trigger:focus-visible + .info-hint-bubble,
-.action-catalog-heading .info-hint:hover .info-hint-bubble,
-.action-catalog-heading .info-hint-trigger:focus-visible + .info-hint-bubble {
+.info-hint-bubble[data-open='true'] {
+  opacity: 1;
   transform: translateY(0);
 }
-/* La flecha sigue al globo: anclada a la derecha apunta al disparador, no al
-   centro de un globo que ya no está centrado. */
-th .info-hint-bubble::after,
-.panel-title .info-hint-bubble::after,
-.page-title-line .info-hint-bubble::after,
-.output-contract-heading .info-hint-bubble::after,
-.action-catalog-heading .info-hint-bubble::after {
-  left: auto;
-  right: 6px;
-  transform: none;
-}
 
+/* La flecha apunta al centro del disparador (`--bubble-arrow-x`) aunque el
+   globo esté sujeto a un borde de la ventana, y cambia de cara cuando el globo
+   abre por debajo. */
 .info-hint-bubble::after {
   content: '';
   position: absolute;
   top: 100%;
-  left: 50%;
+  left: var(--bubble-arrow-x, 50%);
   transform: translateX(-50%);
   border: 5px solid transparent;
   border-top-color: var(--ink-strong);
 }
-.info-hint:hover .info-hint-bubble,
-.info-hint-trigger:focus-visible + .info-hint-bubble {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+.info-hint-bubble[data-placement='below']::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--ink-strong);
 }
 @media (prefers-reduced-motion: reduce) {
   .info-hint-bubble {
     transition: opacity 0.01ms;
-    /* Sin desplazamiento de entrada, pero conservando el centrado: un `none` a
-       secas descentraría el globo justo para quien pidió menos movimiento. */
-    transform: translateX(-50%);
-  }
-  th .info-hint-bubble,
-  .panel-title .info-hint-bubble,
-  .page-title-line .info-hint-bubble,
-  .output-contract-heading .info-hint-bubble,
-  .action-catalog-heading .info-hint-bubble {
-    transform: none;
+    /* Sin desplazamiento de entrada; la posición la ponen las coordenadas. */
+    transform: translateY(0);
   }
 }

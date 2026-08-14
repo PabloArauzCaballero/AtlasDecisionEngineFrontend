@@ -16,7 +16,7 @@
 }
 .reason-code-legend {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 
 /* Elegidos: fichas que envuelven, cada una con su botón de quitar. */
@@ -36,10 +36,10 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-pill);
   background: var(--surface);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .reason-code-chips code {
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .reason-code-chips button {
   display: grid;
@@ -98,7 +98,7 @@
   background: transparent;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   text-align: left;
   cursor: pointer;
 }

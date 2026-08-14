@@ -1,0 +1,90 @@
+/*
+ * Contrato de salida de un campo calculado: qué devuelve dentro de rango y qué
+ * pasa en cada desenlace que impide devolverlo.
+ *
+ * Las tres políticas eran pares `dt`/`dd` sueltos dentro de `.definition-grid`,
+ * que reparte celdas de tres en tres: cada etiqueta caía en una columna y su
+ * valor en otra, así que «Fuera de rango» aparecía separado de lo que decía.
+ * Aquí cada desenlace es una TARJETA, y una tarjeta no se puede descolocar.
+ */
+
+.code-figure {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.code-figure figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+  font-weight: var(--weight-semibold);
+}
+
+.result-contract {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.result-contract h4,
+.result-contract-range h4 {
+  margin: 0 0 4px;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+}
+
+.result-contract-range {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: grid;
+  gap: 8px;
+}
+
+.result-contract-range p {
+  margin: 0;
+  font-size: var(--type-sm);
+}
+
+.result-contract-policies {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.policy-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.policy-when {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.policy-effect {
+  margin: 0;
+  font-size: var(--type-sm);
+}
+
+.policy-outcome {
+  margin: 0;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.policy-outcome.is-broken {
+  color: var(--danger-text);
+  font-weight: var(--weight-semibold);
+}

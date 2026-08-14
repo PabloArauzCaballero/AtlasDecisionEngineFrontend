@@ -20,6 +20,8 @@ export const motionTokens = {
     slow: 280,
     /** Sólo para recorridos explicativos (reproducción paso a paso). */
     deliberate: 900,
+    /** Bucle de espera indeterminada (barra de una fila que se está clasificando). */
+    loop: 1200,
   },
   /** Curvas como puntos de control, para animaciones por JS (Web Animations). */
   easing: {

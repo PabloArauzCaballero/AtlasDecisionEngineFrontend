@@ -4,7 +4,7 @@
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--warning);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--warning-wash);
 }
 .flow-checklist-ok {
@@ -17,12 +17,12 @@
   gap: 8px;
 }
 .flow-checklist-heading strong {
-  font-size: 0.86rem;
+  font-size: var(--type-md);
 }
 .flow-checklist-heading small {
   margin-left: auto;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
 }
 .flow-icon-ok {
   color: var(--success);
@@ -35,7 +35,7 @@
 }
 .flow-checklist-legend {
   margin: 8px 0 0;
-  font-size: 0.76rem;
+  font-size: var(--type-sm);
   color: var(--muted);
   line-height: 1.4;
 }
@@ -47,7 +47,7 @@
   gap: 6px;
 }
 .flow-checklist-items li {
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   line-height: 1.4;
   padding-left: 10px;
   border-left: 2px solid transparent;
@@ -73,7 +73,7 @@
 }
 .flow-checklist-hint {
   margin: 8px 0 0;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   color: var(--success);
 }
 
@@ -83,11 +83,10 @@
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.64rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-normal);
   vertical-align: middle;
 }
 .io-in {
@@ -118,9 +117,8 @@
 }
 .reference-editor h4 {
   margin: 6px 0 0;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   letter-spacing: 0.03em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 .reference-output-row span small {
@@ -141,11 +139,11 @@
 .reference-errors {
   margin: 0;
   padding: 8px 10px 8px 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--warning-wash);
   border: 1px solid var(--warning-line);
   color: var(--warning);
-  font-size: 0.76rem;
+  font-size: var(--type-sm);
 }
 .reference-existing {
   border-top: 1px solid var(--line);
@@ -156,7 +154,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   padding: 4px 0;
 }
 
@@ -165,8 +163,8 @@
   margin: 8px 0 0;
   padding: 8px 10px;
   background: var(--surface-hover);
-  border-radius: 8px;
-  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--type-xs);
   color: var(--muted);
   line-height: 1.45;
 }
@@ -175,7 +173,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   color: var(--accent);
   text-decoration: none;
   white-space: nowrap;
@@ -195,7 +193,7 @@
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--line-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
 }
 .io-list-in {
@@ -210,20 +208,19 @@
   gap: 6px;
   margin: 0;
   color: var(--text);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-sm);
+  letter-spacing: var(--track-normal);
 }
 .io-list h5 span {
   padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface-hover);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .io-list > .muted-text {
   margin: 3px 0 8px;
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .io-list-items {
   display: flex;
@@ -239,30 +236,28 @@
   gap: 6px;
   padding: 4px 9px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--canvas);
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .io-list-items small {
   color: var(--faint);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--type-2xs);
+  letter-spacing: var(--track-normal);
 }
 .io-primary-mark {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   color: var(--highlight);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
 }
 /* Detalle de las variables que impidieron decidir en el simulador. */
 .simulator-error-list {
   margin: 6px 0;
   padding-left: 18px;
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .simulator-error-list b {
   font-family: var(--font-mono, monospace);
@@ -276,6 +271,6 @@
   border-radius: var(--radius-sm);
   background: var(--surface-inset);
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: var(--type-xs);
   overflow-wrap: anywhere;
 }

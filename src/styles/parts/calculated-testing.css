@@ -1,0 +1,107 @@
+/*
+ * Elegir entradas, generar datos de prueba y leer los desenlaces de un campo calculado.
+ *
+ * Vive aparte de `calculated-fields.css` porque es la parte de PROBAR, que ahora aparece
+ * en dos sitios —el borrador y la versión guardada— y no sólo en el detalle.
+ */
+
+.calculated-input-picker {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.calculated-sample-bar {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  margin-bottom: var(--space-3);
+}
+
+.calculated-sample-bar .constraint-field {
+  min-width: 140px;
+}
+
+.calculated-outcomes {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.outcome-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.outcome-list > li {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+/* El color es señal: verde sólo donde de verdad se alcanzó el desenlace. */
+.outcome-list > li.is-covered {
+  border-left-color: var(--success);
+}
+
+.outcome-list > li.is-uncovered {
+  border-left-color: var(--warning);
+}
+
+.outcome-list small {
+  display: block;
+  color: var(--muted);
+  font-size: var(--type-xs);
+}
+
+.outcome-mark {
+  display: inline-flex;
+  padding-top: 2px;
+  color: var(--muted);
+}
+
+.is-covered .outcome-mark {
+  color: var(--success);
+}
+
+.is-uncovered .outcome-mark {
+  color: var(--warning);
+}
+
+.outcome-unreachable {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--warning-text);
+}
+
+.outcome-cases ul {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.outcome-cases li {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  font-size: var(--type-xs);
+}
+
+.outcome-cases small {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}

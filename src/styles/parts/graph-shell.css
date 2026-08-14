@@ -61,12 +61,12 @@
   gap: 2px;
 }
 .output-contract-heading strong {
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .output-contract-heading small,
 .field-hint {
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   /* Es una frase, no una etiqueta: que envuelva antes que ensanchar su fila. */
   min-width: 0;
   overflow-wrap: anywhere;
@@ -87,9 +87,9 @@
   gap: 5px;
   padding: 5px 7px;
   border: 1px solid var(--line-strong);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .output-chip.primary {
   border-color: var(--accent);
@@ -115,7 +115,7 @@
   gap: 4px;
   max-width: 220px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   text-decoration: none;
 }
 .input-constraint-badge span {
@@ -137,7 +137,7 @@
   display: grid;
   gap: 4px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
 }
 .output-create-form input,
 .output-create-form select {
@@ -158,7 +158,7 @@
   border: 1px solid var(--warning-line);
   background: var(--warning-wash);
   color: var(--warning);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   line-height: 1.4;
 }
 .node-result {

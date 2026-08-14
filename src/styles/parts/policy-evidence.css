@@ -1,0 +1,23 @@
+/*
+ * Enlazar evidencia a un requisito: dos pasos independientes con su propio
+ * botón, porque el motor los acepta por separado (artefacto y suite son dos
+ * peticiones). Un único «Guardar» prometería atomicidad que no existe.
+ */
+.policy-evidence-intro {
+  margin: 0 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+.policy-evidence-step + .policy-evidence-step {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+.policy-evidence-step h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+}
+.policy-evidence-step .button {
+  margin-top: var(--space-3);
+}

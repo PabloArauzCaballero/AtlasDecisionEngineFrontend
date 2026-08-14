@@ -1,0 +1,68 @@
+/**
+ * Escala tipográfica — la única fuente de verdad del TAMAÑO y el PESO del texto.
+ *
+ * Antes no existía. Había 491 declaraciones de `font-size` repartidas en 87
+ * hojas con **63 valores distintos**, mezclando unidades para decir lo mismo:
+ * `11px`, `11.5px` y `0.72rem` son tres formas del mismo rótulo, y ninguna
+ * seguía a las otras cuando alguien ajustaba una. Eso no se lee como densidad
+ * deliberada, se lee como una interfaz sin sistema.
+ *
+ * ── Por qué en `rem` y no en `px` ──────────────────────────────────────────
+ *
+ * `px` ignora el tamaño de letra que la persona haya configurado en su
+ * navegador; `rem` lo respeta. Es el mismo compromiso que el `layout` ya declara
+ * al negarse a bloquear el zoom (WCAG 1.4.4), sólo que aplicado al otro camino
+ * por el que se agranda el texto. Anclado a la raíz de 16 px, cada escalón vale
+ * exactamente lo que valía en píxeles, así que adoptarlo no mueve nada de sitio
+ * para quien no haya tocado esa preferencia.
+ *
+ * Los escalones pequeños están muy juntos a propósito: esto es una consola de
+ * operaciones, y sus tablas y rótulos viven entre 9 y 13 px. La escala describe
+ * lo que el portal ya era, no una densidad nueva.
+ */
+:root {
+  --type-3xs: 0.625rem; /*  10px — rótulos menores, pies de tabla */
+  --type-2xs: 0.6875rem; /* 11px — rótulos, insignias, metadatos */
+  --type-xs: 0.75rem; /*    12px — texto secundario denso */
+  --type-sm: 0.8125rem; /*  13px — celdas de tabla, texto de apoyo */
+  --type-base: 0.875rem; /* 14px — cuerpo */
+  --type-md: 0.9375rem; /*  15px — cuerpo enfatizado */
+  --type-lg: 1.0625rem; /*  17px — subtítulos */
+  --type-xl: 1.1875rem; /*  19px — títulos de panel */
+  --type-2xl: 1.4375rem; /* 23px — títulos de vista */
+  --type-3xl: 1.8125rem; /* 29px — display */
+
+  /*
+   * Pesos.
+   *
+   * Había NUEVE distintos, incluidos 650, 750, 850 y 900. Con Inter servida de
+   * verdad el rango existe, pero un peso intermedio inventado no comunica una
+   * jerarquía distinta: comunica que nadie decidió cuál tocaba. Cinco escalones
+   * bastan para separar rótulo, cuerpo, énfasis, título y cifra destacada.
+   */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+
+  /*
+   * Interletraje.
+   *
+   * Existe por el mismo motivo que la escala de tamaño: había 40 valores de
+   * `letter-spacing` escritos a mano, casi todos abriendo rótulos en versalitas
+   * (`0.06em`…`0.12em`). Un texto muy espaciado en mayúsculas es la marca de la
+   * plantilla corporativa: se lee más despacio, ocupa el doble y aplicado a
+   * TODO —secciones del menú, cabeceras de tabla, etiquetas de campo— convierte
+   * la interfaz en un formulario oficial.
+   *
+   * La regla ahora es la contraria y es la que sigue cualquier tipografía bien
+   * ajustada: el texto grande se cierra, el pequeño se deja en paz.
+   */
+  --track-display: -0.022em; /* títulos de vista y cifras destacadas */
+  --track-tight: -0.012em; /* títulos de panel, botones, subtítulos */
+  --track-normal: 0;
+  /* Único caso en que abrir sigue estando justificado: un rótulo de 10-11 px
+     que de verdad va en versalitas (una insignia de estado, un código). */
+  --track-label: 0.02em;
+}

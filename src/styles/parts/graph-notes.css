@@ -2,7 +2,7 @@
 
 .graph-notes {
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--panel);
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -12,8 +12,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: var(--type-base);
+  font-weight: var(--weight-bold);
   color: var(--accent);
   margin-bottom: 8px;
 }
@@ -22,10 +22,10 @@
   width: 100%;
   resize: vertical;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   font: inherit;
-  font-size: 0.86rem;
+  font-size: var(--type-md);
   line-height: 1.5;
   color: var(--ink);
   background: var(--surface);
@@ -46,7 +46,7 @@
 }
 
 .graph-notes-hint {
-  font-size: 0.74rem;
+  font-size: var(--type-sm);
   color: var(--muted);
   margin-right: auto;
 }

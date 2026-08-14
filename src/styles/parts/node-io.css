@@ -20,7 +20,7 @@
   border-radius: 0 8px 8px 0;
   background: var(--surface-inset);
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .node-io-action svg {
@@ -36,7 +36,7 @@
 .node-io-column {
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
 }
 .node-io-column h4 {
@@ -44,23 +44,22 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .node-io-column h4 span {
   margin-left: auto;
   padding: 1px 7px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface-hover);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .node-io-column p {
   margin: 4px 0 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.4;
 }
 .node-io-column ul {
@@ -77,10 +76,10 @@
   gap: 5px;
   padding: 4px 9px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface-raised);
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
 }
 .node-io-in h4,
 .node-io-in li svg {
@@ -116,28 +115,26 @@
 .action-node-editor .action-summary div {
   padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface-inset);
 }
 .action-node-editor dt {
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .action-node-editor dd {
   margin: 3px 0 0;
   color: var(--ink);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
 }
 .action-reasons h4 {
   margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
   color: var(--muted);
 }
 .action-reasons ul {
@@ -151,11 +148,11 @@
 .action-reasons li {
   padding: 3px 9px;
   border: 1px solid var(--warning-line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--warning-wash);
   color: var(--warning);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
 }
 /* --------------------------------------------- nodo en modo detallado */
 
@@ -169,13 +166,13 @@
   display: block;
   margin-top: 4px;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: color-mix(in srgb, var(--node-color) 10%, transparent);
   color: var(--node-color);
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 9px;
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
   font-style: normal;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -240,7 +237,7 @@
   gap: 5px;
   margin-top: 7px;
   padding: 9px 11px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface-inset);
 }
 .issue-explanation p {
@@ -249,7 +246,7 @@
   gap: 7px;
   margin: 0;
   color: var(--text);
-  font-size: 11.5px;
+  font-size: var(--type-xs);
   line-height: 1.5;
 }
 .issue-explanation svg {
@@ -259,7 +256,7 @@
 }
 .issue-explanation .issue-fix {
   color: var(--ink);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 .issue-explanation .issue-fix svg {
   color: var(--accent);
@@ -270,9 +267,9 @@
   padding: 10px 12px;
   max-height: 180px;
   overflow: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--code-surface);
   color: var(--code-ink);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.5;
 }

@@ -1,6 +1,12 @@
 /* Tokens de tema primero: todo lo demás lee sus colores de aquí. */
 @import './parts/theme.css';
 @import './parts/foundation.css';
+/* Escala tipográfica: tamaños, pesos e interletraje. Como los colores, no la
+   decide cada hoja. */
+@import './parts/typography.css';
+/* Armazón (barra lateral y superior). Ocupa el lugar que tenía dentro de
+   `foundation.css`, del que salió por el tope de 299 líneas. */
+@import './parts/app-shell.css';
 /* Fundamentos responsivos justo después de los de siempre: redefine `.content`
    con margen fluido y declara `--gutter`, `--tap-min` y `--viewport-h`, que las
    hojas posteriores consumen. Espejo de `src/styles/breakpoints.ts`. */
@@ -25,6 +31,7 @@
 @import './parts/flow-paths.css';
 @import './parts/case-runs.css';
 @import './parts/objective-authoring.css';
+@import './parts/policy-evidence.css';
 @import './parts/dialogs-feedback.css';
 @import './parts/info-hint.css';
 @import './parts/algorithms.css';
@@ -62,6 +69,8 @@
    disparador ya no cabe (≤ 820 px). Gana por orden, no por especificidad. */
 @import './parts/hint-bubbles-narrow.css';
 @import './parts/interactive-tutorial.css';
+@import './parts/tutorial-welcome.css';
+@import './parts/session-expiry.css';
 @import './parts/tutorial-center.css';
 @import './parts/tutorial-cards.css';
 /* Lenguaje visual transversal: iconos de concepto, ilustraciones, estados
@@ -77,18 +86,42 @@
 @import './parts/contracts.css';
 @import './parts/contract-panels.css';
 @import './parts/variable-authoring.css';
+@import './parts/variable-contract.css';
 @import './parts/output-reason-codes.css';
 @import './parts/calculated-fields.css';
+@import './parts/calculated-field-contract.css';
+@import './parts/calculated-testing.css';
 @import './parts/libraries-qa.css';
+@import './parts/model-monitoring.css';
+/* Después de `model-monitoring.css`: la calidad del circuito es la pregunta anterior a la
+   degradación y comparte con ella la rejilla de indicadores. */
+@import './parts/decision-quality.css';
+@import './parts/data-subject.css';
+/* Después de `decision-quality.css`: reutiliza su rejilla de formularios y sólo añade lo propio
+   de la curva de calibración. */
+@import './parts/risk-governance.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
+/* Después de `workers-run.css`: afina lo que aquélla define para la consola de
+   locución sin subir la especificidad. */
+@import './parts/workers-audio.css';
+@import './parts/documents.css';
+@import './parts/statement-analytics.css';
 @import './parts/workers-categories.css';
+@import './parts/workers-categories-chart.css';
+@import './parts/category-tree.css';
+/* Después de `category-tree.css`: refina su jerarquía sin subir la especificidad. */
+@import './parts/category-tree-lines.css';
+/* Después del árbol: los problemas de una subida masiva viven en su panel. */
+@import './parts/category-upload.css';
+@import './parts/unresolved.css';
 @import './parts/node-state.css';
 @import './parts/lifecycle-wizard.css';
 @import './parts/workers-shell.css';
 @import './parts/workers-dashboard.css';
 @import './parts/workers-latency.css';
 @import './parts/workers-queue.css';
+@import './parts/workers-identity.css';
 @import './parts/simulator-samples.css';
 @import './parts/graph-actions.css';
 @import './parts/graph-canvas-states.css';
@@ -100,6 +133,7 @@
 @import './parts/login-form.css';
 @import './parts/login-premium.css';
 @import './parts/dashboard.css';
+@import './parts/session-security.css';
 /* Tema oscuro al final de todo: sólo actúa bajo [data-theme='dark'] y debe
    poder afinar cualquier hoja anterior sin subir la especificidad. */
 @import './parts/theme-dark-base.css';
@@ -108,3 +142,7 @@
 /* Translucidez de las superficies grandes: después del tema oscuro porque debe
    ganar a su reasignación del fondo de `.panel` en ambos temas. */
 @import './parts/surface-live.css';
+
+/* Va al FINAL: sus reglas deben ganar a cualquier hoja anterior sin subir la
+   especificidad, y la propia consulta de medio acota el alcance. */
+@import './parts/forced-colors.css';

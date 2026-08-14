@@ -1,0 +1,272 @@
+/*
+ * Consola y veredicto del worker de verificación de identidad (ADR-0026).
+ *
+ * Sólo tokens, ningún color escrito a mano: un hex aquí quedaría ilegible al
+ * conmutar a tema oscuro y habría que parchearlo en `theme-dark-*.css`.
+ */
+
+/* --- Las tres imágenes ---------------------------------------------------- */
+
+/*
+ * `auto-fit` con un mínimo, no tres columnas fijas: en escritorio caben las
+ * tres una al lado de otra —que es como se comparan— y en un móvil se apilan
+ * sin que la vista previa quede en una tira de 90 px donde no se distingue una
+ * cédula de un recibo.
+ */
+.identity-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.identity-image-field {
+  gap: var(--space-2);
+}
+
+.identity-optional {
+  color: var(--faint);
+  font-weight: var(--weight-regular);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.identity-image-picker {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-md);
+}
+
+.identity-image-picker.is-disabled {
+  opacity: 0.6;
+}
+
+/*
+ * Alto fijo y `contain`: la vista previa existe para comprobar QUÉ archivo se
+ * eligió, así que recortar (`cover`) escondería justamente el borde del
+ * documento por el que se reconoce. Con alto libre, elegir una foto vertical
+ * empujaba el botón «Verificar» fuera de la pantalla.
+ */
+.identity-image-preview,
+.identity-image-empty {
+  width: 100%;
+  height: 132px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
+.identity-image-preview {
+  object-fit: contain;
+}
+
+.identity-image-empty {
+  border: 1px solid var(--line);
+}
+
+.identity-image-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.identity-image-name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--type-xs);
+}
+
+/* --- Veredicto ------------------------------------------------------------ */
+
+/*
+ * Motivo en español a la izquierda, código a la derecha. El código va en la
+ * misma fila y no debajo: se copia a un ticket, y buscarlo en otra línea obliga
+ * a emparejarlo con la vista.
+ */
+.identity-reasons {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.identity-reasons li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.identity-reasons code {
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+}
+
+.identity-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.identity-fields dt {
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
+}
+
+.identity-fields dd {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  margin: 0;
+  font-size: var(--type-base);
+}
+
+/*
+ * «Deducido» es una advertencia, no una etiqueta neutra: distingue lo que
+ * imprime el documento de lo que dedujo el analizador, y esa diferencia es la
+ * que impide citar un apellido partido por convención como si lo dijera la
+ * cédula.
+ */
+/*
+ * «Verificado» va en verde y «deducido» en ámbar porque dicen cosas opuestas:
+ * el primero es un dato con dígito de control detrás, el segundo una
+ * suposición del analizador. Compartir color los haría indistinguibles de un
+ * vistazo, que es como se leen estas etiquetas.
+ */
+.identity-field-source.is-verified {
+  color: var(--success-text);
+  background: var(--success-wash);
+}
+
+.identity-field-source {
+  padding: 0 var(--space-2);
+  color: var(--warning-text);
+  background: var(--warning-wash);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-2xs);
+  letter-spacing: var(--track-normal);
+}
+
+/* --- Cámara ---------------------------------------------------------------- */
+
+/*
+ * Alto fijo y fondo oscuro: el vídeo y el lienzo se turnan en el mismo hueco, y
+ * sin altura reservada el diálogo saltaba de tamaño al congelar la foto —justo
+ * cuando hay que decidir si sirve—.
+ */
+.camera-stage {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.camera-video,
+.camera-canvas {
+  width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+}
+
+/*
+ * La vista previa va espejada. Sin esto, moverse a la derecha mueve la imagen a
+ * la izquierda y encuadrarse es sorprendentemente difícil: es la misma razón por
+ * la que la cámara frontal de cualquier teléfono se ve así. Lo que se envía NO
+ * se espeja — eso se decide al dibujar en el lienzo.
+ */
+.camera-video {
+  transform: scaleX(-1);
+}
+
+.camera-hint {
+  margin: 0;
+  padding: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  text-align: center;
+}
+
+.camera-hint.is-error {
+  color: var(--danger-text);
+}
+
+.identity-evidence {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.identity-providers {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+/* --- Bandeja de revisión humana ------------------------------------------- */
+
+.identity-review-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.identity-review-item details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+/*
+ * El resumen es una fila de hechos, no un botón adornado: insignia, fecha,
+ * parecido y motivos, en el orden en que se prioriza. `flex-wrap` porque en un
+ * móvil los motivos bajan de línea en vez de desbordar.
+ */
+.identity-review-item summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  cursor: pointer;
+}
+
+.identity-review-item[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.identity-review-item .worker-result {
+  padding: var(--space-3);
+}
+
+.identity-review-when {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.identity-review-similarity {
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.identity-review-reasons {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}

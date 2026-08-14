@@ -12,7 +12,7 @@
   max-height: 420px;
   overflow: auto;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
   animation: dialog-enter 0.14s ease-out;
@@ -23,7 +23,7 @@
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line-soft);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   color: var(--muted);
 }
 .global-search-group {
@@ -35,9 +35,8 @@
 }
 .global-search-group h4 {
   margin: 4px 14px;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: var(--type-xs);
+  letter-spacing: var(--track-normal);
   color: var(--faint);
 }
 .global-search-item {
@@ -57,13 +56,13 @@
   background: var(--surface-hover);
 }
 .global-search-item strong {
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   color: var(--ink-strong);
 }
 .global-search-item small {
   grid-column: 1 / -1;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -79,8 +78,8 @@
   border-top: 1px solid var(--line-soft);
   background: var(--canvas);
   color: var(--highlight);
-  font-weight: 600;
-  font-size: 0.78rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-sm);
   text-align: center;
   cursor: pointer;
 }
@@ -88,7 +87,7 @@
   padding: 18px 14px;
   text-align: center;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
 }
 
 /* Full results view. */
@@ -103,7 +102,7 @@
   align-items: center;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   text-decoration: none;
   color: inherit;
@@ -117,13 +116,13 @@
   height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--info-wash);
   color: var(--highlight);
 }
 .search-result-row strong {
   display: block;
-  font-size: 0.88rem;
+  font-size: var(--type-md);
 }
 .search-result-row small {
   color: var(--muted);
@@ -135,7 +134,7 @@
   gap: 4px;
 }
 .picker-select .picker-fallback-note {
-  font-size: 0.7rem;
+  font-size: var(--type-xs);
   color: var(--warning);
 }
 
@@ -158,17 +157,17 @@
   gap: 4px;
   padding: 4px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--canvas);
 }
 .view-tabs button {
   padding: 6px 14px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font: inherit;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: var(--type-base);
+  font-weight: var(--weight-semibold);
   color: var(--muted);
   cursor: pointer;
 }
@@ -182,7 +181,7 @@
   gap: 10px;
 }
 .simulator-variable-form .field-meta {
-  font-size: 0.7rem;
+  font-size: var(--type-xs);
   color: var(--faint);
 }
 
@@ -200,11 +199,11 @@
 }
 .pair-eq {
   color: var(--faint);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 .pair-key {
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 0.82rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-base);
 }
 .pair-add {
   justify-self: start;
@@ -216,7 +215,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   border: 1px solid var(--line-strong);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--ink-strong);
 }
@@ -227,7 +226,7 @@
   background: var(--code-surface);
   color: var(--muted);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   line-height: 1.5;
   white-space: pre;
 }
@@ -240,7 +239,7 @@
   background: transparent;
   color: var(--code-ink);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   line-height: 1.5;
   white-space: pre;
   overflow-wrap: normal;
@@ -255,10 +254,10 @@
 .code-editor-chips button {
   padding: 3px 10px;
   border: 1px solid var(--highlight-line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--info-wash);
   color: var(--highlight);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
   font-family: var(--font-mono, ui-monospace, monospace);
   cursor: pointer;
 }
@@ -275,7 +274,7 @@
   gap: 4px;
 }
 .script-static-issues li {
-  font-size: 0.74rem;
+  font-size: var(--type-sm);
   color: var(--warning);
 }
 

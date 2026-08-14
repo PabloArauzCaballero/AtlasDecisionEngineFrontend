@@ -29,10 +29,9 @@
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
   cursor: pointer;
 }
 .action-catalog-toggle svg:nth-of-type(2) {
@@ -40,23 +39,23 @@
 }
 .action-catalog-toggle span {
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface-hover);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .action-catalog > header p {
   grid-column: 2;
   margin: 0;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: var(--type-xs);
   line-height: 1.45;
 }
 .action-catalog-search {
   margin-top: 12px;
   max-width: 340px;
   min-height: 34px;
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .action-catalog-list {
   display: grid;
@@ -73,9 +72,9 @@
   margin: 12px 0 0;
   padding: 12px 14px;
   border: 1px dashed var(--line-strong);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.55;
 }
 
@@ -89,7 +88,7 @@
   padding: 11px 13px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--warning);
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--surface-inset);
 }
 .action-card > header {
@@ -99,25 +98,25 @@
 }
 .action-card > header strong {
   color: var(--ink);
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
 }
 .action-type {
   padding: 2px 7px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--warning-wash);
   color: var(--warning);
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-black);
   letter-spacing: 0.04em;
 }
 .action-terminal {
   padding: 2px 7px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--success-wash);
   color: var(--success);
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-black);
 }
 .action-card > header .icon-button {
   width: 26px;
@@ -127,7 +126,7 @@
 .action-implies {
   margin: 7px 0 0;
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 /* Las fórmulas son el contenido más largo de la tarjeta: se parten donde haga
@@ -138,11 +137,11 @@
   white-space: pre-wrap;
   margin: 6px 0 0;
   padding: 7px 9px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--surface-raised);
   color: var(--muted);
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -154,15 +153,14 @@
 }
 .action-facts dt {
   color: var(--faint);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .action-facts dd {
   margin: 2px 0 0;
   color: var(--text);
-  font-size: 11px;
+  font-size: var(--type-xs);
   overflow-wrap: anywhere;
 }
 
@@ -174,14 +172,14 @@
   margin-top: 12px;
   padding: 14px;
   border: 1px solid var(--line-strong);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--surface-raised);
   animation: fade-rise var(--dur-base) var(--ease-out) both;
 }
 .action-form-modes {
   display: inline-flex;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   width: fit-content;
 }
@@ -192,8 +190,8 @@
   border-right: 1px solid var(--line);
   background: transparent;
   color: var(--text);
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   cursor: pointer;
 }
 .action-form-modes button:last-child {
@@ -210,7 +208,7 @@
   border-radius: 0 7px 7px 0;
   background: var(--surface-inset);
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .action-form-actions {
@@ -228,13 +226,13 @@
   gap: 14px;
 }
 .action-target > .field > select {
-  font-weight: 650;
+  font-weight: var(--weight-semibold);
 }
 .import-bank {
   margin-top: 14px;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--surface-inset);
 }
 .import-bank h4 {
@@ -242,11 +240,11 @@
   align-items: center;
   gap: 7px;
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .import-bank p {
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .import-bank p:last-child {
@@ -266,18 +264,18 @@
   gap: 8px;
   padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--panel);
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .import-bank-list code {
-  font-size: 11px;
+  font-size: var(--type-xs);
   color: var(--muted);
 }
 .import-bank-list small {
   flex-basis: 100%;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 
 /* Cabecera, resumen y fichas: mismo motivo, mismo remedio. Un código de motivo

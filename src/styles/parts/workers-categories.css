@@ -29,7 +29,7 @@
 .worker-categories-progress {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
   font-variant-numeric: tabular-nums;
 }
 
@@ -37,7 +37,7 @@
   flex: 1 1 16rem;
   margin: 0;
   color: var(--faint);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
   line-height: 1.45;
 }
 
@@ -49,7 +49,22 @@
   background: var(--warning-wash);
   border: 1px solid var(--warning-line);
   border-radius: var(--radius-md);
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
+}
+
+/* La celda de categoría se lee ENTERA.
+ *
+ * Un `td` recorta a 320 px, prohíbe el salto de línea y esconde lo que sobra
+ * (`data-display.css`). Sobre una ruta como «Gastos › Gastos financieros ›
+ * Comisiones bancarias» eso dejaba media rama fuera y con ella el dato que
+ * distingue una hoja de otra. Aquí el ancho lo pone el contenido y el texto
+ * salta de línea; la tabla ya se desplaza dentro de su caja, así que ensanchar
+ * esta columna no empuja la página. */
+.worker-categoria-celda {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  min-inline-size: 15rem;
 }
 
 .worker-categoria {
@@ -59,7 +74,20 @@
 
 .worker-categoria small {
   color: var(--faint);
-  font-size: 0.6875rem;
+  font-size: var(--type-xs);
+}
+
+.worker-categoria-ruta {
+  color: var(--text-muted);
+}
+
+/* La confianza va con la duda en la misma línea: son el mismo juicio —cuánto se
+   sostiene esta categoría— y separarlas obligaba a leer dos veces. */
+.worker-categoria-confianza {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-variant-numeric: tabular-nums;
 }
 
 /* La duda se dice con palabra, no sólo con color: «Ambiguo» es un dato del
@@ -108,5 +136,53 @@
 @media (prefers-reduced-motion: reduce) {
   .worker-progress-fill {
     transition: none;
+  }
+}
+
+/*
+ * La misma barra dentro de la celda de categoría, pero INDETERMINADA.
+ *
+ * Aquí no hay fracción que enseñar: la glosa está pedida o está resuelta. Una
+ * barra que recorre el carril dice «en curso» sin inventarse un porcentaje, que
+ * es lo que hacía la palabra «Clasificando…» ocupando el ancho de la columna y
+ * empujando la tabla cada vez que una fila cambiaba de estado.
+ */
+.worker-categoria-cargando {
+  display: block;
+  inline-size: 7rem;
+  max-inline-size: 100%;
+  block-size: 6px;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.worker-categoria-cargando::after {
+  content: '';
+  display: block;
+  inline-size: 40%;
+  block-size: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+  animation: categoria-cargando var(--dur-loop) var(--ease-standard) infinite;
+}
+
+@keyframes categoria-cargando {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/*
+ * Sin movimiento, la barra se queda quieta y llena: sigue leyéndose como «hay
+ * algo aquí en marcha» y no desaparece, que es lo que pasaría con `none`.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .worker-categoria-cargando::after {
+    inline-size: 100%;
+    animation: none;
   }
 }

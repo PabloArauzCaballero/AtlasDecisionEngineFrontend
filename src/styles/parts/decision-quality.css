@@ -1,0 +1,174 @@
+/*
+ * Calidad de la decisión: cobertura, cola de desenlaces y matriz de cosechas.
+ *
+ * Todo por token. Un color escrito a mano aquí quedaría ilegible al conmutar el tema, y esta
+ * pantalla se mira sobre todo de noche por quien vigila que la conciliación no se haya parado.
+ */
+
+.quality-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.quality-range {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quality-filter {
+  max-width: 22rem;
+}
+
+.quality-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-3);
+}
+
+.quality-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+
+.quality-note {
+  margin-top: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  line-height: 1.55;
+}
+
+.quality-muted {
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+/* Una ventana muy vencida no es «un poco peor»: es la señal de que la tubería está parada. */
+.quality-overdue {
+  color: var(--danger-text);
+  font-weight: var(--weight-semibold);
+}
+
+.quality-inline-form {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quality-row-errors {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius-md);
+  background: var(--danger-wash);
+  font-size: var(--type-sm);
+}
+
+.quality-row-errors li {
+  margin-left: var(--space-4);
+  list-style: disc;
+}
+
+.quality-row-errors code {
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
+}
+
+/*
+ * Serie diaria de decisiones.
+ *
+ * Barras y no una línea de porcentaje: la altura dice el VOLUMEN, que es la mitad de la
+ * información. Un día con dos decisiones y las dos identificadas no puede verse igual de sólido
+ * que uno con seiscientas.
+ */
+.coverage-series {
+  margin-top: var(--space-5);
+}
+
+.coverage-series figcaption {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  margin-bottom: var(--space-2);
+}
+
+.coverage-series-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 5rem;
+  padding: var(--space-2);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  overflow-x: auto;
+}
+
+.coverage-day {
+  flex: 1 0 4px;
+  min-width: 4px;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--radius-xs);
+  background: var(--line);
+}
+
+/* La parte llena es la cubierta. El resto queda en el gris neutro del hueco. */
+.coverage-day-covered {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-xs);
+  background: var(--accent);
+}
+
+.vintage-scroll {
+  overflow-x: auto;
+  margin-top: var(--space-3);
+}
+
+.vintage-table th[scope='row'] {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Intensidad de la celda: la tasa de malos, ATENUADA por cuántas observaciones la sostienen.
+ *
+ * Sin la atenuación, la celda más chillona de la matriz sería siempre la cosecha más nueva
+ * —tres créditos, uno malo, 33 %— y quien la mire concluirá que la política de este mes es un
+ * desastre cuando lo único que hay es poca muestra. `--vintage-weight` lo calcula la vista.
+ */
+.vintage-cell {
+  --vintage-weight: 0;
+  text-align: center;
+  white-space: nowrap;
+  background: color-mix(
+    in srgb,
+    var(--danger-wash) calc(var(--vintage-weight) * 100%),
+    transparent
+  );
+}
+
+.vintage-cell strong {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-sm);
+}
+
+.vintage-cell small {
+  display: block;
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+}
+
+.vintage-empty {
+  background: transparent;
+}

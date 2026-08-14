@@ -1,0 +1,70 @@
+/*
+ * Invitación al recorrido introductorio.
+ *
+ * Vive aparte de `interactive-tutorial.css` por el límite de 299 líneas del
+ * repositorio, y el corte va por responsabilidad: allí el recorrido en sí
+ * —superposición, tarjeta del paso, avance—; aquí la tarjeta que lo OFRECE,
+ * que no forma parte de ningún recorrido y aparece antes de empezar.
+ */
+/* Va en el flujo de la página, no flotando encima: no debe tapar nada de lo
+   que la persona vino a hacer. */
+.tutorial-welcome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  /* Sobre superficie hundida y no sobre el lavado del acento: es un
+     ofrecimiento, no un aviso, y teñido de verde competía con la vista entera
+     desde la primera pantalla. El botón que la acompaña ya lleva el color. */
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+}
+.tutorial-welcome-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 260px;
+}
+.tutorial-welcome-text strong {
+  font-size: var(--type-md);
+  color: var(--ink);
+}
+.tutorial-welcome-text span {
+  font-size: var(--type-base);
+  color: var(--text);
+}
+.tutorial-welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding-right: var(--space-5);
+}
+.tutorial-welcome-never {
+  background: none;
+  border: 0;
+  /* Medía 128×23, un píxel por debajo del mínimo de WCAG 2.2 AA (2.5.8): la
+     altura salía sólo de la línea de texto más `--space-1`. Cambia el área que
+     acepta el toque, no la letra; `inline-flex` la deja crecer sin mover el
+     texto respecto a su vecino «Ahora no». */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--type-sm);
+  color: var(--text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tutorial-welcome-never:hover {
+  color: var(--ink);
+}
+.tutorial-welcome-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+}

@@ -20,7 +20,7 @@
   flex: 1 1 auto;
   min-width: 0;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
   color: var(--text-muted);
 }
 
@@ -44,7 +44,7 @@
   gap: 10px;
   padding: 12px;
   border: 1px dashed var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--surface-inset);
 }
 .sample-bar-actions {
@@ -68,9 +68,9 @@
 }
 .sample-case-chip {
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 3px 11px;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   color: var(--muted);
   background: var(--surface);
   cursor: pointer;
@@ -78,5 +78,21 @@
 .sample-case-chip[aria-pressed='true'] {
   border-color: var(--accent);
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * El código de la variable, bajo su valor en la rejilla de salidas.
+ *
+ * Sigue estando —es la clave del contrato y la que se usa al integrarse— pero
+ * deja de ser lo primero que se lee: manda el nombre publicado. Monoespaciada
+ * porque es un identificador, no prosa.
+ */
+.simulation-result .output-code {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  overflow-wrap: anywhere;
 }

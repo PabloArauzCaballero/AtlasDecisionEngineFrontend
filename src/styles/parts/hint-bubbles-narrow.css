@@ -1,16 +1,12 @@
 /*
  * Globos de ayuda en pantallas estrechas.
  *
- * `action-icons.css` e `info-hint.css` deciden el lado del globo por contenedor:
- * centrado por omisión, anclado a la derecha donde el disparador vive pegado al
- * borde. Ese método funciona mientras el globo quepa a un lado del disparador, y
- * a 320 px deja de caber: un globo de 240 px anclado a la derecha de una
- * cabecera de tabla situada en x = 100 se sale 140 px por la IZQUIERDA, y
- * centrarlo o anclarlo a la izquierda sólo cambia el borde por el que se sale.
- * Medido en la corrida de `e2e/responsive.spec.ts`: 19 fallos en 15 rutas —de
- * `/login` a `/graph-editor`— con este único origen. Ampliar la lista de
- * contenedores no puede cerrarlo, porque el problema no es el lado: es que no
- * hay hueco a ningún lado.
+ * En pantalla ancha `useHintBubble` coloca el globo junto a su disparador,
+ * sujeto a los bordes de la ventana. A 320 px esa sujeción ya no basta: un
+ * globo de 240 px pegado a un costado sigue tapando media pantalla y quedan
+ * renglones de una palabra. Medido en la corrida de `e2e/responsive.spec.ts`
+ * con el método anterior (anclaje por contenedor): 19 fallos en 15 rutas —de
+ * `/login` a `/graph-editor`— porque no hay hueco a ningún lado.
  *
  * Aquí el globo deja de colgar del control y ocupa el ancho seguro de la
  * ventana, acoplado al pie. Es el único ancho que siempre cabe, y de paso una
@@ -21,6 +17,9 @@
  */
 
 @media (max-width: 820px) {
+  /* `useHintBubble` no escribe coordenadas en pantallas estrechas, así que las
+     de aquí mandan: los globos dejan sus `--bubble-top`/`--bubble-left` sin
+     asignar y el `inset` los acopla al pie. */
   .tooltip-bubble,
   .info-hint-bubble {
     position: fixed;
@@ -28,19 +27,19 @@
     top: auto;
     width: auto;
     max-width: none;
-    /* El desplazamiento de entrada era horizontal para centrar el globo sobre su
-       disparador; sin disparador al que centrarse, entra desde abajo. */
+    /* Acoplado al pie no hay disparador al que pegarse: entra desde abajo,
+       abra el globo por el lado que abra. */
     transform: translateY(6px);
     text-wrap: pretty;
   }
+  .tooltip-bubble[data-placement='below'],
+  .info-hint-bubble[data-placement='below'] {
+    transform: translateY(6px);
+  }
 
-  /* Los estados visibles heredan la posición y sólo apagan el desplazamiento.
-     Se enumeran los mismos selectores que abren el globo en las hojas de
-     origen: si uno se queda fuera, el globo aparece 6 px desplazado. */
-  .tooltip-wrap:hover .tooltip-bubble,
-  .tooltip-wrap:focus-within .tooltip-bubble,
-  .info-hint:hover .info-hint-bubble,
-  .info-hint-trigger:focus-visible + .info-hint-bubble {
+  /* El estado abierto hereda la posición y sólo apaga el desplazamiento. */
+  .tooltip-bubble[data-open='true'],
+  .info-hint-bubble[data-open='true'] {
     transform: translateY(0);
   }
 
@@ -53,7 +52,9 @@
 
 @media (max-width: 820px) and (prefers-reduced-motion: reduce) {
   .tooltip-bubble,
-  .info-hint-bubble {
+  .info-hint-bubble,
+  .tooltip-bubble[data-placement='below'],
+  .info-hint-bubble[data-placement='below'] {
     transform: none;
   }
 }

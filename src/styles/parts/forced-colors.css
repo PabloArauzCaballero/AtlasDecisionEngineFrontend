@@ -1,0 +1,117 @@
+/*
+ * Modo de alto contraste del sistema (Windows: «Contraste» / High Contrast).
+ *
+ * No lo detecta nada de lo que ya hay. `theme-contrast.test.ts` mide tokens y
+ * `contrast.spec.ts` mide el DOM pintado, pero los dos miden NUESTROS colores —y
+ * en este modo el navegador los descarta casi todos y aplica la paleta del
+ * sistema. Lo que sobrevive es la ESTRUCTURA, y ahí es donde este portal fallaba:
+ * su lenguaje visual se apoya en fondos (`--surface`, `--accent-wash`,
+ * `--warning-wash`) y en bordes casi invisibles. Descartados los fondos, un
+ * panel, un aviso y una fila seleccionada quedaban indistinguibles.
+ *
+ * Importa aquí más que en un portal cualquiera: el destino es Windows
+ * corporativo, que es justo donde este modo se usa de verdad, y en EE. UU. la
+ * Section 508 lo da por supuesto en cualquier compra pública.
+ *
+ * Regla de oro del modo: NO se fuerzan colores propios —`forced-color-adjust`
+ * sólo se usa donde el color ES el dato—. Se declaran las palabras clave del
+ * sistema (`CanvasText`, `Highlight`, `ButtonBorder`, `GrayText`), que el
+ * sistema traduce a su paleta, sea cual sea.
+ */
+@media (forced-colors: active) {
+  /*
+   * Todo lo que se distinguía sólo por su fondo necesita borde.
+   * Es el arreglo de fondo del modo: sin él, el portal se ve como una hoja de
+   * texto plana sin jerarquía de ningún tipo.
+   */
+  .panel,
+  .dialog,
+  .json-panel,
+  .alert,
+  .metric-card,
+  .empty-state,
+  .tutorial-tooltip,
+  .tutorial-welcome,
+  .session-expiry {
+    border: 1px solid CanvasText;
+  }
+
+  /* El foco es lo primero que se pierde: los anillos van por `box-shadow` y las
+     sombras no se pintan en este modo. Un contorno sí. */
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .button,
+  .json-copy-btn,
+  select,
+  input,
+  textarea {
+    border: 1px solid ButtonBorder;
+  }
+
+  /*
+   * Estado por color: insignias, chips y barras.
+   *
+   * Aquí el color ES el dato —aprobado contra rechazado, cubierto contra hueco—,
+   * y en este modo desaparece. El grafo ya resolvió esto con forma y trama
+   * (`node-catalog.ts`); estas superficies no. El borde no distingue los
+   * estados entre sí, pero sí separa la insignia de su fondo, que es lo que
+   * impide que se lea como texto suelto. La distinción real la lleva el TEXTO,
+   * que en todas ellas está siempre presente.
+   */
+  .status-badge,
+  .state-chip {
+    border: 1px solid CanvasText;
+  }
+
+  /* La barra de progreso es puro fondo: sin esto es un rectángulo invisible.
+     El relleno se pinta con el color de resalte del sistema. */
+  .progress {
+    border: 1px solid CanvasText;
+  }
+  .progress span {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+
+  /* La cabecera fija de las tablas se separaba del cuerpo con una sombra. */
+  .table-wrap thead th {
+    border-bottom: 1px solid CanvasText;
+  }
+
+  /* La fila seleccionada y la sobrevolada sólo cambiaban de fondo. */
+  tbody tr[aria-selected='true'],
+  tbody tr.is-selected {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  /*
+   * Lo decorativo se apaga del todo: el fondo ambiental y el foco del recorrido
+   * guiado son degradados y sombras enormes que en este modo se vuelven bloques
+   * opacos y tapan el contenido.
+   */
+  .ambient-background,
+  .tutorial-spotlight {
+    display: none;
+  }
+  .tutorial-scrim {
+    background: transparent;
+  }
+
+  /* Sin el scrim, el paso del recorrido necesita su propio marco para no
+     confundirse con la página que tiene detrás. */
+  .tutorial-tooltip {
+    background: Canvas;
+  }
+
+  /* Texto atenuado: `GrayText` es la palabra del sistema para «deshabilitado» y
+     el sistema garantiza que se lea. */
+  .muted-note,
+  .field-hint,
+  small {
+    color: GrayText;
+  }
+}

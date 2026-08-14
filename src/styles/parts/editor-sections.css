@@ -16,7 +16,9 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 13px var(--gutter);
+  /* Una fila plegada es chrome sobre el lienzo: cuanto más fina, más superficie
+     de dibujo queda en la primera pantalla. */
+  padding: 10px var(--gutter);
   border: 0;
   background: none;
   color: var(--text);
@@ -37,14 +39,14 @@
 }
 .editor-section h2 strong {
   flex: none;
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .editor-section h2 small {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -52,11 +54,11 @@
   flex: none;
   padding: 3px 9px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface-muted);
   color: var(--text-muted);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
 }
 .editor-section-summary.warn {
   border-color: var(--warning-line);

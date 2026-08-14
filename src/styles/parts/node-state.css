@@ -20,9 +20,9 @@
 .node-state-tabs button {
   border: 1px solid var(--line);
   background: var(--surface);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 3px 10px;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   cursor: pointer;
   color: inherit;
 }
@@ -38,7 +38,7 @@
 
 .node-state-group h4 {
   margin: 0 0 2px;
-  font-size: 0.9rem;
+  font-size: var(--type-md);
 }
 
 /*
@@ -74,7 +74,7 @@
   width: 100%;
   min-width: 34rem;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   margin-top: 6px;
 }
 
@@ -86,7 +86,7 @@
   margin-right: 5px;
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 
 .node-state-pager {
@@ -103,7 +103,7 @@
 
 .node-state-position {
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
 }
 
 .node-state-position code {
@@ -126,8 +126,8 @@
 .state-chip {
   display: inline-block;
   padding: 1px 7px;
-  border-radius: 999px;
-  font-size: 0.72rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
   border: 1px solid var(--line);
   background: var(--surface-muted);
 }

@@ -6,7 +6,7 @@
   overflow: auto;
   background: var(--surface);
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .node-library {
   border-right: 1px solid var(--line);
@@ -22,11 +22,11 @@
   background: var(--surface-inset);
 }
 .workbench-heading strong {
-  font-size: 13px;
+  font-size: var(--type-base);
 }
 .workbench-heading small {
   color: var(--muted);
-  font-size: 9.5px;
+  font-size: var(--type-3xs);
   line-height: 1.4;
 }
 .node-library section,
@@ -39,9 +39,8 @@
 .validation-group h3 {
   margin: 0 0 10px;
   color: var(--muted);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+  font-size: var(--type-2xs);
+  letter-spacing: var(--track-normal);
 }
 .node-library .library-node {
   width: 100%;
@@ -52,11 +51,11 @@
   margin: 7px 0;
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   text-align: left;
-  font-size: 11px;
+  font-size: var(--type-xs);
   cursor: grab;
   transition:
     border-color 0.15s ease,
@@ -73,7 +72,7 @@
   height: 32px;
   display: grid;
   place-items: center;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--line-soft);
   color: var(--muted);
 }
@@ -86,20 +85,20 @@
 }
 .library-node strong {
   color: var(--text);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .library-node small {
   overflow: hidden;
   margin-top: 2px;
   color: var(--faint);
-  font-size: 8.5px;
+  font-size: var(--type-3xs);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .library-node b {
   color: var(--faint);
-  font-size: 15px;
+  font-size: var(--type-md);
 }
 .library-node-condition .library-node-icon {
   background: var(--highlight-wash);
@@ -131,17 +130,16 @@
   margin: 14px;
   padding: 11px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--success-wash);
   color: var(--accent);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   line-height: 1.45;
 }
 .library-tip strong {
   color: var(--accent);
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--type-3xs);
+  letter-spacing: var(--track-normal);
 }
 .properties-empty-state {
   display: grid;
@@ -155,8 +153,8 @@
 }
 .properties-empty-state strong {
   color: var(--text);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .properties-empty-state p {
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }

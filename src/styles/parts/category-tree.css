@@ -1,0 +1,270 @@
+/* Administración del árbol de categorías del worker semántico. */
+.worker-categorias {
+  display: grid;
+  gap: var(--space-4);
+}
+.categoria-barra {
+  display: flex;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+.categoria-vacio {
+  color: var(--text-muted);
+  font-size: var(--type-base);
+  padding: var(--space-4) 0;
+}
+
+/* El árbol: la sangría dice de quién cuelga cada hoja, así que no hace falta
+   una columna que repita el prefijo del código. */
+.categoria-arbol,
+.categoria-arbol ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.categoria-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+  border-inline-start: 2px solid transparent;
+}
+.categoria-fila:hover {
+  background: var(--surface-inset);
+  border-inline-start-color: var(--ring-accent-line);
+}
+/* Una categoría inactiva sigue en la lista —hay que poder reactivarla— pero no
+   compite visualmente con las que el clasificador sí usa. */
+.categoria-fila.is-inactive {
+  opacity: 0.55;
+}
+
+/* El disparador ocupa toda la identidad: pulsar el nombre de la rama es lo que
+   cualquiera intenta antes que acertar en un triángulo de doce píxeles. */
+.categoria-desplegar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.categoria-desplegar.is-hoja {
+  cursor: default;
+  /* Alineada con el texto de las ramas, no con su triángulo: si no, cada hoja
+     parecía medio nivel fuera de su sitio. */
+  padding-inline-start: calc(14px + var(--space-2));
+}
+.categoria-desplegar:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.categoria-desplegar code {
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  color: var(--text);
+  white-space: nowrap;
+}
+.categoria-nombre {
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categoria-señales {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.categoria-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  letter-spacing: var(--track-normal);
+  white-space: nowrap;
+}
+.categoria-etiqueta.es-inactiva {
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+.categoria-umbral {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  color: var(--faint);
+}
+.categoria-cuenta {
+  font-size: var(--type-2xs);
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+/* Las acciones aparecen al posarse o al enfocar, y sólo entonces: tres botones
+   repetidos en cincuenta filas convierten el árbol en una rejilla de iconos
+   donde ya no se lee la jerarquía. Se mantienen visibles con el teclado, que no
+   tiene «posarse». */
+.categoria-acciones {
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--motion-fast, 120ms) ease;
+}
+.categoria-fila:hover .categoria-acciones,
+.categoria-acciones:focus-within {
+  opacity: 1;
+}
+@media (hover: none) {
+  /* Sin puntero no hay hover: en un táctil las acciones tienen que estar. */
+  .categoria-acciones {
+    opacity: 1;
+  }
+}
+.categoria-acciones .button {
+  padding: var(--space-1) var(--space-2);
+}
+
+/* Formulario */
+.categoria-form {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+.categoria-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+/* Ejemplos y contraejemplos, uno al lado del otro y del mismo tamaño: el
+   contraejemplo decide tanto como el ejemplo y la vista no debe sugerir que es
+   un apéndice. */
+.categoria-form-ejemplos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+.categoria-form-acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Inyección por JSON */
+.categoria-import {
+  display: grid;
+  gap: var(--space-3);
+}
+.categoria-import-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.categoria-import-json {
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  min-block-size: 220px;
+}
+.categoria-import-error {
+  color: var(--danger-text);
+  background: var(--danger-wash);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--type-base);
+}
+.categoria-import-acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.categoria-import-resumen {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--surface-inset);
+  display: grid;
+  gap: var(--space-2);
+}
+.categoria-import-listas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+.categoria-import-listas p {
+  margin: 2px 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+.categoria-import-rotulo {
+  font-size: var(--type-2xs);
+  letter-spacing: var(--track-normal);
+  color: var(--faint);
+}
+
+/* ==========================================================================
+   Refinado del árbol.
+
+   La primera versión era una lista de filas con bordes: legible pero plana, y
+   con cincuenta categorías no se distinguía una rama de una hoja sin leer el
+   código. Lo que separa ahora los niveles es la JERARQUÍA visual —peso, fondo y
+   una guía—, no más líneas.
+   ========================================================================== */
+
+/* La raíz manda: es la que divide el catálogo en Ingresos y Gastos. */
+.categoria-arbol > .categoria-nodo > .categoria-fila {
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  margin-block-start: var(--space-3);
+  border-bottom: 0;
+}
+.categoria-arbol > .categoria-nodo > .categoria-fila .categoria-desplegar code {
+  font-size: var(--type-md);
+  font-weight: var(--weight-black);
+}
+
+/* Una rama intermedia pesa más que una hoja pero menos que la raíz. */
+.categoria-nodo.es-rama > .categoria-fila .categoria-desplegar code {
+  font-weight: var(--weight-black);
+}
+
+/* Guía de la rama abierta: sustituye a contar sangrías. */
+.categoria-nodo.es-rama > ul {
+  position: relative;
+}
+.categoria-nodo.es-rama > ul::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--space-3) + 6px);
+  border-inline-start: 1px solid var(--line-soft);
+}
+
+/* La cuenta de hojas es un dato, no una etiqueta de estado: se lee en gris. */
+.categoria-señales .categoria-etiqueta {
+  background: transparent;
+  border: 1px solid var(--line-soft);
+}

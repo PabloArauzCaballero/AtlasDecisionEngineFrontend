@@ -30,12 +30,12 @@
   display: block;
 }
 .wizard-steps li span {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
 }
 .wizard-steps li small {
-  font-size: 9px;
-  font-weight: 400;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-regular);
 }
 .wizard-steps li.active {
   color: var(--accent);
@@ -74,7 +74,7 @@
   align-items: center;
   padding: 8px 0;
   border-top: 1px solid var(--line-soft);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .validation-group li svg {
   width: 16px;
@@ -109,7 +109,7 @@
 }
 .filters-panel h2 {
   margin: 0 0 18px;
-  font-size: 15px;
+  font-size: var(--type-md);
 }
 .filters-panel fieldset {
   padding: 12px 0;
@@ -119,15 +119,14 @@
 .filters-panel legend {
   margin-bottom: 8px;
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
 }
 .filters-panel label {
   display: block;
   margin: 8px 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 /*
  * `width: auto` estaba puesto para que la casilla de «sólo casos activos» no se
@@ -167,17 +166,17 @@
   color: var(--success);
 }
 .timeline strong {
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .timeline p {
   margin: 3px 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   line-height: 1.45;
 }
 .timeline small {
   color: var(--faint);
-  font-size: 9px;
+  font-size: var(--type-3xs);
 }
 .heat-graph {
   min-height: 235px;
@@ -192,8 +191,8 @@
   padding: 12px 15px;
   border: 2px solid;
   background: var(--surface);
-  font-size: 10px;
-  font-weight: 750;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
 }
 .heat-node.success {
   border-color: var(--success);
@@ -212,18 +211,17 @@
   justify-content: space-between;
   margin-bottom: 7px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 /* Fase 10 — security review dashboard. */
 .severity-badge {
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .severity-high {
   background: rgba(220, 38, 38, 0.12);
@@ -238,12 +236,12 @@
   color: var(--success-strong);
 }
 .security-code-excerpt {
-  font-size: 11px;
+  font-size: var(--type-xs);
   white-space: pre-wrap;
   background: var(--ink-strong);
   color: var(--code-ink);
   padding: 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 10px;
   max-height: 220px;
   overflow-y: auto;
@@ -256,8 +254,8 @@
   display: grid;
   gap: 2px;
   color: var(--danger-text, var(--text));
-  font-size: 0.74rem;
+  font-size: var(--type-sm);
 }
 .assertion-failures code {
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }

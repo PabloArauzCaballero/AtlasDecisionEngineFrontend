@@ -28,6 +28,7 @@ describe('sincronía entre motion-tokens.ts y motion.css', () => {
     expect(cssValue('dur-fast')).toBe(`${motionTokens.duration.fast}ms`);
     expect(cssValue('dur-base')).toBe(`${motionTokens.duration.normal}ms`);
     expect(cssValue('dur-slow')).toBe(`${motionTokens.duration.slow}ms`);
+    expect(cssValue('dur-loop')).toBe(`${motionTokens.duration.loop}ms`);
   });
 
   it('comparte las mismas curvas de transición', () => {

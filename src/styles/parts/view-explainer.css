@@ -3,10 +3,10 @@
 
 .view-explainer {
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--panel);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
   overflow: hidden;
 }
 
@@ -33,13 +33,13 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.9rem;
+  font-size: var(--type-md);
   color: var(--muted);
 }
 
 .view-explainer-title strong {
   color: var(--ink);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .view-explainer-title svg {
@@ -71,45 +71,50 @@
   }
 }
 
+/*
+ * Las dos tarjetas.
+ *
+ * Iban una sobre fondo ámbar con barra naranja a la izquierda y otra sobre
+ * fondo verde con barra verde. Ninguna de las dos avisa de nada —son texto
+ * explicativo, siempre presente, en todas las pantallas del portal—, así que
+ * ese color estaba diciendo «atención» y «correcto» de forma permanente y sin
+ * motivo, encima del bloque más alto de la página.
+ *
+ * Lo que de verdad distingue una de otra es lo que ya dice su encabezado, con
+ * su icono y su palabra. Aquí basta con separarlas del papel: una superficie
+ * hundida y una hairline.
+ */
 .ve-card {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 16px;
-  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background: var(--surface-sunken);
 }
 
 .ve-card header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
+  margin-bottom: var(--space-2);
 }
 
 .ve-card p {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: var(--ink);
+  font-size: var(--type-sm);
+  line-height: 1.6;
+  color: var(--text);
 }
 
-.ve-business {
-  border-left: 3px solid var(--warning);
-  background: var(--warning-wash);
-}
-
-.ve-business header {
+/* Único rastro de color que queda, y en el icono: el plano de negocio y el de
+   sistemas se siguen distinguiendo de un vistazo sin teñir el párrafo. */
+.ve-business header svg {
   color: var(--warning);
 }
 
-.ve-systems {
-  border-left: 3px solid var(--accent);
-  background: var(--success-wash);
-}
-
-.ve-systems header {
+.ve-systems header svg {
   color: var(--accent);
 }

@@ -11,6 +11,25 @@
   padding: 0;
   background: var(--canvas);
   border-top: 0;
+  /* Una celda de tabla recorta a 320 px, prohíbe el salto de línea y esconde lo
+     que sobra (`data-display.css`), y todo eso lo HEREDA lo que cuelga dentro.
+     La fila desplegada no es una celda: es prosa. Con la herencia puesta, el
+     resumen del cambio salía en una sola línea, se cortaba contra el borde
+     derecho y de paso estiraba la tabla entera hasta hacerla desplazarse en
+     horizontal. Se deshace igual que en `.table-detail-row`. */
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  /* Anclada a la izquierda: si la tabla se desplaza, el detalle no se va con
+     ella. Lo mismo que hace la fila de detalle de `DataTable`. */
+  position: sticky;
+  left: 0;
+}
+.algo-row-detail > td:hover,
+.algo-row-detail:hover > td {
+  /* La regla de hover de `tbody tr` pinta la fila entera; aquí taparía el
+     contraste del panel desplegado. */
+  background: var(--canvas);
 }
 .algo-empty {
   text-align: center;
@@ -21,10 +40,15 @@
   display: grid;
   gap: 10px;
   padding: 14px 18px 18px;
+  /* Se mide contra el ancho VISIBLE de `.table-wrap` —que es un contenedor de
+     consulta— y no contra el de la tabla, que puede ser mucho mayor. Sin esto
+     el panel crece con la tabla y vuelve a salirse por la derecha. */
+  box-sizing: border-box;
+  width: 100cqi;
 }
 .algo-versions-note {
   padding: 14px 18px;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
   color: var(--muted);
 }
 .algo-versions-note.error {
@@ -32,7 +56,7 @@
 }
 .algo-version {
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   padding: 12px 14px;
   display: grid;
@@ -44,7 +68,7 @@
   gap: 10px;
 }
 .algo-version-head strong {
-  font-size: 0.92rem;
+  font-size: var(--type-md);
 }
 .algo-version-meta {
   margin: 0;
@@ -57,15 +81,17 @@
   gap: 2px;
 }
 .algo-version-meta dt {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-xs);
+  letter-spacing: var(--track-normal);
   color: var(--faint);
 }
 .algo-version-meta dd {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   color: var(--text);
+  /* El resumen del cambio es texto libre y puede traer un identificador largo
+     sin espacios, que ni siquiera un `white-space: normal` sabe partir. */
+  overflow-wrap: anywhere;
 }
 .algo-version-actions {
   display: flex;
@@ -73,5 +99,5 @@
   gap: 8px;
 }
 .algo-version-actions .button {
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
 }

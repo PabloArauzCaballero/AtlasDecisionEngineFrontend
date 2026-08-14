@@ -22,7 +22,7 @@
 .worker-run-help {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
 }
 
 .worker-run-progress {
@@ -75,7 +75,7 @@
   min-width: 3.5rem;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
   text-align: right;
 }
 
@@ -88,14 +88,20 @@
 
 .worker-run-facts dt {
   color: var(--text-muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--type-sm);
+  letter-spacing: var(--track-normal);
 }
 
 .worker-run-facts dd {
   margin: var(--space-1) 0 0;
-  word-break: break-all;
+  /*
+   * `anywhere` y no `break-all`: parte SÓLO cuando no hay otra salida, y
+   * prefiere los guiones. Con `break-all`, el perfil de umbrales se cortaba a
+   * mitad de token —«…fmr1e-3-fnmr» / «1e-2»—, que es justo el dato que alguien
+   * necesita poder leer de un vistazo para saber contra qué se decidió. Los
+   * identificadores largos sin guiones siguen partiéndose igual.
+   */
+  overflow-wrap: anywhere;
 }
 
 .worker-run-error {
@@ -109,14 +115,14 @@
 .worker-error-message {
   margin: 0 0 var(--space-2);
   color: var(--danger-text);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .worker-error-detail,
 .worker-error-hint {
   margin: 0 0 var(--space-1);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
 }
 
 .worker-run-actions {
@@ -140,14 +146,13 @@
 .worker-result-explain {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
 }
 
 .worker-section-title {
   margin: var(--space-4) 0 var(--space-2);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--type-md);
+  letter-spacing: var(--track-normal);
 }
 
 .worker-match-list,
@@ -174,7 +179,7 @@
 .worker-match-confidence,
 .worker-match-flag {
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
 }
 
 .worker-match-flag {
@@ -188,18 +193,18 @@
 .worker-match-path {
   margin: var(--space-1) 0 0;
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
 }
 
 .worker-match-rationale {
   margin: var(--space-2) 0 0;
-  font-size: 0.875rem;
+  font-size: var(--type-md);
 }
 
 .worker-evidence {
   margin: var(--space-2) 0 0 var(--space-4);
   color: var(--text-muted);
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
 }
 
 .worker-warnings {
@@ -221,4 +226,26 @@
  */
 .worker-table-scroll {
   overflow-x: auto;
+}
+
+/*
+ * La vía de escape a la caché de ejecuciones. Va junto al botón de enviar
+ * porque es una decisión sobre ESTE envío, no un ajuste de la vista.
+ */
+.worker-force-fresh {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  flex-basis: 100%;
+  cursor: pointer;
+}
+
+.worker-force-fresh input {
+  margin-top: 0.2em;
+}
+
+.worker-force-fresh span {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--type-sm);
 }

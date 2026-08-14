@@ -28,21 +28,24 @@
   top: -16vmax;
   width: 74vmax;
   height: 62vmax;
-  background: radial-gradient(closest-side, rgba(var(--state-rgb), 0.66), transparent 80%);
+  background: radial-gradient(closest-side, rgba(var(--state-rgb), 0.3), transparent 80%);
 }
 .ambient-aurora i[data-blob='2'] {
   right: -16vmax;
   top: -12vmax;
   width: 82vmax;
   height: 68vmax;
-  background: radial-gradient(closest-side, rgba(134, 242, 228, 0.6), transparent 82%);
+  /* Era el menta luminoso escrito a mano (134, 242, 228): la mancha más grande
+     de la escena, en el color más saturado de la paleta y en la esquina donde
+     empieza a leerse la página. Ahora es el propio acento, y muy diluido. */
+  background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.22), transparent 82%);
 }
 .ambient-aurora i[data-blob='3'] {
   left: 6vmax;
   bottom: -26vmax;
   width: 92vmax;
   height: 74vmax;
-  background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.52), transparent 82%);
+  background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.24), transparent 82%);
 }
 
 /* Periodos deliberadamente sin múltiplos comunes (37 · 53 · 67 s): las tres

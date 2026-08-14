@@ -63,7 +63,7 @@
   margin: 0 0 var(--space-2);
   padding: 8px 10px;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   display: grid;
   gap: 4px;
 }
@@ -87,7 +87,7 @@
 .contract-compat {
   display: grid;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 
 .contract-compat {
@@ -137,8 +137,8 @@
 
 .reference-policy > summary {
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-base);
 }
 
 .reference-policy .constraint-grid {

@@ -1,0 +1,223 @@
+/* --- Resumen del periodo ----------------------------------------------------
+ *
+ * Va antes de la tabla porque es la pregunta que se hace primero. Cuatro cifras
+ * grandes, una balanza que compara los dos lados de un vistazo, y los mayores
+ * movimientos de cada lado. Sólo tokens; el color codifica el SIGNO —lo que
+ * entra frente a lo que sale— y nada más.
+ */
+.extracto-resumen {
+  min-width: 0;
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-soft);
+}
+
+.extracto-cuentas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.extracto-cifra {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+/* El filo de color es la única marca de identidad de la tarjeta: el texto va
+   siempre con tokens de texto, nunca teñido del color de la serie. */
+.extracto-cifra {
+  border-inline-start: 3px solid var(--line);
+}
+.extracto-cifra.es-ingresos {
+  border-inline-start-color: var(--info);
+}
+.extracto-cifra.es-gastos {
+  border-inline-start-color: var(--accent);
+}
+.extracto-cifra.es-neto {
+  border-inline-start-color: var(--text-muted);
+}
+.extracto-cifra-titulo {
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+}
+.extracto-cifra-valor {
+  font-size: var(--type-xl);
+  font-weight: var(--weight-black);
+  font-variant-numeric: tabular-nums;
+}
+.extracto-cifra-detalle {
+  color: var(--faint);
+  font-size: var(--type-3xs);
+}
+
+.extracto-balanza {
+  display: flex;
+  margin-top: var(--space-3);
+  block-size: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+.extracto-balanza-ingresos {
+  background: var(--info);
+}
+.extracto-balanza-gastos {
+  background: var(--accent);
+}
+/* 2 px de superficie entre los dos rellenos: sin separación, el punto donde uno
+   acaba y empieza el otro se lee como un solo bloque de color. */
+.extracto-balanza-gastos {
+  border-inline-start: 2px solid var(--surface);
+}
+
+.extracto-descuadre {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  font-size: var(--type-2xs);
+}
+
+/*
+ * `min-width: 0` en los dos niveles, y no es ceremonia.
+ *
+ * Un elemento de rejilla arranca con `min-width: auto`, así que su pista NO
+ * puede encogerse por debajo del contenido: con una glosa larga, la columna
+ * crecía, el bloque se salía del panel y el importe quedaba cortado contra el
+ * borde. Lo mismo dentro de la fila, que es flex. Con esto la glosa hace lo que
+ * dice su `text-overflow`: recortarse con puntos suspensivos.
+ */
+.extracto-destacados {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.extracto-destacado {
+  min-width: 0;
+}
+.extracto-destacado-titulo {
+  margin: 0 0 var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line-soft);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+}
+.extracto-destacado-vacio {
+  margin: 0;
+  color: var(--faint);
+  font-size: var(--type-2xs);
+}
+.extracto-destacado-lista {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: destacado;
+}
+.extracto-destacado-lista li {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.extracto-destacado-lista li:last-child {
+  border-bottom: 0;
+}
+.extracto-destacado-glosa {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--type-2xs);
+}
+.extracto-destacado-cifra {
+  display: grid;
+  justify-items: end;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.extracto-destacado-cifra strong {
+  font-size: var(--type-sm);
+  font-weight: var(--weight-black);
+}
+.extracto-destacado-cifra small {
+  color: var(--faint);
+  font-size: var(--type-3xs);
+}
+
+/* --- Columnas ajustables ----------------------------------------------------
+ *
+ * El tirador vive en el borde derecho de la cabecera. Es un botón —se enfoca y
+ * responde a las flechas—, así que necesita foco visible: una columna que sólo
+ * se pueda ajustar con ratón deja fuera a quien no lo usa.
+ */
+.data-table.es-ajustada {
+  table-layout: fixed;
+}
+.data-table.es-ajustada th,
+.data-table.es-ajustada td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.data-table th {
+  position: relative;
+}
+.th-rotulo {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.th-tirador {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: -3px;
+  inline-size: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  /* Sobre el borde de la celda, no al lado: la línea que se agarra es la que se
+     ve, y con `touch-action: none` el gesto no arrastra la página debajo. */
+  touch-action: none;
+}
+.th-tirador::before {
+  content: '';
+  position: absolute;
+  inset-block: 25%;
+  inset-inline-start: 3px;
+  inline-size: 1px;
+  background: var(--line);
+}
+.th-tirador:hover::before,
+.th-tirador:focus-visible::before {
+  inset-block: 10%;
+  inline-size: 2px;
+  background: var(--accent);
+}
+.th-tirador:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: -1px;
+}
+
+.worker-table-ajuste {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+}

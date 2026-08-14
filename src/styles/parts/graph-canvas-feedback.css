@@ -11,7 +11,7 @@
   align-items: center;
   padding: 9px 11px;
   border: 1px solid var(--info-line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: rgba(239, 246, 255, 0.96);
   color: var(--info);
   box-shadow: 0 8px 26px rgba(30, 64, 175, 0.14);
@@ -23,7 +23,7 @@
   height: 30px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--info-wash);
 }
 .canvas-connection-guide strong,
@@ -31,12 +31,12 @@
   display: block;
 }
 .canvas-connection-guide strong {
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .canvas-connection-guide small {
   margin-top: 2px;
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   line-height: 1.35;
 }
 .canvas-connection-guide > button {
@@ -46,7 +46,7 @@
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: currentColor;
   cursor: pointer;
@@ -74,7 +74,7 @@
   justify-items: center;
   padding: 30px;
   border: 1px dashed var(--line-strong);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--panel-live);
   text-align: center;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
@@ -86,19 +86,19 @@
   display: grid;
   place-items: center;
   margin-bottom: 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--accent-wash);
   color: var(--accent);
 }
 .canvas-empty-state strong {
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--type-md);
 }
 .canvas-empty-state p {
   max-width: 270px;
   margin: 7px 0 16px;
   color: var(--faint);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   line-height: 1.5;
 }
 .canvas-legend {
@@ -111,10 +111,10 @@
   gap: 11px;
   padding: 7px 9px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--panel-live);
   color: var(--faint);
-  font-size: 8px;
+  font-size: var(--type-3xs);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 }
 .canvas-legend span {

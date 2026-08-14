@@ -83,7 +83,7 @@
 .version-graph-summary {
   flex: none;
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   color: var(--ink);
   white-space: nowrap;
   overflow: hidden;
@@ -94,7 +94,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.74rem;
+  font-size: var(--type-sm);
   color: var(--muted);
 }
 
@@ -106,5 +106,5 @@
 
 .version-graph-actions a {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }

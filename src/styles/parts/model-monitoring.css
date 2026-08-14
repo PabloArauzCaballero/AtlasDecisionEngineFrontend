@@ -1,0 +1,99 @@
+/*
+ * Monitoreo continuo del modelo desplegado.
+ *
+ * Sólo tokens: un color escrito a mano aquí queda ilegible al conmutar el tema y obliga a
+ * parchearlo en `theme-dark-*.css`. El único color con carga semántica de esta vista es el del
+ * aviso —ámbar cuando hay algo que mirar— y viene de `--warning-*`, que ya significa eso.
+ */
+
+.monitoring-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.monitoring-field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-3);
+}
+
+.monitoring-field-row label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-sm);
+  color: var(--text-muted);
+}
+
+.monitoring-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  margin-bottom: var(--space-4);
+}
+
+.monitoring-headline-label {
+  display: block;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
+.monitoring-headline-value {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+}
+
+.monitoring-counts {
+  margin-top: var(--space-4);
+}
+
+/*
+ * El aviso es texto con un icono, no una tarjeta de estado.
+ *
+ * Un lavado de color permanente diría «atención» sobre una explicación que casi siempre es
+ * informativa, y el color de esta pantalla tiene que quedar libre para cuando de verdad hay algo
+ * que mirar.
+ */
+.monitoring-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.monitoring-note svg {
+  flex: 0 0 auto;
+  margin-top: 0.15em;
+}
+
+.monitoring-note-warning {
+  padding: var(--space-3);
+  border: 1px solid var(--warning-line, var(--line));
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+
+/* La fila señalada se distingue por su superficie, no por un texto en rojo que no se puede filtrar. */
+.data-table tr.row-flagged td {
+  background: var(--warning-wash);
+}
+
+@media (max-width: 40rem) {
+  .monitoring-headline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

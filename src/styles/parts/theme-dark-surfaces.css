@@ -50,8 +50,10 @@
 
 /* ------------------------------------------------------------------ acceso */
 
+/* Mismo cambio que en claro: la escala neutra del tema, no un azul propio que
+   ya no se corresponde con ninguna superficie del portal. */
 [data-theme='dark'] .login-page {
-  background: linear-gradient(160deg, #0b1120 0%, #101a2d 45%, #0b1120 100%);
+  background: linear-gradient(160deg, #0a0a0c 0%, #16161a 45%, #0a0a0c 100%);
 }
 [data-theme='dark'] .login-panel {
   border-color: var(--line);
@@ -153,8 +155,11 @@
     linear-gradient(to bottom, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
 }
 
-/* Explicador de vista: dos tarjetas con fondo teñido que en claro son casi
-   blancas. Sobre oscuro necesitan su propio lavado o el texto desaparece. */
+/* Explicador de vista. Las dos tarjetas ya no llevan tinte de estado en ningún
+   tema —el ámbar y el verde decían «atención» y «correcto» sobre un texto que
+   sólo explica la pantalla—, así que aquí basta con la superficie hundida del
+   tema oscuro y su hairline. Lo que las distingue es el icono de su
+   encabezado, que sí conserva su color en los dos temas. */
 [data-theme='dark'] .ve-card {
   background: var(--surface-inset);
   border-color: var(--line);
@@ -162,17 +167,6 @@
 }
 [data-theme='dark'] .ve-card p {
   color: var(--text);
-}
-[data-theme='dark'] .ve-business {
-  border-color: var(--warning-line);
-  /* Repite el valor de la hoja clara, y aun así hace falta: sin ella gana
-     `[data-theme='dark'] .ve-card`, que va antes con la misma especificidad, y
-     la tarjeta de negocio pierde su tinte ámbar. */
-  background: var(--warning-wash);
-}
-[data-theme='dark'] .ve-systems {
-  background: var(--accent-wash);
-  border-color: var(--accent-soft);
 }
 [data-theme='dark'] .view-explainer-head:hover {
   background: var(--surface-hover);

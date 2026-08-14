@@ -17,7 +17,7 @@
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid var(--line-soft);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .gate-list svg {
   width: 17px;
@@ -33,7 +33,7 @@
 .diff-block p {
   margin: 5px 0 0;
   color: var(--faint);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .approval-steps > div {
   display: grid;
@@ -48,13 +48,13 @@
   place-items: center;
   border-radius: 50%;
   background: var(--line);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-black);
 }
 .approval-steps strong {
   display: block;
   margin-bottom: 4px;
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 
 .environment-grid {
@@ -89,11 +89,11 @@
 }
 .environment-card h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--type-md);
 }
 .environment-card code {
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
 }
 .environment-card dl {
   display: grid;
@@ -103,13 +103,12 @@
 }
 .environment-card dt {
   color: var(--muted);
-  font-size: 8px;
-  text-transform: uppercase;
+  font-size: var(--type-3xs);
 }
 .environment-card dd {
   margin: 4px 0 0;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
 }
 .environment-card > .progress {
   margin: 0 16px;
@@ -129,8 +128,8 @@
   border: 1px solid var(--warning-line);
   background: var(--warning-wash);
   color: var(--warning);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
 }
 .sandbox-banner svg {
   width: 17px;
@@ -149,7 +148,7 @@
   gap: 14px;
 }
 .simulation-result > strong {
-  font-size: 24px;
+  font-size: var(--type-2xl);
 }
 .simulation-result dl {
   display: grid;
@@ -162,16 +161,15 @@
    borde, que es exactamente lo que se veía en pantalla. */
 .simulation-result dt {
   color: var(--muted);
-  font-size: 8px;
-  text-transform: uppercase;
+  font-size: var(--type-3xs);
   min-width: 0;
   overflow-wrap: anywhere;
   line-height: 1.35;
 }
 .simulation-result dd {
   margin: 4px 0 0;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: var(--type-base);
+  font-weight: var(--weight-bold);
   min-width: 0;
   overflow-wrap: anywhere;
   line-height: 1.3;
@@ -181,7 +179,7 @@
 }
 .primary-result-label {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .dynamic-output-grid {
   /* 150 px, no 110: por debajo de eso un código de motivo no cabe ni partido en
@@ -200,14 +198,14 @@
   border: 1px solid var(--line);
 }
 .simulation-result article span {
-  font-family: monospace;
-  font-size: 9px;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-black);
 }
 .simulation-result article p {
   margin: 4px 0 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 
 .execution-summary {
@@ -219,12 +217,12 @@
   background: var(--success-wash);
 }
 .execution-summary strong {
-  font-size: 18px;
+  font-size: var(--type-xl);
 }
 .execution-summary span {
   margin-left: auto;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .target-metrics {
   display: grid;
@@ -233,13 +231,12 @@
 }
 .target-metrics span {
   color: var(--muted);
-  font-size: 9px;
-  text-transform: uppercase;
+  font-size: var(--type-3xs);
 }
 .target-metrics strong {
   display: block;
   margin: 7px 0;
-  font-size: 23px;
+  font-size: var(--type-2xl);
 }
 .policy-list article {
   display: flex;
@@ -249,12 +246,12 @@
   border-bottom: 1px solid var(--line-soft);
 }
 .policy-list strong {
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .policy-list p {
   margin: 3px 0 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .coverage-matrix td:not(:first-child),
 .coverage-matrix th:not(:first-child) {
@@ -263,7 +260,12 @@
 .coverage-matrix td small {
   display: block;
   color: var(--muted);
-  font-size: 9px;
+  font-size: var(--type-3xs);
+}
+/* Cruce que no es un requisito: presente pero sin voz. */
+.coverage-na {
+  color: var(--muted);
+  opacity: 0.5;
 }
 .matrix-progress {
   padding: 18px;
@@ -273,7 +275,7 @@
   justify-content: space-between;
   margin-bottom: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 
 /* Canary / champion traffic split rows read as discrete, editable cards. */
@@ -283,7 +285,7 @@
   padding: 13px;
   margin-bottom: 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--surface-inset);
 }
 .traffic-rule .inline-actions {

@@ -59,14 +59,13 @@
 .worker-vital-label {
   margin: 0;
   color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 650;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 
 .worker-vital-value {
-  font-size: 1.5rem;
+  font-size: var(--type-2xl);
   line-height: 1.15;
   letter-spacing: -0.01em;
   /* Cifras de ancho fijo: cinco tarjetas en fila se comparan de un vistazo y un
@@ -76,7 +75,7 @@
 
 .worker-vital-hint {
   color: var(--faint);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
   line-height: 1.4;
 }
 
@@ -112,7 +111,7 @@
   .worker-vital-value {
     grid-column: 2;
     grid-row: 1;
-    font-size: 1.125rem;
+    font-size: var(--type-xl);
   }
 
   .worker-vital-hint {
@@ -138,7 +137,7 @@
 .worker-panel-note {
   margin: var(--space-3) 0 0;
   color: var(--faint);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 
@@ -161,7 +160,7 @@
 .worker-mix-key {
   width: 10px;
   height: 10px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--accent);
 }
 
@@ -192,7 +191,7 @@
   margin: var(--space-3) 0 0;
   padding: 0;
   list-style: none;
-  font-size: 0.8125rem;
+  font-size: var(--type-base);
 }
 
 .worker-mix-legend li {
@@ -214,5 +213,5 @@
   align-items: center;
   margin: 0;
   color: var(--faint);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
 }

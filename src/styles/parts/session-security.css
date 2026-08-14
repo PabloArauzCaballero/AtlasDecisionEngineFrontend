@@ -1,0 +1,54 @@
+/*
+  Aviso sobre la credencial de la sesión (contraseña por rotar, sin segundo
+  factor). Vive arriba de la vista y no en un toast: un toast se cierra solo, y
+  esto tiene que seguir ahí hasta que se resuelva.
+
+  Sólo tokens: los dos temas lo heredan sin una segunda hoja que mantener.
+*/
+.session-security-notice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.session-security-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  /* Una línea de aviso permanente encima de TODAS las vistas: cada píxel que
+     ocupa lo paga el contenido de abajo, en todas ellas. */
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md);
+  background: var(--warning-wash);
+  color: var(--text);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+}
+
+.session-security-item svg {
+  flex: none;
+  margin-top: 0.1em;
+  color: var(--warning-text);
+}
+
+.session-security-item strong {
+  color: var(--warning-strong);
+  font-weight: var(--weight-semibold);
+}
+
+/* La rotación de credencial es exigible; la falta de segundo factor, informativa. */
+.session-security-item.is-urgent {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+}
+
+.session-security-item.is-urgent svg {
+  color: var(--danger-text);
+}
+
+.session-security-item.is-urgent strong {
+  color: var(--danger-strong);
+}

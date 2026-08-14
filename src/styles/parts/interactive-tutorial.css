@@ -18,7 +18,7 @@
 /* Resalta el elemento del paso oscureciendo TODO lo demás con un box-shadow gigante. */
 .tutorial-spotlight {
   position: absolute;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 2px solid var(--accent, var(--info));
   box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
   pointer-events: none;
@@ -40,7 +40,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--surface);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: 0 20px 50px rgba(15, 23, 42, 0.32);
   padding: 16px 18px;
   pointer-events: auto;
@@ -52,19 +52,18 @@
 }
 .tutorial-tooltip h3 {
   margin: 6px 0 4px;
-  font-size: 1rem;
+  font-size: var(--type-lg);
 }
 .tutorial-tooltip > p {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: var(--type-md);
   color: var(--text);
   line-height: 1.5;
 }
 .tutorial-progress {
   margin: 0;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-xs);
+  letter-spacing: var(--track-normal);
   color: var(--faint);
 }
 .tutorial-close {
@@ -89,7 +88,7 @@
   padding: 0 0 0 10px;
   border-left: 2px solid var(--accent-soft);
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   font-style: italic;
   line-height: 1.45;
 }
@@ -102,13 +101,13 @@
   border-radius: 0 6px 6px 0;
   background: var(--warning-wash);
   color: var(--warning);
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   line-height: 1.45;
 }
 .tutorial-skip {
   min-height: 30px;
   padding: 5px 10px;
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
 }
 .tutorial-actions {
   flex-wrap: wrap;
@@ -117,10 +116,10 @@
 .tutorial-tip {
   margin: 10px 0 0;
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   line-height: 1.45;
 }
 
@@ -128,8 +127,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--type-base);
+  font-weight: var(--weight-semibold);
   color: var(--accent);
 }
 
@@ -139,11 +138,11 @@
   gap: 6px;
   border: 1px solid var(--line);
   background: var(--panel);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 6px 12px;
   font: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: var(--type-base);
+  font-weight: var(--weight-semibold);
   color: var(--accent);
   cursor: pointer;
   transition:
@@ -177,7 +176,7 @@
   padding: 6px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
 }
 .tutorial-menu-pop button {
@@ -187,7 +186,7 @@
   width: 100%;
   padding: 8px 10px;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: none;
   text-align: left;
   cursor: pointer;
@@ -198,12 +197,12 @@
 }
 .tutorial-menu-pop strong {
   display: block;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
 }
 .tutorial-menu-pop small {
   display: block;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--type-xs);
 }
 /* Barra de avance del recorrido guiado: cuántos pasos quedan de un vistazo. */
 /* 6 px, no 4: a cuatro píxeles sobre un borde gris la barra desaparecía y el
@@ -211,14 +210,14 @@
 .tutorial-progress-bar {
   height: 6px;
   margin: 8px 0 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface-sunken);
   overflow: hidden;
 }
 .tutorial-progress-bar span {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--accent);
   transition: width 0.2s ease-out;
 }
@@ -234,7 +233,7 @@
 }
 .tutorial-confirm p {
   margin: 0 0 var(--space-3);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   color: var(--warning-text);
   line-height: 1.45;
 }
@@ -242,57 +241,4 @@
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;
-}
-
-/* Invitación al recorrido introductorio. Va en el flujo de la página, no
-   flotando encima: no debe tapar nada de lo que la persona vino a hacer. */
-.tutorial-welcome {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  margin-bottom: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: var(--accent-wash);
-  border: 1px solid var(--accent-soft);
-  border-radius: var(--radius-lg);
-  color: var(--accent-strong);
-}
-.tutorial-welcome-text {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 260px;
-}
-.tutorial-welcome-text strong {
-  font-size: 0.9rem;
-  color: var(--ink);
-}
-.tutorial-welcome-text span {
-  font-size: 0.8rem;
-  color: var(--text);
-}
-.tutorial-welcome-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-  padding-right: var(--space-5);
-}
-.tutorial-welcome-never {
-  background: none;
-  border: 0;
-  padding: var(--space-1) var(--space-2);
-  font-size: 0.76rem;
-  color: var(--text-muted);
-  text-decoration: underline;
-  cursor: pointer;
-}
-.tutorial-welcome-never:hover {
-  color: var(--ink);
-}
-.tutorial-welcome-close {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
 }

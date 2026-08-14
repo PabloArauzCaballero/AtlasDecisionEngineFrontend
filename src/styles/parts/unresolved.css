@@ -1,0 +1,139 @@
+/* Bandeja de valores pendientes de clasificar.
+ *
+ * Hoja propia y no un apéndice del árbol: son dos pantallas con vidas
+ * distintas —una edita el catálogo, la otra resuelve lo que el catálogo no
+ * supo— y mezclarlas obligaba a leer 380 líneas para tocar diez.
+ */
+.pendientes-busqueda {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-end;
+  margin-block: var(--space-3);
+}
+.pendientes-busqueda .field {
+  flex: 1;
+  min-width: 0;
+}
+.pendientes-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.pendiente {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--surface);
+  display: grid;
+  gap: var(--space-2);
+}
+.pendiente-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+/* El valor crudo, entero y en monoespaciada: es lo que hay que reconocer, y
+   recortarlo obligaría a abrir cada caso para saber de qué trata. */
+.pendiente-valor {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-base);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.pendiente-veces {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-black);
+  white-space: nowrap;
+}
+.pendiente-datos {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--type-2xs);
+  color: var(--faint);
+}
+.pendiente-sugerida code {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.pendiente-sugerida.is-vacia {
+  color: var(--warning-text);
+}
+.pendiente-alternativas {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.pendiente-alternativas .button {
+  font-size: var(--type-2xs);
+  padding: var(--space-1) var(--space-2);
+}
+.pendiente-acciones {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.pendiente-acciones .field {
+  min-width: 14rem;
+}
+
+/* --- Resolver en bloque -----------------------------------------------------
+ *
+ * Sacar el problema entero y devolver las respuestas de golpe. Va arriba del
+ * todo de la lista porque es la alternativa a recorrerla: quien llega con
+ * setenta pendientes tiene que ver la salida antes de empezar a bajar.
+ */
+.pendientes-bloque {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.pendientes-bloque-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.pendientes-bloque-panel {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+}
+.pendientes-bloque-panel textarea {
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  resize: vertical;
+}
+.field-help.is-aviso {
+  color: var(--warning-text);
+}
+
+/* El texto que el clasificador lee manda; el crudo queda debajo, en gris y en
+   monoespaciada, para reconocerlo sin que compita con lo que hay que juzgar. */
+.pendiente-textos {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.pendiente-crudo {
+  margin: 0;
+  color: var(--faint);
+  font-family: var(--font-mono);
+  font-size: var(--type-3xs);
+  overflow-wrap: anywhere;
+}

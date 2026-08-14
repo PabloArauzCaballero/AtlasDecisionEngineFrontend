@@ -1,0 +1,219 @@
+/* --- Gráfico de categorías detectadas --------------------------------------
+ *
+ * Barras horizontales contra una línea base común: comparar longitudes es lo
+ * que el ojo hace bien, y los rótulos son texto largo que en vertical habría
+ * que girar. El gris con trama queda para «Sin determinar», que no es una
+ * categoría sino su ausencia. Sólo tokens, ningún color escrito a mano.
+ *
+ * DOS colores, y sólo dos: uno por sentido. El color aquí no adorna, codifica
+ * el signo del movimiento, que es la única distinción que el dibujo sostiene.
+ * Se usan `--info` para lo que entra y `--accent` para lo que sale, NO el par
+ * verde/rojo del semáforo: `--success` y `--danger` significan «correcto» y
+ * «problema», y pintar de rojo cada gasto afirmaría que gastar es un error. El
+ * signo va además escrito en la cabecera de cada grupo, así que quitando el
+ * color no se pierde nada.
+ */
+.categorias-grupos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-4);
+}
+.categorias-grupo {
+  min-width: 0;
+  margin: 0;
+}
+.categorias-grupo-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+.categorias-grupo-titulo {
+  margin: 0;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-bold);
+}
+/* La marca de color del grupo va en un punto junto al título, no en el título:
+   el texto lleva tokens de texto, siempre. */
+.categorias-grupo-titulo::before {
+  content: '';
+  display: inline-block;
+  inline-size: 8px;
+  block-size: 8px;
+  margin-inline-end: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+.categorias-grupo.es-ingresos .categorias-grupo-titulo::before {
+  background: var(--info);
+}
+.categorias-grupo-total {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.categorias-grupo-total strong {
+  font-size: var(--type-md);
+  font-weight: var(--weight-black);
+}
+.categorias-grupo-total span {
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+}
+.categorias-grupo-vacio {
+  margin: 0;
+  padding: var(--space-3) 0;
+  color: var(--faint);
+  font-size: var(--type-2xs);
+}
+.categorias-grupo.es-ingresos .categorias-barra-relleno {
+  background: var(--info);
+}
+.categorias-grafico {
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line-soft);
+}
+.categorias-grafico-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.categorias-grafico-resumen {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+}
+.categorias-grafico-resumen strong {
+  color: var(--text);
+  font-weight: var(--weight-black);
+  font-variant-numeric: tabular-nums;
+}
+
+.categorias-barras {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Rótulo | carril | cifras. El carril se lleva lo que sobra, que es lo que hace
+   que todas las barras arranquen en la misma línea base vertical. */
+.categorias-barra {
+  display: grid;
+  /* 9rem y no 15: los dos grupos van uno al lado del otro, y con la columna de
+     rótulo de una sola lista el carril se quedaba sin ancho para comparar. */
+  grid-template-columns: minmax(0, 9rem) minmax(3rem, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.categorias-barra:hover {
+  background: var(--surface-inset);
+}
+
+.categorias-barra-rotulo {
+  display: grid;
+  min-width: 0;
+}
+.categorias-barra-nombre {
+  color: var(--text);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* De dónde cuelga la hoja. En gris y pequeño: sitúa sin competir con el nombre. */
+.categorias-barra-ruta {
+  color: var(--faint);
+  font-size: var(--type-3xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.categorias-barra-carril {
+  block-size: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--line-soft);
+}
+.categorias-barra-relleno {
+  display: block;
+  block-size: 100%;
+  /* Mínimo visible: una categoría con un movimiento existe y tiene que verse. */
+  min-inline-size: 6px;
+  border-radius: var(--radius-pill);
+  /* Color plano. El degradado entre `--accent` y `--accent-strong` medía ΔE 7
+     en OKLab: invisible, y por tanto sólo una capa más que mantener. */
+  background: var(--accent);
+  /* La barra crece mientras la clasificación avanza: la transición acompaña un
+     trabajo que está ocurriendo de verdad, no decora una pantalla quieta. */
+  transition: inline-size var(--dur-slow) var(--ease-out);
+}
+
+.categorias-barra-cifras {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+.categorias-barra-cifras {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+.categorias-barra-importe {
+  color: var(--text);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-black);
+}
+.categorias-barra-parte {
+  color: var(--text-muted);
+  font-size: var(--type-3xs);
+  min-inline-size: 3.2rem;
+  text-align: end;
+}
+
+/* «Sin determinar» y el resto agrupado no son categorías: el trazado rayado los
+   separa de las que sí lo son sin depender del color, que es lo que hace que la
+   distinción sobreviva a una impresión en blanco y negro. */
+.categorias-barra.es-sin-categoria .categorias-barra-nombre {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.categorias-barra.es-sin-categoria .categorias-barra-relleno {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--line),
+    var(--line) 3px,
+    var(--surface-sunken) 3px,
+    var(--surface-sunken) 6px
+  );
+}
+
+/* Estrecho: el rótulo se pone encima y la barra ocupa el ancho. Con tres
+   columnas en pantalla pequeña el nombre quedaba en dos letras por línea. El
+   ancho sale de la escala del repositorio (`breakpoints.ts`), no de tantear. */
+@media (max-width: 560px) {
+  .categorias-barra {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-1) var(--space-3);
+  }
+  .categorias-barra-carril {
+    grid-column: 1 / -1;
+  }
+}

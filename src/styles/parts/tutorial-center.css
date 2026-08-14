@@ -36,18 +36,18 @@
 }
 .tutorial-center-progress-head strong {
   color: var(--ink);
-  font-size: 0.95rem;
+  font-size: var(--type-md);
 }
 .tutorial-center-progress-head span {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
 }
 /* Contenido, no titular: el número compite con el título de la página si se
    pinta enorme, y aquí sólo acompaña a la barra. */
 .tutorial-center-percent {
   margin: 0 0 0 auto;
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: var(--type-xl);
+  font-weight: var(--weight-semibold);
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -81,7 +81,7 @@
   margin: var(--space-3) 0 0;
   padding: 0;
   list-style: none;
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   color: var(--text-muted);
 }
 .tutorial-center-tally strong {
@@ -90,12 +90,12 @@
 
 .tutorial-center-recommended h2 {
   margin: 0 0 var(--space-1);
-  font-size: 0.95rem;
+  font-size: var(--type-md);
   color: var(--ink);
 }
 .tutorial-center-recommended > p {
   margin: 0 0 var(--space-3);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   color: var(--text-muted);
 }
 .tutorial-center-recommended ul {
@@ -129,11 +129,11 @@
 }
 .tutorial-center-recommended button strong {
   color: var(--ink);
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 .tutorial-center-recommended button small {
   color: var(--faint);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 
 /* — Filtros — */
@@ -148,7 +148,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  font-size: 0.75rem;
+  font-size: var(--type-sm);
   color: var(--text-muted);
 }
 .tutorial-center-search {
@@ -169,7 +169,7 @@
   background: transparent;
   border: 0;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 /* El anillo de foco se traslada al contenedor en lugar de suprimirse: quien
    navega con teclado tiene que ver dónde está escribiendo. */
@@ -183,7 +183,7 @@
 }
 .tutorial-center-count {
   margin: 0 0 0 auto;
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   color: var(--text-muted);
 }
 

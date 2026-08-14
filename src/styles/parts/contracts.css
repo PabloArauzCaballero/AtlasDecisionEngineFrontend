@@ -23,12 +23,12 @@
 .constraint-field {
   display: grid;
   gap: 4px;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 
 .constraint-field > span {
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .constraint-field input,
@@ -63,7 +63,7 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 
 .constraint-valid {
@@ -83,7 +83,7 @@
   border-radius: var(--radius-sm);
   background: var(--warning-wash, var(--surface-muted));
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 
 /* --- Variables intermedias --------------------------------------------------- */
@@ -151,8 +151,8 @@
   gap: 6px;
   padding: 4px 8px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 0.8rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-base);
   cursor: pointer;
 }
 

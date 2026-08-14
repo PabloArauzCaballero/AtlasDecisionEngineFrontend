@@ -17,7 +17,7 @@
 }
 
 .calculated-field-form legend {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   padding: 0 6px;
 }
 
@@ -34,9 +34,9 @@
   gap: 6px;
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
 }
 
 .implementation-choices label.is-active {
@@ -95,13 +95,13 @@
 
 .code-editor {
   font-family: var(--font-mono, monospace);
-  font-size: 0.85rem;
+  font-size: var(--type-base);
   line-height: 1.5;
 }
 
 .code-block {
   font-family: var(--font-mono, monospace);
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   background: var(--surface-muted);
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -114,14 +114,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   margin: 6px 0 0;
   color: var(--text-muted);
 }
 
 .line-budget.is-over {
   color: var(--danger-text, var(--text));
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .calculated-try {
@@ -135,7 +135,7 @@
   margin: 6px 0 0;
   display: grid;
   gap: 4px;
-  font-size: 0.82rem;
+  font-size: var(--type-base);
 }
 
 .calculated-test-report li {
@@ -202,7 +202,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 
 /* Editor Monaco: encaja en el alto del formulario y respeta el borde del panel. */
@@ -219,7 +219,7 @@
 }
 .code-variables-title {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .code-variables ul {
   display: flex;
@@ -237,7 +237,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: var(--surface);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .code-variables small {
   color: var(--muted);

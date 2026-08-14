@@ -1,0 +1,44 @@
+/*
+ * Aviso de cierre de sesión (30 min de inactividad · 12 h absolutas).
+ *
+ * Reusa `.dialog-backdrop`, que ya coloca y oscurece. Sólo añade la caja, que
+ * es estrecha a propósito: el aviso tiene una frase y dos botones, y darle el
+ * ancho de un formulario lo haría parecer más trabajo del que es.
+ */
+.dialog.session-expiry {
+  width: min(460px, 100%);
+  padding: var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
+}
+.session-expiry h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-lg);
+  color: var(--ink);
+}
+.session-expiry h2 svg {
+  color: var(--warning);
+}
+.session-expiry p {
+  margin: 0 0 var(--space-3);
+  color: var(--text);
+  font-size: var(--type-base);
+  line-height: 1.5;
+}
+/* La cuenta atrás en monoespaciada: con letra proporcional el número baila de
+   ancho cada segundo y el bloque entero tiembla. */
+.session-expiry-countdown {
+  font-family: var(--font-mono);
+  color: var(--warning-text);
+}
+.session-expiry .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}

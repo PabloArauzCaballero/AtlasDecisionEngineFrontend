@@ -96,6 +96,7 @@
 [data-theme='dark'] .panel-title,
 [data-theme='dark'] .page-header h1,
 [data-theme='dark'] .panel-title span,
+[data-theme='dark'] .panel-title :is(h2, h3, h4),
 [data-theme='dark'] h1,
 [data-theme='dark'] h2,
 [data-theme='dark'] h3,
@@ -138,12 +139,17 @@
   border-color: var(--line-strong);
   color: #dbe6f7;
 }
-[data-theme='dark'] button:focus-visible,
-[data-theme='dark'] a:focus-visible,
-[data-theme='dark'] input:focus-visible,
-[data-theme='dark'] textarea:focus-visible {
-  outline-color: var(--focus-ring);
-}
+/*
+ * El anillo de foco NO se repinta aquí.
+ *
+ * Esta regla existía para deshacer el azul fijo que traían los fundamentos, y
+ * como cargaba después de `refinement.css` acababa deshaciendo también su
+ * anillo sólido sobre el acento. El resultado eran DOS focos distintos dentro
+ * del mismo tema oscuro: translúcido en botones, enlaces y campos —esta regla no
+ * nombraba `select`— y sólido en los desplegables. Con `--focus-ring` ya
+ * derivado del acento en los dos temas, el respaldo de los fundamentos es
+ * correcto por sí solo y aquí no hace falta nada.
+ */
 
 /* ------------------------------------------------------------------ tablas */
 

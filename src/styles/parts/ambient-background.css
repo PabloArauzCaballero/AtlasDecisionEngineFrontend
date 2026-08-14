@@ -70,8 +70,12 @@
  * si la plataforma está trabajando sigue siendo el color (`data-state`), que
  * sólo cambia cuando el backend está haciendo algo de verdad.
  */
+/* La opacidad baja de 0,72 a 0,26. A tres cuartos, las manchas de luz no eran
+   atmósfera: teñían de verde el papel sobre el que se lee, y todo lo que iba
+   encima —tablas, formularios, un panel blanco— quedaba flotando sobre un
+   degradado de color. Un fondo se nota cuando no está, no cuando está. */
 .ambient-aurora {
-  opacity: 0.72;
+  opacity: 0.26;
   transform: translate3d(
     calc(var(--ambient-x) * var(--par-aurora)),
     calc(var(--ambient-y) * var(--par-aurora)),
@@ -96,8 +100,8 @@
 .ambient-spotlight {
   background: radial-gradient(
     26vmax 26vmax at calc(var(--ambient-px) * 100%) calc(var(--ambient-py) * 100%),
-    rgba(var(--state-rgb), 0.3),
-    rgba(var(--accent-rgb), 0.12) 42%,
+    rgba(var(--state-rgb), 0.11),
+    rgba(var(--accent-rgb), 0.05) 42%,
     transparent 68%
   );
   opacity: 0;
@@ -129,37 +133,18 @@
 /* ------------------------------------------------------------------ haz */
 
 /**
- * Barrido diagonal de luz. Cruza la pantalla cada 18 s: lo justo para que el
- * fondo respire sin que nadie mire el reloj esperándolo.
+ * Barrido diagonal de luz — retirado.
+ *
+ * Cruzaba la pantalla cada 18 s. La regla de esta interfaz es que nada se anima
+ * si el backend no está haciendo algo de verdad (ver `useAmbientState.ts`), y
+ * este barrido no informaba de nada: aparecía solo, encima del trabajo de
+ * alguien, y lo que comunicaba era «esto es una demo». El elemento se conserva
+ * —lo monta el componente— pero se queda quieto y transparente, de modo que las
+ * capas que sí responden (el foco del cursor, el color de estado) son las
+ * únicas que se mueven.
  */
 .ambient-beam {
-  background: linear-gradient(
-    104deg,
-    transparent 38%,
-    rgba(255, 255, 255, 0.5) 47%,
-    rgba(var(--state-rgb), 0.12) 50%,
-    transparent 60%
-  );
   opacity: 0;
-}
-.is-animated .ambient-beam {
-  animation: ambient-sweep 18s ease-in-out infinite;
-}
-
-@keyframes ambient-sweep {
-  0%,
-  72%,
-  100% {
-    opacity: 0;
-    transform: translate3d(-28%, 0, 0);
-  }
-  80% {
-    opacity: 0.55;
-  }
-  99% {
-    opacity: 0;
-    transform: translate3d(28%, 0, 0);
-  }
 }
 
 /* ------------------------------------------------------------ cuadrícula */
@@ -170,7 +155,7 @@
     linear-gradient(to bottom, rgba(100, 116, 139, 0.15) 1px, transparent 1px);
   background-size: 46px 46px;
   mask-image: radial-gradient(74% 74% at 50% 42%, #000 20%, transparent 80%);
-  opacity: 0.75;
+  opacity: 0.35;
   /* La malla también se desplaza con la lectura: al bajar por una página larga
      el fondo acompaña, y eso funciona igual en táctil, donde no hay cursor. */
   transform: translate3d(
@@ -180,12 +165,6 @@
   );
   transition: transform 420ms var(--ease-out);
 }
-.is-animated .ambient-grid {
-  animation: ambient-pan 44s linear infinite;
-}
-
-@keyframes ambient-pan {
-  to {
-    background-position: 46px 46px;
-  }
-}
+/* La malla ya no se desplaza sola cada 44 s. Sigue moviéndose con el cursor y
+   con la lectura, que es movimiento CAUSADO por alguien; una deriva perpetua en
+   el fondo de una consola sólo compite por la atención con lo que sí cambia. */

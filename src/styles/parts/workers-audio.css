@@ -1,0 +1,89 @@
+/*
+ * Consola y resultado del worker de locución.
+ *
+ * Hoja aparte de `workers-run.css` por lo mismo que `workers-categories.css`:
+ * aquélla ya roza el tope de 299 líneas del repositorio. Se importa después,
+ * así que puede afinar lo que aquélla define sin subir la especificidad.
+ *
+ * Todo por token. Un color escrito a mano aquí quedaría ilegible al conmutar el
+ * tema y obligaría a parchearlo en la hoja oscura.
+ */
+
+/* --- Entrada -------------------------------------------------------------- */
+
+/*
+ * Cómo quedará la frase, con lo escrito ya dentro.
+ *
+ * Se lee como una CITA y no como un campo más: es lo que va a sonar, y en un
+ * formulario donde todo lo demás son controles hay que poder distinguir de un
+ * vistazo el resultado de lo que se está componiendo.
+ */
+.worker-audio-template {
+  margin: var(--space-3) 0 0;
+}
+
+.worker-audio-preview {
+  margin: var(--space-1) 0 0;
+  padding: var(--space-3);
+  border-left: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: var(--type-lg);
+  /* Sin `font-mono`: es lengua hablada, no un identificador. Con monoespaciada
+     se leía como una cadena de configuración y no como una frase. */
+  line-height: 1.5;
+}
+
+/* --- Resultado ------------------------------------------------------------ */
+
+/*
+ * Por qué se degradó.
+ *
+ * Va en el lavado de aviso porque SÍ hay un estado: sonó el respaldo, o no sonó
+ * nada. Es exactamente el caso en que el color significa algo, a diferencia de
+ * un bloque explicativo permanente.
+ */
+.worker-audio-reason {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--text);
+  font-size: var(--type-md);
+}
+
+.worker-audio-player {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+/*
+ * El reproductor nativo, a lo ancho de lo que quede.
+ *
+ * No se sustituye por controles propios: el del navegador ya trae teclado,
+ * lectura por el lector de pantalla y el control de volumen del sistema, y
+ * reconstruirlo significaría reimplementar las tres cosas —casi siempre a
+ * medias— para ganar sólo apariencia.
+ */
+.worker-audio-player audio {
+  flex: 1 1 18rem;
+  min-width: 0;
+  max-width: 100%;
+  height: 2.5rem;
+}
+
+/*
+ * La huella, entera.
+ *
+ * Sirve para comprobar que dos locuciones son el MISMO audio, así que se parte
+ * en vez de recortarse: un checksum con puntos suspensivos no compara nada.
+ */
+.worker-audio-checksum {
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
+  overflow-wrap: anywhere;
+}

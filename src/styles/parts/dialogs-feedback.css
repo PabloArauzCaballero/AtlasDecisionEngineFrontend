@@ -6,7 +6,7 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3);
   animation: dialog-enter 0.18s ease-out;
@@ -30,7 +30,7 @@
   height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--info-wash);
   color: var(--highlight);
 }
@@ -40,16 +40,16 @@
 }
 .modal-heading h2 {
   margin: 0;
-  font-size: 1.02rem;
+  font-size: var(--type-lg);
 }
 .modal-heading span {
-  font-size: 0.78rem;
+  font-size: var(--type-sm);
   color: var(--muted);
 }
 .modal-body {
   padding: 18px 20px;
   overflow: auto;
-  font-size: 0.86rem;
+  font-size: var(--type-md);
   color: var(--text);
 }
 .modal-body p {
@@ -79,7 +79,7 @@
   align-items: start;
   padding: 10px 12px;
   border: 1px solid var(--danger-line);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--danger-wash);
 }
 .validation-issue-list li.warning {
@@ -88,7 +88,7 @@
 }
 .validation-issue-list li strong {
   display: block;
-  font-size: 0.74rem;
+  font-size: var(--type-sm);
   letter-spacing: 0.04em;
   color: var(--danger);
 }
@@ -96,21 +96,21 @@
   color: var(--warning);
 }
 .validation-issue-list li span {
-  font-size: 0.82rem;
+  font-size: var(--type-base);
   color: var(--text);
 }
 .validation-issue-list li small {
   display: block;
   margin-top: 2px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--type-xs);
 }
 .validation-ok {
   display: flex;
   align-items: center;
   gap: 8px;
   color: var(--success);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 /* Export dialog: scope + column selection before downloading a CSV. */
@@ -125,14 +125,13 @@
   padding-top: 0;
 }
 .export-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
   color: var(--muted);
 }
 .export-label small {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   letter-spacing: 0;
   text-transform: none;
   color: var(--faint);
@@ -141,7 +140,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 0.85rem;
+  font-size: var(--type-base);
   cursor: pointer;
 }
 .export-chips {
@@ -151,15 +150,15 @@
 }
 .export-chip {
   padding: 3px 9px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--info-wash);
   color: var(--highlight);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
 }
 .export-hint {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--type-base);
   color: var(--faint);
 }
 .export-hint-warn {
@@ -174,7 +173,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.83rem;
+  font-size: var(--type-base);
   cursor: pointer;
 }
 
@@ -185,6 +184,6 @@
   margin: 0;
   padding-left: var(--space-4);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--type-md);
   line-height: 1.5;
 }

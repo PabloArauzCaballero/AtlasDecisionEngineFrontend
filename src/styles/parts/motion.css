@@ -10,6 +10,12 @@
   --dur-fast: 140ms;
   --dur-base: 200ms;
   --dur-slow: 280ms;
+  /*
+   * Único bucle admitido: la barra indeterminada de algo que ESTÁ ocurriendo.
+   * No confirma una acción —por eso se sale de la escala de arriba— y tiene que
+   * durar lo bastante para leerse como espera y no como parpadeo.
+   */
+  --dur-loop: 1200ms;
 
   /* Decelerating curve for entrances: fast start, soft landing. */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -18,7 +24,7 @@
   /* Accelerating curve for exits. */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
 
-  --lift-shadow: 0 6px 16px -6px rgba(16, 24, 40, 0.18), 0 2px 5px -2px rgba(16, 24, 40, 0.1);
+  --lift-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
 }
 
 /**
@@ -102,8 +108,13 @@
 /* -------------------------------------------------------- interactive parts */
 
 /**
- * Press feedback. The scale is small on purpose — enough to feel the click
- * land, not enough to read as a toy.
+ * Press feedback.
+ *
+ * Hovering used to lift the control 1 px and cast a shadow. A button is fixed
+ * to the surface it sits on: making it hop announces the pointer, not the
+ * action, and with a toolbar of six it turns a page into a trampoline. The
+ * hover state is now what it should always have been — the surface answers —
+ * and the only travel left is the press itself, which confirms a real event.
  */
 .button,
 .top-action,
@@ -115,17 +126,10 @@
     box-shadow var(--dur-fast) var(--ease-standard),
     transform var(--dur-instant) var(--ease-standard);
 }
-.button:hover:not(:disabled),
-.top-action:hover,
-.quick-action:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--lift-shadow);
-}
 .button:active:not(:disabled),
 .top-action:active,
 .quick-action:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: none;
+  transform: scale(0.97);
   transition-duration: var(--dur-instant);
 }
 
@@ -140,15 +144,18 @@
 }
 
 /**
- * Navigation links. The active item grows a rail on its left edge; the rail
- * scales in from the centre so switching sections reads as movement.
+ * Navigation links.
+ *
+ * The item used to slide 2 px right on hover and grow its icon 10 %: two
+ * separate animations on the calmest, most-used surface in the product. The
+ * fill alone already says "this is the row under your pointer". The active
+ * rail stays — it marks position, which is information, not decoration.
  */
 .nav-link {
   position: relative;
   transition:
     background-color var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard),
-    transform var(--dur-fast) var(--ease-standard);
+    color var(--dur-fast) var(--ease-standard);
 }
 .nav-link::before {
   content: '';
@@ -156,37 +163,33 @@
   left: 0;
   top: 50%;
   width: 3px;
-  height: 18px;
+  height: 16px;
   border-radius: 0 3px 3px 0;
   background: var(--accent);
   transform: translateY(-50%) scaleY(0);
   transition: transform var(--dur-base) var(--ease-out);
 }
-.nav-link:hover:not(.active) {
-  transform: translateX(2px);
-}
 .nav-link.active::before {
   transform: translateY(-50%) scaleY(1);
 }
-.nav-link svg {
-  transition: transform var(--dur-base) var(--ease-out);
-}
-.nav-link:hover svg {
-  transform: scale(1.1);
-}
 
-/* Panels and cards lift toward the cursor to advertise that they are live. */
+/**
+ * Panels and cards.
+ *
+ * They used to rise 2 px toward the cursor. A panel is not a control: nothing
+ * happens when you point at it, so the lift promised an affordance that does
+ * not exist, and on a dashboard of nine cards the whole page twitched as the
+ * pointer crossed it. What is left is the border stating that the card is the
+ * one under the pointer.
+ */
 .metric-card,
 .panel {
   transition:
     box-shadow var(--dur-base) var(--ease-standard),
-    border-color var(--dur-base) var(--ease-standard),
-    transform var(--dur-base) var(--ease-standard);
+    border-color var(--dur-base) var(--ease-standard);
 }
 .metric-card:hover {
-  transform: translateY(-2px);
   border-color: var(--line-strong);
-  box-shadow: var(--lift-shadow);
 }
 
 /* Eases the existing `tbody tr:hover` tint so long grids stay scannable. */

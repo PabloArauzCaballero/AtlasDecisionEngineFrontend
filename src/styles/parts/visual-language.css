@@ -36,7 +36,7 @@
   width: 28px;
   height: 28px;
   flex: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--concept-soft);
   color: var(--concept-color);
   transition:
@@ -59,11 +59,11 @@
   min-height: 28px;
   padding: 4px 11px 4px 9px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   color: var(--muted);
   background: var(--surface);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   cursor: default;
   transition:
     border-color var(--dur-fast) var(--ease-standard),
@@ -144,13 +144,13 @@
 .rich-empty-state h3 {
   margin: 12px 0 0;
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--type-lg);
 }
 .rich-empty-state p {
   max-width: 46ch;
   margin: 0;
   color: var(--muted);
-  font-size: 12.5px;
+  font-size: var(--type-sm);
   line-height: 1.55;
 }
 .rich-empty-example {
@@ -160,7 +160,7 @@
   background: var(--success-wash);
   color: var(--muted) !important;
   text-align: left;
-  font-size: 12px !important;
+  font-size: var(--type-sm) !important;
 }
 .rich-empty-actions {
   display: flex;
@@ -202,8 +202,8 @@
   align-items: center;
   gap: 5px;
   color: var(--success);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   animation: fade-in var(--dur-fast) var(--ease-out) both;
 }
 

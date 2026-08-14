@@ -24,7 +24,9 @@
  * Con esto la tabla vuelve a desplazarse DENTRO de su caja, que es donde el
  * degradado de `.table-wrap` avisa de que sigue habiendo columnas a la derecha.
  */
-.test-cases-layout > main {
+/* Era `> main`: la columna dejó de ser un `<main>` porque el portal ya tiene el
+   suyo en `NextAppShell` y sólo puede haber uno por documento. */
+.test-cases-layout > .test-cases-main {
   min-width: 0;
 }
 
@@ -71,7 +73,7 @@
 .case-toggle:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 .case-toggle svg {
   flex: none;
@@ -98,12 +100,12 @@
 .case-tags em {
   padding: 2px 7px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--surface-muted);
   color: var(--text-muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   font-style: normal;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 /*
@@ -120,13 +122,13 @@
 }
 .case-summary strong {
   color: var(--text);
-  font-size: 11px;
-  font-weight: 650;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
 }
 .case-summary small {
   overflow: hidden;
   color: var(--faint);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }

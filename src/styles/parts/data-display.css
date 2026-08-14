@@ -40,39 +40,58 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
+/*
+ * Cabecera de tabla.
+ *
+ * Iba en versalitas de 10 px y espaciada. En una tabla de doce columnas eso
+ * ensancha cada encabezado un 25 % —empujando el dato, que es lo que se viene a
+ * leer— y convierte la primera fila en la más ruidosa de la rejilla. Sentence
+ * case, un punto más grande y en peso medio: se distingue del cuerpo por color
+ * y peso, no por gritar.
+ */
 th {
   /* Por token, no literal: la cabecera anclada de las tablas anchas repite este
      fondo y tiene que coincidir exactamente para no dejar costura. */
   background: var(--surface-sunken);
-  color: var(--faint);
-  padding: 10px 14px;
+  color: var(--muted);
+  padding: 10px 16px;
   text-align: left;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  text-transform: none;
+  letter-spacing: var(--track-normal);
   white-space: nowrap;
 }
+/*
+ * Cifras de ancho fijo en toda la rejilla.
+ *
+ * Inter dibuja los dígitos proporcionales por omisión: el 1 es más estrecho que
+ * el 8, así que en una columna de importes o de milisegundos las cifras no
+ * caen alineadas y comparar dos filas obliga a leerlas, no a mirarlas. Es la
+ * diferencia entre una tabla y una lista de números.
+ */
 td {
-  padding: 12px 14px;
+  padding: 13px 16px;
   border-top: 1px solid var(--line-soft);
   color: var(--text);
   max-width: 320px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 tbody tr:hover {
   background: var(--surface-inset);
 }
 .status-badge {
   display: inline-flex;
-  padding: 3px 7px;
-  border-radius: 99px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-label);
 }
 .status-success {
   color: var(--success);
@@ -113,7 +132,7 @@ tbody tr:hover {
 }
 .pagination span {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .empty-state {
   display: grid;
@@ -126,13 +145,13 @@ tbody tr:hover {
 .alert {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
-  padding: 11px 13px;
-  margin: 12px 0;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-3) 0;
   border: 1px solid;
-  border-radius: 7px;
-  font-size: 12px;
-  line-height: 1.45;
+  border-radius: var(--radius-md);
+  font-size: var(--type-sm);
+  line-height: 1.5;
 }
 .alert-error {
   color: var(--danger);
@@ -165,7 +184,7 @@ tbody tr:hover {
   padding: 18px;
   background: var(--code-surface);
   color: var(--code-ink);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.55;
 }
 .editor-panel {
@@ -196,7 +215,7 @@ tbody tr:hover {
 .compact-form h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--type-lg);
 }
 .action-workbench {
   padding: 18px;
@@ -212,29 +231,31 @@ tbody tr:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  padding: 18px;
+  gap: var(--space-2);
+  padding: var(--space-5);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   color: var(--text);
   text-align: left;
   cursor: pointer;
 }
+/* Al apuntar, la tarjeta sube de superficie; no se tiñe de verde. Un fondo de
+   estado sobre un control que no ha cambiado de estado dice algo que no es. */
 .action-card:hover:not(:disabled),
 .action-card.featured {
-  border-color: var(--accent-soft);
-  background: var(--success-wash);
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
 }
 .action-card svg {
   color: var(--accent);
 }
 .action-card strong {
   color: var(--ink);
-  font-size: 14px;
+  font-size: var(--type-md);
 }
 .action-card span {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
   line-height: 1.45;
 }

@@ -42,51 +42,56 @@
   /* 300px de mínimo: en el ancho habitual del marco caben tres columnas, así
      las seis tarjetas forman dos filas completas en lugar de dejar un hueco. */
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 .dash-card {
   position: relative;
   display: grid;
-  gap: 4px;
-  padding: 16px;
+  gap: var(--space-1);
+  padding: var(--space-5);
   border: 1px solid var(--line);
-  border-radius: 11px;
+  border-radius: var(--radius-lg);
   background: var(--panel-live);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  box-shadow: var(--shadow-sm);
   transition:
-    transform var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-standard),
     box-shadow var(--dur-base) var(--ease-standard);
 }
+/* La tarjeta ya no se despega del papel al pasar el cursor: seis subiendo y
+   bajando por turnos convierten un panel de estado en un teclado de piano. El
+   borde basta para decir cuál está bajo el puntero, y su enlace sigue
+   apareciendo igual. */
 .dash-card:hover,
 .dash-card:focus-within {
-  transform: translateY(-2px);
   border-color: var(--line-strong);
-  box-shadow: var(--lift-shadow);
 }
 .dash-card header {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: var(--space-2);
 }
 .dash-card header p {
   margin: 0;
   color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-normal);
 }
+/* La cifra es lo único que se lee de lejos en esta pantalla, así que se compone
+   como un dato y no como un texto grande: interletraje cerrado y cifras de
+   ancho fijo, para que 137 no baile al pasar a 138. */
 .dash-card > strong {
   color: var(--ink);
-  font-size: 30px;
+  font-size: var(--type-3xl);
+  font-weight: var(--weight-semibold);
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--track-display);
+  font-variant-numeric: tabular-nums;
 }
 .dash-card > small {
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: var(--type-xs);
   line-height: 1.45;
 }
 .dash-card.is-unavailable > strong {
@@ -100,8 +105,8 @@
   gap: 5px;
   margin-top: 6px;
   color: var(--accent);
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   text-decoration: none;
   opacity: 0;
   transform: translateY(-3px);
@@ -125,9 +130,6 @@
 .dash-card-action:focus-visible {
   opacity: 1;
   transform: none;
-}
-.dash-card:hover .concept-icon {
-  transform: translateY(-2px) scale(1.05);
 }
 .dash-danger {
   border-color: var(--danger-line);
@@ -170,34 +172,33 @@
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 10px;
   align-items: center;
-  padding: 9px 11px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--surface);
-  transition:
-    border-color var(--dur-fast) var(--ease-standard),
-    transform var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-fast) var(--ease-standard);
 }
 .dash-attention li {
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
+/* Sin el desplazamiento de 2 px: una lista cuyas filas se mueven al pasar por
+   encima no se puede recorrer con la vista, que es para lo que existe. */
 .dash-feed li:hover,
 .dash-attention li:hover {
   border-color: var(--line-strong);
-  transform: translateX(2px);
 }
 .dash-feed strong,
 .dash-attention strong {
   display: block;
   color: var(--ink);
-  font-size: 12.5px;
+  font-size: var(--type-sm);
 }
 .dash-feed small,
 .dash-attention small {
   display: block;
   margin-top: 2px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .dash-feed-link {
   /* Medido en 60×15: por debajo del mínimo táctil de WCAG 2.2 AA. La letra no
@@ -207,8 +208,8 @@
   align-items: center;
   min-height: var(--tap-min);
   color: var(--accent);
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -238,26 +239,23 @@
   align-items: center;
   gap: 10px;
   min-height: 48px;
-  padding: 10px 13px;
+  padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: var(--surface);
   color: var(--text);
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
   text-decoration: none;
   transition:
+    background-color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard),
-    transform var(--dur-fast) var(--ease-out);
+    color var(--dur-fast) var(--ease-standard);
 }
 .dash-shortcut:hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
-  transform: translateY(-1px);
-}
-.dash-shortcut:hover .concept-icon {
-  transform: scale(1.08);
+  background: var(--surface-hover);
+  border-color: var(--line-strong);
+  color: var(--ink);
 }
 
 @media (max-width: 1180px) {

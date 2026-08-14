@@ -105,8 +105,8 @@
   display: flex;
   gap: 6px;
   color: var(--faint);
-  font-size: 8px;
-  font-weight: 800;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-black);
   font-style: normal;
   letter-spacing: 0.04em;
 }
@@ -127,13 +127,12 @@
   border: 1px solid currentColor;
   border-radius: 99px;
   background: var(--surface);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .graph-node-run b {
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   opacity: 0.75;
 }
 .graph-node-run.run-pending {

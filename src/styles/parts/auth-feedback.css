@@ -20,7 +20,7 @@
   width: min(100%, 460px);
   padding: 30px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--panel-live);
   box-shadow: 0 18px 60px rgba(16, 24, 40, 0.11);
 }
@@ -34,32 +34,31 @@
   display: grid;
   place-items: center;
   margin: 0 auto 10px;
-  border-radius: 9px;
+  border-radius: var(--radius-sm);
   background: var(--navy);
   color: var(--surface);
 }
 .login-brand h1 {
   margin: 0;
   color: var(--ink);
-  font-size: 28px;
+  font-size: var(--type-3xl);
   letter-spacing: 0.08em;
 }
 .login-brand p {
   margin: 3px 0 0;
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .login-intro h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 22px;
+  font-size: var(--type-2xl);
 }
 .login-intro > p:last-child {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-sm);
   line-height: 1.5;
 }
 .login-form {
@@ -105,10 +104,10 @@
   gap: 8px;
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--canvas);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   line-height: 1.45;
 }
 .security-note svg {
@@ -123,10 +122,9 @@
 .login-foot {
   margin: 22px 0 0;
   color: var(--faint);
-  font-size: 9px;
+  font-size: var(--type-3xs);
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-normal);
 }
 
 .loading-screen,

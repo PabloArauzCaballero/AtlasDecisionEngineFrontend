@@ -2,19 +2,26 @@
    de texto repetidos en tablas y paneles con una estética minimalista. */
 
 .tooltip-wrap {
-  position: relative;
   display: inline-flex;
 }
 
+/*
+ * El globo se monta en `document.body` (ver `Tooltip.tsx`) y `useHintBubble`
+ * escribe sus coordenadas en `--bubble-top`/`--bubble-left` al abrirse. Como
+ * absoluto dentro del disparador ningún `z-index` lo sacaba del contexto de
+ * apilamiento donde naciera —tapado por la barra superior y las cabeceras
+ * pegajosas— y cualquier `overflow` lo recortaba. Los respaldos lo aparcan
+ * fuera de la ventana mientras nadie lo ha abierto.
+ */
 .tooltip-bubble {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
+  position: fixed;
+  top: var(--bubble-top, -9999px);
+  left: var(--bubble-left, -9999px);
+  transform: translateY(4px);
   background: var(--ink);
   color: var(--surface);
-  font-size: 0.74rem;
-  font-weight: 500;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
   /*
    * Con `white-space: nowrap` y sin tope, el globo mide lo que mida su frase.
    * Medido: el de `ThemeToggle` en la barra superior llegaba a 414 px de ancho
@@ -26,83 +33,33 @@
    */
   max-width: min(260px, calc(100vw - 2 * var(--gutter)));
   /*
-   * Sin esto el globo mide lo que su bloque contenedor —`.tooltip-wrap`, que es
-   * un botón de 32-38 px—, porque un absoluto sin `width` se ajusta al hueco
-   * disponible. Medido en la barra superior: 78 px de ancho y 138 de alto, seis
-   * renglones de una palabra cada uno. `max-content` le devuelve su ancho
+   * Sin esto el globo mide lo que le deje el hueco disponible —medido cuando
+   * era absoluto dentro de su botón de 32-38 px: 78 px de ancho y 138 de alto,
+   * seis renglones de una palabra cada uno—. `max-content` le da su ancho
    * natural y el `max-width` de arriba sigue siendo quien lo ata a la ventana.
    */
   width: max-content;
   white-space: normal;
   text-wrap: balance;
   padding: 5px 9px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   opacity: 0;
   pointer-events: none;
   transition:
     opacity 0.14s ease,
     transform 0.14s ease;
-  z-index: 40;
+  /* En `document.body` compite con las otras capas portalizadas: por encima
+     del fondo de los modales (100) —un diálogo también lleva ayudas— y por
+     debajo del recorrido guiado (120). */
+  z-index: 110;
 }
 
-.tooltip-wrap:hover .tooltip-bubble,
-.tooltip-wrap:focus-within .tooltip-bubble {
+/* La animación de entrada llega desde el lado por el que abre el globo. */
+.tooltip-bubble[data-placement='below'] {
+  transform: translateY(-4px);
+}
+.tooltip-bubble[data-open='true'] {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Un globo centrado sobre un control pegado al borde derecho se sale de la
-   ventana: aunque sea invisible, cuenta para el ancho desplazable y hacía que la
-   página entera se moviese en horizontal —el síntoma era una vista recortada—.
-   Donde el control vive en el extremo derecho, el globo se ancla a ese borde y
-   crece hacia dentro. */
-.topbar .tooltip-bubble,
-.table-toolbar .tooltip-bubble,
-.page-header .tooltip-bubble,
-.action-row .tooltip-bubble {
-  left: auto;
-  right: 0;
-  transform: translateY(4px);
-}
-.topbar .tooltip-wrap:hover .tooltip-bubble,
-.topbar .tooltip-wrap:focus-within .tooltip-bubble,
-.table-toolbar .tooltip-wrap:hover .tooltip-bubble,
-.table-toolbar .tooltip-wrap:focus-within .tooltip-bubble,
-.page-header .tooltip-wrap:hover .tooltip-bubble,
-.page-header .tooltip-wrap:focus-within .tooltip-bubble,
-.action-row .tooltip-wrap:hover .tooltip-bubble,
-.action-row .tooltip-wrap:focus-within .tooltip-bubble {
-  transform: translateY(0);
-}
-
-/*
- * La barra superior está pegada al borde de la ventana (`position: sticky; top: 0`),
- * así que un globo anclado con `bottom: calc(100% + 6px)` se pinta ARRIBA de ella:
- * en coordenadas negativas, fuera de la ventana. Se abría, ocupaba su hueco y no
- * se veía nunca — medido: `top` ≈ -22 px con la barra en `top: 0`.
- *
- * Aquí el globo cuelga hacia abajo, sobre el contenido, que es el único lado con
- * sitio. El `z-index` sube por encima del de la propia barra (20) para que no lo
- * tape la sombra ni el contenido pegajoso de la vista.
- */
-.topbar .tooltip-bubble {
-  bottom: auto;
-  top: calc(100% + 8px);
-  transform: translateY(-4px);
-  z-index: 60;
-}
-
-/* Dentro de una fila de tabla el globo competía con la cabecera pegajosa
-   (`position: sticky`): al abrirse hacia arriba, en filas cercanas al borde
-   superior se pintaba encima del `<thead>` en vez de quedar oculto tras él.
-   Abrir hacia abajo evita el solape sin tocar el resto de usos del tooltip. */
-.table-wrap .action-row .tooltip-bubble {
-  bottom: auto;
-  top: calc(100% + 6px);
-  transform: translateY(-4px);
-}
-.table-wrap .action-row .tooltip-wrap:hover .tooltip-bubble,
-.table-wrap .action-row .tooltip-wrap:focus-within .tooltip-bubble {
   transform: translateY(0);
 }
 
@@ -117,7 +74,7 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid transparent;
   background: transparent;
   color: var(--muted);

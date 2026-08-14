@@ -1,10 +1,19 @@
+/*
+ * La barra del editor y su franja de estado se ajustan al contenido.
+ *
+ * Los 78 px y los 46 px eran alturas mínimas heredadas, y por encima del lienzo
+ * todo lo que sobra se paga dos veces: el editor de grafo es la única pantalla
+ * cuyo trabajo ocurre en el espacio que quede, y `editor-and-tables.spec.ts`
+ * vigila que el lienzo arranque antes de los 350 px. Con la escala tipográfica
+ * nueva los controles caben en 68 y 40 sin tocarse entre sí.
+ */
 .editor-toolbar {
-  min-height: 78px;
+  min-height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--panel-live);
   box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
@@ -33,10 +42,10 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--accent-wash);
   color: var(--accent);
-  box-shadow: inset 0 0 0 1px #b7eee7;
+  box-shadow: inset 0 0 0 1px var(--ring-accent-line);
 }
 .editor-identity strong,
 .editor-identity small,
@@ -45,23 +54,21 @@
 }
 .editor-identity strong {
   color: var(--ink-strong);
-  font-size: 13px;
+  font-size: var(--type-base);
 }
 .editor-identity small {
   margin-top: 2px;
   color: var(--muted);
-  font-size: 9px;
-  font-weight: 650;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .editor-version-control label {
   margin-bottom: 4px;
   color: var(--faint);
-  font-size: 8px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .editor-version-control input {
   width: 150px;
@@ -77,7 +84,7 @@
   gap: 1px;
   padding: 2px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--canvas);
 }
 .editor-tool-group .icon-button {
@@ -97,8 +104,8 @@
   border: 0;
   background: transparent;
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-black);
   cursor: pointer;
 }
 .editor-connect-button.active {
@@ -113,12 +120,12 @@
   background: var(--line);
 }
 .graph-editor-statusbar {
-  min-height: 46px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--surface);
 }
@@ -135,8 +142,8 @@
   align-items: center;
   gap: 6px;
   color: var(--faint);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-bold);
 }
 .graph-authoring-steps span:not(:last-child)::after {
   content: '';
@@ -153,7 +160,7 @@
   border: 1px solid var(--line-strong);
   border-radius: 50%;
   background: var(--surface);
-  font-size: 9px;
+  font-size: var(--type-3xs);
 }
 .graph-authoring-steps .current {
   color: var(--text);
@@ -175,9 +182,9 @@
   gap: 12px;
   color: var(--faint);
   white-space: nowrap;
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 .graph-editor-counts strong {
   color: var(--ink-strong);
-  font-size: 12px;
+  font-size: var(--type-sm);
 }

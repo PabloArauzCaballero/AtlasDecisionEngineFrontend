@@ -19,26 +19,17 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* Depth — a refined two-layer resting elevation for surfaces, plus a calm hover
-   that reads as "live" without unsettling dense data grids. */
+/* Depth — one hairline shadow, from the theme, so light and dark agree. The
+   border does the separating; the shadow only says the surface is on top.
+
+   The hover state that used to darken every panel's border and deepen its
+   shadow is gone: a panel is not hoverable, and reacting to the pointer on a
+   page of six of them made the layout feel unstable under the mouse. */
 .panel,
 .editor-panel,
 .json-panel,
 .filter-bar {
-  box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 1px 3px rgba(16, 24, 40, 0.06);
-}
-.panel {
-  transition:
-    box-shadow var(--dur-base) var(--ease-standard),
-    border-color var(--dur-base) var(--ease-standard);
-}
-.panel:hover {
-  border-color: var(--line-strong);
-  box-shadow:
-    0 4px 14px -6px rgba(16, 24, 40, 0.12),
-    0 2px 6px -3px rgba(16, 24, 40, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Inputs — a soft accent halo on focus, layered over the border tint motion.css
@@ -46,7 +37,7 @@ select:focus-visible {
 input:focus,
 textarea:focus,
 select:focus {
-  box-shadow: 0 0 0 3px rgba(0, 106, 97, 0.11);
+  box-shadow: 0 0 0 3px var(--ring-accent);
 }
 
 /* Native checks, radios and ranges adopt the brand accent instead of the
@@ -72,28 +63,31 @@ input[type='range'] {
   border: 0;
 }
 
-/* Selects drop the per-OS native arrow for one consistent inline chevron. */
+/* Selects drop the per-OS native arrow for one consistent inline chevron.
+
+   The stroke colour is spelled out per theme instead of read from a token: a
+   `data:` URI is a separate document, so neither `var()` nor `currentColor`
+   reaches inside it. The dark variant is not optional — the single slate
+   chevron that used to serve both themes sat at roughly 3:1 on the dark inset
+   field, right on the floor WCAG 1.4.11 sets for a control's own affordance. */
 select {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   padding-right: 32px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a5a63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 11px center;
 }
-
-/* Primary action — give the solid button real presence: a hairline top
-   highlight and a grounded shadow so it sits above the surface it commits. */
-.button-primary {
-  box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+[data-theme='dark'] select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b9ba5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
-.button-primary:hover:not(:disabled) {
-  box-shadow:
-    0 4px 12px -3px rgba(16, 24, 40, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+/* Primary action — a hairline top highlight is all the relief a solid button
+   needs. The drop shadow it used to cast (and deepen on hover) made the one
+   control that commits the page look like it was floating off it. */
+.button-primary {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* Status pills — a leading dot in the pill's own colour, the way premium
@@ -118,12 +112,14 @@ select {
 }
 
 /* Tables — pin the header on long grids, revealing a hairline only once the body
-   scrolls beneath it. The header background is already opaque. */
+   scrolls beneath it. The header background is already opaque. The hairline is a
+   token, not a literal: hard-coded, it drew a light-grey rule across a dark
+   table because no dark rule ever corrected it. */
 .table-wrap thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  box-shadow: inset 0 -1px 0 #eaecf0;
+  box-shadow: inset 0 -1px 0 var(--line);
 }
 
 /* Progress / coverage — bars measure in from empty on mount. transform keeps the
@@ -139,28 +135,21 @@ select {
   }
 }
 
-/* Action / entity cards — adopt the metric-card lift language, easing the colour
-   swap these cards already do on hover. */
+/* Action / entity cards — these ARE controls, so they may answer the pointer.
+   They do it by changing surface, like every other control in the product,
+   instead of taking off. */
 .action-card,
 .environment-card {
   transition:
     background-color var(--dur-base) var(--ease-standard),
     border-color var(--dur-base) var(--ease-standard),
-    box-shadow var(--dur-base) var(--ease-standard),
-    transform var(--dur-base) var(--ease-standard);
-}
-.action-card:hover:not(:disabled),
-.environment-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--lift-shadow);
+    box-shadow var(--dur-base) var(--ease-standard);
 }
 
-/* Topbar — a whisper of depth once it is pinned over scrolling content. */
-.topbar {
-  box-shadow:
-    0 1px 0 rgba(16, 24, 40, 0.03),
-    0 6px 16px -12px rgba(16, 24, 40, 0.16);
-}
+/* Topbar — no shadow. It is translucent and blurred; the hairline plus what
+   scrolls under the blur already reads as "this is pinned over the page". A
+   drop shadow on top of that is the belt-and-braces move that makes a header
+   look printed onto the page rather than made of glass. */
 
 /* Text selection picks up the brand tint. */
 ::selection {
@@ -170,10 +159,16 @@ select {
 
 /* Scrollbars — thin and quiet, prominent only on hover. A considered detail on
    every scroll surface. Firefox reads the standard properties; WebKit/Blink use
-   the pseudo-elements, where the transparent border insets the thumb. */
+   the pseudo-elements, where the transparent border insets the thumb.
+
+   Both engines now read the same token. They used to disagree — Firefox got a
+   hard-coded light grey, WebKit got `--line-strong` — so the same scrollbar
+   looked like two different components depending on the browser, and Firefox's
+   stayed nearly white on a dark panel. The hover state was also a no-op: it
+   repeated the resting colour, so "prominent only on hover" never happened. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #c3ccd8 transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 ::-webkit-scrollbar {
   width: 10px;
@@ -184,12 +179,12 @@ select {
 }
 ::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background-clip: padding-box;
-  background-color: var(--line-strong);
+  background-color: var(--scrollbar-thumb);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--line-strong);
+  background-color: var(--faint);
 }
 
 /* Inline "back to list" affordance under a catalog field's free-text escape. */
@@ -199,8 +194,8 @@ select {
   border: 0;
   background: none;
   color: var(--accent);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-xs);
+  font-weight: var(--weight-bold);
   cursor: pointer;
 }
 .field-inline-link:hover {

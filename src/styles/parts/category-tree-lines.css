@@ -1,0 +1,112 @@
+/*
+ * El árbol de categorías, dibujado como un árbol.
+ *
+ * Hoja aparte porque `category-tree.css` llegó al tope de 299 líneas del
+ * repositorio, y porque lo que hay aquí es una cosa sola: la JERARQUÍA. Antes se
+ * insinuaba con sangría y una línea, y la línea estaba mal —todas las ramas la
+ * pintaban en la misma abscisa, así que a partir del segundo nivel señalaba a
+ * otra rama—. Con cincuenta categorías eso deja de ser un detalle: la sangría
+ * sola obliga a contar píxeles para saber de quién cuelga una hoja.
+ *
+ * Tres piezas, y ninguna es color: la GUÍA vertical de cada rama, el CODO que
+ * une cada fila con la guía de su padre, y el peso tipográfico que separa raíz,
+ * rama y hoja. Se lee igual en claro, en oscuro y en blanco y negro.
+ *
+ * Sólo tokens; ningún color escrito a mano.
+ */
+
+/* Paso de sangría por nivel. Uno solo, y aquí: el codo y la guía lo comparten,
+   y si se cambia en un sitio y no en el otro dejan de encontrarse. */
+.categoria-arbol {
+  --paso: 20px;
+  /* Dónde cae la guía dentro de la banda de un nivel. */
+  --guia: calc(var(--space-3) + 7px);
+}
+
+.categoria-fila {
+  position: relative;
+  /* La sangría se recalcula aquí porque `--nivel` se mudó de la fila al nodo. */
+  padding-inline-start: calc(var(--space-3) + var(--nivel, 0) * var(--paso));
+  /*
+   * Sin la raya de abajo. Cruzaba la fila entera de lado a lado y competía con
+   * la jerarquía: cincuenta rayas horizontales de igual peso convierten el árbol
+   * en una tabla, que es exactamente lo que un árbol no es. Lo que separa una
+   * fila de la siguiente pasa a ser el aire y la guía de su rama.
+   */
+  border-bottom: 0;
+  padding-block: 5px;
+}
+
+/*
+ * Guía de la rama abierta, en SU abscisa.
+ *
+ * `--nivel` lo hereda del `<li>` del padre, así que cada rama dibuja su línea
+ * bajo su propia fila en vez de bajo la del primer nivel.
+ */
+.categoria-nodo.es-rama > ul::before {
+  inset-inline-start: calc(var(--guia) + var(--nivel, 0) * var(--paso));
+  /* `--line-strong` y no `--line`: la guía es la que responde «¿de quién cuelga
+     esto?», y una línea que hay que buscar no responde nada. Es la única raya
+     del árbol, así que puede permitirse verse. */
+  border-inline-start: 1px solid var(--line-strong);
+}
+
+/*
+ * Codo: la ele que une la fila con la guía de su padre.
+ *
+ * Es lo que convierte una lista sangrada en un árbol. Va en el pseudoelemento de
+ * la fila y no en un `<span>` porque no es contenido: quien usa un lector de
+ * pantalla ya recorre la jerarquía por el anidamiento de las listas.
+ */
+.categoria-nodo > .categoria-fila::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: calc(var(--guia) + (var(--nivel, 0) - 1) * var(--paso));
+  inline-size: calc(var(--paso) - 7px);
+  border-block-start: 1px solid var(--line-strong);
+}
+/* La raíz no cuelga de nada: sin padre no hay codo que dibujar. */
+.categoria-arbol > .categoria-nodo > .categoria-fila::before {
+  content: none;
+}
+
+/*
+ * Raíz: el corte principal del catálogo —Ingresos frente a Gastos— y por eso lo
+ * único que lleva marca de color. Un filo, no un fondo saturado: basta para
+ * encontrarla de un vistazo sin convertirla en un botón.
+ */
+.categoria-arbol > .categoria-nodo > .categoria-fila {
+  border-inline-start: 3px solid var(--accent);
+  padding-inline-start: calc(var(--space-3) - 1px);
+}
+
+/*
+ * Hoja: lo que el clasificador puede devolver de verdad. Se marca con un punto
+ * porque es la diferencia que más se pregunta mirando el árbol —«¿por qué
+ * “Vivienda” no sale nunca en un resultado?»— y hasta ahora sólo se deducía de
+ * la AUSENCIA del triángulo, que es una señal que hay que buscar.
+ */
+.categoria-nodo.es-hoja > .categoria-fila .categoria-desplegar.is-hoja::before {
+  content: '';
+  inline-size: 5px;
+  block-size: 5px;
+  margin-inline-end: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
+  flex: none;
+}
+.categoria-nodo.es-hoja > .categoria-fila .categoria-desplegar.is-hoja {
+  /* Ya no hace falta reservar el hueco del triángulo: lo ocupa el punto. */
+  padding-inline-start: calc(14px + var(--space-2) - 8px);
+}
+.categoria-nodo.es-hoja > .categoria-fila .categoria-desplegar code {
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+
+/* La rama abierta se distingue de la cerrada por su chevron, y la fila que la
+   contiene queda algo más viva que sus hojas. */
+.categoria-nodo.es-rama > .categoria-fila:hover {
+  background: var(--surface-sunken);
+}

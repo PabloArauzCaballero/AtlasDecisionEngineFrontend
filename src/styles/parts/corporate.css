@@ -4,14 +4,15 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 14px 16px 4px;
+  margin: var(--space-3) var(--space-4) var(--space-1);
   padding: 9px 12px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--navy);
   color: var(--surface);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
   cursor: pointer;
 }
 .quick-action-wrap {
@@ -29,7 +30,7 @@
   display: grid;
   padding: 5px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-md);
   background: var(--panel);
   box-shadow:
     0 14px 30px -10px rgba(16, 24, 40, 0.24),
@@ -43,11 +44,11 @@
   width: 100%;
   padding: 9px 10px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: none;
   color: var(--text);
-  font-size: 12.5px;
-  font-weight: 650;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
   text-align: left;
   cursor: pointer;
   transition:
@@ -76,7 +77,7 @@
 .global-search input {
   padding: 7px 10px 7px 31px;
   background: var(--canvas);
-  font-size: 11px;
+  font-size: var(--type-xs);
 }
 .top-links {
   display: flex;
@@ -86,8 +87,8 @@
 .top-action {
   color: var(--muted);
   text-decoration: none;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
 }
 .top-links a:hover,
 .top-action:hover {
@@ -105,7 +106,7 @@
   height: 28px;
   color: var(--muted);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 .filter-icon {
   border: 1px solid var(--line-strong);
@@ -123,10 +124,10 @@
   height: 28px;
   padding: 0 7px;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   text-decoration: none;
   cursor: pointer;
 }
@@ -150,22 +151,21 @@
 }
 .definition-grid dt {
   color: var(--muted);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--type-3xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-normal);
 }
 .definition-grid dd {
   margin: 5px 0 0;
   color: var(--ink);
-  font-size: 12px;
-  font-weight: 650;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
   overflow-wrap: anywhere;
 }
 .progress {
   height: 6px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--line-soft);
 }
 .progress span {
@@ -219,37 +219,38 @@
   display: block;
 }
 .check-list span {
-  font-size: 12px;
-  font-weight: 650;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
 }
 .check-list small {
   color: var(--muted);
-  font-size: 10px;
-  font-weight: 400;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-regular);
 }
 .check-list code {
   color: var(--success);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-black);
 }
 .alert-card {
   display: flex;
-  gap: 12px;
-  padding: 13px;
+  gap: var(--space-3);
+  padding: var(--space-4);
   background: var(--warning-wash);
   color: var(--warning);
   border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md); /* era la única caja sin esquina propia */
 }
 .alert-card svg {
   flex: 0 0 auto;
   width: 18px;
 }
 .alert-card strong {
-  font-size: 12px;
+  font-size: var(--type-sm);
 }
 .alert-card p {
   margin: 4px 0 0;
-  font-size: 10px;
+  font-size: var(--type-2xs);
   line-height: 1.5;
 }
 .system-summary {
@@ -258,7 +259,7 @@
   gap: 9px;
   margin-top: 16px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
 }
 
 .artifact-overview,
@@ -273,12 +274,12 @@
   align-items: start;
 }
 .current-version > strong {
-  font-size: 26px;
+  font-size: var(--type-3xl);
 }
 .current-version p {
   margin: 0;
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--type-2xs);
   overflow-wrap: anywhere;
 }
 .stack-actions,
