@@ -21,7 +21,7 @@ import { MOCK_SESSION, mockBackend } from './support/backend-mock';
  *   cd ../AtlasBackend && npx tsx scripts/create-dev-jwt.ts --role=admin --tenant-id=1
  */
 
-const RUTA = '/workers/data-notebook';
+const RUTA = '/data-notebook';
 const TOKEN = process.env.PW_BACKEND_TOKEN?.trim();
 
 /** Sesión del portal con un token que AtlasBackend acepta de verdad. */
@@ -36,6 +36,19 @@ async function abrirConSesionReal(page: Page) {
 
   await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await expect(page.locator('.notebook')).toBeVisible({ timeout: 30_000 });
+
+  /*
+   * Se ELIGE el dataset en vez de confiar en el que salga primero.
+   *
+   * Esta prueba se clavó al orden del catálogo y se rompió el día que se le sumaron los datasets
+   * del motor: seguía cargando datos reales —la bitácora de auditoría— pero buscaba un cliente en
+   * ellos. El fallo no decía «cambió el orden», decía «no encuentro CUS-DEMO-001», que manda a
+   * buscar el defecto donde no está.
+   */
+  await page.locator('.notebook-dataset__picker select').selectOption('customer-overview');
+  await expect(page.locator('.notebook-dataset .notebook-table tbody tr').first()).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 test.describe('cuaderno de datos · AtlasBackend real', () => {
@@ -54,16 +67,34 @@ test.describe('cuaderno de datos · AtlasBackend real', () => {
     await expect(tabla.locator('thead th').filter({ hasText: 'lifecycle_status' })).toBeVisible();
   });
 
-  test('los siete datasets del catálogo responden', async ({ page }) => {
+  /**
+   * Los siete de AtlasBackend, por CÓDIGO y no por posición ni por cuántos hay en total.
+   *
+   * Antes se afirmaba `codigos.length === 7` y se rompió en cuanto el catálogo sumó los datasets
+   * del motor: una prueba que cuenta lo que hay se rompe cada vez que alguien añade algo legítimo,
+   * y su rojo no distingue «falta un dataset» de «hay uno nuevo». Nombrándolos, sólo falla si uno
+   * de los que ESTA prueba cubre deja de responder — que es lo único que quiere detectar.
+   */
+  const DATASETS_DE_ATLASBACKEND = [
+    'customer-overview',
+    'risk-assessment-summary',
+    'operations-work-queue',
+    'provider-health-latest',
+    'notification-delivery-summary',
+    'system-endpoint-coverage',
+    'audit-event-feed',
+  ];
+
+  test('los siete datasets de AtlasBackend responden', async ({ page }) => {
     await abrirConSesionReal(page);
 
     const selector = page.locator('.notebook-dataset__picker select');
     const codigos = await selector
       .locator('option')
       .evaluateAll((opciones) => opciones.map((opcion) => (opcion as HTMLOptionElement).value));
-    expect(codigos.length).toBe(7);
+    expect(codigos).toEqual(expect.arrayContaining(DATASETS_DE_ATLASBACKEND));
 
-    for (const codigo of codigos) {
+    for (const codigo of DATASETS_DE_ATLASBACKEND) {
       await selector.selectOption(codigo);
       // El fallo que esto atrapa es el de un dataset que responde 503 —le falta la columna de
       // inquilino, la vista no existe— y deja la pantalla con un error en vez de una tabla.
