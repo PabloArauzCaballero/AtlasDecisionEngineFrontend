@@ -32,7 +32,24 @@ async function pedir<T>(
   ruta: string,
   init?: Parameters<typeof apiRequest>[1],
 ): Promise<T> {
-  const cuerpo = await apiRequest<unknown>(`${RUTAS[source]}${ruta}`, init);
+  const cuerpo = await apiRequest<unknown>(`${RUTAS[source]}${ruta}`, {
+    ...init,
+    /*
+     * Un 401 del SEGUNDO origen no es la muerte de la sesión del portal.
+     *
+     * Sin esto, `authorizedFetch` lee cualquier 401 como «la sesión venció»: renueva el token,
+     * reintenta, recibe el mismo 401 y llama a `expireSession()`. O sea que abrir la consola
+     * echaba del portal a quien no tuviera permiso de consola en AtlasBackend — y en las pruebas
+     * tumbaba las nueve, porque la sesión moría antes de que la pantalla llegara a pintarse.
+     *
+     * Es el mismo fallo que ya tuvo el generador documental y que este repositorio arregló
+     * traduciendo su 401 a 502: un rechazo de OTRO servicio no puede tocar la sesión de éste.
+     * Aquí se corta en el cliente, que es donde vive la reacción. Con la renovación desactivada,
+     * el 401 vuelve como error normal y `fetchSqlCatalog` lo trata como «este origen no está
+     * disponible», que es lo que de verdad significa.
+     */
+    retryOnUnauthorized: source === 'ATLAS_BACKEND' ? false : init?.retryOnUnauthorized,
+  });
   if (source === 'ATLAS_BACKEND' && cuerpo && typeof cuerpo === 'object' && 'data' in cuerpo) {
     return (cuerpo as { data: T }).data;
   }
