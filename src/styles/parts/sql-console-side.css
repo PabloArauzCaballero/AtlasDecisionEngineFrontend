@@ -99,6 +99,17 @@
   font-weight: var(--weight-medium);
 }
 
+/*
+ * Grano sin declarar: mismo sitio, tono de aviso.
+ *
+ * No se atenúa como una nota al pie. Que nadie haya comprobado qué es una fila es justo lo que
+ * hay que leer antes de contar, y un gris apagado ahí se salta igual que un hueco en blanco.
+ */
+.sql-schema__grain--sin {
+  color: var(--warning-text);
+  font-weight: var(--weight-regular);
+}
+
 .sql-schema__description {
   margin: var(--space-2) 0 var(--space-3);
   color: var(--text-muted);
@@ -237,4 +248,48 @@
   .sql-side {
     max-height: var(--sql-stacked-max);
   }
+}
+
+/*
+ * Primer nivel del árbol: el backend del que viene cada esquema.
+ *
+ * Se sangra el contenido para que la jerarquía backend → esquema → tabla se lea de un vistazo. Sin
+ * ese escalón, dos listas seguidas parecen una sola y el nivel nuevo no aporta nada.
+ */
+.sql-explorer__origen + .sql-explorer__origen {
+  margin-top: var(--space-3);
+}
+
+.sql-explorer__origen-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  text-align: left;
+}
+
+.sql-explorer__origen-head:hover {
+  background: var(--surface-hover);
+}
+
+.sql-explorer__origen-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sql-explorer__origen-body {
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--line);
+  margin-left: var(--space-2);
+  margin-top: var(--space-1);
 }

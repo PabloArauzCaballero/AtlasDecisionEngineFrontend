@@ -19,12 +19,28 @@ export interface CatalogColumn {
 export interface CatalogTable {
   name: string;
   description: string;
-  /** Qué es UNA fila. Se enseña junto a la tabla porque sin ella un `COUNT(*)` engaña. */
-  grain: string;
+  /**
+   * Qué es UNA fila. Se enseña junto a la tabla porque sin ella un `COUNT(*)` engaña.
+   *
+   * `null` en una vista que la base publica y que nadie ha fichado todavía: desde que el motor
+   * descubre su catálogo, puede haber tablas por delante de su documentación. Cuando falta se
+   * calla —el motor no inventa un grano derivado del nombre, y la pantalla tampoco—.
+   */
+  grain: string | null;
   columns: CatalogColumn[];
 }
 
+export type CatalogOrigin = 'MOTOR' | 'ATLAS_BACKEND';
+
 export interface CatalogDataset {
+  /**
+   * De que backend viene. Lo pone el portal al unir los catalogos, no el servidor.
+   *
+   * Sin el, el explorador ensena una lista plana donde `ejecuciones` y `credit.loans` parecen dos
+   * tablas del mismo sitio — y no lo son: viven en bases distintas y ninguna consulta puede
+   * cruzarlas. Agrupado por origen, esa imposibilidad se ve antes de escribir el JOIN.
+   */
+  origin?: CatalogOrigin;
   name: string;
   description: string;
   tables: CatalogTable[];
@@ -36,8 +52,23 @@ export interface ConsoleLimits {
   maxStatementBytes: number;
 }
 
+/**
+ * Una relación que la base publica y el origen NO sirve, con el motivo.
+ *
+ * Existe porque un catálogo que encoge sin decirlo se lee como que la base tiene menos datos, y
+ * manda a buscar el problema donde no está. Desde que los dos backends descubren su catálogo, la
+ * pregunta «¿por qué no veo mi vista?» tiene respuesta: aparece aquí, con la línea que hay que
+ * arreglar.
+ */
+export interface OmittedRelation {
+  name: string;
+  reason: string;
+}
+
 export interface SqlCatalog {
   datasets: CatalogDataset[];
+  /** Opcional: un origen anterior al descubrimiento no lo manda, y eso no es un error. */
+  omitted?: OmittedRelation[];
   limits: ConsoleLimits;
 }
 

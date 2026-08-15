@@ -136,13 +136,10 @@ export function unirCatalogos(
   if (backend) partes.push({ source: 'ATLAS_BACKEND', catalog: backend });
 
   const datasets = [
-    ...(motor?.datasets ?? []).map((dataset) => ({
-      ...dataset,
-      description: `Motor de decisión · ${dataset.description}`,
-    })),
+    ...(motor?.datasets ?? []).map((dataset) => ({ ...dataset, origin: 'MOTOR' as const })),
     ...(backend?.datasets ?? []).map((dataset) => ({
       ...dataset,
-      description: `AtlasBackend · ${dataset.description}`,
+      origin: 'ATLAS_BACKEND' as const,
     })),
   ];
 
@@ -151,6 +148,20 @@ export function unirCatalogos(
     // que no son los del destino haría que la consola prometiera lo que no puede cumplir.
     catalog: {
       datasets,
+      /*
+       * Las descartadas se unen igual que los datasets, y con el origen delante por lo mismo:
+       * `riesgo.exposicion` y `v_pagos_v1` no se arreglan en el mismo repositorio.
+       */
+      omitted: [
+        ...(motor?.omitted ?? []).map((entry) => ({
+          ...entry,
+          name: `Motor de decisión · ${entry.name}`,
+        })),
+        ...(backend?.omitted ?? []).map((entry) => ({
+          ...entry,
+          name: `AtlasBackend · ${entry.name}`,
+        })),
+      ],
       limits: motor?.limits ??
         backend?.limits ?? { maxRows: 0, timeoutMs: 0, maxStatementBytes: 0 },
     },

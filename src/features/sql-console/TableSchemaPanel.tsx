@@ -45,7 +45,16 @@ export function TableSchemaPanel({ dataset, table, onClose, onInsertColumn, onQu
         </button>
       </header>
 
-      <p className="sql-schema__grain">{table.grain}</p>
+      {/*
+       * Sin grano declarado se DICE, no se deja el hueco en blanco.
+       *
+       * Desde que el catálogo se descubre de la base puede haber tablas por delante de su
+       * documentación. Un párrafo vacío se lee como que la tabla no necesitaba explicación; el
+       * aviso dice lo único que importa aquí, que es que nadie ha comprobado qué es una fila.
+       */}
+      <p className={table.grain ? 'sql-schema__grain' : 'sql-schema__grain sql-schema__grain--sin'}>
+        {table.grain ?? 'Grano sin declarar: comprueba qué es una fila antes de contar.'}
+      </p>
       <p className="sql-schema__description">{table.description}</p>
 
       <button type="button" className="sql-schema__query" onClick={() => onQueryTable(reference)}>

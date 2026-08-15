@@ -1,8 +1,30 @@
 'use client';
 
-import { ChevronDown, ChevronRight, Database, Search, Table2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Database, Search, Server, Table2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { CatalogDataset, CatalogTable } from './sql-console.types';
+import type { CatalogDataset, CatalogOrigin, CatalogTable } from './sql-console.types';
+
+/**
+ * El primer nivel del arbol: de que backend viene cada esquema.
+ *
+ * Se anade ENCIMA de la agrupacion que ya habia (esquema, luego tabla), no en su lugar: el arbol
+ * queda backend -> esquema -> tabla. Sin este nivel, `ejecuciones` y `credit.loans` aparecian
+ * en la misma lista como si fueran dos tablas del mismo sitio, y no lo son — viven en bases
+ * distintas y ninguna consulta puede cruzarlas. Verlo antes de escribir el JOIN ahorra descubrirlo
+ * por un error que no explica la causa.
+ */
+const ORIGENES: ReadonlyArray<{ id: CatalogOrigin; titulo: string; resumen: string }> = [
+  {
+    id: 'ATLAS_BACKEND',
+    titulo: 'AtlasBackend',
+    resumen: 'Sobre QUIEN se decidio: clientes, creditos, casos, consentimientos y bitacora.',
+  },
+  {
+    id: 'MOTOR',
+    titulo: 'Motor de decision',
+    resumen: 'LO QUE se decidio: ejecuciones, artefactos, desenlaces y riesgo del motor.',
+  },
+];
 
 interface Props {
   datasets: CatalogDataset[];
@@ -75,62 +97,91 @@ export function DatasetExplorer({ datasets, selected, onSelect, onInsert }: Prop
           <p className="sql-explorer__empty">Ninguna tabla coincide con «{query}».</p>
         ) : null}
 
-        {filtered.map((dataset) => {
-          // Buscando, todo abierto: ver lo que se encontró es el objetivo de haber buscado.
-          const open = searching || !closed.has(dataset.name);
+        {ORIGENES.map(({ id, titulo, resumen }) => {
+          const suyos = filtered.filter((dataset) => (dataset.origin ?? 'MOTOR') === id);
+          if (suyos.length === 0) return null;
+          const abierto = searching || !closed.has(`origen:${id}`);
+          const relaciones = suyos.reduce((total, dataset) => total + dataset.tables.length, 0);
+
           return (
-            <section key={dataset.name} className="sql-explorer__dataset">
+            <section
+              key={id}
+              className={`sql-explorer__origen sql-explorer__origen--${id.toLowerCase()}`}
+            >
               <button
                 type="button"
-                className="sql-explorer__dataset-head"
-                onClick={() => toggle(dataset.name)}
-                aria-expanded={open}
-                title={dataset.description}
+                className="sql-explorer__origen-head"
+                onClick={() => toggle(`origen:${id}`)}
+                aria-expanded={abierto}
+                title={resumen}
               >
-                {open ? (
+                {abierto ? (
                   <ChevronDown size={14} aria-hidden />
                 ) : (
                   <ChevronRight size={14} aria-hidden />
                 )}
-                <Database size={14} aria-hidden />
-                <span className="sql-explorer__dataset-name">{dataset.name}</span>
-                <span className="sql-explorer__count">{dataset.tables.length}</span>
+                <Server size={14} aria-hidden />
+                <span className="sql-explorer__origen-name">{titulo}</span>
+                <span className="sql-explorer__count">{relaciones}</span>
               </button>
-
-              {open ? (
-                <ul className="sql-explorer__tables">
-                  {dataset.tables.map((table) => {
-                    const active =
-                      selected?.dataset === dataset.name && selected.table === table.name;
-                    return (
-                      <li key={table.name}>
-                        <button
-                          type="button"
-                          className={`sql-explorer__table${active ? ' is-active' : ''}`}
-                          onClick={() => onSelect(dataset.name, table)}
-                          aria-current={active ? 'true' : undefined}
-                          title={table.description}
-                        >
-                          <Table2 size={13} aria-hidden />
-                          <span>{table.name}</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="sql-explorer__insert"
-                          onClick={() => onInsert(`${dataset.name}.${table.name}`)}
-                          aria-label={`Insertar ${dataset.name}.${table.name} en la consulta`}
-                        >
-                          +
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : null}
+              {abierto ? <div className="sql-explorer__origen-body">{arbolDe(suyos)}</div> : null}
             </section>
           );
         })}
       </div>
     </aside>
   );
+
+  function arbolDe(lista: CatalogDataset[]) {
+    return lista.map((dataset) => {
+      // Buscando, todo abierto: ver lo que se encontró es el objetivo de haber buscado.
+      const open = searching || !closed.has(dataset.name);
+      return (
+        <section key={dataset.name} className="sql-explorer__dataset">
+          <button
+            type="button"
+            className="sql-explorer__dataset-head"
+            onClick={() => toggle(dataset.name)}
+            aria-expanded={open}
+            title={dataset.description}
+          >
+            {open ? <ChevronDown size={14} aria-hidden /> : <ChevronRight size={14} aria-hidden />}
+            <Database size={14} aria-hidden />
+            <span className="sql-explorer__dataset-name">{dataset.name}</span>
+            <span className="sql-explorer__count">{dataset.tables.length}</span>
+          </button>
+
+          {open ? (
+            <ul className="sql-explorer__tables">
+              {dataset.tables.map((table) => {
+                const active = selected?.dataset === dataset.name && selected.table === table.name;
+                return (
+                  <li key={table.name}>
+                    <button
+                      type="button"
+                      className={`sql-explorer__table${active ? ' is-active' : ''}`}
+                      onClick={() => onSelect(dataset.name, table)}
+                      aria-current={active ? 'true' : undefined}
+                      title={table.description}
+                    >
+                      <Table2 size={13} aria-hidden />
+                      <span>{table.name}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="sql-explorer__insert"
+                      onClick={() => onInsert(`${dataset.name}.${table.name}`)}
+                      aria-label={`Insertar ${dataset.name}.${table.name} en la consulta`}
+                    >
+                      +
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+      );
+    });
+  }
 }

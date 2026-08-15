@@ -94,7 +94,7 @@ export function registerSqlCompletions(monaco: Monaco, datasets: CatalogDataset[
             label: `${dataset.name}.${table.name}`,
             kind: Kind.Struct,
             insertText: `${dataset.name}.${table.name}`,
-            detail: table.grain,
+            detail: table.grain ?? undefined,
             documentation: table.description,
             // Las tablas se ordenan antes que las palabras clave: escribiendo `ejec` lo que
             // se busca casi siempre es la tabla, no `END`.
