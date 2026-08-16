@@ -1,8 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { ChevronDown, ChevronRight, CircleSlash, Pencil, Plus } from 'lucide-react';
 import type { SemanticCategory } from './categories.api';
+import {
+  armarArbol,
+  useRamasCerradas,
+  type ControlDeRamas,
+  type NodoCategoria,
+} from './category-tree.model';
 
 /**
  * El árbol, como árbol y PLEGABLE.
@@ -26,41 +31,15 @@ export interface CategoryTreeProps {
   onEditar: (categoria: SemanticCategory) => void;
   onDesactivar: (categoria: SemanticCategory) => void;
   onAgregarHija: (parentCode: string) => void;
-}
-
-interface Nodo {
-  categoria: SemanticCategory;
-  hijas: Nodo[];
-  /** Hojas que cuelgan de aquí, a cualquier profundidad. */
-  hojas: number;
-}
-
-/**
- * Arma el árbol. Una categoría cuyo padre no está en la lista se cuelga de la
- * raíz en vez de desaparecer: un catálogo con una referencia rota se tiene que
- * PODER VER para arreglarlo, y esconderla dejaría a alguien buscando una fila
- * que la API sí devuelve.
- */
-function armar(categorias: readonly SemanticCategory[]): Nodo[] {
-  const porCodigo = new Map(
-    categorias.map((c) => [c.code, { categoria: c, hijas: [], hojas: 0 } as Nodo]),
-  );
-  const raices: Nodo[] = [];
-  for (const nodo of porCodigo.values()) {
-    const padre = nodo.categoria.parentCode;
-    const nodoPadre = padre === null ? undefined : porCodigo.get(padre);
-    if (nodoPadre === undefined) raices.push(nodo);
-    else nodoPadre.hijas.push(nodo);
-  }
-  const preparar = (nodos: Nodo[]): Nodo[] =>
-    nodos
-      .sort((a, b) => a.categoria.code.localeCompare(b.categoria.code))
-      .map((nodo) => {
-        const hijas = preparar(nodo.hijas);
-        const hojas = hijas.length === 0 ? 1 : hijas.reduce((total, hija) => total + hija.hojas, 0);
-        return { ...nodo, hijas, hojas };
-      });
-  return preparar(raices);
+  /**
+   * El plegado, cuando lo lleva quien está por encima.
+   *
+   * Existe porque «expandir todo» y «colapsar todo» viven en la barra de
+   * acciones, que es hermana del árbol y no puede alcanzar un estado guardado
+   * aquí dentro. Sin control se comporta como siempre y se pliega solo — que es
+   * lo que necesitan las pruebas y cualquier uso suelto.
+   */
+  control?: ControlDeRamas;
 }
 
 export function CategoryTree({
@@ -68,23 +47,13 @@ export function CategoryTree({
   onEditar,
   onDesactivar,
   onAgregarHija,
+  control,
 }: CategoryTreeProps) {
-  const raices = armar(categorias);
-  /*
-   * Se guarda lo CERRADO y no lo abierto: así una categoría recién creada
-   * aparece visible dentro de su rama sin que nadie tenga que abrirla, que es
-   * justo lo que se espera después de crearla.
-   */
-  const [cerradas, setCerradas] = useState<ReadonlySet<string>>(
-    () => new Set(raices.flatMap((raiz) => raiz.hijas.map((hija) => hija.categoria.code))),
-  );
-
-  const alternar = (code: string) =>
-    setCerradas((previas) => {
-      const siguiente = new Set(previas);
-      if (!siguiente.delete(code)) siguiente.add(code);
-      return siguiente;
-    });
+  const raices = armarArbol(categorias);
+  // El estado propio se calcula siempre —un hook no puede ser condicional— y se
+  // descarta cuando manda el de fuera.
+  const propio = useRamasCerradas(raices);
+  const { cerradas, alternar } = control ?? propio;
 
   if (raices.length === 0) {
     return <p className="categoria-vacio">Este tenant todavía no tiene categorías sembradas.</p>;
@@ -116,11 +85,11 @@ function Rama({
   onDesactivar,
   onAgregarHija,
 }: {
-  nodo: Nodo;
+  nodo: NodoCategoria;
   nivel: number;
   cerradas: ReadonlySet<string>;
   onAlternar: (code: string) => void;
-} & Omit<CategoryTreeProps, 'categorias'>) {
+} & Omit<CategoryTreeProps, 'categorias' | 'control'>) {
   const { categoria, hijas } = nodo;
   const esRama = hijas.length > 0;
   const abierta = esRama && !cerradas.has(categoria.code);

@@ -1,0 +1,43 @@
+/* Barra de acciones del árbol de categorías: plegado en bloque y descargas.
+
+   Hoja propia y no un añadido a `category-tree.css` por lo de siempre en este
+   repositorio: aquélla ya rozaba el techo de 299 líneas, y una hoja que crece
+   hasta el límite obliga a partirla en mitad de un cambio urgente. */
+
+/* Envuelve en vez de desbordar: son cinco controles y a 390 px no caben en una
+   línea. Sin `wrap`, el último queda fuera de la vista sin que nada insinúe que
+   está ahí —y lo que queda fuera es justo la descarga—. */
+.categoria-barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+
+/* Los grupos dicen qué acciones son de la misma familia. Cinco botones seguidos
+   y sueltos se leen como cinco decisiones independientes; agrupados se leen como
+   dos: «cómo lo miro» y «me lo llevo». */
+.categoria-barra-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* Las descargas se van al extremo opuesto de «Nueva categoría»: una escribe en
+   el catálogo y la otra no, y tenerlas pegadas invita a pulsar la que no era. */
+.categoria-barra-descargas {
+  margin-inline-start: auto;
+}
+
+/* 560 y no 640: `sm` es, por definición de la escala, el ancho al que las barras
+   de filtro pasan a una columna, que es exactamente lo que le ocurre a ésta. El
+   640 escrito a mano no distinguía ningún dispositivo — distinguía quién escribió
+   la hoja — y `breakpoints.test.ts` lo persigue por eso. */
+@media (max-width: 560px) {
+  /* Con la barra ya envuelta, empujar a la derecha deja un hueco a media línea
+     en vez de una separación que se lea. */
+  .categoria-barra-descargas {
+    margin-inline-start: 0;
+  }
+}

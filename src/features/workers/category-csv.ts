@@ -1,4 +1,5 @@
 import type { SemanticCategory } from './categories.api';
+import { aplanarExportacion } from './category-json';
 import {
   problemasDeFormato,
   UMBRAL_HOJA,
@@ -166,7 +167,15 @@ function comoLista(valor: unknown): string[] {
   return Array.isArray(valor) ? valor.map(comoTexto).filter((texto) => texto !== '') : [];
 }
 
-/** Lee el array de categorías de un JSON, con los mismos problemas catalogados. */
+/**
+ * Lee las categorías de un JSON, con los mismos problemas catalogados.
+ *
+ * Admite las DOS formas: el array plano de siempre y el documento anidado que
+ * descarga esta misma pantalla (`{ categories: [ { …, children: [] } ] }`). Que
+ * lo descargado no se pudiera volver a subir era una trampa silenciosa: el
+ * archivo se abría bien, se editaba bien y rebotaba al final con «no es un
+ * array», que no dice qué hacer.
+ */
 export function leerJson(texto: string): Lectura {
   if (texto.trim() === '')
     return { categorias: [], problemas: [problemasDeFormato.archivoVacio()] };
@@ -184,7 +193,8 @@ export function leerJson(texto: string): Lectura {
       ],
     };
   }
-  if (!Array.isArray(dato)) {
+  const filas = aplanarExportacion(dato) ?? dato;
+  if (!Array.isArray(filas)) {
     return {
       categorias: [],
       problemas: [problemasDeFormato.jsonNoEsArray(dato === null ? 'null' : typeof dato)],
@@ -194,7 +204,7 @@ export function leerJson(texto: string): Lectura {
   const categorias: CategoriaSubida[] = [];
   const problemas: ProblemaSubida[] = [];
 
-  dato.forEach((fila, indice) => {
+  filas.forEach((fila, indice) => {
     if (typeof fila !== 'object' || fila === null || Array.isArray(fila)) {
       problemas.push(problemasDeFormato.filaNoEsObjeto(`categoría ${String(indice + 1)}`));
       return;

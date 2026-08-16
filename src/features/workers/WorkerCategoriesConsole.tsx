@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { CategoryForm } from './CategoryForm';
 import { CategoryImportPanel } from './CategoryImportPanel';
 import { CategoryTree } from './CategoryTree';
+import { CategoryTreeToolbar } from './CategoryTreeToolbar';
+import { armarArbol, useRamasCerradas } from './category-tree.model';
 import {
   deactivateCategory,
   fetchCategories,
@@ -84,6 +85,10 @@ export function WorkerCategoriesConsole() {
 
   const lista = useMemo(() => categorias.data ?? [], [categorias.data]);
   const codigos = useMemo(() => lista.map((categoria) => categoria.code), [lista]);
+  // El plegado vive aquí porque lo comparten la barra —«expandir todo»— y el
+  // árbol. Guardado dentro del árbol, la barra no tendría cómo alcanzarlo.
+  const raices = useMemo(() => armarArbol(lista), [lista]);
+  const control = useRamasCerradas(raices);
 
   return (
     <div className="worker-categorias">
@@ -97,18 +102,14 @@ export function WorkerCategoriesConsole() {
           inalcanzable a propósito.
         </p>
 
-        <div className="categoria-barra">
-          <button
-            type="button"
-            className="button button-primary"
-            onClick={() => {
-              setPadrePorDefecto(null);
-              setEditando('nueva');
-            }}
-          >
-            <Plus size={15} aria-hidden="true" /> Nueva categoría
-          </button>
-        </div>
+        <CategoryTreeToolbar
+          categorias={lista}
+          control={control}
+          onNueva={() => {
+            setPadrePorDefecto(null);
+            setEditando('nueva');
+          }}
+        />
 
         {editando !== null ? (
           <CategoryForm
@@ -133,6 +134,7 @@ export function WorkerCategoriesConsole() {
         ) : (
           <CategoryTree
             categorias={lista}
+            control={control}
             onEditar={(categoria) => {
               setPadrePorDefecto(null);
               setEditando(categoria);

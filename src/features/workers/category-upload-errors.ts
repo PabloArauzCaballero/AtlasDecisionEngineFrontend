@@ -78,7 +78,7 @@ export const problemasDeFormato = {
       'JSON_NO_ES_ARRAY',
       'el archivo',
       `Se esperaba un array de categorías y llegó ${tipo}.`,
-      'Envuelve las categorías en corchetes: [ { … }, { … } ]. Una sola categoría también va dentro de un array.',
+      'Envuelve las categorías en corchetes: [ { … }, { … } ]. Una sola categoría también va dentro de un array. También se admite el documento anidado que descarga esta pantalla, con la lista bajo la clave «categories».',
     ),
   csvSinCabecera: (): ProblemaSubida =>
     problema(

@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Download, FileJson, FlaskConical, Upload, FileUp } from 'lucide-react';
+import { FileJson, FlaskConical, Upload, FileUp } from 'lucide-react';
 import type { ImportSummary, SemanticCategory } from './categories.api';
-import { categoriasACsv, COLUMNAS_CSV, leerCsv, leerJson } from './category-csv';
+import { COLUMNAS_CSV, leerCsv, leerJson } from './category-csv';
 import {
   bloquean,
   revisarCategorias,
@@ -11,7 +11,6 @@ import {
   type ProblemaSubida,
 } from './category-upload-errors';
 import { CategoryUploadProblems } from './CategoryUploadProblems';
-import { saveBlob } from '../../utils/download';
 
 /**
  * Inyección de un subárbol completo, desde JSON o desde CSV.
@@ -57,7 +56,7 @@ export interface CategoryImportPanelProps {
   onInyectar: (categorias: unknown[]) => void;
   ocupado: boolean;
   resumen: ImportSummary | null;
-  /** El catálogo actual: sirve de plantilla al descargar y para validar padres. */
+  /** El catálogo actual: distingue qué códigos se crean de cuáles se reemplazan. */
   catalogo: readonly SemanticCategory[];
 }
 
@@ -123,14 +122,6 @@ export function CategoryImportPanel({
           <button
             type="button"
             className="button"
-            disabled={catalogo.length === 0}
-            onClick={() => saveBlob('categorias.csv', new Blob([categoriasACsv(catalogo)]))}
-          >
-            <Download size={15} aria-hidden="true" /> Descargar el catálogo (CSV)
-          </button>
-          <button
-            type="button"
-            className="button"
             onClick={() => {
               setTexto(PLANTILLA);
               setProblemas([]);
@@ -158,9 +149,11 @@ export function CategoryImportPanel({
 
       <p className="field-help">
         En CSV, la cabecera es <code>{COLUMNAS_CSV.join(', ')}</code> y los ejemplos van separados
-        por <code>|</code>. La forma más segura de empezar es descargar el catálogo actual, editarlo
-        en una hoja de cálculo y volver a subirlo. El orden de las filas no importa: el motor
-        escribe de padre a hijo en una sola transacción.
+        por <code>|</code>. En JSON se admiten tanto un array plano como el documento anidado que
+        descarga esta pantalla. La forma más segura de empezar es bajar el catálogo actual desde{' '}
+        <strong>Descargar JSON</strong> o <strong>Descargar CSV</strong>, en la barra del árbol,
+        editarlo y volver a subirlo aquí. El orden de las filas no importa: el motor escribe de
+        padre a hijo en una sola transacción.
       </p>
 
       <textarea

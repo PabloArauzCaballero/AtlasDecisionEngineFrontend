@@ -177,3 +177,36 @@ export const AUDIO_BYTES = Buffer.concat([
   Buffer.from([0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]),
   Buffer.alloc(512, 0x11),
 ]);
+
+/**
+ * Catálogo de categorías del semántico, con TRES niveles.
+ *
+ * Tres y no dos a propósito: el nivel profundo arranca cerrado en la pantalla, y
+ * es el único que puede demostrar que la descarga lleva el catálogo entero y no
+ * lo que estuviera desplegado. Con dos niveles, «completo» y «lo visible» serían
+ * el mismo archivo y la prueba pasaría estuviera roto o no.
+ */
+export const SEMANTIC_CATEGORIES = [
+  categoria('GASTOS', null, 1),
+  categoria('GASTOS.VIVIENDA', 'GASTOS', 1),
+  categoria('GASTOS.VIVIENDA.LUZ', 'GASTOS.VIVIENDA', 0.62),
+  categoria('GASTOS.VIVIENDA.AGUA', 'GASTOS.VIVIENDA', 0.62),
+  categoria('INGRESOS', null, 1),
+  categoria('INGRESOS.SALARIO', 'INGRESOS', 0.7),
+];
+
+function categoria(code: string, parentCode: string | null, acceptanceThreshold: number) {
+  return {
+    code,
+    name: `Nombre de ${code}`,
+    description: '',
+    parentCode,
+    positiveExamples: [],
+    counterExamples: [],
+    restrictions: [],
+    relatedCategoryCodes: [],
+    acceptanceThreshold,
+    version: 1,
+    isActive: true,
+  };
+}

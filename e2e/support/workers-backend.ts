@@ -1,7 +1,13 @@
 import type { Page } from '@playwright/test';
 import { MOCK_SESSION } from './backend-mock';
 import { IDENTITY_RESULT } from './identity-result';
-import { AUDIO_BYTES, AUDIO_TEMPLATES, CATALOG, FIXTURES } from './workers-catalog';
+import {
+  AUDIO_BYTES,
+  AUDIO_TEMPLATES,
+  CATALOG,
+  FIXTURES,
+  SEMANTIC_CATEGORIES,
+} from './workers-catalog';
 import { WORKER_HISTORY, WORKER_METRICS } from './workers-history';
 import { AUDIO_RESULT, SEMANTIC_RESULT, STATEMENT_RESULT } from './workers-results';
 
@@ -106,6 +112,16 @@ export async function mockWorkersBackend(page: Page): Promise<void> {
     // consola lo pide con la credencial puesta y lo reproduce como blob.
     if (url.includes('/v1/workers/audio-tts/runs/') && url.endsWith('/audio')) {
       return route.fulfill({ contentType: 'audio/mpeg', body: AUDIO_BYTES });
+    }
+    // El árbol de categorías. Va antes del catálogo de workers porque la ruta
+    // lo contiene; y sirve un ARRAY, que es lo que devuelve el motor: el caso
+    // por omisión de más abajo responde una página paginada, y la vista de
+    // categorías se rompería recorriendo un objeto que no es una lista.
+    if (url.includes('/v1/workers/semantic-analysis/categories')) {
+      if (route.request().method() !== 'GET') {
+        return route.fulfill({ json: { total: 0, created: [], updated: [], dryRun: true } });
+      }
+      return route.fulfill({ json: SEMANTIC_CATEGORIES });
     }
     if (/\/v1\/workers\/?(\?|$)/.test(url)) return route.fulfill({ json: CATALOG });
 

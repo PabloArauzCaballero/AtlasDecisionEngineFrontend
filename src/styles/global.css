@@ -119,6 +119,7 @@
 @import './parts/category-tree.css';
 /* Después de `category-tree.css`: refina su jerarquía sin subir la especificidad. */
 @import './parts/category-tree-lines.css';
+@import './parts/category-tree-toolbar.css';
 /* Después del árbol: los problemas de una subida masiva viven en su panel. */
 @import './parts/category-upload.css';
 @import './parts/unresolved.css';
