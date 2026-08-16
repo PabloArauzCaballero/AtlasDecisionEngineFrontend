@@ -100,6 +100,15 @@
   color: var(--danger-text);
 }
 
+/* Una glosa que se fue a revisión NO va en rojo: no falló nada, sólo tardó, y
+   el motor sigue con ella. El rojo de al lado significa «reintenta»; esto
+   significa «lo mira una persona», que es una acción distinta y de otra
+   persona. Va en el mismo ámbar que la duda porque es lo que es: un caso
+   pendiente de decidir. */
+.worker-categoria-revision {
+  color: var(--warning-text);
+}
+
 /* Celda sin categoría todavía, o sin ella del todo. */
 .worker-faint {
   color: var(--faint);

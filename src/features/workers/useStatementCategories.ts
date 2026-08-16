@@ -2,35 +2,42 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PORTAL_LOCALE } from '../../config/locale';
-import { asRecord, asRows, asStrings } from '../../utils/records';
-import { isTerminal, type WorkerRun } from './worker-types';
-import { createSemanticRun, fetchRun } from './workers.api';
+import { clasificarTanda, type Caso, type VeredictoCategoria } from './classify-batch';
+
+export type { VeredictoCategoria } from './classify-batch';
 
 /**
- * Clasifica los movimientos de un extracto, uno por uno, contra el semántico.
+ * Clasifica los movimientos de un extracto contra el semántico, por lotes.
  *
  * **Esto es orquestación de cliente, y conviene saber por qué.** El motor no
  * publica ninguna ruta «extracto → categorías»: el de extractos devuelve
- * movimientos sin categoría y el semántico clasifica UN texto por ejecución. La
+ * movimientos sin categoría y el semántico clasifica un texto por ejecución. La
  * forma que el motor documenta para componer dos workers es un grafo con un
  * nodo `WORKER` (`EXTRACTO_CAPACIDAD_PAGO` lo demuestra), no un bucle en una
  * pantalla. Mientras esa pieza no exista, esto encadena aquí lo que allí no está
- * encadenado — y por eso se comporta con el cuidado que un bucle sobre una API
- * ajena exige: deduplica, limita la concurrencia, se puede parar y dice cuánto
- * dejó fuera.
+ * encadenado — y por eso se comporta con el cuidado que orquestar sobre una API
+ * ajena exige: deduplica, se puede parar y dice cuánto dejó fuera.
  *
- * Tres decisiones que sostienen ese cuidado:
+ * ## Por qué ya no va de una en una
  *
- * - **Deduplica por glosa.** Un extracto repite «COMISION MANTENIMIENTO» doce
- *   veces; clasificarla doce veces son once ejecuciones que dicen lo mismo. El
- *   motor además deriva su clave de idempotencia del contenido, así que el
- *   reenvío tampoco crearía ejecuciones nuevas: deduplicar aquí ahorra las
- *   peticiones, no sólo el trabajo.
- * - **Cuatro en vuelo como mucho.** El motor corta en 300 peticiones por minuto
- *   (`RATE_LIMIT_MANAGEMENT_REQUESTS`) y cada movimiento cuesta un alta más los
- *   sondeos hasta que termina. Sin tope, un extracto largo se come el limitador
- *   y las respuestas empiezan a llegar 429 — que la vista leería como fallos de
- *   clasificación cuando en realidad es el portal atacándose a sí mismo.
+ * La versión anterior abría una ejecución por glosa y sondeaba cada una por
+ * separado, con cuatro en vuelo como máximo para no agotar el limitador de tasa
+ * del motor. Ciento veinte glosas eran, contando sondeos, del orden de
+ * quinientas peticiones, y la espera no la marcaba lo que tarda el motor en
+ * clasificar sino el ritmo del sondeo multiplicado por las tandas: minutos para
+ * un trabajo de segundos. Y cuando el limitador saltaba, los 429 llegaban a la
+ * tabla como «No se pudo», que describe un fallo de clasificación que no había
+ * ocurrido.
+ *
+ * Ahora el alta es UNA petición para todo el lote y el sondeo es UNA petición
+ * para todas las ejecuciones. El número de peticiones deja de crecer con el
+ * tamaño del extracto, y con él desaparecen a la vez la espera y los 429.
+ *
+ * ## Lo que se conserva
+ *
+ * - **Deduplica por glosa y sentido.** Un extracto repite «COMISION
+ *   MANTENIMIENTO» doce veces; clasificarla doce veces son once ejecuciones que
+ *   dicen lo mismo.
  * - **No trunca en silencio.** Por encima de `MAX_GLOSAS` no clasifica y lo
  *   dice. Un tope callado dejaría media tabla con categoría y media sin, que se
  *   lee como «esos movimientos no encajan en ninguna» en vez de «no se
@@ -41,25 +48,22 @@ import { createSemanticRun, fetchRun } from './workers.api';
  *   catálogo de categorías de entonces. Con un catálogo que crece eso es una
  *   trampa: la tabla enseñaba «Sin determinar» en movimientos cuya categoría YA
  *   existía —«PAGO QR COMERCIO», con su hoja sembrada— y el botón no podía
- *   arreglarlo por más que se pulsara, porque cada pulsación devolvía la misma
- *   respuesta guardada. Por eso cada tanda manda su propia clave de
- *   idempotencia, que es la vía que el motor documenta para forzar el
- *   reanálisis. La deduplicación que sí interesa —la glosa repetida doce veces
- *   dentro del mismo extracto— ya la hace la línea de arriba, y ésa se conserva.
+ *   arreglarlo por más que se pulsara. Por eso cada tanda manda su propia clave
+ *   de idempotencia, que es la vía que el motor documenta para forzar el
+ *   reanálisis. Reanalizar hoy además es barato: el motor recuerda el veredicto
+ *   mientras el catálogo no cambie, así que una tanda repetida sin cambios se
+ *   resuelve sin volver a llamar al modelo.
  */
 
-/** Ejecuciones simultáneas contra el semántico. */
-const EN_VUELO = 4;
-/** Cada cuánto se pregunta por una ejecución en curso. El mismo ritmo que `useWorkerRun`. */
-const SONDEO_MS = 1_500;
 /**
  * Glosas distintas que se aceptan de una vez.
  *
- * Ciento veinte glosas distintas son unas quinientas peticiones contando
- * sondeos: cabe holgado en el minuto del limitador repartido de cuatro en
- * cuatro. Por encima, lo honesto es no empezar.
+ * Ya no lo fija el limitador de tasa —el lote gasta una petición para el alta y
+ * una por sondeo, no una por glosa— sino lo que cabe en una tabla que alguien va
+ * a leer. Se manda en lotes de `MAX_SEMANTIC_BATCH`, que es lo que el motor
+ * acepta por petición.
  */
-const MAX_GLOSAS = 120;
+const MAX_GLOSAS = 600;
 /**
  * Longitud que se conserva de la glosa dentro de la clave de la tanda.
  *
@@ -82,22 +86,20 @@ function claveDeTanda(glosa: string, marca: string): string {
   return `extracto:${marca}:${glosa.slice(0, MAX_GLOSA_EN_CLAVE)}`;
 }
 
-export interface VeredictoCategoria {
-  fase: 'esperando' | 'en-curso' | 'listo' | 'fallido';
-  /** Veredicto del semántico: `MATCH`, `AMBIGUOUS`, `UNKNOWN`… */
-  estado?: string;
-  categoria?: string;
-  /** Ruta legible de la categoría, de la raíz a la hoja. */
-  ruta?: readonly string[];
-  confianza?: number;
-  error?: string;
-}
-
 interface Estado {
   veredictos: Record<string, VeredictoCategoria>;
   corriendo: boolean;
   hechas: number;
   total: number;
+  /**
+   * Glosas que la pantalla dejó de esperar y quedaron en revisión.
+   *
+   * Se cuenta aparte de `hechas` porque no es lo mismo: `hechas` mide avance
+   * —cuánto queda por delante— y esto mide cuánto trabajo se desvió a una
+   * persona. Sumarlas dejaría la barra al 100 % sin que nadie se enterara de que
+   * un tercio de la tabla está sin clasificar.
+   */
+  enRevision: number;
   /** Glosas distintas que había cuando se rechazó empezar, o `null` si cabían. */
   demasiadas: number | null;
 }
@@ -107,6 +109,7 @@ const VACIO: Estado = {
   corriendo: false,
   hechas: 0,
   total: 0,
+  enRevision: 0,
   demasiadas: null,
 };
 
@@ -183,7 +186,7 @@ export function useStatementCategories() {
     // Un caso por (glosa, sentido): el mismo texto en dos direcciones son dos
     // preguntas distintas, y la repetición dentro de una dirección sigue siendo
     // una sola.
-    const casos = [
+    const casos: Caso[] = [
       ...new Map(
         movimientos
           .filter((movimiento) => claveGlosa(movimiento.descripcion) !== '')
@@ -209,88 +212,47 @@ export function useStatementCategories() {
       corriendo: true,
       hechas: 0,
       total: casos.length,
+      enRevision: 0,
       demasiadas: null,
     });
 
-    const anotar = (clave: string, veredicto: VeredictoCategoria) =>
-      setEstado((previo) => ({
-        ...previo,
-        veredictos: { ...previo.veredictos, [clave]: veredicto },
-        hechas:
-          previo.hechas + (veredicto.fase === 'esperando' || veredicto.fase === 'en-curso' ? 0 : 1),
-      }));
-
-    // Un turno por hueco: cada uno toma el siguiente caso libre hasta agotarlos.
-    let siguiente = 0;
-    const turno = async () => {
-      while (!cortado.current) {
-        const indice = siguiente++;
-        if (indice >= casos.length) return;
-        const caso = casos[indice] as (typeof casos)[number];
-        anotar(caso.clave, { fase: 'en-curso' });
-        anotar(
-          caso.clave,
-          await clasificarUna(caso.texto, () => cortado.current, claveDeTanda(caso.texto, marca)),
-        );
-      }
+    const anotar = (nuevos: Readonly<Record<string, VeredictoCategoria>>) => {
+      if (Object.keys(nuevos).length === 0) return;
+      setEstado((previo) => {
+        const veredictos = { ...previo.veredictos, ...nuevos };
+        const fases = Object.values(veredictos);
+        return {
+          ...previo,
+          veredictos,
+          // Se recuenta sobre el mapa entero en vez de ir sumando: el mismo
+          // veredicto puede llegar dos veces —un sondeo que se solapa con el
+          // anterior— y un contador incremental lo contaría dos veces, dejando
+          // la barra de progreso por encima del total.
+          hechas: fases.filter(
+            (veredicto) => veredicto.fase === 'listo' || veredicto.fase === 'fallido',
+          ).length,
+          enRevision: fases.filter((veredicto) => veredicto.fase === 'revision').length,
+        };
+      });
     };
 
-    await Promise.all(Array.from({ length: Math.min(EN_VUELO, casos.length) }, turno));
+    try {
+      await clasificarTanda({
+        casos,
+        claveDe: (texto) => claveDeTanda(texto, marca),
+        hayQueParar: () => cortado.current,
+        anotar,
+      });
+    } catch (error) {
+      // El alta del lote falló entera: sin ejecuciones que sondear, lo honesto
+      // es decirlo en cada fila en vez de dejarlas en «esperando» para siempre.
+      const motivo = error instanceof Error ? error.message : 'Error inesperado';
+      anotar(
+        Object.fromEntries(casos.map((caso) => [caso.clave, { fase: 'fallido', error: motivo }])),
+      );
+    }
     setEstado((previo) => ({ ...previo, corriendo: false }));
   }, []);
 
   return { ...estado, clasificar, parar, limpiar, maxGlosas: MAX_GLOSAS };
-}
-
-/** Encola una glosa y la sigue hasta que el motor la da por terminada. */
-async function clasificarUna(
-  glosa: string,
-  hayQueParar: () => boolean,
-  idempotencyKey: string,
-): Promise<VeredictoCategoria> {
-  try {
-    const creada = await createSemanticRun({ text: glosa, idempotencyKey });
-    let ejecucion: WorkerRun = creada;
-
-    while (!isTerminal(ejecucion.status)) {
-      if (hayQueParar()) return { fase: 'fallido', error: 'Cancelado' };
-      await new Promise((listo) => setTimeout(listo, SONDEO_MS));
-      if (hayQueParar()) return { fase: 'fallido', error: 'Cancelado' };
-      ejecucion = await fetchRun('semantic-analysis', ejecucion.requestId);
-    }
-
-    if (ejecucion.status === 'FAILED' || ejecucion.status === 'CANCELLED') {
-      return {
-        fase: 'fallido',
-        error: ejecucion.errorMessage ?? ejecucion.errorCode ?? 'La ejecución no terminó bien.',
-      };
-    }
-    return leerVeredicto(ejecucion.result);
-  } catch (error) {
-    return { fase: 'fallido', error: error instanceof Error ? error.message : 'Error inesperado' };
-  }
-}
-
-/**
- * Saca del resultado la categoría que gana.
- *
- * Lectura defensiva, como el resto de vistas de worker: el JSON lo escribió el
- * motor y puede venir de una versión anterior. Y se toma la PRIMERA coincidencia
- * porque el motor las devuelve ordenadas por pertinencia; cuando su veredicto es
- * `AMBIGUOUS` o `UNKNOWN` eso se conserva tal cual, sin ascender la primera a
- * ganadora: una categoría dudosa presentada como firme es peor que un hueco.
- */
-function leerVeredicto(resultado: unknown): VeredictoCategoria {
-  const datos = asRecord(resultado);
-  const rutas = asRecord(datos.categoryPaths);
-  const primera = asRecord(asRows(datos.matches)[0]);
-  const codigo = primera.categoryCode === undefined ? undefined : String(primera.categoryCode);
-
-  return {
-    fase: 'listo',
-    estado: String(datos.status ?? 'UNKNOWN'),
-    categoria: codigo,
-    ruta: codigo ? asStrings(rutas[codigo]) : undefined,
-    confianza: typeof primera.confidence === 'number' ? primera.confidence : undefined,
-  };
 }
