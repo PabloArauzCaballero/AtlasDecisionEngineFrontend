@@ -1,0 +1,239 @@
+/*
+ * Celdas del cuaderno de datos: el editor, la barra de inserción y la salida.
+ *
+ * Se separó de `data-notebook.css` —que se quedó con el armazón, el dataset
+ * cargado y el estado del intérprete— al pasar aquélla del límite de 299 líneas
+ * del repositorio. La frontera no es el número: son dos cosas distintas, el
+ * marco de la herramienta y el material que se edita dentro.
+ */
+
+/* ---- Celdas ---- */
+
+.notebook__cells {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.notebook-cell {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.notebook-cell__gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 3rem;
+  flex: 0 0 3rem;
+}
+
+.notebook-cell__run {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.notebook-cell__run:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--line-strong);
+}
+
+.notebook-cell__run:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.notebook-cell__run:disabled {
+  cursor: progress;
+  color: var(--text-muted);
+}
+
+.notebook-cell__count {
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+  white-space: pre;
+}
+
+.notebook-cell__spin {
+  animation: notebook-spin 1s linear infinite;
+}
+
+@keyframes notebook-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-cell__spin {
+    animation: none;
+  }
+}
+
+.notebook-cell__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.notebook-cell__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.notebook-cell__tools {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.notebook-cell__code {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--code-surface);
+  color: var(--code-ink);
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+  resize: vertical;
+  overflow: hidden;
+}
+
+.notebook-cell__code:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/*
+ * El editor de código. El borde y el fondo son los mismos que tenía el área de texto para que
+ * cambiar de motor no cambie el aspecto del cuaderno; lo que va dentro lo pinta Monaco.
+ */
+.notebook-cell__editor {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--code-surface);
+  overflow: hidden;
+}
+
+.notebook-cell__editor:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/*
+ * La franja para insertar entre celdas.
+ *
+ * Reserva su alto SIEMPRE aunque los botones estén invisibles: revelarlos aumentando el alto haría
+ * saltar la página bajo el cursor cada vez que se pasa entre dos celdas, y eso desplaza justo lo
+ * que se estaba a punto de pulsar.
+ */
+.notebook-insert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 1.75rem;
+}
+
+.notebook-insert__linea {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  opacity: 0;
+  transition: opacity 120ms ease-in-out;
+}
+
+.notebook-insert__acciones {
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity 120ms ease-in-out;
+}
+
+/* Con el foco del teclado también, no sólo con el ratón: si no, la función no existe para quien
+   navega con tabulador. */
+.notebook-insert:hover .notebook-insert__linea,
+.notebook-insert:focus-within .notebook-insert__linea,
+.notebook-insert:hover .notebook-insert__acciones,
+.notebook-insert:focus-within .notebook-insert__acciones {
+  opacity: 1;
+}
+
+.notebook-insert__boton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0.15rem var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface);
+  color: var(--ink-subtle);
+  font-size: var(--type-2xs);
+  cursor: pointer;
+}
+
+.notebook-insert__boton:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.notebook-insert__boton:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.notebook-cell__output {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border-left: 3px solid var(--line);
+}
+
+.notebook-cell__output--error {
+  border-left-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.notebook-cell__logs,
+.notebook-cell__error,
+.notebook-cell__value {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-2xs);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.notebook-cell__error {
+  color: var(--danger-text);
+}
+
+.notebook-cell__silent,
+.notebook-cell__timing {
+  margin: 0;
+  font-size: var(--type-2xs);
+  color: var(--text-muted);
+}

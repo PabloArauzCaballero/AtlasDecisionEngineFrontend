@@ -1,0 +1,177 @@
+/*
+ * La portada de cuadernos, la barra de guardado y el rótulo de un resultado restaurado.
+ *
+ * Hoja aparte por el tope de 299 líneas de `data-notebook.css`. Lo de aquí es la capa de DOCUMENTO
+ * —elegir cuál, ponerle nombre, guardarlo— y no la de la consola, que es la de trabajar dentro.
+ */
+
+.notebook-index {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.notebook-index__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.notebook-index__nombre input,
+.notebook-savebar__nombre input {
+  min-width: 22ch;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: var(--type-xs);
+}
+
+/* Lo ancho se desplaza DENTRO de su caja; el cuerpo de la página nunca en horizontal. */
+.notebook-index__tabla-envoltura {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.notebook-index__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-xs);
+}
+
+.notebook-index__tabla th,
+.notebook-index__tabla td {
+  padding: var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.notebook-index__tabla thead th {
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+.notebook-index__tabla tbody tr:last-child th,
+.notebook-index__tabla tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.notebook-index__abrir {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text);
+  font-weight: var(--weight-medium);
+}
+
+.notebook-index__vacio {
+  margin: 0;
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
+.notebook-detalle__volver {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-2xs);
+}
+
+.notebook-detalle__volver a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+}
+
+.notebook-savebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+/*
+ * El rótulo de un resultado traído de otra sesión.
+ *
+ * Va en tono de aviso y no en neutro a propósito: no es un adorno informativo, es la diferencia
+ * entre un número de hoy y uno de la semana pasada. En neutro se lee como un pie de foto y se deja
+ * de ver a la tercera vez.
+ */
+.notebook-cell__restaurado {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  font-size: var(--type-2xs);
+}
+
+/*
+ * Aviso de que las vistas del MOTOR no se pudieron listar.
+ *
+ * Clase propia y no `notebook-dataset__notice`, que es la del enmascarado. Compartirla las hacía
+ * indistinguibles para quien las busca —una prueba que pedía «el aviso» encontraba dos y fallaba
+ * por ambigüedad— y, peor, mezclaba dos cosas distintas: una dice cómo hay que leer los datos que
+ * SÍ están, la otra que falta la mitad del catálogo.
+ */
+.notebook-dataset__aviso-motor {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-sm);
+  background: var(--warning-wash);
+  color: var(--warning-text);
+  font-size: var(--type-xs);
+}
+
+/*
+ * Las vistas publicadas que su backend NO sirve.
+ *
+ * Deliberadamente NEUTRA, no en ámbar como el aviso de arriba. Aquél dice que falta media casa a
+ * quien está analizando; éste es para quien publicó una vista y no la ve, y para el resto no es
+ * un estado del sistema sino una nota de mantenimiento. Un lavado de advertencia permanente sobre
+ * algo que casi siempre está vacío enseña a ignorar el color, que es lo que hace que el ámbar de
+ * arriba signifique algo.
+ */
+.notebook-dataset__descartadas {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.notebook-dataset__descartadas summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.notebook-dataset__descartadas ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.notebook-dataset__descartadas code {
+  font-family: var(--font-mono);
+  color: var(--text);
+}

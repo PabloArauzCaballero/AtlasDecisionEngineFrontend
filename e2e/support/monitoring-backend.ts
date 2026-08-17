@@ -65,6 +65,99 @@ export const ADVERSE_IMPACT = {
   flagged: true,
 };
 
+/**
+ * Serie de estrés del QA Lab sobre la MISMA versión que se monitorea (4001).
+ *
+ * Está construida para que cada fila diga algo comprobable:
+ *
+ * - tres corridas comparables —misma concurrencia, mismo determinismo— y de tamaño creciente,
+ *   que es la única forma de que el coste por caso signifique degradación y no configuración:
+ *   5 ms/caso con 300 casos y 10 ms/caso con 4000, o sea ×2;
+ * - una corrida VIVA sin ningún caso cerrado, que no debe valer 0 ms/caso sino «no medido»;
+ * - una corrida con violaciones, para que la tasa salga con su denominador a la vista.
+ */
+export const QA_RUNS = {
+  total: 4,
+  items: [
+    {
+      id: '9004',
+      artifactVersionId: '4001',
+      environmentCode: 'UAT',
+      status: 'RUNNING',
+      seed: 'qa-viva',
+      generatorVersion: '1.0',
+      totalCases: 0,
+      passedCases: 0,
+      failedCases: 0,
+      erroredCases: 0,
+      durationMs: 0,
+      counterexamples: 0,
+      startedAt: '2026-08-15T12:00:00.000Z',
+      finishedAt: null,
+      plannedCases: 5000,
+      concurrency: 1,
+      checkDeterminism: false,
+    },
+    {
+      id: '9003',
+      artifactVersionId: '4001',
+      environmentCode: 'UAT',
+      status: 'COMPLETED',
+      seed: 'qa-pesada',
+      generatorVersion: '1.0',
+      totalCases: 4000,
+      passedCases: 3988,
+      failedCases: 12,
+      erroredCases: 0,
+      durationMs: 40_000,
+      counterexamples: 12,
+      startedAt: '2026-08-15T11:00:00.000Z',
+      finishedAt: '2026-08-15T11:00:40.000Z',
+      plannedCases: 4000,
+      concurrency: 1,
+      checkDeterminism: false,
+    },
+    {
+      id: '9002',
+      artifactVersionId: '4001',
+      environmentCode: 'UAT',
+      status: 'COMPLETED',
+      seed: 'qa-media',
+      generatorVersion: '1.0',
+      totalCases: 1500,
+      passedCases: 1500,
+      failedCases: 0,
+      erroredCases: 0,
+      durationMs: 10_500,
+      counterexamples: 0,
+      startedAt: '2026-08-15T10:30:00.000Z',
+      finishedAt: '2026-08-15T10:30:10.500Z',
+      plannedCases: 1500,
+      concurrency: 1,
+      checkDeterminism: false,
+    },
+    {
+      id: '9001',
+      artifactVersionId: '4001',
+      environmentCode: 'UAT',
+      status: 'COMPLETED',
+      seed: 'qa-ligera',
+      generatorVersion: '1.0',
+      totalCases: 300,
+      passedCases: 300,
+      failedCases: 0,
+      erroredCases: 0,
+      durationMs: 1500,
+      counterexamples: 0,
+      startedAt: '2026-08-15T10:00:00.000Z',
+      finishedAt: '2026-08-15T10:00:01.500Z',
+      plannedCases: 300,
+      concurrency: 1,
+      checkDeterminism: false,
+    },
+  ],
+};
+
 export const DSR_RESULT = {
   id: '77',
   requestType: 'ACCESS',
@@ -118,6 +211,8 @@ export async function monitoringBackend(page: Page): Promise<void> {
     if (url.includes('/v1/model-monitoring/stability')) return route.fulfill({ json: STABILITY });
     if (url.includes('/v1/model-monitoring/adverse-impact'))
       return route.fulfill({ json: ADVERSE_IMPACT });
+    // El carril sintético: las corridas de QA Lab de la versión que se está monitoreando.
+    if (url.includes('/v1/qa-lab/runs')) return route.fulfill({ json: QA_RUNS });
     if (url.includes('/v1/data-subject-requests/history'))
       return route.fulfill({ json: DSR_HISTORY });
     if (url.includes('/v1/data-subject-requests')) return route.fulfill({ json: DSR_RESULT });

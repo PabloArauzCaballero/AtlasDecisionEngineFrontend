@@ -35,3 +35,6 @@ docs/visual-evidence/real/
 
 # Pyodide vendorizado por scripts/setup-pyodide.mjs: artefacto reproducible de ~21 MB.
 public/pyodide/
+
+# WebR publicado por scripts/setup-webr.mjs desde node_modules: otros ~21 MB reproducibles.
+public/webr/

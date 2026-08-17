@@ -102,7 +102,10 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   { pattern: /^\/workers\/pdf-generator\/?$/, roles: accessPolicies.workers },
   // El cuaderno NO usa `accessPolicies.workers`: entrega filas de personas reales, no la
   // ejecución de un worker. Su lista es propia y más corta.
-  { pattern: /^\/workers\/data-notebook\/?$/, roles: accessPolicies.dataNotebook },
+  { pattern: /^\/data-notebook\/?$/, roles: accessPolicies.dataNotebook },
+  // El cuaderno abierto. Mismos roles que la lista: quien puede verlos puede abrir los SUYOS, y de
+  // que sólo sean los suyos se encarga el backend, que acota por dueño sin mirar la ruta.
+  { pattern: /^\/data-notebook\/[^/]+\/?$/, roles: accessPolicies.dataNotebook },
 ];
 
 /**

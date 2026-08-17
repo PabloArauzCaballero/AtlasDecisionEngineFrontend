@@ -26,6 +26,21 @@ const ignoredDirectories = new Set(['.git', 'node_modules', 'coverage', 'docs'])
  */
 const isBuildDirectory = (name) => name.startsWith('.next');
 /**
+ * Los intérpretes vendorizados: código de terceros que este repositorio PUBLICA, no escribe.
+ *
+ * `public/pyodide/` (CPython) y `public/webr/` (R) los traen `scripts/setup-*.mjs`, están en
+ * `.gitignore` y se regeneran. Medirlos contra las reglas de estilo de la casa —299 líneas,
+ * `fetch()` sólo por el cliente autorizado— es medir a otro equipo: el fallo no señala ninguna
+ * línea que nadie de aquí pueda arreglar, y la salida sería «arregla el pegamento de Emscripten».
+ *
+ * Pyodide pasaba por casualidad: su cargador viene minificado en una sola línea. El de WebR viene
+ * legible, con 1842, y ahí se vio que la regla nunca había excluido lo que debía.
+ */
+const isVendoredRuntime = (absolutePath) =>
+  ['public/pyodide/', 'public/webr/'].some((carpeta) =>
+    relative(root, absolutePath).split('\\').join('/').startsWith(carpeta),
+  );
+/**
  * Los tres sitios donde `fetch()` directo es LEGÍTIMO, y por qué son tres y no más.
  *
  * La regla existe para que el navegador nunca hable con un backend saltándose la sesión, la
@@ -56,6 +71,7 @@ function collectFiles(directory) {
     if (ignoredDirectories.has(entry.name)) return [];
     if (entry.isDirectory() && isBuildDirectory(entry.name)) return [];
     const absolutePath = join(directory, entry.name);
+    if (isVendoredRuntime(absolutePath)) return [];
     return entry.isDirectory() ? collectFiles(absolutePath) : [absolutePath];
   });
 }

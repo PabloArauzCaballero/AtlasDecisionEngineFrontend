@@ -57,6 +57,12 @@
     },
     {
       "method": "GET",
+      "path": "/pdf/artifacts",
+      "operationId": "pdfCatalogArtifactsForBinding",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
       "path": "/pdf/errors",
       "operationId": "pdfTemplateAdminErrorCatalog",
       "tag": "pdf-templates"
@@ -107,6 +113,18 @@
       "method": "GET",
       "path": "/pdf/templates/{p}",
       "operationId": "pdfCatalogDefinition",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates/{p}/compatibility",
+      "operationId": "pdfCatalogCompatibility",
+      "tag": "pdf"
+    },
+    {
+      "method": "GET",
+      "path": "/pdf/templates/{p}/sample",
+      "operationId": "pdfCatalogSampleFromArtifact",
       "tag": "pdf"
     },
     {
@@ -801,6 +819,30 @@
     },
     {
       "method": "GET",
+      "path": "/v1/sql-console/catalog",
+      "operationId": "sqlConsoleCatalog",
+      "tag": "SQL Console"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sql-console/history",
+      "operationId": "sqlConsoleHistory",
+      "tag": "SQL Console"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sql-console/query",
+      "operationId": "sqlConsoleQuery",
+      "tag": "SQL Console"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sql-console/validate",
+      "operationId": "sqlConsoleValidate",
+      "tag": "SQL Console"
+    },
+    {
+      "method": "GET",
       "path": "/v1/test-runs/{p}",
       "operationId": "testingGetRun",
       "tag": "Decision Testing"
@@ -1035,6 +1077,42 @@
     },
     {
       "method": "GET",
+      "path": "/v1/workers/bank-statement/reviews",
+      "operationId": "statementReviewList",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/reviews/{p}",
+      "operationId": "statementReviewGet",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/reviews/{p}/claim",
+      "operationId": "statementReviewClaim",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/reviews/{p}/reprocess",
+      "operationId": "statementReviewReprocess",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/reviews/{p}/resolve",
+      "operationId": "statementReviewResolve",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/reviews/categories",
+      "operationId": "statementReviewCategories",
+      "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
       "path": "/v1/workers/bank-statement/runs",
       "operationId": "bankStatementListRuns",
       "tag": "Workers · Extractos bancarios"
@@ -1151,6 +1229,18 @@
       "method": "POST",
       "path": "/v1/workers/semantic-analysis/runs/{p}/cancel",
       "operationId": "semanticAnalysisCancelRun",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/runs/batch",
+      "operationId": "semanticAnalysisCreateRunBatch",
+      "tag": "Workers · Análisis semántico"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/runs/status",
+      "operationId": "semanticAnalysisGetRunStatuses",
       "tag": "Workers · Análisis semántico"
     },
     {

@@ -47,6 +47,26 @@ nunca va a traer: el fraude confirmado, que llega de uno en uno, y la correcció
 observación equivocada. `INDETERMINATE` es una opción de primera clase por lo mismo: registrar
 «no se sabe» distingue el caso mirado del caso olvidado.
 
+### El generador documental nunca estuvo exento: el gate no sabía verlo (saldada el 16/08/2026)
+
+Dieciséis operaciones `/pdf/*` figuraban aquí con el mismo motivo —«el worker de PDF es un
+servicio aparte que comparte documento OpenAPI; el portal no genera documentos»— y siete de ellas
+eran **falsas**: `src/features/documents/` llama a `/pdf/templates`, `/pdf/preview`,
+`/pdf/generate`, `/pdf/health`, `/pdf/artifacts`, `/pdf/templates/{id}/schema`, `/validate`,
+`/compatibility` y `/sample` desde la pestaña «Documentos PDF» de Procesamiento.
+
+La causa no estaba en la lista sino en el extractor: `engine-surface-paths.mjs` sólo buscaba
+literales que empezaran por `/v1/`, así que ninguna llamada a `/pdf/*` podía contarse como
+consumida. El efecto es el peor posible para una lista de deuda —entradas que dicen «nadie mira
+esto» sobre pantallas que existen y funcionan— y es exactamente lo que hace que se deje de leer.
+Corregido el extractor (`ENGINE_PATH` cubre los dos prefijos), las siete filas se han quitado y
+las nueve que quedan describen superficie que de verdad nadie llama.
+
+Mismo día y misma causa en `POST /v1/sql-console/query` y `/validate`: la consola las llamaba
+armando la ruta como raíz + sufijo, de modo que la ruta completa no existía como literal en ningún
+sitio. Se ha reescrito `sql-console-sources.ts` para que cada ruta esté entera, que es la
+convención que este gate documenta.
+
 ### Reversión y suspensión de despliegues (saldada el 13/08/2026)
 
 `POST /v1/deployments/{id}/rollback` y `/suspend` estuvieron exentas con la nota «deuda real y
@@ -145,14 +165,8 @@ son lo mismo.
 | `GET /health/live`                            | Sonda de vida de Kubernetes.                                                                                                                                                                                                                                                 | plataforma  |
 | `GET /health/ready`                           | Sonda de disponibilidad de Kubernetes.                                                                                                                                                                                                                                       | plataforma  |
 | `GET /ready`                                  | Alias heredado de la sonda de disponibilidad.                                                                                                                                                                                                                                | plataforma  |
-| `POST /pdf/generate`                          | El worker de PDF es un servicio aparte que comparte documento OpenAPI; el portal no genera documentos.                                                                                                                                                                       | plataforma  |
 | `POST /pdf/generate/async`                    | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
-| `GET /pdf/health`                             | Ídem: sonda del worker de PDF.                                                                                                                                                                                                                                               | plataforma  |
-| `POST /pdf/preview`                           | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
-| `GET /pdf/templates`                          | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
 | `GET /pdf/templates/{p}`                      | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
-| `GET /pdf/templates/{p}/schema`               | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
-| `POST /pdf/templates/{p}/validate`            | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
 | `GET /pdf/templates/{p}/versions`             | Ídem: superficie del worker de PDF.                                                                                                                                                                                                                                          | plataforma  |
 | `GET /pdf/admin/templates`                    | Administración de plantillas del worker de PDF: servicio aparte con su propio panel.                                                                                                                                                                                         | plataforma  |
 | `POST /pdf/admin/templates`                   | Ídem: administración del worker de PDF.                                                                                                                                                                                                                                      | plataforma  |
@@ -160,7 +174,6 @@ son lo mismo.
 | `POST /pdf/admin/templates/{p}/{p}/deprecate` | Ídem: administración del worker de PDF.                                                                                                                                                                                                                                      | plataforma  |
 | `GET /pdf/admin/templates/{p}/{p}/source`     | Ídem: administración del worker de PDF.                                                                                                                                                                                                                                      | plataforma  |
 | `GET /pdf/errors`                             | Catálogo de errores del worker de PDF, para quien integra contra él.                                                                                                                                                                                                         | plataforma  |
-| `GET /pdf/template-format/example`            | Documentación del formato de plantilla del worker de PDF.                                                                                                                                                                                                                    | plataforma  |
 | `GET /pdf/template-format/schema`             | Ídem: documentación del worker de PDF.                                                                                                                                                                                                                                       | plataforma  |
 | `POST /v1/decisions/{p}`                      | La ejecución real la piden los sistemas integradores. El portal decide por el simulador y por la ejecución en vivo, que no persisten.                                                                                                                                        | riesgo      |
 | `GET /v1/audit/events/cursor`                 | Paginación por cursor; las tablas del portal paginan por página. Se consumiría al pasar el registro de auditoría a desplazamiento infinito.                                                                                                                                  | portal      |

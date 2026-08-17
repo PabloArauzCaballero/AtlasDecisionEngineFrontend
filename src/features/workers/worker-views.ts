@@ -37,9 +37,9 @@ export const WORKER_VIEWS = [
   },
   {
     id: 'revision',
-    label: 'Revisión',
+    label: 'Pendientes de revisión',
     icon: UserSearch,
-    hint: 'Verificaciones que el motor no resolvió solo: el parecido quedó en la franja ambigua y una persona tiene que decidir.',
+    hint: 'Casos que el motor no resolvió solo porque la duda era real. Lo que claramente no era el documento esperado se rechaza y no llega aquí.',
   },
 ] as const;
 
@@ -59,17 +59,7 @@ export type WorkerView = (typeof WORKER_VIEWS)[number];
  */
 export const GENERADOR_DOCUMENTAL = 'pdf-generator' as const;
 
-/**
- * El cuaderno de datos tampoco es un worker del motor.
- *
- * Ni siquiera lee del motor: sus datos vienen de la superficie `read_api` de AtlasBackend, y su
- * Python y su JavaScript corren en la propia pestaña. Está aquí porque «Procesamiento» es donde
- * se busca una herramienta que trabaja sobre los datos, no porque comparta nada con los cuatro
- * workers: no tiene catálogo, ni cola, ni ejecuciones que seguir.
- */
-export const CUADERNO_DATOS = 'data-notebook' as const;
-
-export type TabCode = WorkerCode | typeof GENERADOR_DOCUMENTAL | typeof CUADERNO_DATOS;
+export type TabCode = WorkerCode | typeof GENERADOR_DOCUMENTAL;
 
 /**
  * Categorías y Pendientes son de quien CLASIFICA contra el árbol, no de quien
@@ -103,22 +93,26 @@ const VISTAS_DEL_CATALOGO: readonly string[] = ['categorias', 'pendientes'];
 /** Los que clasifican contra el catálogo de categorías. */
 const CLASIFICAN: readonly TabCode[] = ['semantic-analysis', 'bank-statement'];
 
-/** El único con franja de revisión humana entre sus dos umbrales. */
-const REVISAN: readonly TabCode[] = ['identity-verification'];
-
 /**
- * Los que no tienen panel porque no hay nada que vigilar.
+ * Los que tienen franja de revisión humana, y la tienen por el mismo motivo con
+ * dos formas distintas.
  *
- * El panel responde «¿está sano el worker?» leyendo su salud, su latencia y su cola en el motor.
- * El cuaderno no tiene ninguna de las tres: no hay servicio que se caiga ni trabajos que se
- * acumulen. Enseñarle un panel obligaría a inventar un estado —y un panel siempre en verde sobre
- * algo que no se mide es peor que no tenerlo, porque se lee como una comprobación hecha.
+ * En identidad la franja está entre los dos umbrales de parecido; en extractos,
+ * entre los dos umbrales de clasificación del documento —y además cubre el
+ * timeout, la baja confianza de extracción y el descuadre contable—. Lo que
+ * comparten es la regla que hace que la bandeja sirva de algo: **sólo entra lo
+ * ambiguo**. Lo que el motor sabe rechazar, lo rechaza, y quien lo subió se
+ * entera en el momento en vez de esperar a que una persona mire una factura.
+ *
+ * Los otros dos siguen sin ella, y por criterio: locución y clasificación
+ * semántica no tienen una franja donde el motor se niegue a decidir —el
+ * semántico tiene «Pendientes», que es otra cosa: valores sin categoría, no
+ * documentos sin veredicto—.
  */
-const SOLO_CONSOLA: readonly TabCode[] = [CUADERNO_DATOS];
+const REVISAN: readonly TabCode[] = ['identity-verification', 'bank-statement'];
 
 export function viewsFor(worker: TabCode): readonly WorkerView[] {
   return WORKER_VIEWS.filter((view) => {
-    if (SOLO_CONSOLA.includes(worker)) return view.id === 'consola';
     if (VISTAS_DEL_CATALOGO.includes(view.id)) return CLASIFICAN.includes(worker);
     if (view.id === 'revision') return REVISAN.includes(worker);
     return true;

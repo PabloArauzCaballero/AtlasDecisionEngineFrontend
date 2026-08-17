@@ -1,39 +1,13 @@
 import { z } from 'zod';
 import { apiRequest } from '../../api/http-client';
+import { BASE, sobre } from './notebook-transport';
 
 /**
- * Cliente del cuaderno de datos.
+ * Cliente de DATOS del cuaderno: catálogo de datasets, páginas e historial.
  *
- * Todo cuelga de `/atlas-backend/*`, que es el proxy del portal hacia AtlasBackend. No es `/v1/*`
- * a propósito: ese prefijo es del motor de decisión y el gate de superficie lo interpreta como tal.
+ * Los cuadernos guardados viven en `notebook-documents.api.ts`; la raíz y el
+ * sobre de AtlasBackend, en `notebook-transport.ts`.
  */
-const BASE = '/atlas-backend/data-notebook';
-
-/**
- * AtlasBackend envuelve TODA respuesta en `{ requestId, data, timestamp }`. El motor no.
- *
- * Es la diferencia que dejó el cuaderno en blanco con el mensaje «No fue posible leer el catálogo»:
- * los esquemas describían el contenido y la respuesta traía el sobre, así que la validación fallaba
- * siempre — contra el backend real, y sólo contra él.
- *
- * No lo detectó nada, y merece la pena entender por qué: las pruebas E2E simulaban esta API con el
- * objeto PELADO, o sea con una forma que el backend nunca devuelve, así que verificaban que la
- * pantalla sabe pintar algo que no existe. Y las comprobaciones con `curl` leían el JSON a ojo, sin
- * pasar por el cliente. Veintiuna pruebas en verde sobre un camino que nunca funcionó.
- *
- * Se admite también la forma pelada porque el `requestId` no es obligatorio en todas las rutas y
- * porque un backend que un día deje de envolver no debería vaciar la pantalla.
- */
-function sobre<S extends z.ZodTypeAny>(esquema: S) {
-  return z.preprocess(
-    (cuerpo) =>
-      cuerpo && typeof cuerpo === 'object' && 'data' in cuerpo
-        ? (cuerpo as { data: unknown }).data
-        : cuerpo,
-    esquema,
-  );
-}
-
 export const notebookColumnSchema = z.object({
   name: z.string(),
   dataType: z.string().nullish(),
@@ -53,8 +27,25 @@ export const notebookDatasetSchema = z.object({
 
 export type NotebookDataset = z.infer<typeof notebookDatasetSchema>;
 
+/**
+ * Una vista de `read_api` que existe y el cuaderno NO sirve, con el motivo.
+ *
+ * AtlasBackend descubre su catálogo contra `information_schema` y lleva desde entonces mandando
+ * esto; el portal lo tiraba, porque el esquema no lo declaraba y Zod descarta lo que no describe.
+ * El resultado era el peor de los dos mundos: el backend se tomaba el trabajo de explicar por qué
+ * había descartado una vista y la explicación no llegaba a ninguna pantalla, así que una vista mal
+ * publicada se leía exactamente igual que una que no existe.
+ *
+ * Opcional porque el portal puede desplegarse contra una API anterior: sin el campo se enseña la
+ * lista vacía, que es la verdad disponible, y no un error.
+ */
+export const omittedDatasetSchema = z.object({ view: z.string(), reason: z.string() });
+
+export type OmittedDataset = z.infer<typeof omittedDatasetSchema>;
+
 const notebookCatalogSchema = z.object({
   datasets: z.array(notebookDatasetSchema),
+  omitted: z.array(omittedDatasetSchema).default([]),
   limits: z.object({
     maxPageSize: z.number(),
     defaultPageSize: z.number(),
@@ -69,6 +60,15 @@ const notebookCatalogSchema = z.object({
 });
 
 export type NotebookCatalog = z.infer<typeof notebookCatalogSchema>;
+
+/**
+ * Se exporta el esquema CON su sobre, que es lo que de verdad se aplica a la respuesta.
+ *
+ * Es lo único que una prueba puede ejercitar de verdad: `apiRequest` es quien valida, así que una
+ * prueba que lo mockee comprueba su propio mock y da verde pase lo que pase con el esquema. Es
+ * exactamente cómo el sobre `{ data }` sobrevivió a veintiuna pruebas.
+ */
+export const notebookCatalogResponseSchema = sobre(notebookCatalogSchema);
 
 const notebookPageSchema = z.object({
   dataset: z.object({ code: z.string(), label: z.string(), view: z.string() }),
@@ -95,7 +95,7 @@ export type NotebookPage = z.infer<typeof notebookPageSchema>;
  * enmascarado y sin caducidad. Lo que se guarda es el CÓDIGO, que es lo reproducible.
  */
 export interface NotebookHistoryEntry {
-  language: 'python' | 'javascript';
+  language: 'python' | 'javascript' | 'r';
   source: string;
   datasetCode?: string;
   datasetPage?: number;
@@ -128,10 +128,25 @@ export function recordNotebookHistory(entry: NotebookHistoryEntry): Promise<{ id
   });
 }
 
-export function fetchNotebookHistory(signal?: AbortSignal): Promise<NotebookHistoryRow[]> {
-  return apiRequest(`${BASE}/history`, {
+const notebookHistoryPageSchema = z.object({
+  rows: z.array(notebookHistoryRowSchema),
+  /** Cuántas entradas hay en total, no cuántas trae esta página: es lo que permite paginar. */
+  total: z.number(),
+});
+
+export type NotebookHistoryPage = z.infer<typeof notebookHistoryPageSchema>;
+
+export function fetchNotebookHistory(
+  query: { limit: number; offset: number },
+  signal?: AbortSignal,
+): Promise<NotebookHistoryPage> {
+  const params = new URLSearchParams({
+    limit: String(query.limit),
+    offset: String(query.offset),
+  });
+  return apiRequest(`${BASE}/history?${params}`, {
     signal,
-    responseSchema: sobre(z.array(notebookHistoryRowSchema)),
+    responseSchema: sobre(notebookHistoryPageSchema),
   });
 }
 

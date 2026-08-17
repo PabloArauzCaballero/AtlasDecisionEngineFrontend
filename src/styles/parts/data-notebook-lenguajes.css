@@ -1,0 +1,122 @@
+/*
+ * Identidad visual por lenguaje del cuaderno de datos.
+ *
+ * Hoja propia —y no unas reglas más en `data-notebook-cells.css`— porque esto es una decisión de
+ * SISTEMA y no del componente: la misma marca aparece en la celda, en la franja de inserción, en
+ * los botones de añadir y en el aviso del intérprete. Repartida por cada hoja, la cuarta se olvida
+ * y el cuaderno acaba diciendo «R» de tres formas distintas.
+ *
+ * ## Qué significa el color aquí
+ *
+ * La pregunta que más se repite en un cuaderno mezclado es «¿esta celda de dónde saca sus
+ * variables?», y sólo tiene una respuesta correcta por lenguaje: Python y R conservan su entorno
+ * entre celdas y JavaScript no. Dos celdas con el mismo código dan resultados distintos según en
+ * cuál corran, así que esto es señal, no adorno — la regla que este repositorio ya aplica a
+ * `--node-color` en el grafo.
+ *
+ * ## Y qué NO significa
+ *
+ * El color nunca va solo. Cada sitio lleva además el ICONO del lenguaje y su NOMBRE escrito, de
+ * modo que quien no distinga estos tres tonos pierde velocidad y no información. Por eso tampoco
+ * se usan los tokens de estado (`--success`, `--warning`): un lenguaje no es un estado, y teñir
+ * una celda de ámbar diría «atención» sobre algo que no ha pasado nada.
+ */
+
+/*
+ * `--lang` se resuelve UNA vez por elemento marcado y de ahí tira todo lo demás.
+ *
+ * Es lo que evita repetir el conmutador de cuatro valores en cada regla: un filete, un punto y un
+ * icono son tres usos del mismo color, y con tres conmutadores acabarían discrepando.
+ */
+[data-language='python'] {
+  --lang: var(--lang-python);
+}
+
+[data-language='r'] {
+  --lang: var(--lang-r);
+}
+
+[data-language='javascript'] {
+  --lang: var(--lang-javascript);
+}
+
+/*
+ * El comentario no tiene color PROPIO, y es una afirmación: no corre en ningún intérprete, así que
+ * no hay entorno del que hablar. Toma el trazo neutro del tema — se ve que la franja está, y se ve
+ * que no dice lo mismo que las otras tres.
+ */
+[data-language='markdown'] {
+  --lang: var(--line-strong);
+}
+
+/*
+ * El filete de la celda.
+ *
+ * Va en el borde izquierdo, que es el canto que el ojo recorre al bajar por el cuaderno, y mide 3
+ * píxeles: suficiente para leerlo de reojo, insuficiente para competir con el código. La celda
+ * conserva su borde normal en los otros tres lados — esto tiñe uno, no repinta el panel.
+ */
+.notebook-cell[data-language] {
+  border-left: 3px solid var(--lang, var(--line));
+}
+
+/** El punto de la barra de la celda: la marca en su tamaño más pequeño. */
+.notebook-cell__marca {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  background: var(--lang, var(--line-strong));
+}
+
+.notebook-cell__language {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/*
+ * El icono del lenguaje en la franja de inserción y en los botones de añadir.
+ *
+ * Sólo el ICONO se tiñe, nunca el rótulo: el texto de un control tiene que mantener el contraste
+ * del tema, y colorearlo lo dejaría por debajo del suelo AA que `theme-contrast` mide. El icono es
+ * un adorno de identidad y puede permitirse el tono.
+ */
+.notebook-insert__boton[data-language] > svg,
+.notebook__add .button[data-language] > svg:last-of-type {
+  color: var(--lang, currentColor);
+}
+
+/*
+ * Al apuntar la franja, el borde toma el color del lenguaje en vez del acento genérico.
+ *
+ * Es la confirmación de qué se va a insertar ANTES de pulsar, que es donde una franja con cuatro
+ * botones idénticos se equivoca.
+ */
+.notebook-insert__boton[data-language]:hover {
+  border-color: var(--lang, var(--accent));
+}
+
+/** El aviso del intérprete lleva la misma marca: empareja cada franja con sus celdas. */
+.notebook-runtime[data-language] {
+  border-left: 3px solid var(--lang, var(--line));
+}
+
+.notebook-runtime__marca {
+  color: var(--lang, currentColor);
+  flex: 0 0 auto;
+}
+
+/*
+ * La misma marca en el historial.
+ *
+ * Es el panel donde una consulta de R, una de Python y una de la consola SQL aparecen mezcladas por
+ * orden de reloj, así que es justo donde más se agradece distinguirlas sin leer. Lo desconocido
+ * —`sql`, o lo que traiga una versión futura— no lleva `--lang` y cae al trazo neutro.
+ */
+.notebook-history__lang {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}

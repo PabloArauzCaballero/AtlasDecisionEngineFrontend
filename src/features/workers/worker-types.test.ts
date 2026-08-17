@@ -28,11 +28,46 @@ describe('estados de una ejecución de worker', () => {
     expect(isTerminal('CANCELLED')).toBe(true);
   });
 
+  /*
+   * Los tres del triage de documentos cuentan como terminales PARA EL SONDEO, que
+   * es lo único que `isTerminal` decide. `PENDING_REVIEW` no es terminal en el
+   * dominio —lo cierra una persona— pero ya no cambia por sí solo, y seguir
+   * preguntando cada segundo y medio por un caso que espera a alguien es sondear
+   * durante horas para no ver nada.
+   */
+  it('deja de sondear los desenlaces que sólo mueve una persona', () => {
+    expect(isTerminal('PENDING_REVIEW')).toBe(true);
+    expect(isTerminal('IN_REVIEW')).toBe(true);
+    expect(isTerminal('PDF_INVALID')).toBe(true);
+  });
+
+  it('no confunde esperar a una persona con haber fallado', () => {
+    // Ámbar frente a rojo. Pintar la cola de revisión en rojo entrena a leerla
+    // como una lista de errores, y entonces deja de leerse.
+    expect(statusTone('PENDING_REVIEW')).toBe('REVIEW');
+    expect(statusTone('IN_REVIEW')).toBe('REVIEW');
+    expect(statusTone('PENDING_REVIEW')).not.toBe(statusTone('FAILED'));
+    // Un rechazo SÍ es una negativa, y se ve como tal.
+    expect(statusTone('PDF_INVALID')).toBe('INVALID');
+    expect(statusTone('PDF_INVALID')).not.toBe(statusTone('PENDING_REVIEW'));
+  });
+
   it('no deja ningún estado sin color propio', () => {
     // `StatusBadge` deriva el color de un vocabulario cerrado y cae en «neutral»
     // sin avisar ante un valor que no conoce. Si `SUCCEEDED` saliera gris, un
     // éxito y una cancelación se verían igual.
-    const known = new Set(['PASSED', 'WARNING', 'FAILED', 'INACTIVE', 'RUNNING', 'QUEUED']);
+    const known = new Set([
+      'PASSED',
+      'WARNING',
+      'FAILED',
+      'INACTIVE',
+      'RUNNING',
+      'QUEUED',
+      // Los dos del triage: `REVIEW` cae en el conjunto ámbar de `StatusBadge` y
+      // `INVALID` en el de peligro. Los dos existen en su vocabulario cerrado.
+      'REVIEW',
+      'INVALID',
+    ]);
     for (const status of WORKER_RUN_STATUSES) {
       expect(known.has(statusTone(status)), `${status} usa un tono desconocido`).toBe(true);
     }

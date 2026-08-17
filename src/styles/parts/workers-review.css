@@ -1,0 +1,211 @@
+/*
+ * Cola de revisión de extractos.
+ *
+ * Hoja propia y no dentro de `workers-identity.css` porque son dos bandejas
+ * distintas: aquélla lista veredictos biométricos, ésta una cola de trabajo con
+ * categorías, prioridad y paginación. Compartir hoja las habría acoplado en el
+ * primer ajuste que sólo valiera para una.
+ *
+ * Todo por token. Un color escrito a mano aquí queda ilegible al conmutar el
+ * tema, y esta pantalla se mira en los dos.
+ */
+
+/* --- Pestañas de categoría ------------------------------------------------ */
+
+.revision-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.revision-categoria {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+}
+
+.revision-categoria[data-activa='true'] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--text);
+}
+
+/*
+ * El contador va SIEMPRE, también en cero: una pestaña sin número se lee como
+ * «no se ha contado», que es distinto de «no hay nada». El motor sólo devuelve
+ * las categorías con trabajo, así que un cero aquí sólo aparece al vaciarse una
+ * mientras se mira.
+ */
+.revision-categoria-cuenta {
+  min-inline-size: 1.5rem;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.revision-categoria[data-activa='true'] .revision-categoria-cuenta {
+  background: var(--surface);
+}
+
+/* --- Filtros -------------------------------------------------------------- */
+
+.revision-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.revision-filtros .field {
+  min-inline-size: 9rem;
+}
+
+/* --- La lista ------------------------------------------------------------- */
+
+.revision-lista {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.revision-caso details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+/*
+ * La prioridad se marca con una barra al INICIO del bloque y no coloreando la
+ * fila entera: el color es señal, y tres filas de fondo ámbar seguidas dejan de
+ * significar «urgente» para significar «cola». La barra ordena la lectura sin
+ * competir con la insignia de categoría, que es lo que se viene a leer.
+ */
+.revision-caso[data-prioridad='1'] details {
+  border-inline-start: 3px solid var(--danger);
+}
+
+.revision-caso[data-prioridad='2'] details {
+  border-inline-start: 3px solid var(--warning);
+}
+
+.revision-caso[data-prioridad='3'] details {
+  border-inline-start: 3px solid var(--line);
+}
+
+.revision-caso summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3);
+  cursor: pointer;
+}
+
+.revision-caso[open] summary {
+  border-block-end: 1px solid var(--line);
+}
+
+.revision-caso-archivo {
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.revision-caso-espera,
+.revision-caso-prioridad,
+.revision-caso-reclamado {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.revision-caso-reclamado {
+  margin-inline-start: auto;
+}
+
+/* --- El detalle ----------------------------------------------------------- */
+
+.revision-caso-hechos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3);
+}
+
+.revision-caso-hechos dt {
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+}
+
+.revision-caso-hechos dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.revision-caso-problema,
+.revision-caso-extraido {
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.revision-caso-problema h4,
+.revision-caso-extraido h4 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
+.revision-caso-problema p {
+  margin: 0 0 var(--space-1);
+}
+
+/* --- Acciones ------------------------------------------------------------- */
+
+.revision-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-block-start: 1px solid var(--line);
+}
+
+.revision-acciones-notas {
+  flex: 1 1 18rem;
+}
+
+.revision-acciones textarea {
+  inline-size: 100%;
+  resize: vertical;
+}
+
+/* --- Paginación ----------------------------------------------------------- */
+
+.revision-paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+}
+
+.revision-paginacion-estado {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+}

@@ -16,9 +16,30 @@ import type { SqlCatalog, QueryResult, QueryValidation } from './sql-console.typ
 
 export type SqlSource = 'MOTOR' | 'ATLAS_BACKEND';
 
-const RUTAS: Record<SqlSource, string> = {
-  MOTOR: '/v1/sql-console',
-  ATLAS_BACKEND: '/atlas-backend/sql-console',
+/** Las tres operaciones que la consola pide, por origen. */
+type OperacionSql = 'catalog' | 'validate' | 'query';
+
+/**
+ * Cada ruta ENTERA, y no una raíz a la que se le pega el sufijo.
+ *
+ * Escrita como raíz + argumento —`${RUTAS[source]}${ruta}`— la ruta completa no
+ * existe en ningún sitio del repositorio, y `scripts/engine-surface.mjs` sólo
+ * sabe seguir la pista hasta el literal: `POST /v1/sql-console/query` y
+ * `/validate` figuraban como superficie que ninguna pantalla llama, sobre una
+ * consola que las usa en cada consulta. Una lista de deuda con entradas falsas
+ * dentro deja de leerse, que es justo lo que ese gate existe para impedir.
+ */
+const RUTAS: Record<SqlSource, Record<OperacionSql, string>> = {
+  MOTOR: {
+    catalog: '/v1/sql-console/catalog',
+    validate: '/v1/sql-console/validate',
+    query: '/v1/sql-console/query',
+  },
+  ATLAS_BACKEND: {
+    catalog: '/atlas-backend/sql-console/catalog',
+    validate: '/atlas-backend/sql-console/validate',
+    query: '/atlas-backend/sql-console/query',
+  },
 };
 
 /**
@@ -29,10 +50,10 @@ const RUTAS: Record<SqlSource, string> = {
  */
 async function pedir<T>(
   source: SqlSource,
-  ruta: string,
+  operacion: OperacionSql,
   init?: Parameters<typeof apiRequest>[1],
 ): Promise<T> {
-  const cuerpo = await apiRequest<unknown>(`${RUTAS[source]}${ruta}`, {
+  const cuerpo = await apiRequest<unknown>(RUTAS[source][operacion], {
     ...init,
     /*
      * Un 401 del SEGUNDO origen no es la muerte de la sesión del portal.
@@ -97,7 +118,7 @@ export function resolverOrigen(statement: string, indice: SourceIndex): SqlSourc
 }
 
 export function fetchCatalogDe(source: SqlSource, signal?: AbortSignal): Promise<SqlCatalog> {
-  return pedir<SqlCatalog>(source, '/catalog', { signal });
+  return pedir<SqlCatalog>(source, 'catalog', { signal });
 }
 
 export function validarEn(
@@ -105,7 +126,7 @@ export function validarEn(
   statement: string,
   signal?: AbortSignal,
 ): Promise<QueryValidation> {
-  return pedir<QueryValidation>(source, '/validate', {
+  return pedir<QueryValidation>(source, 'validate', {
     method: 'POST',
     body: { statement },
     signal,
@@ -117,7 +138,7 @@ export function ejecutarEn(
   statement: string,
   signal?: AbortSignal,
 ): Promise<QueryResult> {
-  return pedir<QueryResult>(source, '/query', { method: 'POST', body: { statement }, signal });
+  return pedir<QueryResult>(source, 'query', { method: 'POST', body: { statement }, signal });
 }
 
 /**

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mockDataNotebookBackend } from './support/data-notebook-backend';
+import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
+import { escribirEnCelda } from './support/notebook-editor';
 
 /**
  * El intérprete de Python del cuaderno, ejecutándose de verdad.
@@ -15,8 +16,6 @@ import { mockDataNotebookBackend } from './support/data-notebook-backend';
  * de desarrollo: en desarrollo la CSP añade `'unsafe-eval'` y taparía el fallo.
  */
 
-const RUTA = '/workers/data-notebook';
-
 /** Arrancar el intérprete y cargar pandas puede tardar; el plazo es del artefacto, no del código. */
 const PLAZO_INTERPRETE = 240_000;
 
@@ -25,8 +24,7 @@ test.describe('cuaderno de datos · Python', () => {
 
   async function abrir(page: Page) {
     await mockDataNotebookBackend(page);
-    await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.locator('.notebook')).toBeVisible({ timeout: 30_000 });
+    await abrirCuadernoDeTrabajo(page);
   }
 
   /**
@@ -40,7 +38,7 @@ test.describe('cuaderno de datos · Python', () => {
    */
   async function esperarSalida(page: Page) {
     const salida = page.locator('.notebook-cell__output').first();
-    const caido = page.locator('.notebook-python--unavailable');
+    const caido = page.locator('.notebook-runtime--unavailable');
 
     await expect(salida.or(caido).first()).toBeVisible({ timeout: PLAZO_INTERPRETE });
     if (await caido.isVisible()) {
@@ -52,15 +50,14 @@ test.describe('cuaderno de datos · Python', () => {
   test('ejecuta pandas sobre el dataset cargado y devuelve una tabla', async ({ page }) => {
     await abrir(page);
 
-    const celda = page.locator('.notebook-cell__code').first();
-    await celda.fill('df.groupby("status").size().reset_index(name="cuantos")');
+    await escribirEnCelda(page, 0, 'df.groupby("status").size().reset_index(name="cuantos")');
     await page.locator('.notebook-cell__run').first().click();
 
     const salida = await esperarSalida(page);
     // Dos estados en el simulado (ACTIVE y SUSPENDED): la agrupación tiene que dar dos filas.
     await expect(salida.locator('.notebook-table tbody tr')).toHaveCount(2);
     await expect(salida).toContainText('SUSPENDED');
-    await expect(page.locator('.notebook-python--ready')).toBeVisible();
+    await expect(page.locator('.notebook-runtime--ready')).toBeVisible();
 
     // La captura va DESPUÉS de las aserciones, no en su lugar: así la foto sólo existe si lo que
     // muestra es cierto. Es la única evidencia donde se ve pandas resolviendo de verdad.
@@ -75,11 +72,55 @@ test.describe('cuaderno de datos · Python', () => {
     });
   });
 
+  /**
+   * matplotlib dibujando de verdad, y el PNG saliendo del navegador.
+   *
+   * Es la prueba que no puede sustituirse mirando el código: entre `plt.plot(...)` y una imagen en
+   * pantalla hay tres cosas que sólo fallan en ejecución —que la rueda de matplotlib esté en el
+   * artefacto, que el backend sea `AGG` (con el de serie, `savefig` no produce nada) y que la
+   * figura se recoja y se cierre—. Cualquiera de las tres se rompe en silencio: la celda diría que
+   * corrió sin devolver nada.
+   */
+  test('un gráfico de pyplot se pinta y se puede descargar', async ({ page }) => {
+    await abrir(page);
+
+    await escribirEnCelda(
+      page,
+      0,
+      'import matplotlib.pyplot as plt\n' +
+        'conteo = df.groupby("status").size()\n' +
+        'plt.figure()\n' +
+        'plt.bar(conteo.index, conteo.values)\n' +
+        'plt.title("Clientes por estado")\n',
+    );
+    await page.locator('.notebook-cell__run').first().click();
+
+    await esperarSalida(page);
+    const figura = page.locator('.notebook-cell__figura img').first();
+    await expect(figura).toBeVisible({ timeout: PLAZO_INTERPRETE });
+    // Que sea un PNG de verdad y no un hueco: la imagen tiene que haber decodificado con ancho.
+    await expect(figura).toHaveAttribute('src', /^data:image\/png;base64,/);
+    expect(await figura.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(100);
+
+    // Y que el botón descargue: se comprueba el archivo que el navegador recibe, no que exista el
+    // botón. Un `onClick` sin cablear se ve idéntico a uno cableado.
+    const [descarga] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', { name: 'Descargar PNG' }).first().click(),
+    ]);
+    expect(descarga.suggestedFilename()).toMatch(/\.png$/);
+
+    await page.locator('.notebook-cell').first().scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: 'docs/visual-evidence/cuaderno/10-grafico-pyplot.png',
+      animations: 'disabled',
+    });
+  });
+
   test('print viaja como salida y el traceback de Python se enseña entero', async ({ page }) => {
     await abrir(page);
 
-    const celda = page.locator('.notebook-cell__code').first();
-    await celda.fill('print("filas:", len(rows))\nraise ValueError("a propósito")');
+    await escribirEnCelda(page, 0, 'print("filas:", len(rows))\nraise ValueError("a propósito")');
     await page.locator('.notebook-cell__run').first().click();
 
     await esperarSalida(page);

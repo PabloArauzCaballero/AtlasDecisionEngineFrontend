@@ -221,7 +221,18 @@ async function send<T>(
   const isMultipart = typeof FormData !== 'undefined' && body instanceof FormData;
 
   const headers = new Headers(requestInit.headers);
-  headers.set('accept', 'application/json');
+  /*
+   * `accept` es un valor POR OMISIÓN, no una imposición.
+   *
+   * Con `set` incondicional, quien descargaba un archivo pedía una cosa y el
+   * servidor recibía otra. En el generador documental eso no fallaba: la misma
+   * ruta responde el archivo o la ficha según `Accept`, así que `POST
+   * /pdf/generate` devolvía 200 con el JSON de metadatos, `apiDownload` lo veía
+   * correcto, lo envolvía en un `Blob` y `saveFile` lo guardaba con extensión
+   * `.pdf`. El resultado era un «PDF corrupto» que por dentro era la ficha del
+   * documento — sin un solo error en toda la cadena.
+   */
+  if (!headers.has('accept')) headers.set('accept', 'application/json');
   if (token) headers.set('authorization', `Bearer ${token}`);
   if (body !== undefined && !isMultipart && !headers.has('content-type')) {
     headers.set('content-type', 'application/json');

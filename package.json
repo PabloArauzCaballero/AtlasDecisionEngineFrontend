@@ -21,6 +21,9 @@
     "test:e2e:tools": "playwright test --config playwright.tools.config.ts",
     "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
     "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build",
+    "setup:pyodide": "node scripts/setup-pyodide.mjs",
+    "setup:webr": "node scripts/setup-webr.mjs",
+    "setup:interpretes": "yarn setup:pyodide && yarn setup:webr",
     "evidencia:responsive": "node scripts/evidencia-responsive.mjs",
     "evidencia:responsive:auditar": "node scripts/evidencia-responsive.mjs --solo-auditar",
     "security:audit": "node scripts/audit-high.mjs",
@@ -34,6 +37,7 @@
     "next": "^16.2.11",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "webr": "0.6.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

@@ -10,12 +10,14 @@ import {
   type MonitoringForm,
 } from '../features/model-monitoring/MonitoringControls';
 import { PerformancePanel } from '../features/model-monitoring/PerformancePanel';
+import { QaStressPanel } from '../features/model-monitoring/QaStressPanel';
 import { StabilityPanel } from '../features/model-monitoring/StabilityPanel';
 import {
   useAdverseImpactReport,
   usePerformanceReport,
   useStabilityReport,
 } from '../features/model-monitoring/useModelMonitoring';
+import { useQaStressRuns } from '../features/model-monitoring/useQaStressRuns';
 import { asRecord } from '../utils/records';
 
 const EMPTY_FORM: MonitoringForm = {
@@ -51,6 +53,10 @@ export function ModelMonitoringPage() {
   const performance = usePerformanceReport();
   const stability = useStabilityReport();
   const adverseImpact = useAdverseImpactReport();
+  // La serie de estrés se sincroniza con la versión ELEGIDA, no con la medida: se ve al
+  // instante de escogerla, sin pulsar «Medir». Es lo único medible de una versión recién
+  // desplegada, que todavía no tiene ni un desenlace con el que calcular las tres de abajo.
+  const stress = useQaStressRuns(form.versionId);
 
   const running = performance.isPending || stability.isPending || adverseImpact.isPending;
 
@@ -97,6 +103,10 @@ export function ModelMonitoringPage() {
       {performance.data ? <PerformancePanel report={asRecord(performance.data)} /> : null}
       {stability.data ? <StabilityPanel report={asRecord(stability.data)} /> : null}
       {adverseImpact.data ? <AdverseImpactPanel report={asRecord(adverseImpact.data)} /> : null}
+
+      {form.versionId ? (
+        <QaStressPanel series={stress.series} versionId={form.versionId} isError={stress.isError} />
+      ) : null}
 
       {nothingRun ? (
         <EmptyState

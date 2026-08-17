@@ -1,11 +1,31 @@
 'use client';
 
 import { Database, EyeOff, RefreshCw, Scissors, ShieldAlert } from 'lucide-react';
-import type { NotebookCatalog, NotebookPage } from './notebook.api';
+import { esDelMotor } from './engine-datasets';
+import type { NotebookCatalog, NotebookDataset, NotebookPage } from './notebook.api';
 import { ResultTable } from './ResultTable';
 
 interface DatasetPanelProps {
   catalog: NotebookCatalog;
+  /**
+   * Los datasets de las DOS fuentes, ya unidos.
+   *
+   * No se leen de `catalog.datasets` porque ése es sólo el catálogo de AtlasBackend; las vistas
+   * gobernadas del motor llegan por otra llamada. `catalog` se sigue usando para los techos, que
+   * son los del transporte de AtlasBackend.
+   */
+  datasets: NotebookDataset[];
+  /**
+   * Vistas que existen en alguna de las dos bases y que su backend NO sirve, con el motivo.
+   *
+   * Es el reverso de que el catálogo se descubra solo. Mientras las listas se escribían a mano,
+   * una vista que faltaba era siempre lo mismo —nadie la había añadido al código— y se arreglaba
+   * ahí. Ahora una vista puede estar publicada y aun así no servirse, y sin esta lista los dos
+   * casos se ven idénticos desde la pantalla: ausencia total, sin nada que consultar.
+   */
+  omitted: { name: string; reason: string }[];
+  /** El catálogo del motor no contestó: se dice, no se esconde. */
+  engineUnavailable: boolean;
   selected: string;
   onSelect: (code: string) => void;
   page: NotebookPage | null;
@@ -31,6 +51,9 @@ function formatearMegas(bytes: number): string {
  */
 export function DatasetPanel({
   catalog,
+  datasets,
+  omitted,
+  engineUnavailable,
   selected,
   onSelect,
   page,
@@ -39,7 +62,16 @@ export function DatasetPanel({
   onPage,
   onReload,
 }: DatasetPanelProps) {
-  const dataset = catalog.datasets.find((candidato) => candidato.code === selected);
+  const dataset = datasets.find((candidato) => candidato.code === selected);
+  /*
+   * Agrupados por origen, y con el origen escrito.
+   *
+   * Las dos bases hablan de cosas distintas —una de personas y casos, otra de decisiones— y en una
+   * lista plana `ejecuciones` y `v_customer_overview_v1` parecen dos tablas del mismo sitio. Quien
+   * cruce ambas sin saberlo estará uniendo por identificadores que no significan lo mismo.
+   */
+  const deAtlasBackend = datasets.filter((candidato) => !esDelMotor(candidato.code));
+  const delMotor = datasets.filter((candidato) => esDelMotor(candidato.code));
 
   return (
     <section className="notebook-dataset" aria-label="Datos cargados en el cuaderno">
@@ -53,11 +85,22 @@ export function DatasetPanel({
             onChange={(evento) => onSelect(evento.target.value)}
             disabled={loading}
           >
-            {catalog.datasets.map((candidato) => (
-              <option key={candidato.code} value={candidato.code}>
-                {candidato.label}
-              </option>
-            ))}
+            <optgroup label="AtlasBackend · clientes, casos y bitácora">
+              {deAtlasBackend.map((candidato) => (
+                <option key={candidato.code} value={candidato.code}>
+                  {candidato.label}
+                </option>
+              ))}
+            </optgroup>
+            {delMotor.length ? (
+              <optgroup label="Motor de decisión · decisiones y riesgo">
+                {delMotor.map((candidato) => (
+                  <option key={candidato.code} value={candidato.code}>
+                    {candidato.label}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
           </select>
         </label>
         <button type="button" className="button" onClick={onReload} disabled={loading}>
@@ -66,6 +109,45 @@ export function DatasetPanel({
       </header>
 
       {dataset ? <p className="notebook-dataset__description">{dataset.description}</p> : null}
+
+      {engineUnavailable ? (
+        /*
+         * Media casa que falta se DICE. Sin este aviso, quien no tenga permiso de consola SQL —o
+         * quien mire mientras el motor no responde— vería una lista con sólo los datasets de
+         * AtlasBackend y la leería como el catálogo completo: buscaría las decisiones donde no
+         * están y concluiría que no hay.
+         */
+        <p className="notebook-dataset__aviso-motor" role="status">
+          <ShieldAlert aria-hidden="true" size={14} /> No se pudieron listar las vistas del motor de
+          decisión (decisiones, riesgo, catálogo, desenlaces y auditoría). Se sigue trabajando con
+          las de AtlasBackend; comprueba tu permiso de consola SQL o si el motor responde.
+        </p>
+      ) : null}
+
+      {omitted.length ? (
+        /*
+         * En un <details> cerrado a propósito.
+         *
+         * No es un aviso para quien viene a analizar: no hay nada que pueda hacer con él y encima
+         * de la tabla competiría con lo que sí cambia sus conclusiones (el enmascarado, el
+         * recorte). Es para quien publicó una vista y no la encuentra, y esa persona SÍ la busca.
+         * Escondido del todo daría igual que no estuviera; abierto, gritaría un problema ajeno.
+         */
+        <details className="notebook-dataset__descartadas">
+          <summary>
+            <ShieldAlert aria-hidden="true" size={14} /> {omitted.length} vista
+            {omitted.length === 1 ? '' : 's'} publicada{omitted.length === 1 ? '' : 's'} que no se
+            sirve{omitted.length === 1 ? '' : 'n'}
+          </summary>
+          <ul>
+            {omitted.map((entrada) => (
+              <li key={entrada.name}>
+                <code>{entrada.name}</code> — {entrada.reason}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
 
       {page?.masked ? (
         <p className="notebook-dataset__notice">

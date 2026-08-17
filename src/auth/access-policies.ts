@@ -143,5 +143,15 @@ export const accessPolicies = {
   // Espeja `DATA_NOTEBOOK_ROLES` de AtlasBackend. Que esta lista fuera más ancha no abriría
   // nada —el backend revalida— pero dejaría a alguien entrar a una pantalla que responde 403 en
   // cuanto pide el primer dataset, que es la peor forma de negar un permiso.
-  dataNotebook: ['RISK_ANALYST', 'FRAUD_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
+  //
+  // Exactamente eso pasó con `FRAUD_ANALYST`, que estaba aquí y NO en la lista del backend: el
+  // analista de fraude veía la pestaña y recibía 403 en el catálogo, y la pantalla sólo podía
+  // contarlo como «el servicio no responde o tu sesión caducó». Se retira para que la negativa
+  // ocurra donde se entiende —la vista no aparece— y no en mitad del primer análisis. Si se
+  // decide que el fraude también debe analizar el censo, se añade en LOS DOS sitios a la vez.
+  //
+  // Los tres roles de administración no se listan porque no hacen falta: `hasAnyRole` deja pasar
+  // a `PLATFORM_ADMIN`, que es donde el portal aterriza SUPER_ADMIN, SYSTEMS_ADMIN e
+  // INTERNAL_IDENTITY_ADMIN.
+  dataNotebook: ['RISK_ANALYST', 'COMPLIANCE', 'AUDITOR'] as const,
 } as const;

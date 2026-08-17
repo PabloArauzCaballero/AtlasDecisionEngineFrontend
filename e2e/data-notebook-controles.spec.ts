@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { mockDataNotebookBackend } from './support/data-notebook-backend';
+import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
+import { abrirHistorial, escribirEnCelda, esperarContenido } from './support/notebook-editor';
 
 /**
  * Los controles que la primera especificación NO llegó a pulsar, y la evidencia visual.
@@ -17,12 +18,11 @@ import { mockDataNotebookBackend } from './support/data-notebook-backend';
  * aserción no detecta nada, y una aserción sin captura no deja ver si el resultado se lee.
  */
 
-const RUTA = '/workers/data-notebook';
 const OUT = 'docs/visual-evidence/cuaderno';
 
 async function abrirCuaderno(page: Page) {
   await mockDataNotebookBackend(page);
-  await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await abrirCuadernoDeTrabajo(page);
   // Señal POSITIVA, nunca la desaparición de un indicador de carga: «no está» y «todavía no está»
   // son indistinguibles, y así se llenó una vez un directorio con 440 fotos de un spinner.
   await expect(page.locator('.notebook-dataset .notebook-table tbody tr').first()).toBeVisible({
@@ -49,9 +49,9 @@ async function ejecutarJs(page: Page, codigo: string) {
     .first()
     .locator('select')
     .selectOption('javascript');
-  const area = page.locator('.notebook-cell__code').first();
-  await area.click();
-  await area.fill(codigo);
+  // Escribir pasa por `support/notebook-editor.ts`: el editor es Monaco y el
+  // `.notebook-cell__code` de antes sólo existe hasta que monta.
+  await escribirEnCelda(page, 0, codigo);
   await page.locator('.notebook-cell__run').first().click();
   await expect(page.locator('.notebook-cell__output').first()).toBeVisible({ timeout: 30_000 });
 }
@@ -86,11 +86,10 @@ test.describe('cuaderno de datos · controles restantes', () => {
     await abrirCuaderno(page);
 
     await page.getByRole('button', { name: /Celda de JavaScript/ }).click();
-    const codigos = page.locator('.notebook-cell__code');
-    await codigos.nth(1).fill('# segunda');
+    await escribirEnCelda(page, 1, '# segunda');
 
     await page.getByRole('button', { name: 'Subir celda 2' }).click();
-    await expect(codigos.nth(0)).toHaveValue('# segunda');
+    await esperarContenido(page, 0, '# segunda');
     // La primera celda no puede subir más: el botón se apaga en vez de no hacer nada.
     await expect(page.getByRole('button', { name: 'Subir celda 1' })).toBeDisabled();
   });
@@ -174,6 +173,9 @@ test.describe('cuaderno de datos · historial y techo de tamaño', () => {
     page,
   }) => {
     await abrirCuaderno(page);
+    // El historial nace PLEGADO: sin desplegarlo, sus aserciones buscan elementos
+    // que existen en el componente y no están montados.
+    await abrirHistorial(page);
     await expect(page.getByText('Todavía no has ejecutado ninguna celda.')).toBeVisible();
 
     await ejecutarJs(page, 'return rows.slice(0, 3);');
@@ -189,15 +191,14 @@ test.describe('cuaderno de datos · historial y techo de tamaño', () => {
   test('«Reusar» trae la consulta de vuelta como celda nueva, sin ejecutarla', async ({ page }) => {
     await abrirCuaderno(page);
     await ejecutarJs(page, 'return [{ reusable: true }];');
+    await abrirHistorial(page);
     await expect(page.locator('.notebook-history__item')).toHaveCount(1, { timeout: 15_000 });
 
     await page.getByRole('button', { name: 'Reusar' }).click();
 
     const celdas = page.locator('.notebook-cell');
     await expect(celdas).toHaveCount(2);
-    await expect(page.locator('.notebook-cell__code').nth(1)).toHaveValue(
-      'return [{ reusable: true }];',
-    );
+    await esperarContenido(page, 1, 'return [{ reusable: true }];');
     // No se ejecuta sola: los datos de hoy pueden ser otros y quien la reusa tiene que leerla.
     await expect(celdas.nth(1).locator('.notebook-cell__output')).toHaveCount(0);
   });
@@ -210,10 +211,11 @@ test.describe('cuaderno de datos · historial y techo de tamaño', () => {
       .first()
       .locator('select')
       .selectOption('javascript');
-    await page.locator('.notebook-cell__code').first().fill('throw new Error("sin permiso");');
+    await escribirEnCelda(page, 0, 'throw new Error("sin permiso");');
     await page.locator('.notebook-cell__run').first().click();
     await expect(page.locator('.notebook-cell__error')).toBeVisible({ timeout: 30_000 });
 
+    await abrirHistorial(page);
     const historial = page.locator('.notebook-history__item').first();
     await expect(historial).toHaveClass(/notebook-history__item--error/, { timeout: 15_000 });
     await expect(historial.locator('.notebook-history__error')).toContainText('sin permiso');

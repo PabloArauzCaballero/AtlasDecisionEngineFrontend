@@ -98,6 +98,12 @@
   --highlight-wash: #f2f2fc;
   --highlight-line: #d5d5f5;
 
+  /* Identidad por LENGUAJE del cuaderno: tipo, como `--node-color`, ni estado ni
+     adorno. El porqué, en `parts/data-notebook-lenguajes.css`. */
+  --lang-python: #2f6fb5;
+  --lang-r: #7442c8;
+  --lang-javascript: #9a6b09;
+
   /*
    * Superficie de código: oscura en los DOS temas a propósito. Un bloque de
    * código o una consola se leen mejor invertidos, y cambiarlos con el tema
@@ -142,6 +148,15 @@
   --ring-info: #eaf2fd;
   /* Aureola del punto «en vivo» del pie de la barra lateral. */
   --ring-success: #d6efe2;
+  /*
+   * Lienzo bajo una imagen que trae SU PROPIO color: los gráficos de matplotlib del cuaderno.
+   *
+   * Es el único token que vale lo mismo en los dos temas, y a propósito. matplotlib dibuja ejes,
+   * rejilla y rótulos en negro sobre fondo transparente; puesto sobre `--surface`, en tema oscuro
+   * el gráfico quedaba negro sobre negro y no se veía nada. El lienzo tiene que ser el que la
+   * imagen supone, no el del portal.
+   */
+  --figure-canvas: #ffffff;
 
   /*
    * Carriles del historial de versiones.
@@ -219,6 +234,11 @@
   --highlight-wash: #1e1b4b;
   --highlight-line: #312e81;
 
+  /* La identidad de lenguaje se aclara en oscuro, como los estados. */
+  --lang-python: #7cb3ec;
+  --lang-r: #b79bf0;
+  --lang-javascript: #e6c15a;
+
   /* La superficie de código no se invierte: ya lo estaba. Sólo se asienta un
      punto más para no competir con los paneles del propio tema oscuro. */
   --code-surface: #08080a;
@@ -238,6 +258,8 @@
   --ring-accent-line: #1f5f58;
   --ring-info: #10243d;
   --ring-success: #0d2a1c;
+  /* Igual que en claro: ver el porqué donde se define. */
+  --figure-canvas: #ffffff;
 
   /* Los mismos carriles, subidos de luminosidad: los tonos de fondo claro se
      apagan contra el fondo oscuro y las ramas dejan de distinguirse. */

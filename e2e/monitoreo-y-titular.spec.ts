@@ -114,7 +114,14 @@ test('la referencia del titular no viaja nunca en la dirección', async ({ page 
   await page.getByRole('button', { name: 'Registrar y resolver' }).click();
   await expect(page.locator('.panel').filter({ hasText: 'Resolución' })).toBeVisible();
   await page.getByRole('button', { name: 'Ver solicitudes anteriores' }).click();
-  await expect(page.locator('.panel').filter({ hasText: 'Solicitudes anteriores' })).toBeVisible();
+  /*
+   * Por REGIÓN y no por `.panel` con texto: el panel del formulario contiene el botón «Ver
+   * solicitudes anteriores», así que el filtro por subcadena casaba con dos paneles y el modo
+   * estricto tumbaba la prueba. El nombre accesible viene del encabezado del panel, que es
+   * único —y comprobarlo por ahí verifica de paso que la sección está nombrada para quien
+   * navega con lector de pantalla—.
+   */
+  await expect(page.getByRole('region', { name: 'Solicitudes anteriores' })).toBeVisible();
 
   // Un identificador en una URL acaba en el registro de acceso, en el proxy y en la traza. Que las
   // dos operaciones sean POST sólo sirve si el portal no lo cuela igualmente en la dirección.

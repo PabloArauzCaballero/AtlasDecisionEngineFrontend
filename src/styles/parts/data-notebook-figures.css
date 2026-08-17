@@ -1,0 +1,40 @@
+/*
+ * Gráficos que devuelve una celda de Python.
+ *
+ * Hoja propia por el tope de 299 líneas de `data-notebook.css`. El corte tiene sentido igualmente:
+ * esto es lo único del cuaderno que muestra una imagen de tamaño ajeno —lo dibuja matplotlib, no
+ * el portal— y por eso todo aquí trata de encajarla sin deformarla.
+ */
+
+.notebook-cell__figuras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.notebook-cell__figura {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+/*
+ * `max-width: 100%` y `height: auto`: el PNG viene a 110 ppp y suele ser más ancho que la celda.
+ * Sin esto, el gráfico desbordaba y arrastraba la página entera en horizontal — que es la regla
+ * del repositorio: lo ancho se desplaza dentro de su caja, nunca en el cuerpo.
+ */
+.notebook-cell__figura img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  /* El lienzo que la imagen supone, no el del portal. El porqué, en `theme.css`. */
+  background: var(--figure-canvas);
+}
+
+.notebook-cell__figura figcaption {
+  display: flex;
+  gap: var(--space-2);
+}

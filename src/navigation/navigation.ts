@@ -1,6 +1,5 @@
 import {
   Activity,
-  Bot,
   Boxes,
   Braces,
   Calculator,
@@ -201,22 +200,6 @@ export const navigation: readonly NavigationSection[] = [
         path: '/manual-reviews',
         icon: ScanSearch,
         roles: accessPolicies.manualReview,
-      },
-      {
-        /*
-         * ADR-0026 — workers adicionales. Estuvo en «Procesamiento» hasta que esa sección
-         * pasó a ser la de examinar lo ya decidido (ver `navigation-tail.ts`). Aquí encaja
-         * mejor de lo que encajaba allí: un worker procesa un documento o un texto que
-         * alimenta una decisión en curso, que es la definición de esta sección.
-         *
-         * Sigue siendo UNA entrada y no una por worker: `/workers` es el concentrador con
-         * las cinco pestañas y el panel de control de cada una; los enlaces directos a
-         * cada worker no han cambiado.
-         */
-        label: 'Workers',
-        path: '/workers',
-        icon: Bot,
-        roles: accessPolicies.workers,
       },
     ],
   },

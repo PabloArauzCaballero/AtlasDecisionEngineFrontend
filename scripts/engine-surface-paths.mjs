@@ -22,6 +22,18 @@ import { join, relative } from 'node:path';
 const EXPANSIONS = [{ prefix: '/v1/session/', values: ['login/pin'] }];
 
 /**
+ * Los DOS prefijos con los que el motor publica superficie.
+ *
+ * `/pdf/*` faltaba, y su ausencia no se veía: el generador documental tiene sus
+ * operaciones en el mismo OpenAPI, así que el inventario las lista, pero el
+ * extractor sólo miraba `/v1/`. El resultado es el peor de los dos mundos —
+ * `GET /pdf/artifacts` se llama desde `documents.api.ts` y el gate exigía una
+ * exención por él—, y una lista de deuda con entradas falsas dentro deja de
+ * leerse, que es exactamente lo que este gate existe para impedir.
+ */
+const ENGINE_PATH = /(?:\/v1|\/pdf)\/[A-Za-z0-9_\-./{}]*/g;
+
+/**
  * Deja una ruta en la forma canónica con la que se comparan las dos orillas:
  * el `/v1/artifacts/{artifactId}` del OpenAPI y el `/v1/artifacts/${id}` del
  * portal son la misma superficie y tienen que colisionar.
@@ -61,7 +73,7 @@ export function consumedPaths(root) {
     // Una prueba que simula un endpoint no lo hace visible a nadie.
     if (/\.test\.tsx?$/.test(name)) continue;
     const collapsed = inlineHelpers(readFileSync(file, 'utf8')).replaceAll(/\$\{[^}]*\}/g, '{p}');
-    for (const match of collapsed.matchAll(/\/v1\/[A-Za-z0-9_\-./{}]*/g)) {
+    for (const match of collapsed.matchAll(ENGINE_PATH)) {
       for (const path of expand(normalizePath(match[0]))) consumed.add(path);
     }
   }

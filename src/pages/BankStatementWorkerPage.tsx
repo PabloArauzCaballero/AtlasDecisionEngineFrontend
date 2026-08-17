@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Panel } from '../components/Panel';
 import { StatementCategoriesBar } from '../features/workers/StatementCategoriesBar';
 import { StatementAnalytics } from '../features/workers/StatementAnalytics';
@@ -12,13 +12,13 @@ import { StatementUploadField } from '../features/workers/StatementUploadField';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
 import { WorkerRunTracker } from '../features/workers/WorkerRunTracker';
-import {
-  claveMovimiento,
-  useStatementCategories,
-} from '../features/workers/useStatementCategories';
+import { useStatementCategories } from '../features/workers/useStatementCategories';
 import { useAvisoDeRevision } from '../features/workers/useAvisoDeRevision';
-import { resumirCategorias } from '../features/workers/statement-category-summary';
-import { resumirExtracto } from '../features/workers/statement-analytics';
+import { useStatementConsoleData } from '../features/workers/useStatementConsoleData';
+import {
+  useRunAnnouncement,
+  useUploadRejection,
+} from '../features/workers/useStatementAnnouncements';
 import { useWorkerRun } from '../features/workers/useWorkerRun';
 import {
   cancelRun,
@@ -32,7 +32,6 @@ import type { WorkerDescriptor } from '../features/workers/worker-types';
 import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { saveBlob } from '../utils/download';
-import { asRecord, asRows } from '../utils/records';
 
 const WORKER = 'bank-statement' as const;
 
@@ -68,6 +67,14 @@ export function BankStatementWorkerConsole() {
   });
 
   const run = useWorkerRun(WORKER, requestId);
+  /*
+   * El desenlace se ANUNCIA, y ésta es la parte que faltaba: sin ella, un
+   * documento derivado a revisión o rechazado sólo se sabía mirando fijamente el
+   * rótulo de estado, y quien subía el PDF y cambiaba de pestaña no se enteraba
+   * nunca de que su caso esperaba a una persona.
+   */
+  useRunAnnouncement(run.data);
+  const anunciarRechazo = useUploadRejection();
 
   const submit = useMutation({
     mutationFn: () =>
@@ -80,6 +87,14 @@ export function BankStatementWorkerConsole() {
         description: 'Los movimientos aparecerán abajo en cuanto un worker lo procese.',
       });
     },
+    /*
+     * El rechazo en la PUERTA no tiene ejecución que sondear: el motor contesta
+     * con un código y sin fila, así que el aviso sale de aquí. Se marca
+     * `handled` para que el aviso global de mutaciones fallidas no cuente el
+     * mismo suceso una segunda vez con un texto genérico.
+     */
+    meta: { handled: true },
+    onError: anunciarRechazo,
   });
 
   const descargar = useMutation({
@@ -134,44 +149,10 @@ export function BankStatementWorkerConsole() {
     categorias.corriendo,
     `Una clasificación de movimientos en curso (${categorias.hechas} de ${categorias.total} glosas).`,
   );
-  /*
-   * Los movimientos que se clasifican, con su SENTIDO.
-   *
-   * No basta la glosa: el mismo texto aparece como cargo y como abono en el
-   * mismo extracto —`TRASPASO ENTRE CAJAS DE AHORRO (MOVIL)` lo hace— y sin el
-   * tipo las dos filas compartían veredicto, de modo que un ingreso quedaba
-   * rotulado «Transferencia enviada». La deduplicación real la hace el propio
-   * hook, por glosa y sentido.
-   */
-  const movimientos = useMemo(
-    () =>
-      asRows(asRecord(run.data?.result).transactions)
-        .map((fila) => ({
-          descripcion: String(fila.description ?? ''),
-          movementType: String(fila.movementType ?? ''),
-        }))
-        .filter((movimiento) => movimiento.descripcion !== ''),
-    [run.data?.result],
+  const { movimientos, glosas, resumen, cuentas } = useStatementConsoleData(
+    run.data?.result,
+    categorias.veredictos,
   );
-  const glosas = useMemo(
-    () => new Set(movimientos.map((movimiento) => claveMovimiento(movimiento))).size,
-    [movimientos],
-  );
-  /*
-   * El reparto por categoría se recalcula mientras la clasificación avanza: cada
-   * veredicto que llega mueve una barra, que es la forma honesta de enseñar que
-   * el trabajo está ocurriendo —y no una animación inventada sobre datos quietos—.
-   */
-  const resumen = useMemo(
-    () => resumirCategorias(run.data?.result, categorias.veredictos),
-    [run.data?.result, categorias.veredictos],
-  );
-  /*
-   * Las cuentas del periodo NO dependen de haber clasificado: suman movimientos.
-   * Por eso se calculan aparte y se enseñan siempre, mientras que el reparto por
-   * categoría espera a que haya categorías que repartir.
-   */
-  const cuentas = useMemo(() => resumirExtracto(run.data?.result), [run.data?.result]);
 
   return (
     // Contenedor propio por lo mismo que en la consola semántica: el panel de

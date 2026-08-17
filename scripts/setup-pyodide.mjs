@@ -35,8 +35,16 @@ const NUCLEO = [
   'pyodide-lock.json',
 ];
 
-/** Lo que el cuaderno promete que se puede importar. El resto de ruedas no se trae. */
-const PAQUETES = ['numpy', 'pandas'];
+/**
+ * Lo que el cuaderno promete que se puede importar. El resto de ruedas no se trae.
+ *
+ * `matplotlib` entra porque un cuaderno de análisis sin gráfico obliga a exportar a CSV y abrir
+ * otra herramienta, que es justo el viaje que esta pantalla existe para evitar. Cuesta lo suyo en
+ * disco —arrastra `fonttools`, `pillow`, `kiwisolver`, `pyparsing` y `cycler`— y por eso el
+ * cargador lee el manifiesto en vez de asumir: un artefacto traído antes de esta línea sigue
+ * sirviendo pandas, y la pantalla dice que el gráfico no está disponible en lugar de romperse.
+ */
+const PAQUETES = ['numpy', 'pandas', 'matplotlib'];
 
 async function existe(ruta) {
   try {

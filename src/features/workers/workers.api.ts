@@ -124,6 +124,53 @@ export function createSemanticRun(body: {
   });
 }
 
+/** Cuántos textos acepta el motor por lote. Coincide con su validación. */
+export const MAX_SEMANTIC_BATCH = 200;
+
+/**
+ * Encola varios análisis semánticos con UNA petición.
+ *
+ * Es la vía para clasificar un extracto. La de una en una sigue existiendo para
+ * el análisis suelto, pero usarla en bucle era lo que convertía una tabla de cien
+ * movimientos en cuatrocientas peticiones: el limitador de tasa del motor
+ * empezaba a responder 429 y la vista los pintaba como fallos de clasificación,
+ * que es lo que menos se parece a lo que estaba pasando.
+ *
+ * Las ejecuciones vuelven en el orden en que se pidieron.
+ */
+export async function createSemanticRunBatch(
+  items: readonly { text: string; idempotencyKey?: string }[],
+  signal?: AbortSignal,
+): Promise<WorkerRun[]> {
+  return toItems<WorkerRun>(
+    await apiRequest<unknown>('/v1/workers/semantic-analysis/runs/batch', {
+      method: 'POST',
+      body: { items },
+      signal,
+    }),
+  );
+}
+
+/**
+ * Estado de varias ejecuciones semánticas de una vez.
+ *
+ * Un solo sondeo cubre el lote entero, así que el ritmo con el que se pregunta
+ * deja de depender de cuántas glosas haya. Las que el motor no encuentre no
+ * salen en la respuesta.
+ */
+export async function fetchSemanticRunStatuses(
+  requestIds: readonly string[],
+  signal?: AbortSignal,
+): Promise<WorkerRun[]> {
+  return toItems<WorkerRun>(
+    await apiRequest<unknown>('/v1/workers/semantic-analysis/runs/status', {
+      method: 'POST',
+      body: { requestIds },
+      signal,
+    }),
+  );
+}
+
 /**
  * Encola una conversión de extracto.
  *

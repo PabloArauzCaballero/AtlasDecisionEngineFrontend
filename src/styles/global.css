@@ -130,7 +130,13 @@
 @import './parts/workers-latency.css';
 @import './parts/workers-queue.css';
 @import './parts/workers-identity.css';
+@import './parts/workers-review.css';
 @import './parts/data-notebook.css';
+@import './parts/data-notebook-cells.css';
+@import './parts/data-notebook-lenguajes.css';
+@import './parts/data-notebook-markdown.css';
+@import './parts/data-notebook-figures.css';
+@import './parts/data-notebook-library.css';
 @import './parts/data-notebook-table.css';
 @import './parts/simulator-samples.css';
 @import './parts/graph-actions.css';

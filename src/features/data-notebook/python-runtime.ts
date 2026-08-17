@@ -1,5 +1,10 @@
 import type { CellOutcome, DerivedTable } from './notebook-types';
-import { NORMALIZADOR, PREAMBULO_DATOS } from './python-preamble';
+import {
+  CAPTURA_FIGURAS,
+  INVENTARIO_SIMBOLOS,
+  NORMALIZADOR,
+  PREAMBULO_DATOS,
+} from './python-preamble';
 
 /**
  * Intérprete de Python del cuaderno: CPython compilado a WebAssembly (Pyodide), en la pestaña.
@@ -14,7 +19,30 @@ import { NORMALIZADOR, PREAMBULO_DATOS } from './python-preamble';
  */
 
 const RUTA_PYODIDE = '/pyodide/';
-const PAQUETES = ['numpy', 'pandas'];
+
+/**
+ * Lo que el cuaderno querría tener. Se cargan UNO A UNO y el que falte no arrastra a los demás.
+ *
+ * `loadPackage(['numpy','pandas','matplotlib'])` es una sola operación: si una rueda no está en
+ * `public/pyodide/` —un artefacto traído antes de que matplotlib entrara en esta lista— falla la
+ * llamada entera y el cuaderno se queda sin pandas, que sí estaba. Cargando por separado, lo que
+ * falta se pierde solo y la pantalla puede decir qué se puede importar de verdad.
+ */
+const PAQUETES_DESEADOS = ['numpy', 'pandas', 'matplotlib'];
+
+async function cargarPaquetes(pyodide: PyodideApi, informar: (detalle: string) => void) {
+  const conseguidos: string[] = [];
+  for (const paquete of PAQUETES_DESEADOS) {
+    informar(`Cargando ${paquete}…`);
+    try {
+      await pyodide.loadPackage([paquete]);
+      conseguidos.push(paquete);
+    } catch {
+      // Sin rueda en disco. No se interrumpe: `paquetesCargados()` dirá lo que hay.
+    }
+  }
+  return conseguidos;
+}
 
 interface PyodideApi {
   runPythonAsync: (source: string) => Promise<unknown>;
@@ -34,6 +62,12 @@ declare global {
 
 let promesa: Promise<PyodideApi> | null = null;
 let registro: string[] = [];
+/** Los que se llegaron a cargar. La pantalla los enseña para no prometer un `import` imposible. */
+let cargados: string[] = [];
+
+export function paquetesCargados(): string[] {
+  return cargados;
+}
 
 function cargarScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -78,10 +112,22 @@ export function loadPythonRuntime(informar: (detalle: string) => void): Promise<
     pyodide.setStdout({ batched: (texto) => registro.push(texto) });
     pyodide.setStderr({ batched: (texto) => registro.push(texto) });
 
-    informar('Cargando pandas y numpy…');
-    await pyodide.loadPackage(PAQUETES);
-    await pyodide.runPythonAsync(NORMALIZADOR);
+    const paquetes = await cargarPaquetes(pyodide, informar);
 
+    /*
+     * El backend de matplotlib se fija ANTES de que nadie lo importe.
+     *
+     * Por omisión, matplotlib en Pyodide dibuja sobre un lienzo del navegador que aquí no existe
+     * —el cuaderno enseña imágenes, no monta un canvas por celda—, y `savefig` sobre ese backend
+     * no produce nada. `AGG` dibuja en memoria, que es exactamente lo que se necesita para
+     * devolver un PNG. Se pone en el entorno porque matplotlib lo lee al importarse, y el import
+     * ocurre en la celda de quien escribe, no aquí.
+     */
+    await pyodide.runPythonAsync('import os\nos.environ.setdefault("MPLBACKEND", "AGG")');
+    await pyodide.runPythonAsync(NORMALIZADOR);
+    await pyodide.runPythonAsync(CAPTURA_FIGURAS);
+
+    cargados = paquetes;
     return pyodide;
   })();
 
@@ -111,11 +157,13 @@ export async function runPythonCell(pyodide: PyodideApi, codigo: string): Promis
   try {
     const valor = await pyodide.runPythonAsync(codigo);
     const normalizado = await normalizar(pyodide, valor);
+    const imagenes = await recogerFiguras(pyodide);
 
     return {
       status: 'ok',
       value: normalizado.value,
       table: normalizado.table,
+      images: imagenes.length ? imagenes : undefined,
       logs: [...registro],
       durationMs: Math.round(performance.now() - iniciado),
     };
@@ -128,6 +176,54 @@ export async function runPythonCell(pyodide: PyodideApi, codigo: string): Promis
       logs: [...registro],
       durationMs: Math.round(performance.now() - iniciado),
     };
+  }
+}
+
+/**
+ * Los nombres VIVOS del intérprete, con su tipo, para la memoria de variables del editor.
+ *
+ * Se pregunta al espacio de nombres real en vez de deducirlo del código porque el tipo sólo existe
+ * después de ejecutar: leyendo `ventas = cargar()` nadie sabe si eso es un DataFrame o un entero, y
+ * es justo lo que hace útil la sugerencia.
+ *
+ * Se filtra lo que Python define solo —dunders, el preámbulo del cuaderno, los módulos que arrastra
+ * Pyodide— porque ofrecerlo enterraría los tres nombres que la persona escribió bajo doscientos que
+ * no le interesan.
+ *
+ * Un fallo aquí NO tumba nada: el editor se queda con lo que dedujo leyendo el código, que es lo
+ * que tenía antes de ejecutar. Perder el resultado de una celda por no poder listar sus variables
+ * sería un intercambio absurdo.
+ */
+export async function capturarSimbolosPython(
+  pyodide: PyodideApi,
+): Promise<{ nombre: string; detalle: string; origen: 'variable' | 'funcion' | 'modulo' }[]> {
+  try {
+    const crudo = await pyodide.runPythonAsync(INVENTARIO_SIMBOLOS);
+    const leidos = JSON.parse(String(crudo)) as {
+      nombre: string;
+      detalle: string;
+      origen: 'variable' | 'funcion' | 'modulo';
+    }[];
+    return leidos;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Las figuras que dejó la celda, ya como `data:` listo para pintar y descargar.
+ *
+ * Un fallo aquí NO tumba el resultado: si la recogida se rompe, la celda ya calculó su tabla y su
+ * valor, y perderlos por no haber podido dibujar sería cambiar un problema pequeño por uno grande.
+ * Se devuelve sin imágenes y el resto se enseña igual.
+ */
+async function recogerFiguras(pyodide: PyodideApi): Promise<string[]> {
+  try {
+    const crudo = await pyodide.runPythonAsync('__atlas_figuras()');
+    const base64 = JSON.parse(String(crudo)) as string[];
+    return base64.map((dato) => `data:image/png;base64,${dato}`);
+  } catch {
+    return [];
   }
 }
 

@@ -1,4 +1,4 @@
-import { Goal, ShieldCheck, TerminalSquare } from 'lucide-react';
+import { Bot, Goal, NotebookPen, ShieldCheck, TerminalSquare } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
 import type { NavigationSection } from './navigation-types';
 
@@ -13,18 +13,21 @@ import type { NavigationSection } from './navigation-types';
 export const navigationTail: readonly NavigationSection[] = [
   {
     /*
-     * «Procesamiento» es donde se TRABAJA CON los datos, no donde se producen.
+     * «Procesamiento» es donde se TRABAJA CON los datos: las herramientas, juntas.
      *
-     * La sección nació (ADR-0026) agrupando los workers, y durante un tiempo fue lo único
-     * que había: procesar un documento, clasificar un texto. Con la consola SQL la sección
-     * pasa a significar algo más preciso —examinar lo que el motor ya decidió— y los
-     * workers dejan de encajar: un worker no examina nada, produce un insumo para una
-     * decisión que todavía no se ha tomado.
+     * La sección nació (ADR-0026) agrupando los workers. Con la consola SQL se intentó
+     * afinarla a «examinar lo ya decidido» y los workers se mudaron a «Operación», por el
+     * argumento de que un worker no examina nada sino que produce un insumo. La distinción
+     * es cierta y aun así el menú salió peor: quien viene a trabajar sobre datos —consultar,
+     * analizar, procesar un documento— tenía que saber de antemano que unas herramientas
+     * estaban aquí y otras dos secciones más arriba. Se revierte esa mudanza a petición
+     * explícita: el criterio de esta sección es la HERRAMIENTA, no la fase de la decisión.
      *
-     * Por eso los workers se mudan a «Operación», junto al simulador y a la revisión
-     * manual, que es donde vive lo que ACTÚA sobre trabajo en curso. No se borra la
-     * entrada ni se esconde: cambia de sección, y las cinco vistas siguen exactamente
-     * donde estaban.
+     * El cuaderno de datos tiene entrada Y RUTA propias (`/data-notebook`). No es lo que ADR-0026
+     * evitaba —una entrada por worker—: el cuaderno no es un worker. No lee del motor, no tiene
+     * catálogo ni cola, sus datos salen de AtlasBackend y de las vistas gobernadas del motor, y su
+     * código corre en la pestaña. Como pestaña de `/workers` era la única sin panel de salud, que
+     * es la forma en que una pantalla dice «yo no soy de esta familia».
      */
     label: 'Procesamiento',
     items: [
@@ -33,6 +36,22 @@ export const navigationTail: readonly NavigationSection[] = [
         path: '/sql-console',
         icon: TerminalSquare,
         roles: accessPolicies.sqlConsole,
+      },
+      {
+        /*
+         * UNA entrada y no una por worker: `/workers` es el concentrador con las pestañas y
+         * el panel de control de cada una; los enlaces directos a cada worker no cambian.
+         */
+        label: 'Workers',
+        path: '/workers',
+        icon: Bot,
+        roles: accessPolicies.workers,
+      },
+      {
+        label: 'Cuaderno de datos',
+        path: '/data-notebook',
+        icon: NotebookPen,
+        roles: accessPolicies.dataNotebook,
       },
     ],
   },

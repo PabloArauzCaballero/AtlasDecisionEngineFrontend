@@ -95,6 +95,10 @@
    * modo que sigue habiendo una única fuente de color.
    */
   --text-muted: var(--muted);
+  /* `--ink-subtle` lo usaba `data-notebook.css` sin que nadie lo definiera: el
+     navegador descartaba la declaración entera y los botones de inserción se
+     pintaban con el color heredado, que en el tema oscuro era casi el del fondo. */
+  --ink-subtle: var(--muted);
   --surface-muted: var(--surface-sunken);
   --danger-text: var(--danger);
   --warning-text: var(--warning);

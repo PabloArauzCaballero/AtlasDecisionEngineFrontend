@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { mockBackend } from './backend-mock';
 
 /**
@@ -98,9 +98,96 @@ export function limpiarHistorialSimulado(): void {
   historial.length = 0;
 }
 
+/**
+ * Cuadernos guardados, en memoria y con la misma regla que el backend.
+ *
+ * El simulado exige lo mismo que el `.strict()` de Zod del backend: si una celda trae resultado,
+ * ese resultado tiene que traer `savedAt`. Sin esa comprobación aquí, la prueba seguiría en verde
+ * el día que el cliente dejara de sellar la fecha — y entonces un número de la semana pasada se
+ * pintaría sin rótulo, indistinguible de uno recién calculado.
+ */
+const cuadernos: Record<string, unknown>[] = [];
+let siguienteId = 1;
+
+export function limpiarCuadernosSimulados(): void {
+  cuadernos.length = 0;
+  siguienteId = 1;
+}
+
+function documento(cuerpo: Record<string, unknown>, id: string) {
+  return {
+    id,
+    title: cuerpo.title,
+    datasetCode: cuerpo.datasetCode ?? null,
+    cells: cuerpo.cells,
+    createdAt: '2026-08-15T00:00:00.000Z',
+    updatedAt: '2026-08-15T00:00:00.000Z',
+  };
+}
+
+async function mockCuadernos(page: Page): Promise<void> {
+  await page.route('**/atlas-backend/data-notebook/notebooks', async (route) => {
+    if (route.request().method() === 'POST') {
+      const cuerpo = JSON.parse(route.request().postData() ?? '{}');
+      const celdas = Array.isArray(cuerpo.cells) ? cuerpo.cells : [];
+      const sinFecha = celdas.some((celda: { outcome?: { savedAt?: string } | null }) => {
+        return Boolean(celda.outcome) && !celda.outcome?.savedAt;
+      });
+      if (sinFecha) {
+        await route.fulfill({ status: 400, json: { error: { code: 'VALIDATION_ERROR' } } });
+        return;
+      }
+      const creado = documento(cuerpo, String(siguienteId));
+      siguienteId += 1;
+      cuadernos.unshift(creado);
+      await route.fulfill({ status: 201, json: sobre(creado) });
+      return;
+    }
+    await route.fulfill({
+      json: sobre(
+        cuadernos.map((cuaderno) => ({
+          id: cuaderno.id,
+          title: cuaderno.title,
+          datasetCode: cuaderno.datasetCode,
+          cellCount: Array.isArray(cuaderno.cells) ? cuaderno.cells.length : 0,
+          createdAt: cuaderno.createdAt,
+          updatedAt: cuaderno.updatedAt,
+        })),
+      ),
+    });
+  });
+
+  await page.route('**/atlas-backend/data-notebook/notebooks/*', async (route) => {
+    const id = new URL(route.request().url()).pathname.split('/').at(-1) ?? '';
+    const indice = cuadernos.findIndex((cuaderno) => cuaderno.id === id);
+
+    if (route.request().method() === 'DELETE') {
+      if (indice >= 0) cuadernos.splice(indice, 1);
+      await route.fulfill({ json: sobre({ deleted: indice >= 0 }) });
+      return;
+    }
+
+    if (route.request().method() === 'PUT') {
+      const cuerpo = JSON.parse(route.request().postData() ?? '{}');
+      const actualizado = documento(cuerpo, id);
+      if (indice >= 0) cuadernos[indice] = actualizado;
+      await route.fulfill({ json: sobre(actualizado) });
+      return;
+    }
+
+    if (indice < 0) {
+      await route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND' } } });
+      return;
+    }
+    await route.fulfill({ json: sobre(cuadernos[indice]) });
+  });
+}
+
 export async function mockDataNotebookBackend(page: Page): Promise<void> {
   await mockBackend(page);
   limpiarHistorialSimulado();
+  limpiarCuadernosSimulados();
+  await mockCuadernos(page);
 
   await page.route('**/atlas-backend/data-notebook/history*', async (route) => {
     if (route.request().method() === 'POST') {
@@ -126,7 +213,25 @@ export async function mockDataNotebookBackend(page: Page): Promise<void> {
       await route.fulfill({ json: sobre({ id: String(historial.length) }) });
       return;
     }
-    await route.fulfill({ json: sobre(historial) });
+    /*
+     * `{ rows, total }` y NO el array pelado que servía antes.
+     *
+     * El cliente valida la respuesta con `notebookHistoryPageSchema`, que exige
+     * las dos claves —`total` es lo que permite paginar, y sin él no se sabe si
+     * hay una página más—. Con el array suelto la validación fallaba y el panel
+     * pintaba «No se pudo leer el historial» **con un HTTP 200 delante**, que es
+     * la clase de fallo que manda a mirar la red durante media hora.
+     *
+     * Se respetan `limit` y `offset` por lo mismo que se respeta el resto del
+     * contrato: un simulado que devuelve siempre todo deja sin ejercitar el
+     * paginador, que es justo lo que estas pruebas dicen comprobar.
+     */
+    const consulta = new URL(route.request().url()).searchParams;
+    const desde = Number(consulta.get('offset') ?? 0);
+    const cuantas = Number(consulta.get('limit') ?? historial.length);
+    await route.fulfill({
+      json: sobre({ rows: historial.slice(desde, desde + cuantas), total: historial.length }),
+    });
   });
 
   await page.route('**/atlas-backend/data-notebook/datasets', async (route) => {
@@ -155,4 +260,24 @@ export async function mockDataNotebookBackend(page: Page): Promise<void> {
       }),
     });
   });
+}
+
+/**
+ * Entra a un cuaderno de trabajo, pasando por la portada.
+ *
+ * Desde que el cuaderno son DOS pantallas —elegir y trabajar—, ir directo a `/data-notebook` deja
+ * la lista, no el editor. Este ayudante hace el viaje completo para que cada batería no lo repita
+ * y, sobre todo, para que el día que el flujo cambie haya UN sitio que arreglar.
+ */
+export async function abrirCuadernoDeTrabajo(
+  page: Page,
+  nombre = 'Cuaderno de prueba',
+): Promise<void> {
+  await page.goto('/data-notebook', { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('.notebook-index')).toBeVisible({ timeout: 30_000 });
+  await page.getByPlaceholder('Nombre del cuaderno nuevo').fill(nombre);
+  await page.getByRole('button', { name: 'Nuevo cuaderno' }).click();
+  await expect(page).toHaveURL(/\/data-notebook\/\d+$/, { timeout: 30_000 });
+  await expect(page.locator('.notebook')).toBeVisible({ timeout: 30_000 });
 }

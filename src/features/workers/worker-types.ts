@@ -5,6 +5,7 @@
  * motor). **No es autoritativo**: el backend revalida siempre. Sirve para
  * pintar la vista y para dar respuesta inmediata antes de llamar.
  */
+import type { StatementRejectionReason, StatementReviewReason } from './statement-review';
 
 /** Estados que el backend asigna a una ejecución. */
 export const WORKER_RUN_STATUSES = [
@@ -14,6 +15,16 @@ export const WORKER_RUN_STATUSES = [
   'SUCCEEDED_WITH_WARNINGS',
   'FAILED',
   'CANCELLED',
+  /*
+   * Los tres desenlaces del triage de documentos. Sólo los produce el worker de
+   * extractos, pero viven en la lista común porque es la del CICLO DE VIDA de
+   * una ejecución, que es uno solo. Los `Record<WorkerRunStatus, …>` de abajo
+   * obligan a traducirlos: un estado nuevo sin texto se pintaría con su nombre
+   * técnico en mayúsculas, y eso llega a producción sin que nadie lo note.
+   */
+  'PENDING_REVIEW',
+  'IN_REVIEW',
+  'PDF_INVALID',
 ] as const;
 
 export type WorkerRunStatus = (typeof WORKER_RUN_STATUSES)[number];
@@ -45,6 +56,15 @@ export interface WorkerRun {
   warnings?: unknown;
   errorCode?: string | null;
   errorMessage?: string | null;
+  /**
+   * Por qué espera a una persona, y por qué se rechazó. Sólo los manda el worker
+   * de extractos. El estado dice DÓNDE está el caso; estos dicen QUÉ pasó, y sin
+   * ellos el aviso al usuario tiene que ser genérico —«enviado a revisión»— que
+   * es justo el mensaje que no informa de nada.
+   */
+  reviewReason?: StatementReviewReason | null;
+  rejectionReason?: StatementRejectionReason | null;
+  reviewPriority?: number | null;
 }
 
 export interface WorkerFixture {
@@ -113,7 +133,17 @@ export function isTerminal(status: WorkerRunStatus): boolean {
     status === 'SUCCEEDED' ||
     status === 'SUCCEEDED_WITH_WARNINGS' ||
     status === 'FAILED' ||
-    status === 'CANCELLED'
+    status === 'CANCELLED' ||
+    /*
+     * Los tres cuentan como terminales PARA EL SONDEO, que es lo único que decide
+     * esta función. `PENDING_REVIEW` no es terminal en el dominio —lo cierra una
+     * persona— pero el estado ya no cambia por sí solo, y seguir preguntando cada
+     * segundo y medio por un caso que espera a alguien es sondear durante horas
+     * para no ver nada.
+     */
+    status === 'PENDING_REVIEW' ||
+    status === 'IN_REVIEW' ||
+    status === 'PDF_INVALID'
   );
 }
 
@@ -130,6 +160,9 @@ export const STATUS_LABEL: Record<WorkerRunStatus, string> = {
   SUCCEEDED_WITH_WARNINGS: 'Completado con advertencias',
   FAILED: 'Falló',
   CANCELLED: 'Cancelado',
+  PENDING_REVIEW: 'Pendiente de revisión',
+  IN_REVIEW: 'En revisión',
+  PDF_INVALID: 'PDF no válido',
 };
 
 /**
@@ -147,6 +180,11 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
     'Hay resultado y es utilizable, pero algo quedó sin resolver del todo. Conviene revisarlo antes de darlo por bueno.',
   FAILED: 'No se pudo completar. El código técnico y el identificador de correlación están abajo.',
   CANCELLED: 'Se canceló antes de empezar a procesarse.',
+  PENDING_REVIEW:
+    'El documento parece un extracto y algo no se pudo determinar con seguridad. Está en la cola de revisión y puedes seguir trabajando.',
+  IN_REVIEW: 'Alguien lo está revisando ahora mismo.',
+  PDF_INVALID:
+    'El documento no corresponde a un extracto bancario. No entra en la cola de revisión: queda registrado como rechazado.',
 };
 
 /**
@@ -164,6 +202,14 @@ export function statusTone(status: WorkerRunStatus): string {
   if (status === 'FAILED') return 'FAILED';
   if (status === 'CANCELLED') return 'INACTIVE';
   if (status === 'RUNNING') return 'RUNNING';
+  /*
+   * Esperar a una persona es ÁMBAR, no rojo: no ha fallado nada y pintarlo de
+   * rojo entrena a leer la cola como una lista de errores. El rechazo sí es rojo
+   * —es una negativa— y usa `INVALID`, que el vocabulario de la insignia ya
+   * colorea como peligro.
+   */
+  if (status === 'PENDING_REVIEW' || status === 'IN_REVIEW') return 'REVIEW';
+  if (status === 'PDF_INVALID') return 'INVALID';
   return 'QUEUED';
 }
 

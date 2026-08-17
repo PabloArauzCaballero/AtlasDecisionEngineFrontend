@@ -62,7 +62,45 @@ function contentSecurityPolicy(nonce: string): string {
   ].join('; ');
 }
 
+/**
+ * La política del intérprete de R, que es la de un WORKER y no la de un documento.
+ *
+ * WebR arranca R dentro de un worker cargado desde `/webr/webr-worker.js`. Un worker NO hereda la
+ * CSP de la página que lo crea: la suya llega en la respuesta de su propio script. Sin esta rama
+ * heredaba la del documento, y ahí `'strict-dynamic'` hace que `'self'` se ignore, de modo que el
+ * `importScripts()` con el que el worker carga el intérprete quedaba bloqueado — con un mensaje en
+ * la consola del navegador, que es donde nadie mira, y una celda de R que no arranca nunca.
+ *
+ * Se declara aparte y no se «relaja la del portal» porque son dos contextos distintos y esto es lo
+ * que hace que la diferencia importe:
+ *
+ * - **`connect-src 'self'` es el control que protege los datos.** R no puede descargar paquetes de
+ *   `repo.r-wasm.org` ni sacar filas de clientes a ningún sitio: `download.file()`, `url()` y
+ *   `webr::install()` chocan aquí. Es lo que convierte «R en el navegador» en una herramienta
+ *   ANALÍTICA y de sólo lectura en vez de en un cliente de red con los datos ya cargados.
+ * - **`default-src 'none'`**: el worker no pinta, no carga tipografías y no abre marcos.
+ * - **`'unsafe-eval'` vale SÓLO aquí dentro.** El pegamento de Emscripten que arranca R lo usa para
+ *   sus bloques `EM_ASM`. Una CSP es por contexto de ejecución: esto autoriza a evaluar dentro del
+ *   worker de R, y no toca ni un milímetro la del portal —donde un XSS sí sería un problema— ni la
+ *   de los workers de las celdas de JavaScript, que siguen sin poder generar código.
+ */
+const CSP_WEBR = [
+  "default-src 'none'",
+  "script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'",
+  "connect-src 'self'",
+  "worker-src 'self'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+].join('; ');
+
 export function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname.startsWith('/webr/')) {
+    const respuesta = NextResponse.next();
+    respuesta.headers.set('content-security-policy', CSP_WEBR);
+    return respuesta;
+  }
+
   const nonce = crypto.randomUUID().replaceAll('-', '');
   const policy = contentSecurityPolicy(nonce);
 

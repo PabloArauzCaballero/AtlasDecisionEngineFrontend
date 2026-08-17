@@ -40,10 +40,48 @@ export async function apiDownload(
     throw new ApiError('No fue posible descargar el archivo.', response.status, 'DOWNLOAD_FAILED');
   }
 
+  assertExpectedType(response, options.headers);
+
   return {
     blob: await response.blob(),
     fileName: fileNameFromDisposition(response) ?? fallbackFileName,
   };
+}
+
+/**
+ * Un 200 con el tipo equivocado NO es una descarga válida.
+ *
+ * Sin esta comprobación, una respuesta correcta pero de otro tipo se guardaba
+ * igual y el defecto sólo aparecía al ABRIR el archivo. Fue exactamente lo que
+ * pasó con `POST /pdf/generate`: la misma ruta responde el archivo o la ficha
+ * según `Accept`, un `accept` perdido por el camino devolvía la ficha en JSON, y
+ * lo que llegaba al disco era un «PDF corrupto» que por dentro eran metadatos.
+ *
+ * Sólo aplica cuando quien descarga pidió un tipo CONCRETO. Con el comodín no
+ * hay nada que contrastar, y así la mayoría de descargas —que no saben de
+ * antemano si reciben CSV o JSON— siguen sin restricción.
+ */
+function assertExpectedType(response: Response, headers: HeadersInit | undefined): void {
+  const wanted = new Headers(headers).get('accept');
+  if (!wanted || wanted.includes('*/*')) return;
+
+  const received = mediaType(response.headers.get('content-type'));
+  if (received && wanted.split(',').some((type) => mediaType(type) === received)) return;
+
+  throw new ApiError(
+    `El servidor respondió ${received ?? 'sin tipo declarado'} donde se esperaba ${wanted}. ` +
+      'Guardar esa respuesta produciría un archivo ilegible.',
+    response.status,
+    'DOWNLOAD_WRONG_CONTENT_TYPE',
+    undefined,
+    'contract',
+  );
+}
+
+/** El tipo a secas, sin `charset` ni factor de calidad. */
+function mediaType(value: string | null): string | null {
+  const type = value?.split(';')[0].trim().toLowerCase();
+  return type ? type : null;
 }
 
 /**

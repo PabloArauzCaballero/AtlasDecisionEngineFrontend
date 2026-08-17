@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { collectProblems } from './support/backend-mock';
-import { mockDataNotebookBackend } from './support/data-notebook-backend';
+import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
+import { ejecutarConAtajo, escribirEnCelda, esperarContenido } from './support/notebook-editor';
 
 /**
  * El cuaderno de datos, con TODOS sus controles pulsados.
@@ -14,22 +15,23 @@ import { mockDataNotebookBackend } from './support/data-notebook-backend';
  * de la batería general la volvería lenta y dependiente de un artefacto que no se versiona.
  */
 
-const RUTA = '/workers/data-notebook';
-
 async function abrirCuaderno(page: Page) {
   await mockDataNotebookBackend(page);
-  await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('.notebook')).toBeVisible({ timeout: 30_000 });
+  // Se entra por la PORTADA y se crea uno: el cuaderno son dos pantallas desde que hay documentos
+  // guardados, y `/data-notebook` a secas ya no es el editor sino la lista.
+  await abrirCuadernoDeTrabajo(page);
   await expect(page.locator('.notebook-cell')).toHaveCount(1);
 }
 
-/** Reemplaza el contenido de una celda: el `textarea` conserva la plantilla de serie. */
+/**
+ * Reemplaza el contenido de una celda.
+ *
+ * Delega en `support/notebook-editor.ts` desde que el editor es Monaco: aquí se
+ * hacía `fill()` sobre `.notebook-cell__code`, que hoy sólo existe en el instante
+ * anterior al montaje del editor. Ver la cabecera de ese módulo.
+ */
 async function escribir(page: Page, indice: number, codigo: string) {
-  const area = page.locator('.notebook-cell__code').nth(indice);
-  await area.click();
-  await page.keyboard.press('ControlOrMeta+a');
-  await area.fill(codigo);
+  await escribirEnCelda(page, indice, codigo);
 }
 
 test.describe('cuaderno de datos', () => {
@@ -130,7 +132,7 @@ test.describe('cuaderno de datos', () => {
     // Se marca la primera celda para poder afirmar que el movimiento la desplazó de verdad.
     await escribir(page, 0, '# primera');
     await page.getByRole('button', { name: 'Bajar celda 1' }).click();
-    await expect(page.locator('.notebook-cell__code').nth(1)).toHaveValue('# primera');
+    await esperarContenido(page, 1, '# primera');
 
     await page.getByRole('button', { name: 'Eliminar celda 3' }).click();
     await expect(page.locator('.notebook-cell')).toHaveCount(2);
@@ -175,7 +177,7 @@ test.describe('cuaderno de datos', () => {
 
     await page.locator('.notebook-cell__language select').selectOption('javascript');
     await escribir(page, 0, 'return [{ atajo: true }];');
-    await page.locator('.notebook-cell__code').first().press('ControlOrMeta+Enter');
+    await ejecutarConAtajo(page, 0);
 
     await expect(page.locator('.notebook-cell__output .notebook-table')).toBeVisible({
       timeout: 30_000,

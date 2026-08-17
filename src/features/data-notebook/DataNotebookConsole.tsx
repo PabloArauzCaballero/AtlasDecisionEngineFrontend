@@ -1,30 +1,22 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Code2, FileCode2, Plus } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DatasetPanel } from './DatasetPanel';
+import { COMENTARIO, LENGUAJES, ORDEN_LENGUAJES } from './language-catalog';
 import { NotebookCellView } from './NotebookCellView';
+import { NotebookInsertBar } from './NotebookInsertBar';
 import { NotebookHistoryPanel } from './NotebookHistoryPanel';
-import { PythonStatusBanner } from './PythonStatusBanner';
-import {
-  fetchNotebookCatalog,
-  fetchNotebookPage,
-  recordNotebookHistory,
-  type NotebookHistoryRow,
-  type NotebookPage,
-} from './notebook.api';
-import type { CellOutcome, NotebookLanguage, PythonStatus } from './notebook-types';
-import { runJavaScriptCell } from './js-runtime';
-import { bindPythonData, loadPythonRuntime, runPythonCell } from './python-runtime';
-import { tableFromValue } from './notebook-export';
+import { RuntimeStatusBanner } from './RuntimeStatusBanner';
+import { restaurarCeldas } from './notebook-restore';
+import { NotebookSaveBar } from './NotebookSaveBar';
+import { fetchNotebookPage, type NotebookPage } from './notebook.api';
+import type { NotebookDocument } from './notebook-documents.api';
+import { esDelMotor, fetchEnginePage } from './engine-datasets';
+import { useNotebookSources } from './useNotebookSources';
 import { useNotebookCells } from './useNotebookCells';
-
-/** La misma derivación que hace la vista: un DataFrame ya viene resuelto, un valor de JS no. */
-function tablaDe(outcome: CellOutcome) {
-  if (outcome.status !== 'ok') return undefined;
-  return outcome.table ?? tableFromValue(outcome.value);
-}
+import { useNotebookRunner } from './useNotebookRunner';
 
 /**
  * El cuaderno de datos.
@@ -35,46 +27,73 @@ function tablaDe(outcome: CellOutcome) {
  * cuaderno de análisis no le añade al backend una superficie de ejecución remota, que es el
  * riesgo que suele traer una herramienta con esta forma.
  */
-export function DataNotebookConsole() {
-  const [datasetCode, setDatasetCode] = useState<string>('');
+export function DataNotebookConsole({ documento }: { documento: NotebookDocument }) {
+  const [datasetCode, setDatasetCode] = useState<string>(documento.datasetCode ?? '');
   const [page, setPage] = useState(1);
-  const [python, setPython] = useState<PythonStatus>({ phase: 'idle' });
-  // Cambia con cada ejecución registrada y hace que el panel de historial vuelva a preguntar.
-  const [historialVersion, setHistorialVersion] = useState(0);
-
   const cuaderno = useNotebookCells();
-  const { clearOutcomes } = cuaderno;
+  const { clearOutcomes, replaceCells } = cuaderno;
 
-  const catalogo = useQuery({
-    queryKey: ['data-notebook', 'catalog'],
-    queryFn: ({ signal }) => fetchNotebookCatalog(signal),
-  });
+  /** Qué dataset y qué página estaban cargados la última vez, para distinguir un cambio REAL. */
+  const ultimaCarga = useRef(`${documento.datasetCode ?? ''}|1`);
+
+  /*
+   * El avance guardado se restaura UNA vez, al abrir el cuaderno.
+   *
+   * Depende de `documento.id` y no del objeto entero: al guardar, la respuesta trae un documento
+   * nuevo con las mismas celdas y volver a plantarlas pisaría lo que se haya escrito desde
+   * entonces. El identificador sólo cambia cuando de verdad se abre otro cuaderno.
+   */
+  useEffect(() => {
+    replaceCells(restaurarCeldas(documento.cells));
+    setDatasetCode(documento.datasetCode ?? '');
+    setPage(1);
+    // La marca se reinicia con el dataset de ESTE cuaderno: si no, abrir un segundo cuaderno se
+    // vería como un cambio de dataset y le borraría el avance nada más traerlo.
+    ultimaCarga.current = `${documento.datasetCode ?? ''}|1`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documento.id, replaceCells]);
+
+  const { catalogo, catalogoMotor, datasets, descartadas } = useNotebookSources();
 
   useEffect(() => {
-    if (!datasetCode && catalogo.data?.datasets.length) {
-      setDatasetCode(catalogo.data.datasets[0].code);
-    }
-  }, [catalogo.data, datasetCode]);
+    if (!datasetCode && datasets.length) setDatasetCode(datasets[0].code);
+  }, [datasets, datasetCode]);
 
   const datos = useQuery({
     queryKey: ['data-notebook', 'rows', datasetCode, page],
-    queryFn: ({ signal }) =>
-      fetchNotebookPage(
-        datasetCode,
-        { page, pageSize: catalogo.data?.limits.defaultPageSize ?? 100 },
-        signal,
-      ),
+    queryFn: ({ signal }) => {
+      const consulta = { page, pageSize: catalogo.data?.limits.defaultPageSize ?? 100 };
+      return esDelMotor(datasetCode)
+        ? fetchEnginePage(datasetCode, consulta, signal)
+        : fetchNotebookPage(datasetCode, consulta, signal);
+    },
     enabled: Boolean(datasetCode),
     placeholderData: (previa) => previa,
   });
 
-  // Un resultado calculado sobre la página anterior deja de ser cierto en cuanto los datos cambian,
-  // y dejarlo en pantalla junto a los datos nuevos es la forma más silenciosa de sacar una
-  // conclusión equivocada.
+  /*
+   * Cambiar de dataset o de página descarta los resultados: dejan de corresponder a lo cargado.
+   *
+   * La comparación con lo ANTERIOR no es un adorno de rendimiento, es lo que separa dos casos que
+   * el efecto veía iguales. Al abrir un cuaderno guardado, `datasetCode` pasa de vacío al suyo y
+   * la página a la 1: eso disparaba este efecto y borraba el avance recién restaurado, justo lo
+   * que se acababa de traer. Un cambio de verdad —alguien elige otro dataset— sí lo descarta,
+   * porque un número calculado sobre otras filas junto a las nuevas es la peor lectura posible.
+   */
   useEffect(() => {
+    const actual = `${datasetCode}|${page}`;
+    if (ultimaCarga.current === actual) return;
+    ultimaCarga.current = actual;
     clearOutcomes();
   }, [datasetCode, page, clearOutcomes]);
 
+  /** Los nombres de columna de la página cargada: lo que el autocompletado ofrece del dataset. */
+  const columnasNombres = useMemo(
+    () => datos.data?.columns.map((columna) => columna.name) ?? [],
+    [datos.data],
+  );
+
+  /** Las filas y columnas que ve una celda al ejecutarse: exactamente la página cargada. */
   const datosDeCelda = useCallback(() => {
     const actual: NotebookPage | undefined = datos.data;
     return {
@@ -83,83 +102,13 @@ export function DataNotebookConsole() {
     };
   }, [datos.data]);
 
-  /**
-   * Registra la celda y NO deja que el registro estropee la ejecución.
-   *
-   * Si el historial falla —el backend caído, un 403, la red— la celda ya se ejecutó y su resultado
-   * está en pantalla. Propagar ese fallo convertiría un problema de trazabilidad en la pérdida del
-   * trabajo de quien lo escribió, que es desproporcionado y además le enseñaría a desconfiar de la
-   * herramienta por algo que no le pasó a sus datos.
-   */
-  const registrar = useCallback(
-    async (language: NotebookLanguage, source: string, outcome: CellOutcome) => {
-      try {
-        await recordNotebookHistory({
-          language,
-          source,
-          datasetCode: datasetCode || undefined,
-          datasetPage: page,
-          // La tabla se DERIVA igual que en la vista. Leer sólo `outcome.table` dejaba sin
-          // `rowCount` a todas las celdas de JavaScript —su runtime devuelve el valor crudo y la
-          // tabla se calcula al pintar—, y ese número es justo lo que distingue una exploración
-          // de una extracción en el historial.
-          rowCount: outcome.status === 'ok' ? tablaDe(outcome)?.rows.length : undefined,
-          durationMs: outcome.durationMs,
-          status: outcome.status,
-          errorMessage: outcome.status === 'error' ? outcome.error.slice(0, 500) : undefined,
-        });
-        setHistorialVersion((previa) => previa + 1);
-      } catch {
-        // Silencio deliberado: ver el comentario de arriba.
-      }
-    },
-    [datasetCode, page],
-  );
-
-  /**
-   * Recupera una celda del historial como una celda NUEVA al final, sin ejecutarla.
-   *
-   * No se ejecuta sola a propósito: lo que se recupera es una pregunta escrita en otro momento, y
-   * los datos de hoy pueden ser otros. Que la persona la lea antes de pulsar es la diferencia
-   * entre reusar una consulta y repetirla a ciegas.
-   */
-  const reusar = useCallback(
-    (fila: NotebookHistoryRow) => {
-      cuaderno.addCell(fila.language === 'python' ? 'python' : 'javascript', fila.source);
-    },
-    [cuaderno],
-  );
-
-  const ejecutar = useCallback(
-    async (id: string, language: NotebookLanguage, source: string) => {
-      cuaderno.startRun(id);
-      const entrada = datosDeCelda();
-
-      const terminar = (outcome: CellOutcome) => {
-        cuaderno.finishRun(id, outcome);
-        void registrar(language, source, outcome);
-      };
-
-      if (language === 'javascript') {
-        terminar(await runJavaScriptCell(source, entrada));
-        return;
-      }
-
-      try {
-        const pyodide = await loadPythonRuntime((detalle) =>
-          setPython({ phase: 'loading', detail: detalle }),
-        );
-        setPython({ phase: 'ready', packages: ['pandas', 'numpy'] });
-        await bindPythonData(pyodide, entrada);
-        terminar(await runPythonCell(pyodide, source));
-      } catch (error) {
-        const razon = error instanceof Error ? error.message : 'No se pudo arrancar Python.';
-        setPython({ phase: 'unavailable', reason: razon });
-        terminar({ status: 'error', error: razon, logs: [], durationMs: 0 });
-      }
-    },
-    [cuaderno, datosDeCelda, registrar],
-  );
+  const { ejecutar, reusar, simbolosHasta, motores, historialVersion } = useNotebookRunner({
+    cuaderno,
+    datasetCode,
+    page,
+    datosDeCelda,
+    columnasNombres,
+  });
 
   if (catalogo.isPending) {
     return <p className="notebook-loading">Cargando el catálogo de datos…</p>;
@@ -180,6 +129,9 @@ export function DataNotebookConsole() {
     <div className="notebook">
       <DatasetPanel
         catalog={catalogo.data}
+        datasets={datasets}
+        omitted={descartadas}
+        engineUnavailable={catalogoMotor.isError}
         selected={datasetCode}
         onSelect={(code) => {
           setDatasetCode(code);
@@ -192,36 +144,75 @@ export function DataNotebookConsole() {
         onReload={() => void datos.refetch()}
       />
 
-      <PythonStatusBanner status={python} />
+      <NotebookSaveBar documento={documento} datasetCode={datasetCode} cells={cuaderno.cells} />
+
+      {/*
+       * Un aviso por intérprete, y sólo cuando ese intérprete se ha usado: `phase: 'idle'` no
+       * pinta nada. Un cuaderno que abre con dos franjas anunciando dos lenguajes que nadie ha
+       * pedido todavía empuja hacia abajo lo único que importa al entrar, que son los datos.
+       */}
+      <RuntimeStatusBanner motor="python" status={motores.python} />
+      <RuntimeStatusBanner motor="r" status={motores.r} />
 
       <div className="notebook__cells">
+        {/* La primera franja encabeza el cuaderno: es la única forma de anteponer algo a la celda 1. */}
+        <NotebookInsertBar
+          afterId={null}
+          posicion={1}
+          onInsert={(kind, language) => cuaderno.insertCell(null, kind, language)}
+        />
         {cuaderno.cells.map((celda, indice) => (
-          <NotebookCellView
-            key={celda.id}
-            cell={celda}
-            index={indice}
-            total={cuaderno.cells.length}
-            policies={columnas}
-            onChange={(source) => cuaderno.setSource(celda.id, source)}
-            onRun={() => void ejecutar(celda.id, celda.language, celda.source)}
-            onDelete={() => cuaderno.removeCell(celda.id)}
-            onDuplicate={() => cuaderno.duplicateCell(celda.id)}
-            onMove={(direccion) => cuaderno.moveCell(celda.id, direccion)}
-            onLanguage={(language) => cuaderno.setLanguage(celda.id, language)}
-          />
+          <Fragment key={celda.id}>
+            <NotebookCellView
+              cell={celda}
+              index={indice}
+              total={cuaderno.cells.length}
+              policies={columnas}
+              simbolos={simbolosHasta(indice)}
+              onChange={(source) => cuaderno.setSource(celda.id, source)}
+              onRun={() => void ejecutar(celda.id, celda.language, celda.source)}
+              onDelete={() => cuaderno.removeCell(celda.id)}
+              onDuplicate={() => cuaderno.duplicateCell(celda.id)}
+              onMove={(direccion) => cuaderno.moveCell(celda.id, direccion)}
+              onLanguage={(language) => cuaderno.setLanguage(celda.id, language)}
+            />
+            <NotebookInsertBar
+              afterId={celda.id}
+              posicion={indice + 2}
+              onInsert={(kind, language) => cuaderno.insertCell(celda.id, kind, language)}
+            />
+          </Fragment>
         ))}
       </div>
 
       <NotebookHistoryPanel version={historialVersion} onReuse={reusar} />
 
+      {/* Uno por lenguaje, desde el mismo catálogo que alimenta la franja de inserción y la barra
+          de la celda: los tres sitios donde se elige lenguaje dicen lo mismo y se ven igual. */}
       <div className="notebook__add">
-        <button type="button" className="button" onClick={() => cuaderno.addCell('python')}>
+        {ORDEN_LENGUAJES.map((lenguaje) => {
+          const { label, Icon } = LENGUAJES[lenguaje];
+          return (
+            <button
+              key={lenguaje}
+              type="button"
+              className="button"
+              data-language={lenguaje}
+              onClick={() => cuaderno.addCell(lenguaje)}
+            >
+              <Plus aria-hidden="true" size={14} />
+              <Icon aria-hidden="true" size={14} /> Celda de {label}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          className="button"
+          data-language="markdown"
+          onClick={() => cuaderno.addMarkdown()}
+        >
           <Plus aria-hidden="true" size={14} />
-          <FileCode2 aria-hidden="true" size={14} /> Celda de Python
-        </button>
-        <button type="button" className="button" onClick={() => cuaderno.addCell('javascript')}>
-          <Plus aria-hidden="true" size={14} />
-          <Code2 aria-hidden="true" size={14} /> Celda de JavaScript
+          <COMENTARIO.Icon aria-hidden="true" size={14} /> {COMENTARIO.label}
         </button>
       </div>
     </div>

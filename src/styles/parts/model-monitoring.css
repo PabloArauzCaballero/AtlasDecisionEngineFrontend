@@ -86,6 +86,21 @@
   color: var(--warning-text);
 }
 
+/*
+ * El carril sintético (QA Lab) se acota con un borde DISCONTINUO y superficie neutra.
+ *
+ * No lleva color de estado a propósito: «sintético» no es una alarma, y teñirlo de ámbar
+ * enseñaría a leer como problema lo que es una prueba de esfuerzo que salió bien. El trazo
+ * discontinuo dice lo único que hay que decir —esto no es evidencia observada— y deja el color
+ * de la pantalla libre para cuando de verdad hay algo que mirar.
+ */
+.monitoring-note-synthetic {
+  padding: var(--space-3);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}
+
 /* La fila señalada se distingue por su superficie, no por un texto en rojo que no se puede filtrar. */
 .data-table tr.row-flagged td {
   background: var(--warning-wash);

@@ -19,8 +19,23 @@ function idsDe(worker: WorkerCode): string[] {
 }
 
 describe('pestañas de cada worker', () => {
-  it.each(CLASIFICAN)('%s tiene las del catálogo: clasifica contra él', (worker) => {
-    expect(idsDe(worker)).toEqual(['panel', 'consola', 'categorias', 'pendientes']);
+  it('el semántico tiene las del catálogo: clasifica contra él', () => {
+    expect(idsDe('semantic-analysis')).toEqual(['panel', 'consola', 'categorias', 'pendientes']);
+  });
+
+  /*
+   * El de extractos clasifica Y tiene franja de revisión, así que las tiene
+   * todas. Se afirma aparte del semántico justamente para que quede escrito que
+   * son dos decisiones distintas y no una lista que creció por inercia.
+   */
+  it('el de extractos tiene además su bandeja de revisión', () => {
+    expect(idsDe('bank-statement')).toEqual([
+      'panel',
+      'consola',
+      'categorias',
+      'pendientes',
+      'revision',
+    ]);
   });
 
   it.each(OTROS)('%s no ofrece Categorías ni Pendientes', (worker) => {
@@ -28,16 +43,18 @@ describe('pestañas de cada worker', () => {
   });
 
   /*
-   * «Revisión» es sólo del worker de identidad: es el único cuyo contrato tiene
-   * una franja entre umbrales que el motor manda a una persona. Ofrecerla en
-   * los demás prometería una bandeja que nunca tendría nada dentro.
+   * «Revisión» es de los DOS workers cuyo contrato tiene una franja que el motor
+   * manda a una persona en vez de resolver a la fuerza: el parecido entre
+   * umbrales en identidad, la clasificación del documento —más el timeout, la
+   * baja confianza de extracción y el descuadre contable— en extractos.
+   * Ofrecerla en los otros prometería una bandeja que nunca tendría nada dentro.
    */
   it('identity-verification ofrece su bandeja de Revisión', () => {
     expect(idsDe('identity-verification')).toEqual(['panel', 'consola', 'revision']);
   });
 
-  it('la Revisión no se le ofrece a nadie más', () => {
-    for (const worker of ['audio-tts', ...CLASIFICAN] as const) {
+  it('la Revisión no se le ofrece a quien no tiene franja ambigua', () => {
+    for (const worker of ['audio-tts', 'semantic-analysis'] as const) {
       expect(idsDe(worker)).not.toContain('revision');
     }
   });
@@ -83,6 +100,10 @@ describe('a qué pestaña se cae al cambiar de worker', () => {
 
   it('quien está en Revisión y se va al semántico aterriza en el panel', () => {
     expect(resolveView('semantic-analysis', 'revision')).toBe('panel');
+  });
+
+  it('quien está en Revisión y se va al de extractos SE QUEDA: ahí también hay cola', () => {
+    expect(resolveView('bank-statement', 'revision')).toBe('revision');
   });
 
   it('una pestaña inventada —de una URL vieja o escrita a mano— no rompe la vista', () => {

@@ -395,7 +395,7 @@ uppercase` —secciones del menú, cabeceras de tabla, etiquetas de campo,
 | `/libraries`                   | `pages/LibrariesPage.tsx`             | `accessPolicies.libraryRegistry`   |
 | `/qa-lab`                      | `pages/QaLabPage.tsx`                 | `accessPolicies.qaLab`             |
 | `/workers/audio-tts`           | `pages/AudioTtsWorkerPage.tsx`        | `accessPolicies.workers`           |
-| `/workers/data-notebook`       | `features/data-notebook/`             | `accessPolicies.dataNotebook`      |
+| `/data-notebook`               | `pages/DataNotebookPage.tsx`          | `accessPolicies.dataNotebook`      |
 | `/decision-quality`            | `pages/DecisionQualityPage.tsx`       | `accessPolicies.decisionQuality`   |
 | `/data-subject-requests`       | `pages/DataSubjectRequestsPage.tsx`   | `accessPolicies.dataSubjectRights` |
 | `/risk-governance`             | `pages/RiskGovernancePage.tsx`        | `accessPolicies.riskGovernance`    |
@@ -458,33 +458,126 @@ sistema de observación apagado es la lectura peligrosa que esta vista existe pa
 
 ## El cuaderno de datos no ejecuta nada en el servidor
 
-`/workers/data-notebook` está en «Procesamiento» junto a los workers, pero no es uno: no lee del
-motor, no tiene catálogo ni cola, y por eso su pestaña sólo tiene consola y ningún panel —un panel
-siempre en verde sobre algo que no se mide se lee como una comprobación hecha—.
+**`/data-notebook`, y no `/workers/*`.** Empezó como una pestaña más de la página de workers y era
+una promesa falsa en las dos direcciones: hacia dentro, las otras pestañas comparten catálogo, cola,
+métricas y panel de salud del motor y el cuaderno no tiene ninguna de las cuatro —era la única sin
+panel, que es la forma en que una pantalla dice «yo no soy de esta familia»—; hacia fuera, quien
+quería analizar datos tenía que saber que la herramienta estaba detrás de la palabra «Workers».
+Ahora es vista propia (`pages/DataNotebookPage.tsx`) con su entrada en «Procesamiento», junto a la
+consola SQL y a los workers.
 
-- **El reparto es la decisión, y de ella sale todo lo demás.** Los DATOS los sirve AtlasBackend
-  (`/api/v1/data-notebook`, sobre las siete vistas de `read_api`), acotados por inquilino y con la
-  PII enmascarada. El CÓDIGO corre en la pestaña de quien lo escribe. **No hay ni un endpoint que
-  reciba Python o JavaScript**, así que abrir un cuaderno de análisis no le añade al backend una
-  superficie de ejecución remota — que es el riesgo que suele traer una herramienta con esta forma.
+- **El reparto es la decisión, y de ella sale todo lo demás.** Los DATOS los sirven dos servicios,
+  acotados por inquilino y con la PII enmascarada; el CÓDIGO corre en la pestaña de quien lo
+  escribe. **No hay ni un endpoint que reciba Python, R o JavaScript**, así que abrir un cuaderno de
+  análisis no le añade al backend una superficie de ejecución remota — que es el riesgo que suele
+  traer una herramienta con esta forma. Por eso R es **WebR y no un RStudio de servidor**: aquél
+  habría metido en la red de las bases una consola con sistema de archivos, red y paquetes.
+- **La única sentencia SQL que este repositorio ESCRIBE vive sola y con pruebas.** Es la de las
+  vistas del motor (`engine-sql.ts`), y cruza cinco puertas: la relación tiene que estar en el
+  catálogo que el motor publicó —tener forma de identificador no basta, `pg_catalog.pg_authid` la
+  tiene—, los identificadores se citan duplicando comillas, la columna de orden tiene que ser de
+  ESA relación, los números se comprueban con `Number.isSafeInteger` y se acotan, y la sentencia ya
+  compuesta se vuelve a validar contra una forma exacta. Esa última es redundante hoy a propósito:
+  el día que alguien añada un filtro por ahí, falla en las pruebas antes de salir del navegador.
+  Importa porque el `code` del dataset llega también de un cuaderno GUARDADO, que su dueño edita.
+- **El catálogo de datasets se DESCUBRE, y son DOS bases.** AtlasBackend sirve las vistas de
+  `read_api` (`/api/v1/data-notebook`) preguntando a `information_schema`, no por una lista escrita
+  a mano: publicar una vista nueva ya no exige tocar código, que era la razón de que el cuaderno
+  enseñara menos de lo que la base servía sin que se notara —el catálogo se veía completo—. El
+  motor aporta sus vistas gobernadas (`decisiones`, `riesgo`, `catalogo`, `desenlaces`,
+  `auditoria`) a través de `/v1/sql-console/catalog` y `/query`, que ya son de sólo lectura, acotan
+  por inquilino, revisan el plan y dejan bitácora: `src/features/data-notebook/engine-datasets.ts`.
+  **Lo que no se deduce es el alcance.** Una vista descubierta se sirve si publica columna de
+  inquilino, y va acotada por ella; si no la publica, hace falta declararla de plataforma a mano.
+  Deducir «sin `tenant_id` = de plataforma» convertiría cualquier migración que quitara esa columna
+  en una fuga entre organizaciones, en silencio y con el catálogo en verde. Las vistas descartadas
+  viajan en la respuesta con su motivo, porque un catálogo que encoge sin decirlo se lee como que
+  la base tiene menos datos.
 - **Segundo destino del portal.** `/atlas-backend/*` (`src/server/atlas-backend-proxy.ts`) sale
   hacia `ATLAS_BACKEND_URL`. NO se escribe con el prefijo `/v1/*`: ése es del motor y
   `scripts/engine-surface.mjs` lee esos literales para decidir qué operaciones están consumidas, de
   modo que una ruta de AtlasBackend con ese prefijo daría por cubierta una operación que nadie
   llama. La credencial es la misma: el token lo emite AtlasBackend y el motor lo reenvía tal cual.
-- **Python es CPython real sobre WebAssembly** (Pyodide, con pandas y numpy), servido desde
-  `/pyodide/` del propio origen. Lo trae `node scripts/setup-pyodide.mjs` (~21 MB, en `.gitignore`:
-  artefacto reproducible, no fuente) resolviendo el cierre de dependencias desde el propio
-  `pyodide-lock.json` — traer pandas sin `python-dateutil` deja un `ModuleNotFound` dentro del
-  intérprete, ya en el navegador y sin pista de qué falta. Sin el artefacto, la pestaña de
-  JavaScript funciona igual y la de Python dice el comando exacto que lo arregla.
+- **Python es CPython real sobre WebAssembly** (Pyodide, con pandas, numpy y matplotlib), servido
+  desde `/pyodide/` del propio origen. Lo trae `node scripts/setup-pyodide.mjs` (~30 MB, en
+  `.gitignore`: artefacto reproducible, no fuente) resolviendo el cierre de dependencias desde el
+  propio `pyodide-lock.json` — traer pandas sin `python-dateutil` deja un `ModuleNotFound` dentro
+  del intérprete, ya en el navegador y sin pista de qué falta. Los paquetes se cargan UNO A UNO:
+  con una sola llamada, una rueda que falte —un artefacto traído antes de que matplotlib entrara en
+  la lista— tumbaba también pandas, que sí estaba.
+- **R es R real sobre WebAssembly** (WebR 0.6, base + recomendados), servido desde `/webr/` del
+  propio origen. Lo publica `node scripts/setup-webr.mjs` COPIANDO `node_modules/webr/dist` (~45 MB,
+  en `.gitignore`): no se descarga nada, y así el cargador —que sí entra en el bundle— y los
+  binarios no pueden ser de versiones distintas. `yarn setup:interpretes` trae los dos.
+  - **No se instalan paquetes, y es deliberado.** `install.packages()` y `webr::install()` van a
+    `repo.r-wasm.org`; la CSP del artefacto (`connect-src 'self'`) lo impide, igual que impide
+    `download.file()` o `url()`. Es lo que convierte «R en el navegador» en una herramienta de
+    lectura y análisis en vez de en un cliente de red con los datos ya cargados.
+  - **`/webr/` lleva su PROPIA CSP** (`middleware.next.ts`). Un worker no hereda la política de la
+    página que lo crea: con la del portal, `'strict-dynamic'` hace que `'self'` se ignore y el
+    `importScripts` del worker quedaba bloqueado. Ahí dentro —y sólo ahí— se concede `'unsafe-eval'`,
+    que el pegamento de Emscripten necesita para sus bloques `EM_ASM`; la CSP es por contexto de
+    ejecución, así que el portal sigue sin poder evaluar cadenas. Lo fija `src/middleware.test.ts`.
+  - **El canal es `PostMessage`, no `SharedArrayBuffer`**: aquél exigiría aislar el origen con
+    COOP/COEP y romper el resto del portal. Se pierde poder interrumpir una evaluación en marcha.
+  - **Los datos entran por COLUMNAS y con un tipo por columna** (`r-data.ts`, con pruebas). Dejar
+    que R adivine fila a fila hace que una columna de importes con un solo `"N/D"` salga entera de
+    texto y `mean()` devuelva `NA` sin fallar, que es la peor forma de estar mal. `null` cruza como
+    `NA` —ausencia—, nunca como cadena vacía.
+  - **`x <- 1` no imprime y `x` sí**: cada expresión se evalúa con `withVisible`, como la consola de
+    R. Sin eso, una celda que sólo guarda un subconjunto repintaba la tabla entera debajo. Y el
+    código de la celda viaja como VARIABLE (`.atlas_codigo`), nunca interpolado en una plantilla de
+    R — la misma regla que gobierna el SQL.
+- **Los gráficos salen como PNG, y el backend de matplotlib se fija antes de que nadie lo importe.**
+  `MPLBACKEND=AGG` en el entorno del intérprete: por omisión matplotlib dibuja sobre un lienzo del
+  navegador que aquí no existe y `savefig` no produce nada. Tras cada celda se recogen las figuras
+  abiertas (`__atlas_figuras`, en `python-preamble.ts`), se devuelven en base64 y se cierran con
+  `plt.close('all')` — sin eso, la celda siguiente devolvería también los gráficos de la anterior,
+  que se leen como un resultado nuevo. La imagen se pinta sobre `--figure-canvas` (blanco en los dos
+  temas, porque matplotlib dibuja en negro sobre transparente) y se descarga decodificando el
+  `data:` a mano, sin pasar por el cliente HTTP.
+- **Cada lenguaje tiene UNA identidad, y vive en un catálogo.** `language-catalog.ts` fija rótulo,
+  icono, gramática de Monaco, plantilla y ejemplo; el COLOR va aparte, en `theme.css` (`--lang-*`)
+  y se aplica por `data-language` desde `parts/data-notebook-lenguajes.css`. Es el patrón de
+  `node-catalog.ts` en el grafo, y existe por lo que costó añadir el tercero: nombre, icono,
+  plantilla y ejemplo había que escribirlos en cinco pantallas distintas. El color es SEÑAL —Python
+  y R conservan su entorno entre celdas y JavaScript no, así que el mismo código da resultados
+  distintos según dónde corra— y nunca va solo: al lado están siempre el icono y el nombre escrito.
+- **Las celdas de comentario se renderizan sin generar HTML.** `markdown.ts` devuelve un árbol y
+  `MarkdownView.tsx` lo convierte en elementos de React, así que no hay `dangerouslySetInnerHTML` ni
+  saneador que mantener. Un destino que no sea `http(s)`, `mailto:`, ancla o ruta interna NO se
+  convierte en enlace y se enseña como texto —`[pulsa](javascript:…)` es la forma clásica de meter
+  ejecución en algo que parecía un comentario, y borrarlo escondería el intento—.
+- **Se entra ELIGIENDO cuaderno, no escribiendo.** `/data-notebook` es la tabla de los tuyos —crear,
+  abrir, borrar— y `/data-notebook/[notebookId]` es el editor. Es el orden de cualquier herramienta
+  de cuadernos y no una convención vacía: abrir directo en una hoja en blanco esconde el trabajo ya
+  hecho y obliga a decidir qué analizar antes de recordar qué había.
+- **El cuaderno guarda el AVANCE, no sólo el código.** `POST/PUT /api/v1/data-notebook/notebooks`
+  acepta cada celda con lo que arrojó —tabla, valor, registro y gráficos— porque un cuaderno que se
+  reabre en blanco no conserva el trabajo. Eso mete filas de clientes en una tabla editable, así que
+  hay tres frenos y ninguno es cosmético: son las filas YA ENMASCARADAS de `read_api` (nunca el dato
+  en claro); el documento entero tiene techo de bytes (`maxNotebookBytes`, medido sobre el JSON que
+  va a la fila, porque el peso lo deciden las tablas y los PNG, no el número de celdas); y cada
+  resultado lleva `savedAt`, que la pantalla ROTULA en ámbar al restaurarlo. Ese rótulo es la pieza
+  que hace honesto lo demás: sin él, un cuaderno reabierto es indistinguible de uno recién
+  ejecutado y un número de la semana pasada se lee como la medición de hoy.
+  `.strict()` sigue mandando —un campo que nadie declaró no entra— y todo se acota por
+  `(tenant, owner)` tomado del token: no hay `?owner=` que probar a cambiar.
+- **El historial de al lado NO cambió**: sigue guardando la pregunta y nunca la respuesta. Son dos
+  cosas distintas —evidencia que no se borra frente a trabajo que se edita y se tira— y por eso
+  viven en dos tablas.
 - **La CSP suma `'wasm-unsafe-eval'`, y sólo eso.** No es `'unsafe-eval'` ni se le parece: aquél
   reabriría `eval()` y `new Function()` para TODO el portal. El JavaScript de las celdas no
   necesita ninguno de los dos: se carga como worker desde un `blob:` (`worker-src 'self' blob:`),
   que es cargar un script y no generarlo en caliente.
-- **Corre los E2E contra la BUILD** (`PW_BASE_URL=http://localhost:5188`, tras `next start`). En
-  desarrollo la CSP añade `'unsafe-eval'` y taparía justo el fallo que `e2e/data-notebook-python.spec.ts`
-  existe para detectar.
+- **Corre los E2E de intérprete contra la BUILD** (`PW_BASE_URL=http://localhost:5188`, tras
+  `next start`): `data-notebook-python.spec.ts` y `data-notebook-r.spec.ts`. En desarrollo la CSP
+  del documento añade `'unsafe-eval'` y taparía justo el fallo que existen para detectar. Necesitan
+  los artefactos en disco (`yarn setup:interpretes`) y tardan minutos: cargan decenas de MB.
+- **Para teclear en una celda usa `e2e/support/notebook-editor.ts`**, nunca `fill()` sobre
+  `.notebook-cell__code`. Ese `textarea` sólo existe mientras Monaco no ha montado, así que el
+  localizador agota su plazo y el fallo se lee como «el intérprete no arranca» — cuando lo que no
+  arranca es la prueba.
 - **Dos cosas que la pantalla dice porque cambian lo que significan las conclusiones**: cuántas
   filas se cargaron —analizar 100 creyendo que son el universo da un número correcto sobre una
   muestra que nadie eligió— y qué columnas viajan enmascaradas, rotulado EN la cabecera de cada
@@ -513,6 +606,52 @@ siempre en verde sobre algo que no se mide se lee como una comprobación hecha�
   dentro las variables —el nombre de una persona—. Lo que sí se enseña es la identidad del
   audio: voz, versión de voz, modelo, formato y huella. La versión importa: sin ella, dos
   locuciones hechas con voces distintas parecen la misma.
+
+## Pendientes de revisión de extractos: la cola que no puede ser un vertedero
+
+`/workers/bank-statement`, pestaña **Pendientes de revisión**
+(`features/workers/StatementReviewQueue.tsx`). Es la segunda bandeja del portal, hermana de la
+de identidad y con la misma regla detrás: **sólo entra lo ambiguo**.
+
+- **Un documento RECHAZADO no es un pendiente.** El motor no lo devuelve por esta ruta, así que
+  la garantía no depende de que la pantalla se acuerde de filtrarlo: `PDF_INVALID` vive en el
+  historial y la cola se puede leer entera. Antes, todo lo que el motor no entendía acababa
+  aquí, y una cola con facturas dentro deja de revisarse.
+- **Categorías con contador, y el contador viene del motor.** Deducirlo de la página cargada
+  diría «Timeout (4)» sobre una cola de cuatrocientos. Igual con la paginación: todo el
+  filtrado viaja al servidor, porque filtrar sobre la página da resultados que dependen del
+  tamaño de página — la clase de error que nadie reporta porque la pantalla sigue funcionando.
+- **El «tiempo pendiente» lo mide el MOTOR** (`pendingMs`), no el reloj del navegador: un
+  equipo desfasado ordenaría mal la cola sin que nada lo delatara.
+- **Hay que reclamar antes de decidir.** El motor exige que quien resuelve sea quien reclamó;
+  la pantalla lo refleja apagando las acciones en vez de dejarlas pulsables para recibir un 409.
+- **Las dos confianzas se enseñan por separado y rotuladas** —«Es un extracto» frente a
+  «Calidad de la extracción»—: es la distinción que decide el caso.
+
+### Los avisos de desenlace, y por qué viven en una función pura
+
+`features/workers/statement-announcement.ts` decide QUÉ se dice en cada desenlace;
+`useStatementAnnouncements.ts` lo dispara **una sola vez** por ejecución. Las dos cosas
+importan:
+
+- El sondeo repite la misma respuesta cada segundo y medio, así que un `useEffect` sin registro
+  de lo ya anunciado repite el toast en cada vuelta. La huella incluye el ESTADO, no sólo la
+  solicitud: un caso reprocesado desde la cola merece su aviso nuevo.
+- El texto se escribe cuando el motor ya confirmó; anunciarlo junto a la llamada declara el
+  desenlace antes de que exista.
+- **«No se pudo procesar» y «Documento pendiente» están prohibidos** cuando el motor tiene
+  evidencia suficiente: describen el estado del sistema en vez de lo que hay que hacer, y sobre
+  un rechazo son además falsos. Cada motivo tiene su frase — si dos causas dicen lo mismo, el
+  texto deja de leerse. Lo fija `statement-announcement.test.ts`.
+- El rechazo en la PUERTA (el motor contesta con código y sin fila) se anuncia desde el
+  `onError` de la mutación, marcada `meta.handled` para que el aviso global no cuente el mismo
+  suceso dos veces con un texto genérico.
+- Un rechazo va en ÁMBAR, no en rojo: no ha fallado nada, y el rojo manda a reintentar algo que
+  no hay que reintentar.
+
+Los cuatro escenarios del encargo se ejercitan en `e2e/extracto-triage.spec.ts`, y afirman
+sobre la banda real (`.toast-viewport`): un `notify(...)` en el código no demuestra que el
+aviso llegue a verse.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

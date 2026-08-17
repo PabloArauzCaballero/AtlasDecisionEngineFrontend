@@ -3,6 +3,7 @@
 import { EmptyState } from '../../components/EmptyState';
 import { formatDateTime } from '../../config/locale';
 import { display, type UnknownRecord } from '../../utils/records';
+import { runStatusLabel } from './qa-run-status';
 
 interface Props {
   history: UnknownRecord[];
@@ -69,13 +70,4 @@ export function QaRunHistory({ history, onOpen }: Props) {
       </tbody>
     </table>
   );
-}
-
-/** El estado en español. `FAILED` es la corrida que se cortó, no la que encontró fallos. */
-function runStatusLabel(status: string): string {
-  if (status === 'COMPLETED') return 'Terminada';
-  if (status === 'RUNNING') return 'En marcha';
-  if (status === 'QUEUED') return 'En cola';
-  if (status === 'FAILED') return 'Interrumpida';
-  return status || '—';
 }

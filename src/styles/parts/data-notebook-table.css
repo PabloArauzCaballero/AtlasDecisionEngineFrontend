@@ -176,6 +176,43 @@
   font-weight: var(--weight-semibold);
 }
 
+/* El encabezado entero es el mando de plegado: un objetivo grande se acierta sin apuntar. */
+.notebook-history__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.notebook-history__toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Cuántas entradas hay: es lo que deja decidir si vale la pena desplegarlo sin desplegarlo. */
+.notebook-history__cuenta {
+  padding: 0 0.4rem;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-inset);
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+}
+
+.notebook-history__paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  font-size: var(--type-xs);
+  color: var(--text-muted);
+}
+
 .notebook-history__note,
 .notebook-history__empty {
   margin: 0;
