@@ -156,7 +156,16 @@ export function SqlConsolePage() {
   const maxRows = catalog.data?.limits.maxRows ?? 10_000;
 
   return (
-    <>
+    /*
+     * Envoltorio de alto acotado, y no un fragmento.
+     *
+     * La consola tiene que caber en la pantalla para que su rejilla se desplace
+     * por dentro. Calcular su alto a mano no funciona: por encima hay una
+     * cabecera cuyo alto depende de si el texto envuelve, y el respiro de
+     * `.content` cambia con el ancho. Aquí el navegador mide — la cabecera toma
+     * lo que necesita y la consola se queda con el resto.
+     */
+    <div className="sql-console-page">
       <PageHeader
         eyebrow="Procesamiento · Consultas SQL"
         title="Consola de consultas"
@@ -267,6 +276,6 @@ export function SqlConsolePage() {
           )}
         </aside>
       </div>
-    </>
+    </div>
   );
 }

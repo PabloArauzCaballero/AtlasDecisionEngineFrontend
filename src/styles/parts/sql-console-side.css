@@ -1,9 +1,11 @@
 /*
  * Consola de consultas SQL — panel lateral: ficha de tabla e historial.
  *
- * Cierra el conjunto y por eso lleva la consulta de medios: apilar las tres columnas es una
- * decisión sobre el armazón entero, no sobre esta pieza, y tenerla al final evita que otra
- * hoja la deshaga sin querer más abajo en la cascada.
+ * La consulta de medios que apila las tres columnas ya NO está aquí: se mudó a
+ * `sql-console.css`. Apilar es una decisión sobre el armazón —reescribe su
+ * plantilla de columnas y su techo de alto—, no sobre esta pieza, y tenerla en
+ * la hoja del armazón es lo que permite leer juntas la regla ancha y la
+ * estrecha. Esta hoja además rozaba su límite de líneas.
  */
 
 .sql-side {
@@ -230,24 +232,6 @@
   color: var(--faint);
   font-size: var(--type-3xs);
   font-variant-numeric: tabular-nums;
-}
-
-/*
- * Por debajo de la tableta las tres columnas se apilan.
- *
- * El explorador y el panel lateral pasan a alto acotado con desplazamiento propio en vez de
- * crecer: apilados a su altura natural, el editor quedaría a dos pantallas de desplazamiento
- * del árbol que se estaba mirando, que es tanto como no tenerlo.
- */
-@media (max-width: 68rem) {
-  .sql-console {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .sql-explorer,
-  .sql-side {
-    max-height: var(--sql-stacked-max);
-  }
 }
 
 /*

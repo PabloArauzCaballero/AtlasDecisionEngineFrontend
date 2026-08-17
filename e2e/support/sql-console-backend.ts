@@ -99,6 +99,25 @@ const RESULT_TRUNCADO = {
   estimate: { ...ESTIMATE, estimatedRows: 412_000 },
 };
 
+/**
+ * Un resultado LARGO, para medir que la rejilla se desplaza dentro de su panel.
+ *
+ * Trescientas filas y no tres: con tres, la tabla cabe en cualquier alto y el
+ * desbordamiento —que es justo lo que hay que provocar— no llega a ocurrir. Una
+ * prueba de scroll sobre un resultado que cabe pasa igual estando rota.
+ */
+const RESULT_LARGO = {
+  ...RESULT_OK,
+  rows: Array.from({ length: 300 }, (_, i) => [
+    `ARTEFACTO_${String(i).padStart(3, '0')}`,
+    i % 3 === 0 ? 'APPROVED' : 'REJECTED',
+    String(1000 + i),
+    '2026-08-13T18:20:00.000Z',
+    `${i}.50`,
+  ]),
+  rowCount: 300,
+};
+
 const HISTORY = {
   entries: [
     {
@@ -147,6 +166,7 @@ function respuestaDeConsulta(statement: string) {
     };
   }
   if (/TRUNCADA/i.test(statement)) return { status: 200, json: RESULT_TRUNCADO };
+  if (/MUCHAS_FILAS/i.test(statement)) return { status: 200, json: RESULT_LARGO };
   return { status: 200, json: RESULT_OK };
 }
 

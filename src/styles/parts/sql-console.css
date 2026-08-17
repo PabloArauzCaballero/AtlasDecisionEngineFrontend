@@ -27,16 +27,72 @@
   --sql-stacked-max: 18rem;
 }
 
+/* Envoltorio de la vista. Sólo agrupa: el techo lo pone la consola. */
+.sql-console-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 0;
+}
+
 .sql-console {
   display: grid;
   grid-template-columns: var(--sql-explorer-width) minmax(0, 1fr) var(--sql-side-width);
+  /*
+   * La fila se declara, y esto NO es redundante: es la mitad del arreglo.
+   *
+   * Sin plantilla, la fila es implícita y por tanto `auto` — se dimensiona por
+   * su contenido. Y un `max-height` en el contenedor acota LA CAJA, no la fila:
+   * medido, la caja quedaba en 764 px con la fila en 19.803 y el contenido
+   * saliéndose por debajo con `overflow: visible`. Se veía exactamente igual que
+   * antes de tocar nada, que es lo que hace difícil de encontrar este defecto:
+   * el techo estaba puesto y no servía de nada.
+   *
+   * `minmax(0, 1fr)` obliga a la fila a caber en el alto disponible y deja que
+   * se encoja por debajo de su contenido, que es lo que traslada el techo hacia
+   * dentro hasta `.sql-results__body`.
+   */
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--space-3);
   align-items: stretch;
   /*
-   * `100dvh` y no `100vh`: en el móvil la barra del navegador se retrae al desplazar, y con
-   * `vh` el panel de resultados queda cortado justo por debajo del borde todo el rato.
+   * TECHO, no altura fija ni altura mínima. Aquí está el arreglo, y las tres
+   * variantes no son intercambiables.
+   *
+   * Antes había `min-height`, y con un alto MÍNIMO el armazón podía crecer sin
+   * límite. Toda la cadena de desplazamiento interno de la consola
+   * —`.sql-workspace` con su fila `minmax(0, 1fr)`, `.sql-results` con
+   * `overflow: hidden`, `.sql-results__body` con `overflow: auto`— está
+   * construida para repartir un alto ACOTADO, así que sin techo no llegaba a
+   * activarse nunca: un resultado de miles de filas estiraba el grid, con él el
+   * documento, y el desplazamiento acababa siendo el de la página. La
+   * consecuencia era peor que un scroll largo — al desplazarse se perdían de
+   * vista el editor y la cabecera de la tabla, que es justo lo que hay que tener
+   * delante para leer la fila diez mil.
+   *
+   * Y tampoco vale una altura FIJA, que fue el primer intento. Por encima de la
+   * consola hay dos hermanos de alto variable —el aviso de seguridad de la
+   * sesión, que ni siquiera aparece siempre, y la tarjeta explicativa de la
+   * vista— más una cabecera que envuelve o no según el ancho. Cualquier `calc()`
+   * acierta en un tamaño de ventana y falla en los demás; medido a 1440×900
+   * dejaba la página 300 px más alta que el hueco.
+   *
+   * Con un TECHO no hay nada que adivinar: si el contenido cabe, la consola se
+   * encoge y no sobra nada; si no cabe, se detiene en una pantalla y la rejilla
+   * se desplaza por dentro. Lo que haya por encima deja de importar.
+   *
+   * `100dvh` y no `100vh`: en el móvil la barra del navegador se retrae al
+   * desplazar, y con `vh` el panel de resultados queda cortado justo por debajo
+   * del borde todo el rato.
    */
-  min-height: calc(100dvh - var(--shell-head) - var(--space-7));
+  max-height: calc(100dvh - var(--shell-head) - (var(--stack-gap) * 3));
+  /*
+   * Y un suelo, para que el techo no se vuelva en contra en una ventana baja: sin
+   * él, a 600 px de alto la rejilla queda en dos filas y el editor en una línea,
+   * que es tan inservible como el defecto que se está arreglando. Por debajo de
+   * esto la página desplaza, que es lo correcto — no cabe.
+   */
+  min-height: 34rem;
 }
 
 .sql-explorer {
@@ -186,4 +242,47 @@
 .sql-explorer__insert:hover {
   background: var(--accent-soft);
   color: var(--accent-strong);
+}
+
+/*
+ * Por debajo de la tableta las tres columnas se apilan.
+ *
+ * Vive aquí y no en `sql-console-side.css`, donde estaba: lo que reescribe es el
+ * ARMAZÓN —la plantilla de columnas y el techo de la consola— y aquélla ya
+ * rozaba su límite de líneas. Que la regla responsive de un contenedor viva
+ * junto al contenedor es además lo que hace que se lean juntas.
+ */
+@media (max-width: 68rem) {
+  .sql-console {
+    grid-template-columns: minmax(0, 1fr);
+    /*
+     * Apilado, el techo de una pantalla sería el error CONTRARIO: cuatro bloques
+     * —explorador, editor, acciones, resultados— dentro de un alto de ventana
+     * dejan al editor con dos líneas y a la rejilla con tres filas, y no se
+     * puede trabajar en ninguno. Aquí desplaza la página, que es lo natural con
+     * el contenido en columna.
+     */
+    grid-template-rows: none;
+    max-height: none;
+    min-height: 0;
+  }
+
+  /*
+   * El explorador y el panel lateral pasan a alto acotado con desplazamiento
+   * propio en vez de crecer: apilados a su altura natural, el editor quedaría a
+   * dos pantallas de desplazamiento del árbol que se estaba mirando, que es
+   * tanto como no tenerlo.
+   */
+  .sql-explorer,
+  .sql-side {
+    max-height: var(--sql-stacked-max);
+  }
+
+  /*
+   * Y la rejilla lleva su propio techo. Sin él volvería el mismo defecto que se
+   * acaba de arreglar, sólo que en móvil: trescientas filas estirando la página.
+   */
+  .sql-results {
+    max-height: 70dvh;
+  }
 }
