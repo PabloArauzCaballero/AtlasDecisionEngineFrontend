@@ -16,6 +16,7 @@ import {
   claveMovimiento,
   useStatementCategories,
 } from '../features/workers/useStatementCategories';
+import { useAvisoDeRevision } from '../features/workers/useAvisoDeRevision';
 import { resumirCategorias } from '../features/workers/statement-category-summary';
 import { resumirExtracto } from '../features/workers/statement-analytics';
 import { useWorkerRun } from '../features/workers/useWorkerRun';
@@ -118,6 +119,7 @@ export function BankStatementWorkerConsole() {
     run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS';
 
   const categorias = useStatementCategories();
+  useAvisoDeRevision(categorias.enRevision);
 
   /*
    * Dos cosas que duele perder: un PDF ya elegido y sin convertir —volver a

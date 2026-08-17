@@ -2,6 +2,7 @@
 
 import { asRecord, asRows, asStrings, type UnknownRecord } from '../../utils/records';
 import { formatNumber } from '../../config/locale';
+import { TEXTO_MOTIVO, type MotivoRevision } from './gloss-review';
 import { claveMovimiento, type VeredictoCategoria } from './useStatementCategories';
 import { useResizableColumns, type ColumnasAjustables } from './useResizableColumns';
 
@@ -234,6 +235,24 @@ function CategoriaCelda({ veredicto }: { veredicto?: VeredictoCategoria }) {
         aria-label="Clasificando esta glosa"
         title="Clasificando…"
       />
+    );
+  }
+  /*
+   * «En revisión» NO es «No se pudo», y por eso no comparten ni tono ni palabra.
+   *
+   * Aquí no ha fallado nada: el motor sigue trabajando y la pantalla dejó de
+   * esperar para no bloquear a quien la usa. Pintarlo en rojo junto a los fallos
+   * mandaría a reintentar algo que no hay que reintentar, y escondería el único
+   * dato accionable — que ese término hay que atenderlo en «Pendientes».
+   */
+  if (veredicto.fase === 'revision') {
+    return (
+      <span
+        className="worker-categoria-revision"
+        title={veredicto.motivo ? TEXTO_MOTIVO[veredicto.motivo as MotivoRevision] : undefined}
+      >
+        En revisión
+      </span>
     );
   }
   if (veredicto.fase === 'fallido') {
