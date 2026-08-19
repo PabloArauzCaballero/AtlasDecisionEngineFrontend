@@ -187,3 +187,45 @@
   font-size: var(--type-md);
   line-height: 1.5;
 }
+
+/*
+ * Formulario del cambio de contraseña dentro del modal.
+ *
+ * Clases propias y no las de `.field` de otras vistas: aquellas están definidas
+ * SIEMPRE bajo un ancestro (`.pendientes-busqueda .field`, `.revision-filtros
+ * .field`), así que fuera de esos contenedores no aplican nada y el formulario
+ * salía sin separación ni ancho. Un selector nuevo y acotado evita tanto el
+ * error como reabrir los de las otras pantallas.
+ */
+.password-change-form {
+  display: grid;
+  gap: 14px;
+}
+.password-change-form label {
+  display: grid;
+  gap: 6px;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+.password-change-form input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--type-md);
+  font-weight: var(--weight-regular);
+}
+.password-change-form small {
+  font-weight: var(--weight-regular);
+  font-size: var(--type-xs);
+  color: var(--muted);
+}
+.password-change-form .password-change-error {
+  margin: 0;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
+  color: var(--danger-text);
+}

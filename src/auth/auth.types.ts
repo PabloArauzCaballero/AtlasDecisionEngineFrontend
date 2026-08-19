@@ -1,5 +1,10 @@
 import type { z } from 'zod';
-import type { identityUserSchema, pinChallengeSchema, sessionPayloadSchema } from './auth.schemas';
+import type {
+  identityUserSchema,
+  passwordChangedSchema,
+  pinChallengeSchema,
+  sessionPayloadSchema,
+} from './auth.schemas';
 
 /*
  * Los tipos se derivan del esquema en vez de declararse a mano.
@@ -12,6 +17,7 @@ import type { identityUserSchema, pinChallengeSchema, sessionPayloadSchema } fro
 export type IdentityUser = z.infer<typeof identityUserSchema>;
 export type SessionPayload = z.infer<typeof sessionPayloadSchema>;
 export type PinChallenge = z.infer<typeof pinChallengeSchema>;
+export type PasswordChanged = z.infer<typeof passwordChangedSchema>;
 
 /** Lo que puede devolver el primer paso: una sesión, o la petición del segundo factor. */
 export type LoginOutcome = SessionPayload | PinChallenge;
@@ -29,4 +35,11 @@ export interface LoginInput {
 export interface LoginPinInput {
   challengeToken: string;
   pin: string;
+}
+
+/** Segundo paso del cambio de contraseña: el desafío, el código del correo y la nueva. */
+export interface PasswordChangeInput {
+  challengeToken: string;
+  code: string;
+  newPassword: string;
 }

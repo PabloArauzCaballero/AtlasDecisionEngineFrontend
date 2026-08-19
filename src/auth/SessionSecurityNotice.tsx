@@ -18,6 +18,12 @@ import { useAuth } from './useAuth';
  * aquí dejaría fuera a gente que el backend sí admite. Lo que faltaba era el
  * aviso, y el aviso es esto.
  *
+ * El texto de `mustChangePassword` remitía «al proveedor de identidad», donde
+ * durante mucho tiempo no hubo NADA que hacer: no existía un endpoint de cambio
+ * de contraseña para una cuenta con sesión abierta, así que el aviso era una
+ * instrucción sin destino. Ahora apunta al diálogo de la barra superior, que sí
+ * lo hace — con el mismo segundo factor por correo que el acceso.
+ *
  * `mfaEnabled` describe el estado EFECTIVO del segundo factor, no una casilla
  * de la ficha del usuario. Durante un tiempo el proveedor publicaba aquí una
  * columna que ningún camino de código escribía para cuentas internas, así que
@@ -43,8 +49,9 @@ export function SessionSecurityNotice() {
         <p className="session-security-item is-urgent">
           <KeyRound size={16} aria-hidden="true" />
           <span>
-            <strong>Tu contraseña está marcada para cambio.</strong> Actualízala desde el proveedor
-            de identidad: mientras no lo hagas, el motor puede rechazar operaciones sensibles.
+            <strong>Tu contraseña está marcada para cambio.</strong> Cámbiala desde el botón de la
+            llave, arriba a la derecha: mientras no lo hagas, el motor puede rechazar operaciones
+            sensibles.
           </span>
         </p>
       ) : null}

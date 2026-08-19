@@ -1,8 +1,9 @@
 'use client';
 
-import { Boxes, LogOut, Menu, ShieldCheck } from 'lucide-react';
+import { Boxes, KeyRound, LogOut, Menu, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { PasswordChangeDialog } from '../../auth/PasswordChangeDialog';
 import { useAuth } from '../../auth/useAuth';
 import { env } from '../../config/env';
 import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
@@ -20,6 +21,7 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
   const { notify } = useNotifications();
   const router = useRouter();
   const [closing, setClosing] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const closeSession = async () => {
     // Sign-out is a redirect, so the button itself has to carry the busy state.
@@ -86,6 +88,15 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
         <span>{user?.department ?? 'ATLAS'}</span>
       </div>
       <button
+        className="icon-button"
+        type="button"
+        onClick={() => setChangingPassword(true)}
+        aria-label="Cambiar contraseña"
+        title="Cambiar contraseña"
+      >
+        <KeyRound />
+      </button>
+      <button
         className={closing ? 'icon-button is-busy' : 'icon-button'}
         type="button"
         data-tutorial-id="logout"
@@ -95,6 +106,9 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       >
         <LogOut />
       </button>
+      {changingPassword ? (
+        <PasswordChangeDialog onClose={() => setChangingPassword(false)} />
+      ) : null}
     </header>
   );
 }

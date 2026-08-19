@@ -117,3 +117,11 @@ export const sessionPayloadSchema = z.object({
  * desafío no lleva `accessToken` ni `user`, así que ninguno puede pasar por el otro.
  */
 export const loginOutcomeSchema = z.union([pinChallengeSchema, sessionPayloadSchema]);
+
+/**
+ * El desenlace del cambio de contraseña. Se valida igual que todo lo demás: un
+ * 200 con un cuerpo que no dice `passwordChanged` no es un cambio confirmado, y
+ * darlo por bueno mandaría a la persona a reintentar el acceso con una
+ * contraseña que quizá nunca llegó a guardarse.
+ */
+export const passwordChangedSchema = z.object({ passwordChanged: z.literal(true) });
