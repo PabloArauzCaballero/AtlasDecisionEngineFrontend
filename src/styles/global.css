@@ -115,6 +115,7 @@
 @import './parts/documents.css';
 @import './parts/statement-analytics.css';
 @import './parts/workers-categories.css';
+@import './parts/workers-institutions.css';
 @import './parts/workers-categories-chart.css';
 @import './parts/category-tree.css';
 /* Después de `category-tree.css`: refina su jerarquía sin subir la especificidad. */

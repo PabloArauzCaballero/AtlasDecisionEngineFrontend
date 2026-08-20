@@ -33,6 +33,7 @@ describe('pestañas de cada worker', () => {
       'panel',
       'consola',
       'categorias',
+      'entidades',
       'pendientes',
       'revision',
     ]);
@@ -40,6 +41,20 @@ describe('pestañas de cada worker', () => {
 
   it.each(OTROS)('%s no ofrece Categorías ni Pendientes', (worker) => {
     expect(idsDe(worker)).not.toEqual(expect.arrayContaining(['categorias', 'pendientes']));
+  });
+
+  /*
+   * El padrón de entidades es de UNO solo, y se afirma aparte de las otras dos
+   * reglas porque responde a otra pregunta: no «¿clasifica contra el catálogo?»
+   * sino «¿tiene que decidir de quién es el documento que recibe?». Sólo el de
+   * extractos la tiene, y ofrecérsela a los demás prometería una lista que en su
+   * contrato no significa nada.
+   */
+  it('el padrón de entidades es sólo del de extractos', () => {
+    expect(idsDe('bank-statement')).toContain('entidades');
+    for (const worker of [...CLASIFICAN, ...OTROS].filter((code) => code !== 'bank-statement')) {
+      expect(idsDe(worker)).not.toContain('entidades');
+    }
   });
 
   /*

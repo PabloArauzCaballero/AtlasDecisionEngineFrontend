@@ -48,7 +48,10 @@ export function verifyLoginPin(input: LoginPinInput): Promise<SessionPayload> {
 export function requestPasswordChange(currentPassword: string): Promise<PinChallenge> {
   // `apiRequest` y no `publicApiRequest`: aquí SÍ hace falta el token, porque el
   // motor decide de quién es la contraseña a partir de él y no del cuerpo.
-  return apiRequest(sessionPath('password/change/request'), {
+  // Ruta literal y no `sessionPath(...)`: `scripts/engine-surface.mjs` lee estos literales para
+  // saber qué operaciones del motor consume el portal, y una interpolación la lee como un comodín
+  // de un segmento — daría por cubiertas también las operaciones vecinas que nadie mira.
+  return apiRequest('/v1/session/password/change/request', {
     method: 'POST',
     body: { currentPassword },
     responseSchema: pinChallengeSchema,
@@ -57,7 +60,7 @@ export function requestPasswordChange(currentPassword: string): Promise<PinChall
 
 /** Segundo paso. Al completarse, TODA sesión de la cuenta queda revocada. */
 export function confirmPasswordChange(input: PasswordChangeInput): Promise<PasswordChanged> {
-  return apiRequest(sessionPath('password/change/confirm'), {
+  return apiRequest('/v1/session/password/change/confirm', {
     method: 'POST',
     body: input,
     responseSchema: passwordChangedSchema,

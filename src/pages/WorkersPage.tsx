@@ -10,6 +10,7 @@ import { StatementReviewQueue } from '../features/workers/StatementReviewQueue';
 import { UnresolvedConsole } from '../features/workers/UnresolvedConsole';
 import { WorkerCategoriesConsole } from '../features/workers/WorkerCategoriesConsole';
 import { WorkerDashboard } from '../features/workers/WorkerDashboard';
+import { WorkerInstitutionsConsole } from '../features/workers/WorkerInstitutionsConsole';
 import type { WorkerDescriptor } from '../features/workers/worker-types';
 import {
   GENERADOR_DOCUMENTAL,
@@ -164,6 +165,10 @@ export function WorkersPage({ initialWorker }: { initialWorker?: TabCode }) {
                 ) : viewId === 'pendientes' ? (
                   <div data-tutorial-id="workers-unresolved">
                     <UnresolvedConsole />
+                  </div>
+                ) : viewId === 'entidades' ? (
+                  <div data-tutorial-id="workers-institutions">
+                    <WorkerInstitutionsConsole />
                   </div>
                 ) : viewId === 'categorias' ? (
                   <div data-tutorial-id="workers-categories">

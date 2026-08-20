@@ -801,6 +801,18 @@
     },
     {
       "method": "POST",
+      "path": "/v1/session/password/change/confirm",
+      "operationId": "identitySessionConfirmPasswordChange",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/password/change/request",
+      "operationId": "identitySessionRequestPasswordChange",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
       "path": "/v1/session/refresh",
       "operationId": "identitySessionRefresh",
       "tag": "Portal Session"
@@ -1074,6 +1086,48 @@
       "path": "/v1/workers/bank-statement/fixtures",
       "operationId": "bankStatementListFixtures",
       "tag": "Workers · Extractos bancarios"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/institutions",
+      "operationId": "financialInstitutionList",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/institutions",
+      "operationId": "financialInstitutionCreate",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/workers/bank-statement/institutions/{p}",
+      "operationId": "financialInstitutionDeactivate",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/workers/bank-statement/institutions/{p}",
+      "operationId": "financialInstitutionUpdate",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/institutions/{p}/reactivate",
+      "operationId": "financialInstitutionReactivate",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/institutions/seed",
+      "operationId": "financialInstitutionSeed",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/institutions/summary",
+      "operationId": "financialInstitutionSummary",
+      "tag": "Workers · Entidades financieras"
     },
     {
       "method": "GET",

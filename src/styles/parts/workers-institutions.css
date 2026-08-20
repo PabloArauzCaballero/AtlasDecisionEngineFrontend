@@ -1,0 +1,213 @@
+/*
+ * Padrón de entidades financieras del worker de extractos.
+ *
+ * Hoja aparte de `workers-categories.css` porque son dos catálogos distintos con
+ * dos formas distintas: aquél es un ÁRBOL con sangrías, éste una nómina AGRUPADA
+ * por tipo de entidad. Compartir hoja habría obligado a que cada selector dijera
+ * a cuál de los dos pertenece.
+ *
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+.worker-entidades {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- Barra de acciones ------------------------------------------------------ */
+
+.entidad-barra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  margin: var(--space-3) 0;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.entidad-filtro {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+/*
+ * Lo que falta del padrón se avisa en ámbar y no en rojo: no ha fallado nada,
+ * y el rojo mandaría a arreglar algo urgente cuando lo que hay es una nómina
+ * incompleta que se completa con un botón que está justo debajo.
+ */
+.entidad-faltantes {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--warning-wash);
+  color: var(--text);
+  font-size: var(--type-sm);
+}
+
+.entidad-ensayo {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.entidad-vacio {
+  margin: var(--space-4) 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+/* --- La nómina, agrupada por tipo ------------------------------------------- */
+
+.entidad-grupos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.entidad-grupo-titulo {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-md);
+  font-weight: var(--weight-semibold);
+}
+
+.entidad-conteo {
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.entidad-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-sm);
+}
+
+.entidad-tabla th,
+.entidad-tabla td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.entidad-tabla thead th {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-medium);
+}
+
+/*
+ * La entidad dada de baja se atenúa, no se esconde: hay que poder verla para
+ * reactivarla, y a la vez tiene que quedar claro que hoy no reconoce nada.
+ */
+.entidad-tabla tbody tr[data-inactiva='si'] {
+  opacity: 0.55;
+}
+
+.entidad-sigla {
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.entidad-nota {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+/*
+ * La licencia y la baja son dos hechos distintos y por eso son dos marcas.
+ * Verlas como una sola haría creer que dar de baja una entidad es la forma de
+ * marcarla como intervenida, y hace lo contrario: la intervenida manda sus
+ * extractos a revisión, la dada de baja hace que se rechacen.
+ */
+.entidad-licencia {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--success-wash);
+  color: var(--text);
+  font-size: var(--type-xs);
+}
+
+.entidad-licencia[data-estado='suspended'],
+.entidad-licencia[data-estado='revoked'] {
+  background: var(--warning-wash);
+}
+
+.entidad-baja {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.entidad-marcadores {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.entidad-marcadores code {
+  display: block;
+  overflow: hidden;
+  max-width: 18rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entidad-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- Formulario ------------------------------------------------------------- */
+
+.entidad-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+.entidad-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-3);
+}
+
+.entidad-form .field-check {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.entidad-form textarea {
+  font-family: var(--font-mono);
+  font-size: var(--type-sm);
+}
+
+.entidad-form-acciones {
+  display: flex;
+  gap: var(--space-2);
+}

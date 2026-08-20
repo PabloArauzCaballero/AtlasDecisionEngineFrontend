@@ -1,4 +1,4 @@
-import { Gauge, Inbox, ListTree, SquareTerminal, UserSearch } from 'lucide-react';
+import { Gauge, Inbox, Landmark, ListTree, SquareTerminal, UserSearch } from 'lucide-react';
 import type { WorkerCode } from './workers.api';
 
 /**
@@ -28,6 +28,12 @@ export const WORKER_VIEWS = [
     label: 'Categorías',
     icon: ListTree,
     hint: 'El árbol contra el que este worker clasifica: crearlo, corregirlo o inyectarlo desde JSON.',
+  },
+  {
+    id: 'entidades',
+    label: 'Entidades financieras',
+    icon: Landmark,
+    hint: 'El padrón de entidades bolivianas contra el que este worker decide de quién es un extracto.',
   },
   {
     id: 'pendientes',
@@ -111,9 +117,25 @@ const CLASIFICAN: readonly TabCode[] = ['semantic-analysis', 'bank-statement'];
  */
 const REVISAN: readonly TabCode[] = ['identity-verification', 'bank-statement'];
 
+/**
+ * El padrón de entidades es SÓLO del worker de extractos, y no por omisión.
+ *
+ * Es la lista contra la que ese worker decide de quién es un documento: un
+ * extracto que no se atribuye a ninguna entidad con licencia de ASFI no se
+ * procesa. Ningún otro worker tiene esa pregunta —el semántico clasifica texto,
+ * identidad compara dos caras, locución dice una frase—, así que ofrecérsela
+ * prometería una relación que no existe.
+ *
+ * Está junto a «Categorías» y no en una sección de ajustes por el mismo motivo
+ * que aquélla: es donde se descubre que hace falta. El motor rechaza un extracto
+ * por emisor no reconocido, y el arreglo está a una pestaña de distancia.
+ */
+const ADMINISTRAN_PADRON: readonly TabCode[] = ['bank-statement'];
+
 export function viewsFor(worker: TabCode): readonly WorkerView[] {
   return WORKER_VIEWS.filter((view) => {
     if (VISTAS_DEL_CATALOGO.includes(view.id)) return CLASIFICAN.includes(worker);
+    if (view.id === 'entidades') return ADMINISTRAN_PADRON.includes(worker);
     if (view.id === 'revision') return REVISAN.includes(worker);
     return true;
   });
