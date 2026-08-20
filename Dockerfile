@@ -12,6 +12,12 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
 FROM base AS builder
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+# `public/` no está versionado: lo llenan `yarn setup:interpretes` (pyodide y webR pesan cientos de
+# megas y no tienen sitio en git). En un clon limpio el directorio NO existe, así que el `COPY` de
+# más abajo hacía fallar la construccion entera con «/app/public: not found» — una imagen que solo
+# se podía construir en la máquina que ya tenía los intérpretes bajados.
+# Se garantiza aquí; si están, el desplegador los copia al contexto y viajan dentro.
+RUN mkdir -p public
 RUN yarn build
 
 FROM node:22-alpine AS runner
