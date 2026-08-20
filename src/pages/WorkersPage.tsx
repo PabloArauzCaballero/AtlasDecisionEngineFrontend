@@ -6,6 +6,7 @@ import { PageHeader } from '../components/PageHeader';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
 import { IdentityReviewQueue } from '../features/workers/IdentityReviewQueue';
+import { IdentityArbitrationQueue } from '../features/workers/IdentityArbitrationQueue';
 import { StatementReviewQueue } from '../features/workers/StatementReviewQueue';
 import { UnresolvedConsole } from '../features/workers/UnresolvedConsole';
 import { WorkerCategoriesConsole } from '../features/workers/WorkerCategoriesConsole';
@@ -186,9 +187,22 @@ export function WorkersPage({ initialWorker }: { initialWorker?: TabCode }) {
                         active={workerId === activeWorker && activeView === 'revision'}
                       />
                     ) : (
-                      <IdentityReviewQueue
-                        active={workerId === activeWorker && activeView === 'revision'}
-                      />
+                      <>
+                        {/*
+                         * Dos poblaciones distintas en la misma pestaña, y en
+                         * este orden: arriba lo que PIDE una acción —documentos
+                         * que la puerta no supo confirmar y esperan a alguien— y
+                         * debajo lo que ya tiene veredicto y sólo se consulta.
+                         * Mezclarlas en una lista haría que el caso accionable
+                         * se perdiera entre los cerrados.
+                         */}
+                        <IdentityArbitrationQueue
+                          active={workerId === activeWorker && activeView === 'revision'}
+                        />
+                        <IdentityReviewQueue
+                          active={workerId === activeWorker && activeView === 'revision'}
+                        />
+                      </>
                     )}
                   </div>
                 ) : workerId === 'semantic-analysis' ? (

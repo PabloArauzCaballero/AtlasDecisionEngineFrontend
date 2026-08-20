@@ -209,3 +209,34 @@
   font-size: var(--type-xs);
   font-variant-numeric: tabular-nums;
 }
+
+/* --- Arbitraje de identidad ------------------------------------------------
+ *
+ * El formulario que cierra un caso de identidad. Vive junto al resto de la cola
+ * y no en `workers-identity.css` porque es parte de ESTA pantalla —la de
+ * revisión— y no de la consola de verificaciones: separarlos obligaría a mirar
+ * dos archivos para entender por qué un caso se pinta como se pinta.
+ */
+
+.identity-arbitration-form {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+/* Los dos selectores caben en una fila en pantallas cómodas y se apilan solos
+ * en un portátil pequeño: quien arbitra suele tener la pantalla partida con la
+ * imagen del documento al lado. */
+@media (min-width: 40rem) {
+  .identity-arbitration-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .identity-arbitration-form .field:last-of-type,
+  .identity-arbitration-form .worker-run-actions,
+  .identity-arbitration-form > p {
+    grid-column: 1 / -1;
+  }
+}
