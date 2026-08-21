@@ -223,7 +223,7 @@
   gap: var(--space-3);
   margin-block-start: var(--space-3);
   padding-block-start: var(--space-3);
-  border-block-start: 1px solid var(--border-subtle);
+  border-block-start: 1px solid var(--line);
 }
 
 /* Los dos selectores caben en una fila en pantallas cómodas y se apilan solos
