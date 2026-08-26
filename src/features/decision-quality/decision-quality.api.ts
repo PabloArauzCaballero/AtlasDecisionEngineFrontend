@@ -14,6 +14,17 @@ import { apiRequest } from '../../api/http-client';
 export interface CoverageReport {
   from: string;
   to: string;
+  /**
+   * Qué parte de la población medida es siembra de DEMOSTRACIÓN.
+   *
+   * Opcional porque un motor anterior a este campo no lo manda, y el panel tiene que seguir
+   * pintándose contra él en lugar de romperse: quien despliegue el portal antes que el motor
+   * vería la pantalla entera caída por un aviso que es accesorio.
+   */
+  seeded?: {
+    executions: number;
+    share: number | null;
+  };
   subject: {
     executions: number;
     notApplicable: number;

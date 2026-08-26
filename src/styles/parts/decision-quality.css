@@ -42,6 +42,32 @@
   line-height: 1.55;
 }
 
+/*
+ * Aviso de población sembrada.
+ *
+ * Va ARRIBA de las métricas y no como nota al pie, que es donde están los demás avisos de este
+ * panel, porque no matiza un dato: los invalida todos. Leer «85 % sembrado» después de haber
+ * leído un BAD_RATE es leerlo tarde.
+ *
+ * Usa los tokens de aviso y no el rojo de peligro a propósito: que la población sea de
+ * demostración no es una avería —en una instalación recién levantada es lo esperado— y
+ * pintarlo de rojo lo igualaría con las ventanas vencidas, que sí son deuda real.
+ */
+.quality-seeded {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md);
+  background: var(--warning-wash);
+  color: var(--warning-strong);
+  font-size: var(--type-sm);
+  line-height: 1.55;
+}
+
+.quality-seeded strong {
+  font-weight: var(--weight-semibold);
+}
+
 .quality-muted {
   color: var(--text-muted);
   font-size: var(--type-sm);

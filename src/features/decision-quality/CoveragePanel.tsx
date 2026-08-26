@@ -19,13 +19,34 @@ interface CoveragePanelProps {
  * en vez de como 0 % en rojo.
  */
 export function CoveragePanel({ report }: CoveragePanelProps) {
-  const { subject, outcome } = report;
+  const { subject, outcome, seeded } = report;
+  /*
+   * El aviso aparece con UNA sola decisión sembrada, no a partir de un umbral.
+   *
+   * Un umbral («avisar si pasa del 20 %») obliga a elegir un número que nadie puede defender, y
+   * el caso que de verdad engaña no es el 80 %: es el 15 % de siembra dentro de una población
+   * pequeña, donde un puñado de casos inventados mueve la tasa de malos y nada lo dice. Cuando
+   * la proporción es baja, el propio aviso la enseña y quien lee decide.
+   */
+  const seededCount = seeded?.executions ?? 0;
   return (
     <Panel
       title="Cobertura del circuito"
       meta={`${new Date(report.from).toLocaleDateString()} – ${new Date(report.to).toLocaleDateString()}`}
       tutorialId="quality-coverage"
     >
+      {seededCount > 0 && (
+        <p className="quality-seeded">
+          <strong>
+            {seededCount} de {subject.executions} decisiones de esta ventana son siembra de
+            demostración
+          </strong>{' '}
+          ({asPercent(seeded?.share ?? null)}). Los indicadores de abajo, y los del monitoreo del
+          modelo, se calculan bien sobre una población inventada: son ejercicios, no evidencia. En
+          una base sembrada sin datos de demostración este aviso no aparece.
+        </p>
+      )}
+
       <div className="metric-grid">
         <MetricCard
           label="Decisiones con solicitante"
