@@ -1,0 +1,98 @@
+/*
+  Los documentos del solicitante en la revisión manual.
+
+  ## Por qué esta hoja es nueva y no era `globals.css`
+
+  Porque `globals.css` **no la importaba nadie**. `global.css` —en singular— es la que carga
+  `app/layout.next.tsx`, y la otra quedó huérfana desde que se creó: las reglas de `.case-image`
+  llevaban ahí meses sin aplicarse, así que el panel de documentos del caso se pintaba con los
+  estilos por omisión del navegador. Se veía «raro» y no roto, que es la forma en que un defecto de
+  estilo sobrevive: nada falla, sólo que nadie mira una foto de 16 px.
+
+  Es el mismo fallo que el propio repositorio persigue con `verify-conventions.mjs` para los tokens
+  sin respaldo —una declaración que el navegador descarta en silencio—, una capa más arriba.
+
+  ## Por qué el carrusel sustituyó a la rejilla
+
+  La rejilla recortaba. `object-fit: cover` sobre celdas de 130 px le come los bordes a una cédula
+  apaisada y le corta la frente a una selfie, y lo que hay que mirar en un caso de identidad está
+  justo ahí: la MRZ va pegada al canto inferior del reverso, y el pelo y la mandíbula son la mitad
+  de lo que distingue dos caras parecidas. Obligaba a abrir cada imagen para VER la imagen — tres
+  clics antes de empezar a trabajar.
+*/
+/*
+  La ampliación. Sobrevive de la rejilla porque sigue haciendo falta: el carrusel enseña la captura
+  entera, y para el detalle fino —un borde raspado, un carácter de la MRZ— hace falta la pantalla.
+*/
+.case-image__overlay { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: var(--space-7); border: 0; /* Velo neutro: no es un color de marca, es opacidad sobre lo que haya debajo. */
+  background: rgba(0, 0, 0, .78); cursor: zoom-out; }
+.case-image__overlay img { max-width: 100%; max-height: 100%; border-radius: var(--radius-md); }
+
+/*
+  El carrusel de documentos del caso.
+
+  `scroll-snap` en vez de un desplazamiento libre: cada gesto deja una captura centrada y nunca
+  media. Sobre tres elementos del ancho del panel, el scroll libre acaba siempre a medio camino
+  entre dos, que es la peor de las dos opciones — ni se ve una entera ni se ven las tres.
+
+  `object-fit: contain` y no `cover`: lo que hay que mirar en un caso de identidad está en los
+  BORDES —la MRZ pegada al canto inferior del reverso, el pelo y la mandíbula de la selfie— y `cover`
+  es justo lo que recorta. Que sobre fondo a los lados de una tarjeta apaisada es el precio correcto.
+*/
+.case-carousel { display: flex; flex-direction: column; gap: var(--space-3); }
+.case-carousel__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+.case-carousel__track::-webkit-scrollbar { display: none; }
+.case-carousel__track:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/*
+  `start` y no `center`, con slides del ancho exacto de la pista.
+
+  Para una slide que ocupa el 100 %, «centrada» y «al principio» deberían ser la misma posición, y
+  no lo son: el navegador centra el rectángulo de snap dentro del área visible, y basta el borde de
+  1 px de la pista para que la posición de reposo caiga medio píxel corrida. Con tres slides eso se
+  acumula, y en la tercera se veía el rabo de la segunda por la izquierda. `start` alinea el borde
+  con el borde y la posición de reposo es exactamente `índice × ancho` — que además es lo que la
+  prueba puede comprobar.
+*/
+.case-carousel__slide { flex: 0 0 100%; scroll-snap-align: start; margin: 0; min-width: 0; }
+.case-carousel__button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.case-carousel__button img { display: block; width: 100%; height: 320px; object-fit: contain; }
+.case-carousel__caption { display: flex; align-items: baseline; gap: var(--space-2); font-size: var(--type-2xs); }
+.case-carousel__caption .mono { font-family: var(--font-mono); opacity: .6; }
+.case-carousel__nav { display: flex; align-items: center; gap: var(--space-3); }
+.case-carousel__arrow {
+  border: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+.case-carousel__arrow:disabled { opacity: .35; cursor: default; }
+.case-carousel__dots { display: flex; gap: var(--space-1); flex: 1; }
+.case-carousel__dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+}
+.case-carousel__dot.is-active { width: 22px; background: var(--accent); }
+.case-carousel__count { font-size: var(--type-2xs); opacity: .6; font-variant-numeric: tabular-nums; }
