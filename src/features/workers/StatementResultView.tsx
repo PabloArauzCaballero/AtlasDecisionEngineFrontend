@@ -1,6 +1,8 @@
 'use client';
 
 import { asRecord, asRows, asStrings, type UnknownRecord } from '../../utils/records';
+import { StatementAffordabilityPanel } from './StatementAffordabilityPanel';
+import { StatementAuthenticityNote } from './StatementAuthenticityNote';
 import { Cabecera, CategoriaCelda, formatAmount, movementLabel } from './StatementResultCells';
 import { claveMovimiento, type VeredictoCategoria } from './useStatementCategories';
 import { useResizableColumns } from './useResizableColumns';
@@ -68,6 +70,16 @@ export function StatementResultView({
           <dd>{transactions.length}</dd>
         </div>
       </dl>
+
+      {/*
+        La autenticidad va ANTES de los movimientos y no al final, y no es
+        cosmética: los mismos importes pesan distinto según con qué garantía
+        llegaron. Un documento aceptado con indicios se lee de otra forma que
+        uno limpio, y quien revise tiene que saberlo antes de mirar la tabla.
+      */}
+      <StatementAuthenticityNote result={result} />
+
+      <StatementAffordabilityPanel result={result} />
 
       {warningList.length > 0 ? (
         <div className="worker-warnings">

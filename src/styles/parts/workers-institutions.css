@@ -211,3 +211,71 @@
   display: flex;
   gap: var(--space-2);
 }
+
+/*
+ * El logotipo de la entidad.
+ *
+ * Caja FIJA y `object-fit: contain`: los logotipos llegan de sesenta y ocho
+ * sitios distintos, unos apaisados y otros cuadrados, y sin una caja común la
+ * altura de cada fila la fijaría la imagen más alta del grupo. El fondo claro
+ * está porque varias marcas son de un solo color oscuro sobre transparente y
+ * desaparecerían sobre la superficie hundida de la tabla.
+ */
+.entidad-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  /*
+   * El MISMO lienzo que el de los gráficos del cuaderno, y por el mismo motivo: un logotipo trae su
+   * propio color y varias marcas bolivianas son de un solo tono oscuro sobre transparente. Sobre
+   * `--surface`, en tema oscuro quedarían negro sobre negro. El lienzo tiene que ser el que la
+   * imagen supone, no el del portal.
+   */
+  background: var(--figure-canvas);
+  object-fit: contain;
+  padding: 2px;
+}
+
+.entidad-logo-vacio {
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+}
+
+.entidad-logo-celda {
+  width: 4.5rem;
+  white-space: nowrap;
+}
+
+/*
+ * «Monograma» va junto a la imagen y no en una columna aparte a propósito: es
+ * una advertencia sobre ESA imagen —no es la marca de la entidad, la compuso el
+ * motor con su sigla— y separada de ella dejaría de leerse como tal.
+ */
+.entidad-logo-origen {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  line-height: 1.2;
+}
+
+.entidad-logo-editor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.entidad-logo-editor .entidad-logo {
+  width: 64px;
+  height: 64px;
+}
+
+.entidad-logo-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}

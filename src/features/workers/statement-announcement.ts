@@ -91,6 +91,13 @@ function reviewDescription(reason: WorkerRun['reviewReason']): string {
       return 'Reconocimos el documento pero no obtuvimos movimientos utilizables. Lo revisa una persona.';
     case 'DOUBTFUL_DOCUMENT':
       return 'El documento se parece a un extracto y no pudimos confirmarlo. Lo revisa una persona.';
+    case 'SUSPECTED_TAMPERING':
+      /*
+       * No se dice QUÉ señal lo delató, ni siquiera aquí. Esta pantalla la mira quien opera el
+       * worker, pero el mismo texto acaba delante de quien subió el archivo, y contarle la señal es
+       * enseñarle qué evitar. El detalle está en la ejecución, para quien audita.
+       */
+      return 'El archivo tiene indicios de haberse modificado después de emitirse. Lo revisa una persona; volver a descargarlo del banco y subirlo sin abrirlo lo resuelve antes.';
     default:
       return 'No pudimos determinar el resultado con suficiente seguridad. El documento fue enviado a revisión y puedes continuar trabajando.';
   }

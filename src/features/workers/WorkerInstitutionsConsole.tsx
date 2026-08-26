@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { DownloadCloud, Plus } from 'lucide-react';
+import { DownloadCloud, Images, Plus } from 'lucide-react';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { InstitutionForm } from './InstitutionForm';
@@ -12,8 +12,11 @@ import {
   fetchInstitutionSummary,
   fetchInstitutions,
   reactivateInstitution,
+  removeInstitutionLogo,
   saveInstitution,
   seedInstitutions,
+  syncInstitutionLogos,
+  uploadInstitutionLogo,
   type FinancialInstitution,
   type InstitutionSeedSummary,
 } from './institutions.api';
@@ -104,8 +107,58 @@ export function WorkerInstitutionsConsole() {
     },
   });
 
+  const cargarLogo = useMutation({
+    mutationFn: (input: { code: string; base64: string; contentType: string }) =>
+      uploadInstitutionLogo(input.code, {
+        base64: input.base64,
+        contentType: input.contentType,
+      }),
+    onSuccess: async (entidad) => {
+      notify({ tone: 'success', title: `Logotipo de ${entidad.code} cargado` });
+      // El formulario sigue abierto sobre la entidad recién escrita, así que se
+      // reemplaza por la versión nueva: sin esto seguiría enseñando `hasLogo`
+      // viejo y el botón diría «Cargar» sobre una entidad que ya lo tiene.
+      setEditando(entidad);
+      await refrescar();
+    },
+  });
+
+  const quitarLogo = useMutation({
+    mutationFn: removeInstitutionLogo,
+    onSuccess: async (entidad) => {
+      notify({ tone: 'warning', title: `Logotipo de ${entidad.code} retirado` });
+      setEditando(entidad);
+      await refrescar();
+    },
+  });
+
+  const sincronizarLogos = useMutation({
+    mutationFn: (seco: boolean) => syncInstitutionLogos(seco),
+    onSuccess: async (resultado) => {
+      if (resultado.dryRun) {
+        notify({
+          tone: 'info',
+          title:
+            resultado.applied.length === 0
+              ? 'Todas las entidades ya tienen logotipo'
+              : `Se cargarían ${String(resultado.applied.length)} logotipos`,
+          description: `El motor trae ${String(resultado.downloaded)} logotipos oficiales y ${String(resultado.generated)} monogramas compuestos con la sigla ASFI.`,
+        });
+        return;
+      }
+      notify({
+        tone: 'success',
+        title: `Cargados ${String(resultado.applied.length)} logotipos`,
+        description:
+          'Los cargados a mano no se tocaron. Un monograma no es la marca de la entidad: la tabla lo rotula.',
+      });
+      await refrescar();
+    },
+  });
+
   const lista = useMemo(() => entidades.data ?? [], [entidades.data]);
   const faltantes = resumen.data?.missingFromSeed ?? [];
+  const sinLogo = lista.filter((entidad) => !entidad.hasLogo).length;
 
   return (
     <div className="worker-entidades">
@@ -156,6 +209,17 @@ export function WorkerInstitutionsConsole() {
           >
             Sembrar la nómina de ASFI
           </button>
+          <button
+            type="button"
+            className="button"
+            disabled={sincronizarLogos.isPending || sinLogo === 0}
+            onClick={() => sincronizarLogos.mutate(false)}
+          >
+            <Images size={15} aria-hidden="true" />{' '}
+            {sinLogo === 0
+              ? 'Todas con logotipo'
+              : `Cargar ${String(sinLogo)} logotipos que faltan`}
+          </button>
           <label className="entidad-filtro">
             <input
               type="checkbox"
@@ -180,6 +244,13 @@ export function WorkerInstitutionsConsole() {
             guardando={guardar.isPending}
             onGuardar={(entidad) => guardar.mutate(entidad)}
             onCancelar={() => setEditando(null)}
+            logoOcupado={cargarLogo.isPending || quitarLogo.isPending}
+            onCargarLogo={
+              editando === 'nueva'
+                ? undefined
+                : (input) => cargarLogo.mutate({ code: editando.code, ...input })
+            }
+            onQuitarLogo={editando === 'nueva' ? undefined : () => quitarLogo.mutate(editando.code)}
           />
         ) : null}
 

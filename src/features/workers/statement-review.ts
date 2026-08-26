@@ -21,6 +21,7 @@ export const REVIEW_REASONS = [
   'AMBIGUOUS_DATA',
   'OCR_ERROR',
   'MANUAL_REQUEST',
+  'SUSPECTED_TAMPERING',
 ] as const;
 
 export type StatementReviewReason = (typeof REVIEW_REASONS)[number];
@@ -34,6 +35,7 @@ export const REVIEW_REASON_LABEL: Record<StatementReviewReason, string> = {
   AMBIGUOUS_DATA: 'Datos ambiguos',
   OCR_ERROR: 'Error de lectura',
   MANUAL_REQUEST: 'Revisión manual',
+  SUSPECTED_TAMPERING: 'Indicios de edición',
 };
 
 /** Qué hay que hacer con cada categoría. Se enseña junto a la lista. */
@@ -51,6 +53,8 @@ export const REVIEW_REASON_HELP: Record<StatementReviewReason, string> = {
     'Los saldos o totales que imprime el banco no cuadran con lo leído. Es el caso más delicado: hay dato y contradice al documento.',
   OCR_ERROR: 'No hay capa de texto aprovechable. Suele ser un escaneo o una foto del extracto.',
   MANUAL_REQUEST: 'Alguien lo mandó a revisar a mano.',
+  SUSPECTED_TAMPERING:
+    'El archivo muestra señales de haberse tocado después de emitirse y ninguna es concluyente: una impresión desde el navegador, una reescritura, metadatos borrados. Es la franja donde rechazar castigaría a un cliente honesto y aceptar sería mirar a otro lado.',
 };
 
 /** Por qué se rechazó un documento. Nunca aparecen en la cola: sólo en historial. */
@@ -60,6 +64,9 @@ export const REJECTION_REASONS = [
   'EMPTY_DOCUMENT',
   'CORRUPTED_PDF',
   'UNREADABLE_DOCUMENT',
+  'TAMPERED_DOCUMENT',
+  'ACTIVE_CONTENT',
+  'INSUFFICIENT_PERIOD',
 ] as const;
 
 export type StatementRejectionReason = (typeof REJECTION_REASONS)[number];
@@ -70,6 +77,9 @@ export const REJECTION_REASON_LABEL: Record<StatementRejectionReason, string> = 
   EMPTY_DOCUMENT: 'Documento vacío',
   CORRUPTED_PDF: 'PDF dañado',
   UNREADABLE_DOCUMENT: 'PDF ilegible o protegido',
+  TAMPERED_DOCUMENT: 'Documento manipulado',
+  ACTIVE_CONTENT: 'PDF con contenido ejecutable',
+  INSUFFICIENT_PERIOD: 'Periodo insuficiente',
 };
 
 /**
@@ -87,6 +97,24 @@ export const REJECTION_ADVICE: Record<StatementRejectionReason, string> = {
   EMPTY_DOCUMENT: 'El archivo está vacío o no contiene ninguna página.',
   CORRUPTED_PDF: 'El PDF está dañado y no se pudo abrir. Vuelve a descargarlo del banco.',
   UNREADABLE_DOCUMENT: 'El PDF está protegido con contraseña. Sube una versión sin protección.',
+  /*
+   * Los tres de ADMISIÓN, y cada uno con SU acción.
+   *
+   * Es la razón de que sean tres motivos y no uno: quien subió una factura tiene que subir OTRO
+   * documento, quien subió un PDF editado tiene que subir el MISMO sin editar, y quien subió un mes
+   * tiene que subir el mismo con más meses. Con una sola frase, los tres volvían a subir el mismo
+   * archivo hasta rendirse.
+   *
+   * El de manipulación NO dice qué señal lo delató: contárselo a quien editó el documento es
+   * enseñarle qué evitar la próxima vez, y a quien no lo editó no le sirve de nada. El detalle
+   * técnico está en el detalle de la ejecución, para quien audita.
+   */
+  TAMPERED_DOCUMENT:
+    'El archivo fue compuesto o editado con otro programa: no es el PDF que emite el banco. Hay que subir el mismo extracto tal como se descarga de la banca por internet, sin abrirlo ni volver a guardarlo.',
+  ACTIVE_CONTENT:
+    'El PDF contiene elementos ejecutables o archivos incrustados. No se abre: hay que descargar el extracto otra vez de la banca por internet.',
+  INSUFFICIENT_PERIOD:
+    'El extracto es válido y cubre menos de 3 meses completos. Con menos tiempo, un ingreso extraordinario o un gasto puntual bastan para desviar el cálculo, así que no hay capacidad de pago que calcular: hay que pedir el periodo de los últimos 3 meses.',
 };
 
 export const REVIEW_PRIORITY_LABEL: Record<number, string> = {

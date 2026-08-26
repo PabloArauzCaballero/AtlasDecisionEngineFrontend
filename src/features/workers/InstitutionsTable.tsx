@@ -1,9 +1,11 @@
 'use client';
 
 import { Pencil, Power, PowerOff } from 'lucide-react';
+import { InstitutionLogo } from './InstitutionLogo';
 import {
   INSTITUTION_KIND_LABELS,
   LICENSE_STATUS_LABELS,
+  LOGO_SOURCE_LABELS,
   type FinancialInstitution,
 } from './institutions.api';
 
@@ -68,6 +70,9 @@ export function InstitutionsTable({
             <table className="entidad-tabla">
               <thead>
                 <tr>
+                  <th scope="col">
+                    <span className="sr-only">Logotipo</span>
+                  </th>
                   <th scope="col">Sigla</th>
                   <th scope="col">Razón social</th>
                   <th scope="col">Licencia</th>
@@ -78,6 +83,25 @@ export function InstitutionsTable({
               <tbody>
                 {grupo.map((entidad) => (
                   <tr key={entidad.code} data-inactiva={entidad.isActive ? undefined : 'si'}>
+                    <td className="entidad-logo-celda">
+                      <InstitutionLogo
+                        code={entidad.code}
+                        name={entidad.name}
+                        hasLogo={entidad.hasLogo}
+                      />
+                      {/* El monograma NO es la marca de la entidad, y decirlo es
+                          la mitad del valor de la columna: sin este rótulo
+                          alguien acabaría usando el cuadrado de tres letras en un
+                          documento que sale de la casa. */}
+                      {entidad.logoSource === 'GENERATED' ? (
+                        <span
+                          className="entidad-logo-origen"
+                          title={LOGO_SOURCE_LABELS.GENERATED.detail}
+                        >
+                          {LOGO_SOURCE_LABELS.GENERATED.label}
+                        </span>
+                      ) : null}
+                    </td>
                     <th scope="row" className="entidad-sigla">
                       {entidad.code}
                     </th>

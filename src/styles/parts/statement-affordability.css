@@ -1,0 +1,210 @@
+/*
+ * La capacidad de pago derivada del extracto.
+ *
+ * El bloque tiene marco propio y no se funde con la tabla de movimientos a
+ * propósito: son dos afirmaciones de naturaleza distinta —lo que el documento
+ * DICE y lo que el motor DEDUCE— y mezclarlas visualmente haría que la segunda
+ * se leyera con la misma autoridad que la primera.
+ */
+.capacidad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+.capacidad-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.capacidad-banda {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.capacidad-banda strong {
+  font-size: var(--type-md);
+}
+
+.capacidad-banda span {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.capacidad-banda[data-tono='ok'] {
+  border-color: var(--ok-border, var(--line));
+  color: var(--ok-text, var(--text));
+}
+
+.capacidad-banda[data-tono='warn'] {
+  border-color: var(--warn-border, var(--line));
+  color: var(--warn-text, var(--text));
+}
+
+.capacidad-banda[data-tono='bad'] {
+  border-color: var(--danger-border, var(--line));
+  color: var(--danger-text, var(--text));
+}
+
+.capacidad-cobertura {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: var(--type-sm);
+}
+
+.capacidad-cobertura[data-satisfecha='no'] {
+  color: var(--danger-text, var(--text));
+}
+
+.capacidad-cifras {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.capacidad-cifras > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+/*
+ * La cuota máxima es la única cifra de este panel que se convierte en una
+ * decisión, así que se destaca. Las demás existen para poder discutirla.
+ */
+.capacidad-cifras > div.capacidad-destacada {
+  outline: 2px solid var(--accent, var(--line));
+  outline-offset: -2px;
+}
+
+.capacidad-cifras dt {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  text-transform: none;
+}
+
+.capacidad-cifras dd {
+  margin: 0;
+  font-size: var(--type-lg);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.capacidad-cifras small {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  line-height: 1.35;
+}
+
+.capacidad-meses td,
+.capacidad-meses th {
+  font-variant-numeric: tabular-nums;
+}
+
+/* El mes parcial se atenúa: está para poder verlo, no para que decida nada. */
+.capacidad-meses tbody tr[data-parcial='si'] {
+  opacity: 0.6;
+}
+
+.capacidad-descartes {
+  margin: 0;
+}
+
+.capacidad-motivos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capacidad-motivos li {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: var(--type-sm);
+}
+
+.capacidad-motivos li[data-severidad='blocking'],
+.capacidad-motivos li[data-severidad='high'] {
+  border-left-color: var(--danger-border, var(--line));
+}
+
+.capacidad-motivos li[data-severidad='medium'] {
+  border-left-color: var(--warn-border, var(--line));
+}
+
+.capacidad-motivos li div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.capacidad-motivos small {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+/*
+ * La nota de autenticidad. Una línea, no un panel: es una precondición del
+ * resultado —«esto se comprobó»— y darle el mismo peso visual que a la
+ * capacidad de pago haría que compitieran por la atención.
+ */
+.autenticidad {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-size: var(--type-sm);
+}
+
+.autenticidad[data-tono='warn'] {
+  border-left-color: var(--warn-border, var(--line));
+}
+
+.autenticidad[data-tono='bad'] {
+  border-left-color: var(--danger-border, var(--line));
+}
+
+.autenticidad span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.autenticidad small {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}

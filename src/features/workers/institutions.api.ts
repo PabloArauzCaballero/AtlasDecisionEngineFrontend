@@ -1,3 +1,4 @@
+import { apiDownload } from '../../api/file-download';
 import { apiRequest } from '../../api/http-client';
 
 /**
@@ -33,6 +34,25 @@ export interface FinancialInstitution {
   /** Expresiones que ANULAN la atribución aunque un marcador coincida. */
   exclusions: string[];
   note: string | null;
+  website: string | null;
+  /**
+   * Si la entidad tiene logotipo cargado. Los BYTES no viajan en el listado: 68
+   * imágenes en base64 dentro del JSON serían varios megabytes para pintar una
+   * tabla, y así el navegador cachea cada una por su propia ruta.
+   */
+  hasLogo: boolean;
+  /**
+   * De dónde salió el logotipo.
+   *
+   * `GENERATED` significa que el motor compuso un monograma con la sigla ASFI
+   * porque la entidad no publica ninguno utilizable — la mayoría de las
+   * cooperativas—. **No es la marca de la entidad** y la pantalla lo dice: sin
+   * esa distinción alguien acabaría usando el cuadrado de tres letras en un
+   * documento que sale de la casa.
+   */
+  logoSource: 'DOWNLOADED' | 'GENERATED' | 'UPLOADED' | null;
+  logoSourceUrl: string | null;
+  logoUpdatedAt: string | null;
   isActive: boolean;
   updatedAt: string;
   updatedBy: string | null;
@@ -51,6 +71,32 @@ export interface InstitutionSeedSummary {
   created: string[];
   dryRun: boolean;
 }
+
+export interface InstitutionLogoSync {
+  available: number;
+  downloaded: number;
+  generated: number;
+  applied: string[];
+  dryRun: boolean;
+}
+
+export const LOGO_SOURCE_LABELS: Record<
+  NonNullable<FinancialInstitution['logoSource']>,
+  { label: string; detail: string }
+> = {
+  DOWNLOADED: {
+    label: 'Oficial',
+    detail: 'Descargado del sitio de la entidad.',
+  },
+  GENERATED: {
+    label: 'Monograma',
+    detail: 'La entidad no publica logotipo utilizable; el motor compuso uno con su sigla ASFI.',
+  },
+  UPLOADED: {
+    label: 'Cargado',
+    detail: 'Lo subió una persona desde esta pantalla.',
+  },
+};
 
 /**
  * Cómo se llama cada tipo en la pantalla, y por qué se traduce.
@@ -89,9 +135,7 @@ export function fetchInstitutions(
 }
 
 export function fetchInstitutionSummary(signal?: AbortSignal): Promise<InstitutionSummary> {
-  return apiRequest<InstitutionSummary>('/v1/workers/bank-statement/institutions/summary', {
-    signal,
-  });
+  return apiRequest<InstitutionSummary>(`${RUTA}/summary`, { signal });
 }
 
 /**
@@ -131,9 +175,48 @@ export function reactivateInstitution(code: string): Promise<FinancialInstitutio
  * Siembra las entidades de la nómina ASFI que falten. Nunca pisa una existente,
  * y con `dryRun` responde qué haría sin escribir.
  */
-export function seedInstitutions(dryRun: boolean): Promise<InstitutionSeedSummary> {
-  return apiRequest<InstitutionSeedSummary>('/v1/workers/bank-statement/institutions/seed', {
+/**
+ * El logotipo, traído como blob por la puerta autenticada.
+ *
+ * Un `<img src="/v1/…">` no sirve: la etiqueta sólo tiene una dirección y no
+ * puede mandar `Authorization`, que esta aplicación guarda en memoria y no en
+ * una cookie. El motor responde 401 y lo que se pinta es el icono de imagen
+ * rota. Es el mismo camino que ya usan las imágenes de la revisión manual.
+ */
+export async function fetchInstitutionLogo(code: string, signal?: AbortSignal): Promise<string> {
+  const file = await apiDownload(`${RUTA}/${encodeURIComponent(code)}/logo`, `${code}.svg`, {
+    signal,
+  });
+  return URL.createObjectURL(file.blob);
+}
+
+export function uploadInstitutionLogo(
+  code: string,
+  input: { base64: string; contentType: string; sourceUrl?: string },
+): Promise<FinancialInstitution> {
+  return apiRequest<FinancialInstitution>(`${RUTA}/${encodeURIComponent(code)}/logo`, {
+    method: 'PUT',
+    body: input,
+  });
+}
+
+export function removeInstitutionLogo(code: string): Promise<FinancialInstitution> {
+  return apiRequest<FinancialInstitution>(`${RUTA}/${encodeURIComponent(code)}/logo`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * Carga los logotipos que trae el motor en las entidades que no tengan ninguno.
+ * Nunca pisa uno cargado a mano.
+ */
+export function syncInstitutionLogos(dryRun: boolean): Promise<InstitutionLogoSync> {
+  return apiRequest<InstitutionLogoSync>(`${RUTA}/logos/sync`, {
     method: 'POST',
     body: { dryRun },
   });
+}
+
+export function seedInstitutions(dryRun: boolean): Promise<InstitutionSeedSummary> {
+  return apiRequest<InstitutionSeedSummary>(`${RUTA}/seed`, { method: 'POST', body: { dryRun } });
 }

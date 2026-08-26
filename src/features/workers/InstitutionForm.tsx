@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Save, X } from 'lucide-react';
+import { InstitutionLogoField } from './InstitutionLogoField';
 import {
   INSTITUTION_KIND_LABELS,
   LICENSE_STATUS_LABELS,
@@ -37,6 +38,15 @@ export interface InstitutionFormProps {
   guardando: boolean;
   onGuardar: (entidad: Partial<FinancialInstitution>) => void;
   onCancelar: () => void;
+  /**
+   * Carga de logotipo. Va aparte del guardado del formulario porque es otra
+   * escritura contra otra ruta: mezclarla obligaría a mandar la imagen entera en
+   * cada corrección de un marcador, y a que un error de imagen tirara el guardado
+   * de la entidad.
+   */
+  onCargarLogo?: (input: { base64: string; contentType: string }) => void;
+  onQuitarLogo?: () => void;
+  logoOcupado?: boolean;
 }
 
 export function InstitutionForm({
@@ -44,6 +54,9 @@ export function InstitutionForm({
   guardando,
   onGuardar,
   onCancelar,
+  onCargarLogo,
+  onQuitarLogo,
+  logoOcupado = false,
 }: InstitutionFormProps) {
   const [code, setCode] = useState(inicial?.code ?? '');
   const [name, setName] = useState(inicial?.name ?? '');
@@ -55,6 +68,7 @@ export function InstitutionForm({
   const [markers, setMarkers] = useState((inicial?.markers ?? []).join('\n'));
   const [exclusions, setExclusions] = useState((inicial?.exclusions ?? []).join('\n'));
   const [note, setNote] = useState(inicial?.note ?? '');
+  const [website, setWebsite] = useState(inicial?.website ?? '');
   const esAlta = inicial === undefined;
   // El motor lo exige y lo vuelve a comprobar; aquí se dice antes de enviar para
   // que el aviso llegue junto al campo y no como un error de servidor.
@@ -75,6 +89,7 @@ export function InstitutionForm({
           markers: LINEAS(markers),
           exclusions: LINEAS(exclusions),
           note: note.trim() === '' ? null : note.trim(),
+          website: website.trim() === '' ? null : website.trim(),
         });
       }}
     >
@@ -192,6 +207,33 @@ export function InstitutionForm({
           </span>
         ) : null}
       </label>
+
+      <label className="field">
+        <span className="field-label">Sitio oficial</span>
+        <input
+          value={website}
+          onChange={(evento) => setWebsite(evento.target.value)}
+          placeholder="https://www.banco.com.bo"
+          maxLength={200}
+        />
+        <small className="field-help">
+          De donde sale el logotipo, y lo que permite volver a descargarlo cuando la entidad cambia
+          de marca.
+        </small>
+      </label>
+
+      {/*
+        El logotipo sólo al EDITAR. En un alta la entidad todavía no existe en el padrón, así que
+        no hay contra qué cargar la imagen; ofrecerlo aquí sería un campo que falla al enviarse.
+      */}
+      {!esAlta && inicial ? (
+        <InstitutionLogoField
+          entidad={inicial}
+          ocupado={logoOcupado}
+          onCargar={onCargarLogo}
+          onQuitar={onQuitarLogo}
+        />
+      ) : null}
 
       <div className="entidad-form-acciones">
         <button type="submit" className="button button-primary" disabled={guardando || faltaMotivo}>
