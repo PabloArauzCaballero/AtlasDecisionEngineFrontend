@@ -104,7 +104,15 @@ export function validateDocumentPayload(
 export function downloadGeneratedDocument(
   request: GenerateDocumentRequest,
 ): Promise<DownloadedFile> {
-  return apiDownload('/pdf/generate', `${request.templateId}.pdf`, {
+  /*
+   * El nombre de reserva es el que pide quien llama, no el del template.
+   *
+   * El motor propone el suyo en `Content-Disposition` y ése manda; esto sólo decide qué pasa
+   * cuando no lo manda. Antes, en ese caso, un informe de la ejecución REQ-1 se guardaba como
+   * `generic-result-report.pdf`: el nombre del molde en lugar del nombre del documento, y diez
+   * descargas seguidas se pisaban entre ellas en la carpeta de descargas.
+   */
+  return apiDownload('/pdf/generate', request.filename ?? `${request.templateId}.pdf`, {
     method: 'POST',
     headers: { accept: 'application/pdf' },
     body: {

@@ -1,10 +1,17 @@
-import { Copy, GitBranch } from 'lucide-react';
+import { Copy, FileDown, GitBranch } from 'lucide-react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert } from '../components/Alert';
 import { ConfirmButton } from '../components/ConfirmButton';
 import type { AmbientState } from '../components/AmbientBackground';
 import { useAmbientState } from '../components/ambient/useAmbientState';
+import { downloadGeneratedDocument } from '../features/documents/documents.api';
+import {
+  buildExecutionReport,
+  executionReportFileName,
+} from '../features/documents/execution-report';
+import { saveFile } from '../features/documents/save-file';
 import { ExecutionPlayback } from '../features/execution-playback/ExecutionPlayback';
 import { normalizeTrace } from '../features/execution-playback/execution-trace';
 import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
@@ -61,6 +68,36 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
    * sobrevive a la navegación y no se borra al cambiar de vista—, y quien la usa
    * debe saber que lo está haciendo.
    */
+  /*
+   * El informe de la ejecución, por el generador documental del motor.
+   *
+   * Lo arma `buildExecutionReport` y lo maqueta el worker: esta pantalla no sabe nada de
+   * maquetación, sólo de qué tiene que contar. La descarga va por la puerta autenticada
+   * (`downloadGeneratedDocument`) y no por un enlace: un `<a download>` es una navegación, ahí no
+   * viaja el `Authorization`, y lo que se guardaría en disco sería el 401.
+   */
+  const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [errorPdf, setErrorPdf] = useState<string | null>(null);
+
+  const descargarPdf = async () => {
+    setGenerandoPdf(true);
+    setErrorPdf(null);
+    try {
+      const archivo = await downloadGeneratedDocument({
+        templateId: 'generic-result-report',
+        payload: buildExecutionReport(execution),
+        filename: executionReportFileName(execution),
+      });
+      saveFile(archivo.blob, archivo.fileName);
+    } catch (error) {
+      setErrorPdf(
+        error instanceof Error ? error.message : 'No fue posible generar el informe en PDF.',
+      );
+    } finally {
+      setGenerandoPdf(false);
+    }
+  };
+
   const cloneToSimulator = () => {
     const input = asRecord(execution.inputJson ?? execution.inputSnapshot);
     sessionStorage.setItem(
@@ -128,6 +165,16 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
                 <Copy size={16} /> Clonar
               </button>
             )}
+            <button
+              className="button"
+              type="button"
+              disabled={!query.data || generandoPdf}
+              onClick={() => void descargarPdf()}
+              title="Descargar el informe de esta ejecución en PDF"
+              data-testid="descargar-pdf-ejecucion"
+            >
+              <FileDown size={16} /> {generandoPdf ? 'Generando…' : 'Descargar PDF'}
+            </button>
             {versionId !== '—' ? (
               <Link
                 className="button button-primary"
@@ -149,6 +196,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
         }
       />
       {query.isError ? <Alert tone="error">No fue posible recuperar la ejecución.</Alert> : null}
+      {errorPdf ? <Alert tone="error">{errorPdf}</Alert> : null}
       <div className="execution-summary">
         <StatusBadge value={execution.status ?? 'COMPLETADO'} />
         <strong>{display(execution, 'outcome')}</strong>
