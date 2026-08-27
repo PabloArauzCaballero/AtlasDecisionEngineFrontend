@@ -12,6 +12,7 @@ import {
   type IdentityOutcome,
 } from './identity-types';
 import { IdentityEvidence } from './IdentityEvidence';
+import { notasDesdeCodigos, WorkerNotes } from './WorkerNotes';
 
 /**
  * Veredicto de una verificación de identidad, con la evidencia que lo sostiene.
@@ -101,6 +102,30 @@ export function IdentityResultView({ result }: { result: unknown }) {
       ) : null}
 
       <IdentityEvidence outcome={data} />
+
+      {/*
+       * Las notas de calidad, que hasta ahora no salían de la traza descargable.
+       *
+       * Son las que explican una lectura pobre —poca luz, poca resolución, la
+       * foto movida— y son ACCIONABLES: cada una se arregla repitiendo la foto,
+       * que es justo lo que hay que poder decirle a quien la subió. Se pintan
+       * incluso cuando el veredicto fue VERIFICADO, porque una verificación que
+       * salió adelante con una imagen mala es un dato para quien audite después.
+       *
+       * El origen distingue la cédula de la selfie: la misma frase manda a hacer
+       * dos cosas distintas según de cuál de las dos hable.
+       */}
+      <WorkerNotes
+        notas={[
+          ...notasDesdeCodigos(
+            asStrings(data.quality?.document?.warnings),
+            REASON_LABEL,
+            'documento',
+          ),
+          ...notasDesdeCodigos(asStrings(data.quality?.selfie?.warnings), REASON_LABEL, 'selfie'),
+        ]}
+        ayuda="Cada una de estas notas se arregla repitiendo la captura. No impidieron llegar a un veredicto, pero explican con cuánto margen se llegó."
+      />
     </div>
   );
 }

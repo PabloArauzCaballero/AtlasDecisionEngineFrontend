@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Panel } from '../components/Panel';
 import { AudioResultView } from '../features/workers/AudioResultView';
+import { WorkerNotes } from '../features/workers/WorkerNotes';
 import { missingVariables, templateVariables } from '../features/workers/audio-types';
 import { WorkerHeaderFacts } from '../features/workers/WorkerHeaderFacts';
 import { WorkerInputChoice } from '../features/workers/WorkerInputChoice';
@@ -19,6 +20,7 @@ import {
 import type { WorkerDescriptor } from '../features/workers/worker-types';
 import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
+import { asStrings } from '../utils/records';
 
 const WORKER = 'audio-tts' as const;
 
@@ -224,6 +226,17 @@ export function AudioTtsWorkerConsole() {
       {requestId && run.data?.result ? (
         <Panel title="Resultado">
           <AudioResultView result={run.data.result} requestId={requestId} />
+          {/*
+           * Las notas del motor de voz salen aquí y no dentro de la vista del
+           * resultado porque cuelgan de la EJECUCIÓN, no del audio: hablan de
+           * que hubo que reintentar, de que se cambió de proveedor o de que el
+           * asset quedó pendiente. El audio sonaría igual y la ejecución no fue
+           * igual, y eso es exactamente lo que hay que poder ver.
+           */}
+          <WorkerNotes
+            notas={asStrings(run.data.warnings).map((texto) => ({ texto }))}
+            ayuda="El audio se generó, pero la ejecución dejó estos apuntes. Miran al proceso, no al resultado."
+          />
         </Panel>
       ) : null}
     </div>

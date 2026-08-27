@@ -6,6 +6,7 @@ import { StatementAuthenticityNote } from './StatementAuthenticityNote';
 import { Cabecera, CategoriaCelda, formatAmount, movementLabel } from './StatementResultCells';
 import { claveMovimiento, type VeredictoCategoria } from './useStatementCategories';
 import { useResizableColumns } from './useResizableColumns';
+import { WorkerNotes } from './WorkerNotes';
 
 /**
  * Resultado de una conversión de extracto.
@@ -81,20 +82,15 @@ export function StatementResultView({
 
       <StatementAffordabilityPanel result={result} />
 
-      {warningList.length > 0 ? (
-        <div className="worker-warnings">
-          <h3 className="worker-section-title">Advertencias</h3>
-          <p className="field-help">
-            El resultado es utilizable, pero estos puntos quedaron sin resolver del todo. Conviene
-            contrastarlos con el documento original antes de darlo por bueno.
-          </p>
-          <ul>
-            {warningList.map((warning, index) => (
-              <li key={index}>{warning}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      {/*
+       * Los avisos del motor llegan ya redactados —los escribe el analizador del
+       * extracto—, así que van como texto y sin código. Es la diferencia con la
+       * consola de identidad, donde lo que llega son códigos del contrato.
+       */}
+      <WorkerNotes
+        notas={warningList.map((texto) => ({ texto }))}
+        ayuda="El resultado es utilizable, pero estos puntos quedaron sin resolver del todo. Conviene contrastarlos con el documento original antes de darlo por bueno."
+      />
 
       {/*
        * La tabla desborda en horizontal dentro de su propio contenedor: en un

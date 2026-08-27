@@ -20,7 +20,8 @@ import { isTerminal } from '../features/workers/worker-types';
 import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { SemanticResultView } from '../features/workers/SemanticResultView';
-import { asRecord } from '../utils/records';
+import { WorkerNotes } from '../features/workers/WorkerNotes';
+import { asRecord, asStrings } from '../utils/records';
 
 const WORKER = 'semantic-analysis' as const;
 
@@ -232,6 +233,16 @@ export function SemanticAnalysisWorkerConsole() {
       {run.data?.result ? (
         <Panel title="Resultado">
           <SemanticResultView result={run.data.result} />
+          {/*
+           * En el semántico la nota vale más que en ningún otro worker: lo que
+           * apunta es de qué proveedor salió la clasificación y cuándo hubo que
+           * bajar en la cascada. Dos ejecuciones con el mismo veredicto y
+           * distinto proveedor detrás no son la misma ejecución.
+           */}
+          <WorkerNotes
+            notas={asStrings(run.data.warnings).map((texto) => ({ texto }))}
+            ayuda="La clasificación salió adelante, pero la ejecución dejó estos apuntes sobre cómo se llegó a ella."
+          />
         </Panel>
       ) : null}
     </div>

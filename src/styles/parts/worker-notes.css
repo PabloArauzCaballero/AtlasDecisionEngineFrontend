@@ -1,0 +1,148 @@
+/*
+ * Las notas de una ejecución, en la consola de cualquier worker.
+ *
+ * ── Por qué no es la caja amarilla de antes ─────────────────────────────────
+ *
+ * `.worker-warnings` pintaba el bloque entero de amarillo y metía las frases en
+ * una lista con viñetas. Con una nota se leía bien; con seis, el amarillo se
+ * come la pantalla y compite con el veredicto, que es lo que de verdad hay que
+ * mirar primero. Aquí el color se reduce a un filo a la izquierda y a la marca
+ * de cada fila: sigue diciendo «esto es un aviso» y deja de gritarlo.
+ *
+ * ── El filo, y no un borde entero ───────────────────────────────────────────
+ *
+ * Un borde de cuatro lados convierte el bloque en una isla, y estas notas NO
+ * son una isla: pertenecen al resultado que tienen encima. El filo une en
+ * vertical —se lee como una anotación al margen del resultado— y además marca
+ * dónde empieza y dónde acaba la tanda sin encerrarla.
+ */
+.worker-notes {
+  margin: var(--space-4) 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--warning-wash);
+  border-left: 3px solid var(--warning-line);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/*
+ * Sin notas NO se pinta de amarillo.
+ *
+ * El bloque sigue estando —decir «no hubo ninguna» es una afirmación y hay que
+ * hacerla—, pero teñirlo del color del aviso diría lo contrario de lo que pone.
+ */
+.worker-notes.is-empty {
+  background: var(--surface-muted);
+  border-left-color: var(--line);
+}
+
+.worker-notes .worker-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 0;
+}
+
+/*
+ * El recuento va en el título y no al final de la lista: quien mira la consola
+ * decide si va a leerlas ANTES de leerlas, y para eso necesita el número
+ * primero. «ninguna» ocupa el mismo sitio que un número por lo mismo.
+ */
+.worker-notes-count {
+  padding: 1px var(--space-2);
+  background: var(--warning-line);
+  border-radius: var(--radius-pill);
+  color: var(--warning-text);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.worker-notes.is-empty .worker-notes-count {
+  background: var(--line-soft, var(--line));
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.worker-notes-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.worker-notes-empty svg {
+  flex: none;
+  color: var(--success-text);
+}
+
+.worker-notes-list {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Cada nota es una fila que EMPIEZA con su marca y termina con su código.
+ *
+ * `flex-wrap` con el texto en `flex: 1 1 100%`… no: el texto lleva `min-width`
+ * cero y crece, así que en una pantalla ancha la frase, el origen y el código
+ * caben en un renglón, y en una estrecha el código baja solo. Sin el
+ * `min-width: 0` una frase larga sin espacios empuja el código fuera de la caja.
+ */
+.worker-notes-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--warning-line);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+}
+
+.worker-notes-list li:first-child {
+  border-top: 0;
+}
+
+.worker-note-icon {
+  flex: none;
+  align-self: flex-start;
+  /* Bajado un pelo: alineado a la línea base del texto queda flotando sobre la
+   * primera letra en vez de junto a ella. */
+  margin-top: 2px;
+  color: var(--warning-text);
+}
+
+.worker-note-text {
+  flex: 1 1 12rem;
+  min-width: 0;
+  color: var(--text);
+}
+
+/*
+ * El origen es una palabra —«documento», «selfie»—, no una etiqueta de estado.
+ * Va en minúscula y sin fondo para que no compita con el código, que es el que
+ * se copia.
+ */
+.worker-note-origin {
+  flex: none;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  text-transform: lowercase;
+}
+
+.worker-note-code {
+  flex: none;
+  padding: 1px var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-xs);
+  /* Se selecciona entero al hacer doble clic: se copia para pegarlo en un
+   * ticket, y un código partido en dos no sirve de nada. */
+  user-select: all;
+}

@@ -112,6 +112,9 @@
 @import './parts/sql-console-side.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
+/* Detrás de `workers-run.css`: las notas son una pieza de la consola y usan sus
+ * títulos de sección, así que tienen que poder afinarlos. */
+@import './parts/worker-notes.css';
 /* Después de `workers-run.css`: afina lo que aquélla define para la consola de
    locución sin subir la especificidad. */
 @import './parts/workers-audio.css';
