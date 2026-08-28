@@ -110,8 +110,14 @@
 @import './parts/sql-console-editor.css';
 @import './parts/sql-console-results.css';
 @import './parts/sql-console-side.css';
+/* Delante de `workers.css`: la ficha técnica la montan las cuatro consolas y no
+   depende de nada que aquélla defina. */
+@import './parts/worker-facts.css';
 @import './parts/workers.css';
 @import './parts/workers-run.css';
+/* Detrás de `workers-run.css`: pinta el cierre de una ejecución —la barra ya
+   llena, con el color de su desenlace— y la salida hacia la siguiente. */
+@import './parts/workers-run-again.css';
 /* Detrás de `workers-run.css`: las notas son una pieza de la consola y usan sus
  * títulos de sección, así que tienen que poder afinarlos. */
 @import './parts/worker-notes.css';

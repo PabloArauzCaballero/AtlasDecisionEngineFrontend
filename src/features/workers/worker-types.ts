@@ -25,6 +25,16 @@ export const WORKER_RUN_STATUSES = [
   'PENDING_REVIEW',
   'IN_REVIEW',
   'PDF_INVALID',
+  /*
+   * El rechazo del worker de IDENTIDAD, que faltaba aquí y el motor lleva
+   * emitiendo desde que existe la puerta de documentos. Faltando en esta lista,
+   * `isTerminal` lo daba por «todavía corriendo»: la consola se quedaba con la
+   * barra animada en el 20 % —el progreso que el motor alcanzó antes de
+   * rechazar—, sin insignia, sin el motivo que el propio motor ya había escrito
+   * y sin el botón de «Nueva ejecución», sondeando cada segundo y medio una
+   * ejecución cerrada hacía rato. Se leía como que el worker se colgaba.
+   */
+  'DOCUMENT_REJECTED',
 ] as const;
 
 export type WorkerRunStatus = (typeof WORKER_RUN_STATUSES)[number];
@@ -143,7 +153,8 @@ export function isTerminal(status: WorkerRunStatus): boolean {
      */
     status === 'PENDING_REVIEW' ||
     status === 'IN_REVIEW' ||
-    status === 'PDF_INVALID'
+    status === 'PDF_INVALID' ||
+    status === 'DOCUMENT_REJECTED'
   );
 }
 
@@ -163,6 +174,7 @@ export const STATUS_LABEL: Record<WorkerRunStatus, string> = {
   PENDING_REVIEW: 'Pendiente de revisión',
   IN_REVIEW: 'En revisión',
   PDF_INVALID: 'PDF no válido',
+  DOCUMENT_REJECTED: 'Documento rechazado',
 };
 
 /**
@@ -185,6 +197,13 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
   IN_REVIEW: 'Alguien lo está revisando ahora mismo.',
   PDF_INVALID:
     'El documento no corresponde a un extracto bancario. No entra en la cola de revisión: queda registrado como rechazado.',
+  /*
+   * Dice «vuelve a intentarlo» a propósito: a diferencia de `FAILED`, aquí no se
+   * averió nada y repetir con la misma imagen dará el mismo rechazo. Lo que hay
+   * que cambiar es la foto, y el motivo exacto lo escribe el motor debajo.
+   */
+  DOCUMENT_REJECTED:
+    'La imagen no es un documento de identidad que este worker admita. No entra en la cola de revisión: nadie tiene que mirarla. Envía otra foto para volver a intentarlo.',
 };
 
 /**
@@ -209,7 +228,7 @@ export function statusTone(status: WorkerRunStatus): string {
    * colorea como peligro.
    */
   if (status === 'PENDING_REVIEW' || status === 'IN_REVIEW') return 'REVIEW';
-  if (status === 'PDF_INVALID') return 'INVALID';
+  if (status === 'PDF_INVALID' || status === 'DOCUMENT_REJECTED') return 'INVALID';
   return 'QUEUED';
 }
 

@@ -1,0 +1,141 @@
+/*
+ * La ficha técnica de un worker: qué acepta, con qué límites y si está encendido.
+ *
+ * Hoja aparte de `workers.css` por el tope de 299 líneas, y porque estas fichas
+ * las montan las CUATRO consolas (semántico, extractos, identidad y locución)
+ * desde `WorkerHeaderFacts`: tocarlas es tocar la primera fila de las cuatro.
+ *
+ * ── Por qué una PÍLDORA de una línea y no una tarjeta de dos pisos ──────────
+ *
+ * Iban en bloques grises de `--surface-sunken` con el rótulo encima del valor.
+ * Tres problemas, y el tercero es el que las hacía ilegibles:
+ *
+ * 1. Un bloque hundido sobre una página clara se lee como un HUECO, no como una
+ *    ficha. Nueve huecos seguidos son un muro, no una fila de datos.
+ * 2. Dos pisos obligan a que cada ficha sea tan ancha como su línea más larga y
+ *    tan alta como dos, así que la fila salía escalonada y con calles de aire
+ *    entre columnas que no existen.
+ * 3. El valor iba a 14 px en seminegrita —el mismo peso que el contenido de la
+ *    página— y el rótulo, que es lo que dice QUÉ estás mirando, en gris pequeño
+ *    encima. La jerarquía estaba al revés de cómo se lee: primero se busca el
+ *    concepto y luego el número.
+ *
+ * Ahora cada dato es UNA píldora de una línea sobre la superficie de la página,
+ * separada por su propio trazo: `rótulo │ valor`. El filete vertical es lo que
+ * hace que se lea como una sola pieza en vez de como dos palabras sueltas, y es
+ * lo único que estas fichas tienen de adorno.
+ *
+ * NADA de esto responde al ratón. Una ficha no es un control: levantarla o
+ * teñirla al apuntar prometería una acción que no existe (ver `visual-language`).
+ */
+
+.worker-facts {
+  margin-bottom: var(--space-4);
+}
+
+.worker-facts.is-loading,
+.worker-facts.is-error {
+  color: var(--text-muted);
+}
+
+.worker-facts.is-error {
+  padding: var(--space-3) var(--space-4);
+  color: var(--danger-text);
+  background: var(--danger-wash);
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius-md);
+}
+
+.worker-facts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worker-fact {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  /* Que una píldora no pueda desbordar el panel aunque el motor publique un
+     valor larguísimo: dentro, el texto parte de línea antes que salirse. */
+  max-width: 100%;
+  padding: var(--space-1) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.worker-fact-label {
+  flex: none;
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-normal);
+  white-space: nowrap;
+}
+
+.worker-fact-value {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
+  padding-left: var(--space-2);
+  color: var(--ink);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+  /* El filete: separa rótulo de valor sin una segunda caja ni un segundo fondo. */
+  border-left: 1px solid var(--line);
+}
+
+.worker-fact-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: var(--muted);
+  border-radius: 50%;
+}
+
+/*
+ * El estado es el único dato de la fila que es SEÑAL, así que es el único
+ * teñido. Si se tiñen dos, deja de haber uno que mirar.
+ */
+.worker-fact.is-on {
+  background: var(--success-wash);
+  border-color: var(--success-line);
+}
+
+.worker-fact.is-on .worker-fact-value {
+  color: var(--success-strong);
+  border-left-color: var(--success-line);
+}
+
+.worker-fact.is-on .worker-fact-dot {
+  background: var(--success);
+}
+
+.worker-fact.is-off {
+  background: var(--danger-wash);
+  border-color: var(--danger-line);
+}
+
+.worker-fact.is-off .worker-fact-value {
+  color: var(--danger-text);
+  border-left-color: var(--danger-line);
+}
+
+.worker-fact.is-off .worker-fact-dot {
+  background: var(--danger);
+}
+
+/*
+ * Las salvedades, debajo y en prosa. Son frases —«el perfil se calibró sobre
+ * rostros sintéticos»— y dentro de una píldora reventaban la fila.
+ */
+.worker-facts-note {
+  margin: var(--space-2) 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}

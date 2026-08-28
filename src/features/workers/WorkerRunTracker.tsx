@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { FileJson } from 'lucide-react';
+import { FileJson, RotateCcw } from 'lucide-react';
 import { StatusBadge } from '../../components/StatusBadge';
 import { formatDateTime } from '../../config/locale';
 import { downloadRunTrace } from './run-trace';
@@ -49,9 +49,39 @@ export function WorkerRunTracker({
   cancelling = false,
   onReset,
 }: WorkerRunTrackerProps) {
-  const running = !isTerminal(run.status);
+  const terminado = isTerminal(run.status);
+  const running = !terminado;
+  /*
+   * Una ejecución CERRADA pinta la barra llena, valga lo que valga la columna.
+   *
+   * El motor deja el progreso donde estaba cuando decidió el desenlace —25 % en
+   * un PDF rechazado, que es lo que había avanzado al mirar la carátula— y la
+   * pantalla lo enseñaba tal cual: una barra a un cuarto, quieta, bajo una
+   * insignia que ya decía «PDF no válido». Se lee como que el worker se colgó,
+   * que es justo lo contrario de lo que pasó: falló rápido y a propósito.
+   *
+   * Esto NO contradice la regla de arriba —nada se marca como completado hasta
+   * que lo confirma el backend—: quien dice que la ejecución terminó sigue
+   * siendo el estado que vino del motor. La barra sólo deja de prometer un
+   * trabajo que ya no va a ocurrir; el desenlace lo cuentan la insignia y su
+   * color, no el relleno.
+   */
+  const progreso = terminado ? 100 : Math.min(100, Math.max(0, run.progress));
   const elapsed = elapsedLabel(run.startedAt ?? run.queuedAt, run.finishedAt);
   const failed = run.status === 'FAILED';
+  /*
+   * Un rechazo NO es una avería, y por eso no reutiliza el bloque de `failed`.
+   *
+   * El motor rechaza escribiendo en `errorMessage` una frase pensada para quien
+   * subió la foto —«la imagen tiene texto, pero no corresponde a ningún
+   * documento admitido; envía una foto de tu carnet, completo y enfocado»— y la
+   * consola no la enseñaba en ningún sitio: el único bloque que imprime
+   * `errorMessage` se pinta sólo con `FAILED`. Quedaba una pantalla detenida sin
+   * decir por qué, que es la peor versión posible de un rechazo que sí sabía
+   * explicarse. Va sin `role="alert"` ni código técnico: no hay nada que pasarle
+   * a quien opera el motor, la acción está en manos de quien mira.
+   */
+  const rejected = run.status === 'DOCUMENT_REJECTED' || run.status === 'PDF_INVALID';
 
   return (
     <div className="worker-run">
@@ -72,17 +102,18 @@ export function WorkerRunTracker({
         <div
           className="worker-progress-track"
           role="progressbar"
-          aria-valuenow={run.progress}
+          aria-valuenow={progreso}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`Progreso: ${run.progress} por ciento`}
+          aria-label={`Progreso: ${progreso} por ciento`}
         >
           <div
             className={`worker-progress-fill${running ? ' is-running' : ''}`}
-            style={{ width: `${Math.min(100, Math.max(0, run.progress))}%` }}
+            data-tono={statusTone(run.status).toLowerCase()}
+            style={{ width: `${progreso}%` }}
           />
         </div>
-        <span className="worker-progress-value">{run.progress}%</span>
+        <span className="worker-progress-value">{progreso}%</span>
       </div>
 
       <dl className="worker-run-facts">
@@ -112,6 +143,12 @@ export function WorkerRunTracker({
         </div>
       </dl>
 
+      {rejected && run.errorMessage ? (
+        <div className="worker-run-rejected">
+          <p className="worker-rejected-message">{run.errorMessage}</p>
+        </div>
+      ) : null}
+
       {failed ? (
         // `role="alert"` sólo en el fallo: es lo único que exige atención
         // inmediata. Ponerlo en cada cambio de estado lo volvería ruido.
@@ -139,7 +176,7 @@ export function WorkerRunTracker({
          * publicó —resultado completo, diagnóstico, advertencias, correlación—,
          * que es lo que hace depurable un «salió mal» sin volver a ejecutarlo.
          */}
-        {isTerminal(run.status) ? (
+        {terminado ? (
           <button
             type="button"
             className="button button-ghost"
@@ -153,12 +190,32 @@ export function WorkerRunTracker({
             {cancelling ? 'Cancelando…' : 'Cancelar'}
           </button>
         ) : null}
-        {isTerminal(run.status) ? (
-          <button type="button" className="button" onClick={onReset}>
-            Nueva ejecución
-          </button>
-        ) : null}
       </div>
+
+      {/*
+       * Volver a empezar es la ÚNICA acción que queda cuando la ejecución cerró,
+       * y por eso sale de la fila y va sola, centrada y con el peso de la acción
+       * principal. Iba de tercer botón gris junto a la descarga de la traza: la
+       * salida obvia de la pantalla se leía como una opción secundaria, y quien
+       * acababa de recibir un rechazo se quedaba sin saber por dónde reintentar.
+       * El pie explica qué hace, porque «nueva» junto a un resultado en pantalla
+       * se puede entender como que se pierde lo que hay.
+       */}
+      {terminado ? (
+        <div className="worker-run-again">
+          <button
+            type="button"
+            className="button button-primary worker-run-again-boton"
+            onClick={onReset}
+          >
+            <RotateCcw size={16} aria-hidden="true" /> Nueva ejecución
+          </button>
+          <p className="worker-run-again-help">
+            Vacía el formulario para procesar otro documento. Ésta queda registrada con su
+            identificador.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

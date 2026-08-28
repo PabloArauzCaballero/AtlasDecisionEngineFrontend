@@ -186,4 +186,60 @@ test.describe('pestaña Verificación de Identidad', () => {
     await expect(parecido).toContainText('No se encontró un rostro utilizable en el documento');
     await expect(veredicto.getByText('0 %')).toHaveCount(0);
   });
+
+  /**
+   * El desenlace que dejaba la consola colgada.
+   *
+   * `DOCUMENT_REJECTED` es terminal en el motor y no estaba en el vocabulario
+   * de `worker-types.ts`, así que `isTerminal` lo daba por «todavía corriendo»:
+   * la barra se quedaba animada en el 20 % que el motor había alcanzado antes
+   * de rechazar, sin insignia, sin el motivo —que el motor ya había escrito— y
+   * sin el botón de volver a empezar, sondeando cada segundo y medio una
+   * ejecución cerrada. Se reportó dos veces como «el worker se cuelga».
+   */
+  test('un documento rechazado cierra la ejecución, la explica y deja empezar de nuevo', async ({
+    page,
+  }) => {
+    await mockWorkersBackend(page);
+    await page.route('**/v1/workers/identity-verification/runs/**', (route) =>
+      route.fulfill({
+        json: {
+          requestId: 'run-identity-verification',
+          status: 'DOCUMENT_REJECTED',
+          // El progreso REAL de un rechazo: se corta en la puerta, no al final.
+          progress: 20,
+          inputSource: 'UPLOAD',
+          fixtureCode: null,
+          attemptCount: 1,
+          queuedAt: '2026-08-09T10:00:00.000Z',
+          startedAt: '2026-08-09T10:00:01.000Z',
+          finishedAt: '2026-08-09T10:00:03.000Z',
+          requestedBy: 'e2e',
+          correlationId: 'corr-e2e-rechazo',
+          errorCode: 'IDENTITY_DOCUMENT_NOT_IDENTITY',
+          errorMessage:
+            'La imagen no se reconoce como un documento de identidad. Envía una foto de tu carnet, completo y enfocado.',
+        },
+      }),
+    );
+
+    await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await page.getByRole('tab', { name: 'Consola' }).click();
+    const consola = page.locator('.worker-console');
+    await expect(consola.locator('.worker-input')).toBeVisible({ timeout: 30_000 });
+    await consola.getByRole('radio', { name: /Usar datos de prueba/i }).check();
+    await consola.getByLabel('Escenario').selectOption('identidad-revision');
+    await consola.getByRole('button', { name: 'Verificar' }).click();
+
+    const seguimiento = consola.locator('.worker-run');
+    await expect(seguimiento.getByText('Documento rechazado')).toBeVisible({ timeout: 60_000 });
+    // El motivo que el motor escribió, a la vista de quien subió la foto.
+    await expect(seguimiento.locator('.worker-rejected-message')).toContainText(
+      'Envía una foto de tu carnet',
+    );
+    // Y la salida: sin este botón hay que recargar la página para reintentar.
+    await expect(seguimiento.getByRole('button', { name: 'Nueva ejecución' })).toBeVisible();
+    // La barra ya no se anuncia como viva. Es lo que se veía «colgado».
+    await expect(seguimiento.locator('.worker-progress-fill.is-running')).toHaveCount(0);
+  });
 });

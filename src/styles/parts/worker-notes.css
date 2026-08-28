@@ -54,13 +54,13 @@
   color: var(--warning-text);
   font-size: var(--type-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .worker-notes.is-empty .worker-notes-count {
   background: var(--line-soft, var(--line));
   color: var(--text-muted);
-  font-weight: 400;
+  font-weight: var(--weight-regular);
 }
 
 .worker-notes-empty {

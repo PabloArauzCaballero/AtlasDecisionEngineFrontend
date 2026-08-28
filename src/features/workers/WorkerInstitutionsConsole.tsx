@@ -135,21 +135,27 @@ export function WorkerInstitutionsConsole() {
   const sincronizarLogos = useMutation({
     mutationFn: (seco: boolean) => syncInstitutionLogos(seco),
     onSuccess: async (resultado) => {
+      const mejorados = resultado.upgraded.length;
+      const nuevos = resultado.applied.length - mejorados;
       if (resultado.dryRun) {
         notify({
           tone: 'info',
           title:
             resultado.applied.length === 0
-              ? 'Todas las entidades ya tienen logotipo'
-              : `Se cargarían ${String(resultado.applied.length)} logotipos`,
+              ? 'No hay nada que cargar: el padrón ya tiene lo que el motor trae'
+              : `Se escribirían ${String(resultado.applied.length)} logotipos`,
           description: `El motor trae ${String(resultado.downloaded)} logotipos oficiales y ${String(resultado.generated)} monogramas compuestos con la sigla ASFI.`,
         });
         return;
       }
       notify({
         tone: 'success',
-        title: `Cargados ${String(resultado.applied.length)} logotipos`,
+        title:
+          resultado.applied.length === 0
+            ? 'Sin cambios: no había ningún logotipo que el motor pudiera mejorar'
+            : `Escritos ${String(resultado.applied.length)} logotipos`,
         description:
+          `${String(nuevos)} en entidades que no tenían ninguno y ${String(mejorados)} que dejaron el monograma por la marca oficial. ` +
           'Los cargados a mano no se tocaron. Un monograma no es la marca de la entidad: la tabla lo rotula.',
       });
       await refrescar();
@@ -158,7 +164,17 @@ export function WorkerInstitutionsConsole() {
 
   const lista = useMemo(() => entidades.data ?? [], [entidades.data]);
   const faltantes = resumen.data?.missingFromSeed ?? [];
+  /*
+   * Lo que la sincronización puede arreglar es de DOS clases, y contar sólo la
+   * primera dejaba el botón apagado sobre un padrón lleno de cuadrados con tres
+   * letras: entidades sin ninguna imagen, y entidades con monograma para las que
+   * el motor ya trae la marca de verdad. Cuántas de las segundas cambiarán no se
+   * sabe hasta llamar —depende de la semilla, no del listado—, así que el rótulo
+   * habla de «pendientes» y el aviso posterior dice qué pasó de verdad.
+   */
   const sinLogo = lista.filter((entidad) => !entidad.hasLogo).length;
+  const conMonograma = lista.filter((entidad) => entidad.logoSource === 'GENERATED').length;
+  const pendientesDeLogo = sinLogo + conMonograma;
 
   return (
     <div className="worker-entidades">
@@ -212,13 +228,13 @@ export function WorkerInstitutionsConsole() {
           <button
             type="button"
             className="button"
-            disabled={sincronizarLogos.isPending || sinLogo === 0}
+            disabled={sincronizarLogos.isPending || pendientesDeLogo === 0}
             onClick={() => sincronizarLogos.mutate(false)}
           >
             <Images size={15} aria-hidden="true" />{' '}
-            {sinLogo === 0
-              ? 'Todas con logotipo'
-              : `Cargar ${String(sinLogo)} logotipos que faltan`}
+            {pendientesDeLogo === 0
+              ? 'Todas con logotipo oficial'
+              : `Revisar ${String(pendientesDeLogo)} logotipos`}
           </button>
           <label className="entidad-filtro">
             <input
@@ -239,7 +255,17 @@ export function WorkerInstitutionsConsole() {
         ) : null}
 
         {editando !== null ? (
+          /*
+           * `key` con la sigla, y no es un detalle de listas: el formulario nace
+           * con los valores de la entidad en `useState`, así que pulsar «Editar»
+           * en otra fila con el formulario ya abierto lo dejaba montado y
+           * enseñando la entidad ANTERIOR —marcadores incluidos—. Guardar desde
+           * ahí escribía lo de una entidad sobre otra. Con la clave, cada
+           * entidad monta su formulario, que además es lo que dispara el efecto
+           * que sube la vista hasta él.
+           */
           <InstitutionForm
+            key={editando === 'nueva' ? 'nueva' : editando.code}
             inicial={editando === 'nueva' ? undefined : editando}
             guardando={guardar.isPending}
             onGuardar={(entidad) => guardar.mutate(entidad)}

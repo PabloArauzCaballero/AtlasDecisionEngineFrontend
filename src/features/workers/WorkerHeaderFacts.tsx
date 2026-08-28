@@ -15,6 +15,14 @@ import { formatNumber } from '../../config/locale';
  * página imprime exactamente la misma frase del mismo `descriptor` doscientos
  * píxeles más arriba: la consola abría con el mismo texto dos veces seguidas.
  * Aquí sólo van los límites, que es lo que la cabecera no dice.
+ *
+ * **Una ficha ocupa UNA línea, y las salvedades no caben dentro.** Iban a dos
+ * pisos —rótulo arriba, valor abajo, en un bloque gris— y nueve bloques de dos
+ * pisos con anchos distintos no forman una fila que se pueda barrer con la
+ * mirada: forman un muro. El perfil de umbrales era el caso extremo, con la
+ * advertencia «calibrado sobre rostros sintéticos» metida DENTRO del valor, lo
+ * que estiraba esa ficha hasta ocupar ella sola un renglón entero. La salvedad
+ * es una frase, no un dato: va debajo, en `limitNote`.
  */
 export function WorkerHeaderFacts({
   descriptor,
@@ -39,19 +47,19 @@ export function WorkerHeaderFacts({
     );
   }
 
+  const limits = Object.entries(descriptor.limits);
+  const notes = limits
+    .map(([key, value]) => limitNote(key, value))
+    .filter((note): note is string => note !== null);
+
   return (
     <div className="worker-facts">
-      {/*
-       * Una ficha por dato y no una frase corrida: son los límites contra los
-       * que se va a chocar al enviar algo, y hay que poder encontrarlos de un
-       * vistazo mientras se rellena el formulario de abajo, no leerlos.
-       */}
       <ul className="worker-facts-list">
         <li className="worker-fact">
           <span className="worker-fact-label">Acepta</span>
           <span className="worker-fact-value">{descriptor.acceptedInputs.join(' · ')}</span>
         </li>
-        {Object.entries(descriptor.limits).map(([key, value]) => (
+        {limits.map(([key, value]) => (
           <li key={key} className="worker-fact">
             <span className="worker-fact-label">{limitLabel(key)}</span>
             <span className="worker-fact-value">{formatLimit(key, value)}</span>
@@ -65,6 +73,7 @@ export function WorkerHeaderFacts({
           </span>
         </li>
       </ul>
+      {notes.length > 0 ? <p className="worker-facts-note">{notes.join(' ')}</p> : null}
     </div>
   );
 }
@@ -72,10 +81,11 @@ export function WorkerHeaderFacts({
 /**
  * Nombres en español para los límites que publica el motor.
  *
- * La ficha sin traducir enseña la clave del contrato en mayúsculas
- * —`OCRPROVIDER`— justo donde se espera una etiqueta. Se descubrió mirando la
- * captura de evidencia del worker de identidad, que publica cuatro claves que
- * este mapa no tenía.
+ * La ficha sin traducir enseña la clave del contrato tal cual —`voiceProfile`,
+ * `monthlyBudgetUnits`— justo donde se espera una etiqueta. Se descubrió
+ * mirando la captura de evidencia del worker de identidad; el de locución
+ * publica otras cinco claves que este mapa tampoco tenía, así que la consola de
+ * voz abría con media fila en camelCase.
  */
 function limitLabel(key: string): string {
   const labels: Record<string, string> = {
@@ -87,8 +97,36 @@ function limitLabel(key: string): string {
     faceProvider: 'Comparación de rostros',
     livenessProvider: 'Prueba de vida',
     thresholdProfile: 'Perfil de umbrales',
+    provider: 'Proveedor de voz',
+    voiceProfile: 'Voz',
+    outputFormat: 'Formato de salida',
+    monthlyBudgetUnits: 'Presupuesto mensual',
+    generationsPerActorDay: 'Generaciones por persona y día',
   };
   return labels[key] ?? key;
+}
+
+/**
+ * Los tipos MIME, con el nombre por el que se conoce el archivo.
+ *
+ * `image/jpeg, image/png, image/webp` es cómo está hecho el sistema; JPEG, PNG
+ * y WebP es lo que ve quien elige la foto en su carpeta. Además cabe: la cadena
+ * completa medía más que el resto de la fila junta.
+ */
+function formatMimeTypes(value: string): string {
+  const NOMBRES: Record<string, string> = {
+    'image/jpeg': 'JPEG',
+    'image/png': 'PNG',
+    'image/webp': 'WebP',
+    'application/pdf': 'PDF',
+    'audio/mpeg': 'MP3',
+  };
+  return value
+    .split(',')
+    .map((mime) => mime.trim())
+    .filter((mime) => mime !== '')
+    .map((mime) => NOMBRES[mime] ?? mime)
+    .join(' · ');
 }
 
 function formatLimit(key: string, value: number | string): string {
@@ -98,13 +136,17 @@ function formatLimit(key: string, value: number | string): string {
   if (key === 'maxTextLength' && typeof value === 'number') {
     return `${formatNumber(value)} caracteres`;
   }
+  if (key === 'monthlyBudgetUnits' && typeof value === 'number') {
+    return `${formatNumber(value)} unidades`;
+  }
+  if (key === 'acceptedMimeTypes' && typeof value === 'string') {
+    return formatMimeTypes(value);
+  }
   /*
    * Los proveedores y el perfil de umbrales se traducen a lo que significan
    * para quien mira. `unconfigured` es el aviso de que toda verificación va a
-   * terminar en revisión manual, y un perfil `sintetico-…` el de que el corte se
-   * midió sobre rostros dibujados y no predice la tasa de error sobre personas.
-   * Dejarlos en su forma técnica los convertía en palabras que sólo entiende
-   * quien configuró el motor.
+   * terminar en revisión manual. Dejarlos en su forma técnica los convertía en
+   * palabras que sólo entiende quien configuró el motor.
    */
   if (key.endsWith('Provider')) {
     if (value === 'tesseract') return 'Local, sin conexión';
@@ -115,11 +157,25 @@ function formatLimit(key: string, value: number | string): string {
     // «mock» a secas no avisaría de nada a quien lo lee.
     if (value === 'mock') return 'Simulado (no es un proveedor real)';
   }
-  if (key === 'thresholdProfile') {
-    if (value === 'unconfigured') return 'Sin calibrar';
-    if (typeof value === 'string' && value.startsWith('sintetico')) {
-      return `${value} · calibrado sobre rostros sintéticos`;
-    }
-  }
+  if (key === 'thresholdProfile' && value === 'unconfigured') return 'Sin calibrar';
   return String(value);
+}
+
+/**
+ * La salvedad de un límite: una frase, no un dato.
+ *
+ * Un perfil `sintetico-…` avisa de que el corte se midió sobre rostros
+ * dibujados y no predice la tasa de error sobre personas. Eso no es el valor
+ * del límite —el valor es el nombre del perfil— y meterlo dentro de la ficha la
+ * estiraba hasta romper la fila. Debajo se lee entero y no empuja a nadie.
+ */
+function limitNote(key: string, value: number | string): string | null {
+  if (key !== 'thresholdProfile' || typeof value !== 'string') return null;
+  if (value.startsWith('sintetico')) {
+    return 'El perfil de umbrales se calibró sobre rostros sintéticos: no predice la tasa de error sobre personas reales.';
+  }
+  if (value === 'unconfigured') {
+    return 'Sin umbrales calibrados, toda verificación termina en revisión manual.';
+  }
+  return null;
 }

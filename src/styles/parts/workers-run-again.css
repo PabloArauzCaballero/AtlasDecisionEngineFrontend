@@ -1,0 +1,67 @@
+/*
+ * El cierre de una ejecución: cómo se pinta la barra cuando ya no va a avanzar,
+ * y por dónde se empieza otra.
+ *
+ * Hoja aparte de `workers-run.css` por el tope de 299 líneas del repositorio, y
+ * se importa detrás de aquélla para afinar lo que define sin subir la
+ * especificidad.
+ *
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+/*
+ * La barra llena de una ejecución cerrada toma el color de su desenlace.
+ *
+ * Sin esto, un rechazo terminaría con la barra entera del color del texto, que
+ * junto a un 100 % se lee como «salió bien». El relleno dice CUÁNTO queda por
+ * hacer —nada— y el color dice CÓMO acabó; separarlos es lo que permite llenar
+ * la barra sin afirmar un éxito que no hubo.
+ */
+.worker-progress-fill[data-tono='passed'] {
+  background: var(--success);
+}
+
+.worker-progress-fill[data-tono='warning'],
+.worker-progress-fill[data-tono='review'] {
+  background: var(--warning);
+}
+
+.worker-progress-fill[data-tono='failed'],
+.worker-progress-fill[data-tono='invalid'] {
+  background: var(--danger);
+}
+
+/*
+ * Empezar otra ejecución, centrado y solo.
+ *
+ * Era el tercer botón gris de una fila alineada a la izquierda, junto a la
+ * descarga de la traza: la única salida de la pantalla competía con una acción
+ * de diagnóstico y se leía como algo secundario. Aquí ocupa su propia banda,
+ * separada por una línea, que es la forma de decir «esto cierra el bloque».
+ */
+.worker-run-again {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+/*
+ * Más alto y más ancho que un botón de barra: es un objetivo de clic que se
+ * busca desde el final de una página larga, no uno que se encuentra de paso.
+ */
+.worker-run-again-boton {
+  min-height: 42px;
+  padding-inline: var(--space-5);
+  font-size: var(--type-md);
+}
+
+.worker-run-again-help {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}

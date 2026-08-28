@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Save, X } from 'lucide-react';
 import { InstitutionLogoField } from './InstitutionLogoField';
 import {
@@ -70,6 +70,29 @@ export function InstitutionForm({
   const [note, setNote] = useState(inicial?.note ?? '');
   const [website, setWebsite] = useState(inicial?.website ?? '');
   const esAlta = inicial === undefined;
+  const formulario = useRef<HTMLFormElement>(null);
+
+  /*
+   * Al abrirse, el formulario se trae la vista consigo.
+   *
+   * Vive ENCIMA de la tabla —es donde se lee, antes de la lista que edita— y el
+   * botón «Editar» está en una fila que puede quedar a cientos de píxeles más
+   * abajo: quien lo pulsaba no veía cambiar nada y concluía que no funcionaba.
+   * Se monta una vez por entidad (la consola le pone `key` con la sigla), así
+   * que este efecto corre exactamente cuando hay algo nuevo que enseñar.
+   *
+   * El foco va al propio formulario y no al primer campo: mueve al lector de
+   * pantalla y al teclado hasta aquí sin abrir el teclado del móvil ni arriesgar
+   * que la primera pulsación caiga dentro de un campo que nadie quería editar.
+   */
+  useEffect(() => {
+    const nodo = formulario.current;
+    if (!nodo) return;
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    nodo.scrollIntoView({ behavior: quieto ? 'auto' : 'smooth', block: 'start' });
+    nodo.focus({ preventScroll: true });
+  }, []);
+
   // El motor lo exige y lo vuelve a comprobar; aquí se dice antes de enviar para
   // que el aviso llegue junto al campo y no como un error de servidor.
   const faltaMotivo = licenseStatus !== 'LICENSED' && note.trim() === '';
@@ -77,6 +100,10 @@ export function InstitutionForm({
   return (
     <form
       className="entidad-form"
+      ref={formulario}
+      // Enfocable por código, no por tabulación: el orden del teclado no cambia.
+      tabIndex={-1}
+      aria-label={esAlta ? 'Nueva entidad' : `Editar la entidad ${inicial.code}`}
       onSubmit={(evento) => {
         evento.preventDefault();
         if (faltaMotivo) return;

@@ -77,6 +77,12 @@ export interface InstitutionLogoSync {
   downloaded: number;
   generated: number;
   applied: string[];
+  /**
+   * De las escritas, las que tenían monograma y pasaron a llevar el logotipo
+   * oficial. Va aparte de `applied` porque es el único número que responde «¿ha
+   * cambiado algo en la tabla que estoy mirando?» cuando ya todas tenían imagen.
+   */
+  upgraded: string[];
   dryRun: boolean;
 }
 

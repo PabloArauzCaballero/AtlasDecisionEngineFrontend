@@ -125,6 +125,25 @@
   font-size: var(--type-md);
 }
 
+/*
+ * El rechazo de un documento, en ÁMBAR y no en rojo. No se averió nada: el
+ * worker miró la imagen y dijo que no es lo que procesa. El rojo manda a
+ * reintentar, y reintentar con la misma foto da el mismo rechazo — la misma
+ * regla que ya sigue el triage de extractos.
+ */
+.worker-run-rejected {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--warning-wash);
+  border: 1px solid var(--warning-line);
+  border-radius: var(--radius-md);
+}
+
+.worker-rejected-message {
+  margin: 0;
+  color: var(--warning-strong);
+}
+
 .worker-run-actions {
   display: flex;
   flex-wrap: wrap;
