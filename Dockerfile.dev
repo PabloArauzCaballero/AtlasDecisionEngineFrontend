@@ -1,0 +1,80 @@
+# syntax=docker/dockerfile:1.7
+# Imagen de PRUEBAS del portal del motor de decisión, para el VPS de testing (Ubuntu, Contabo).
+#
+# Dos cosas separan esta imagen de `Dockerfile`, y las dos son decisiones de espacio y de red que
+# sólo tienen sentido en un VPS:
+#
+#   1. Los INTÉRPRETES del cuaderno de datos son opcionales. `public/` no está versionado: lo llenan
+#      `yarn setup:pyodide` y `yarn setup:webr`, que se bajan ~80 MB entre los dos. En un VPS con el
+#      disco contado eso puede no compensar, así que aquí se controla con `SETUP_INTERPRETES` y por
+#      omisión NO se bajan. Consecuencia que hay que conocer antes de reportar un fallo: sin ellos
+#      la pestaña del cuaderno responde «No se encontró el intérprete en /pyodide/». Es el
+#      comportamiento esperado de esta imagen, no una regresión.
+#
+#   2. `public/` se garantiza vacío con `mkdir -p`. En un clon limpio el directorio NO existe y el
+#      `COPY` de más abajo hacía fallar la construcción entera con «/app/public: not found» — una
+#      imagen que sólo se podía construir en la máquina que ya tenía los intérpretes bajados, que es
+#      justo lo que un VPS nunca es.
+#
+# Lo que NO va aquí: `DECISION_ENGINE_URL`, `ATLAS_BACKEND_URL` y `PDF_WORKER_SERVICE_KEY`. Son
+# variables de SERVIDOR, las lee Next en tiempo de ejecución y llegan por `env_file` desde el
+# compose. Hornearlas obligaría a reconstruir la imagen para cambiar de backend.
+#
+# Construcción:
+#   docker build -f Dockerfile.dev -t atlas-engine-frontend:dev .
+#   docker build -f Dockerfile.dev --build-arg SETUP_INTERPRETES=true -t atlas-engine-frontend:dev .
+
+FROM node:22-alpine AS base
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN corepack enable
+
+FROM base AS dependencies
+COPY package.json yarn.lock ./
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+  yarn install --frozen-lockfile
+
+FROM base AS builder
+# `/` a propósito: el navegador llama al MISMO origen que le sirve la página y el servidor de Next
+# reenvía al motor. Así el tester no necesita que el 3020 esté publicado ni abierto en el firewall.
+ARG NEXT_PUBLIC_API_BASE_URL=/
+ARG NEXT_PUBLIC_API_TIMEOUT_MS=15000
+ARG NEXT_PUBLIC_ENVIRONMENT=DEV
+ARG SETUP_INTERPRETES=false
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+    NEXT_PUBLIC_API_TIMEOUT_MS=$NEXT_PUBLIC_API_TIMEOUT_MS \
+    NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
+RUN mkdir -p public
+RUN if [ "$SETUP_INTERPRETES" = "true" ]; then yarn setup:interpretes; fi
+RUN yarn build
+
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production \
+  NEXT_TELEMETRY_DISABLED=1 \
+  HOSTNAME=0.0.0.0 \
+  PORT=5173
+
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# `public/` NO viaja dentro de `standalone`: Next lo deja fuera a propósito y pide copiarlo aparte.
+# Sin esta línea la imagen no serviría NADA de `public/`, y el fallo es invisible mientras el
+# directorio esté vacío. Deja de serlo con el cuaderno de datos: su intérprete vive en
+# `public/pyodide/`, y en el contenedor la pestaña responde «no se encontró el intérprete» mientras
+# en el servidor de desarrollo va bien — la peor forma de encontrarse un fallo, porque sólo aparece
+# en el artefacto que se despliega.
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
+EXPOSE 5173
+# `${PORT}`, no un puerto fijo. La imagen se arranca en el puerto que le toque a cada despliegue, y
+# con el puerto incrustado la sonda interrogaba a un puerto donde no había nada: el contenedor
+# servía perfectamente y Docker lo daba por `unhealthy`.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=25s --retries=3 \
+  CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/login" || exit 1
+CMD ["node", "server.js"]
