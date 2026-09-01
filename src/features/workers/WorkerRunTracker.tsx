@@ -8,7 +8,7 @@ import { downloadRunTrace } from './run-trace';
 import {
   elapsedLabel,
   isTerminal,
-  STATUS_HELP,
+  statusHelp,
   STATUS_LABEL,
   statusTone,
   type WorkerRun,
@@ -90,7 +90,7 @@ export function WorkerRunTracker({
           value={statusTone(run.status)}
           labels={{ [statusTone(run.status)]: STATUS_LABEL[run.status] }}
         />
-        <p className="worker-run-help">{STATUS_HELP[run.status]}</p>
+        <p className="worker-run-help">{statusHelp(run)}</p>
       </div>
 
       {/*

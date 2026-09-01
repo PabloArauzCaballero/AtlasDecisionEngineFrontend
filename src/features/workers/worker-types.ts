@@ -5,7 +5,11 @@
  * motor). **No es autoritativo**: el backend revalida siempre. Sirve para
  * pintar la vista y para dar respuesta inmediata antes de llamar.
  */
-import type { StatementRejectionReason, StatementReviewReason } from './statement-review';
+import {
+  REJECTION_REASON_LABEL,
+  type StatementRejectionReason,
+  type StatementReviewReason,
+} from './statement-review';
 
 /** Estados que el backend asigna a una ejecución. */
 export const WORKER_RUN_STATUSES = [
@@ -195,8 +199,14 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
   PENDING_REVIEW:
     'El documento parece un extracto y algo no se pudo determinar con seguridad. Está en la cola de revisión y puedes seguir trabajando.',
   IN_REVIEW: 'Alguien lo está revisando ahora mismo.',
+  /*
+   * Lo que se lee cuando el motor rechaza SIN decir por qué. Es el peor caso y
+   * por eso no nombra ninguna causa: `statusHelp` pone la de verdad en cuanto
+   * hay un `rejectionReason`, que es siempre salvo que la consulta llegue a
+   * medias.
+   */
   PDF_INVALID:
-    'El documento no corresponde a un extracto bancario. No entra en la cola de revisión: queda registrado como rechazado.',
+    'El documento se rechazó. No entra en la cola de revisión: queda registrado como rechazado.',
   /*
    * Dice «vuelve a intentarlo» a propósito: a diferencia de `FAILED`, aquí no se
    * averió nada y repetir con la misma imagen dará el mismo rechazo. Lo que hay
@@ -205,6 +215,28 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
   DOCUMENT_REJECTED:
     'La imagen no es un documento de identidad que este worker admita. No entra en la cola de revisión: nadie tiene que mirarla. Envía otra foto para volver a intentarlo.',
 };
+
+/**
+ * La explicación del estado, con la CAUSA REAL cuando el estado la tiene.
+ *
+ * `STATUS_HELP` es un diccionario por estado, y `PDF_INVALID` es el único estado
+ * que agrupa nueve motivos distintos. Su frase fija —«el documento no
+ * corresponde a un extracto bancario»— era verdad para uno de los nueve y
+ * mentira para los otros ocho: un extracto legítimo, de un banco con licencia,
+ * rechazado por vencido se anunciaba como si no fuera un extracto. Quien lo
+ * subía volvía a subir el mismo archivo, porque la frase le decía que buscara
+ * otro documento cuando el suyo servía y sólo hacía falta descargarlo otra vez.
+ *
+ * El motivo ya viajaba en la fila y ya estaba traducido; lo único que faltaba
+ * era leerlo aquí. La frase accionable sigue debajo, en `errorMessage`: esto es
+ * el titular, y su trabajo es no contradecirla.
+ */
+export function statusHelp(run: Pick<WorkerRun, 'status' | 'rejectionReason'>): string {
+  if (run.status === 'PDF_INVALID' && run.rejectionReason) {
+    return `${REJECTION_REASON_LABEL[run.rejectionReason]}. No entra en la cola de revisión: queda registrado como rechazado.`;
+  }
+  return STATUS_HELP[run.status];
+}
 
 /**
  * Traduce el estado a un valor que `StatusBadge` ya sabe colorear.

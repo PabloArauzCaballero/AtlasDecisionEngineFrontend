@@ -3,6 +3,7 @@ import {
   elapsedLabel,
   isTerminal,
   STATUS_HELP,
+  statusHelp,
   STATUS_LABEL,
   statusTone,
   WORKER_RUN_STATUSES,
@@ -113,5 +114,47 @@ describe('tiempo transcurrido', () => {
     // Los relojes del navegador y del servidor no coinciden. Sin la cota, una
     // ejecución recién encolada puede mostrar «-3 s».
     expect(elapsedLabel('2026-08-04T10:00:10.000Z', '2026-08-04T10:00:00.000Z')).toBe('0 s');
+  });
+});
+
+describe('statusHelp', () => {
+  /*
+   * `PDF_INVALID` es el único estado que agrupa nueve motivos, y su frase fija
+   * hablaba por los nueve: un extracto vencido —válido, de un banco con
+   * licencia, sólo viejo— se anunciaba como «no corresponde a un extracto
+   * bancario». Quien lo subía volvía a subir el mismo archivo, porque la frase
+   * le mandaba a buscar otro documento cuando el suyo servía.
+   */
+  it('dice el motivo REAL del rechazo y no «no es un extracto» para todos', () => {
+    const vencido = statusHelp({ status: 'PDF_INVALID', rejectionReason: 'STALE_PERIOD' });
+    expect(vencido).toMatch(/vencido/i);
+    expect(vencido).not.toMatch(/no es un extracto bancario/i);
+  });
+
+  it('distingue dos rechazos que antes se contaban igual', () => {
+    expect(statusHelp({ status: 'PDF_INVALID', rejectionReason: 'STALE_PERIOD' })).not.toBe(
+      statusHelp({ status: 'PDF_INVALID', rejectionReason: 'INSUFFICIENT_PERIOD' }),
+    );
+  });
+
+  it('sigue nombrando el caso que sí es «no es un extracto»', () => {
+    expect(statusHelp({ status: 'PDF_INVALID', rejectionReason: 'NOT_BANK_STATEMENT' })).toMatch(
+      /no es un extracto bancario/i,
+    );
+  });
+
+  /*
+   * Sin motivo no se inventa ninguno. Acusar de «no es un extracto» a un
+   * documento cuyo rechazo no llegó es exactamente el defecto que se corrige.
+   */
+  it('no atribuye una causa cuando el motivo no viene', () => {
+    const sinMotivo = statusHelp({ status: 'PDF_INVALID', rejectionReason: null });
+    expect(sinMotivo).toBe(STATUS_HELP.PDF_INVALID);
+    expect(sinMotivo).not.toMatch(/extracto bancario/i);
+  });
+
+  it('no toca la explicación de los demás estados', () => {
+    expect(statusHelp({ status: 'RUNNING', rejectionReason: null })).toBe(STATUS_HELP.RUNNING);
+    expect(statusHelp({ status: 'SUCCEEDED', rejectionReason: null })).toBe(STATUS_HELP.SUCCEEDED);
   });
 });
