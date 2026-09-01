@@ -116,9 +116,27 @@ const PIXEL = Buffer.from(
 );
 
 const DOCUMENTOS = [
-  { documentId: 'd1', documentType: 'identity_front', mimeType: 'image/png', sizeBytes: 1, sha256: 'aa11bb22cc33dd44' },
-  { documentId: 'd2', documentType: 'identity_back', mimeType: 'image/png', sizeBytes: 1, sha256: 'ee55ff66aa77bb88' },
-  { documentId: 'd3', documentType: 'selfie', mimeType: 'image/png', sizeBytes: 1, sha256: '99cc00dd11ee22ff' },
+  {
+    documentId: 'd1',
+    documentType: 'identity_front',
+    mimeType: 'image/png',
+    sizeBytes: 1,
+    sha256: 'aa11bb22cc33dd44',
+  },
+  {
+    documentId: 'd2',
+    documentType: 'identity_back',
+    mimeType: 'image/png',
+    sizeBytes: 1,
+    sha256: 'ee55ff66aa77bb88',
+  },
+  {
+    documentId: 'd3',
+    documentType: 'selfie',
+    mimeType: 'image/png',
+    sizeBytes: 1,
+    sha256: '99cc00dd11ee22ff',
+  },
 ];
 
 async function mockBackend(page: Page): Promise<void> {
@@ -142,11 +160,15 @@ async function mockBackend(page: Page): Promise<void> {
     if (url.includes('/v1/audit/executions/')) {
       return route.fulfill({ status: 403, json: { code: 'FORBIDDEN', message: 'Sin permiso' } });
     }
-    return route.fulfill({ json: { items: [], page: 1, pageSize: 25, total: 0, totalPages: 0, hasNextPage: false } });
+    return route.fulfill({
+      json: { items: [], page: 1, pageSize: 25, total: 0, totalPages: 0, hasNextPage: false },
+    });
   });
 }
 
-test('la revisión de identidad enseña las tres fuentes y las capturas como slides', async ({ page }) => {
+test('la revisión de identidad enseña las tres fuentes y las capturas como slides', async ({
+  page,
+}) => {
   test.setTimeout(120_000);
   await mockBackend(page);
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -203,11 +225,9 @@ test('la revisión de identidad enseña las tres fuentes y las capturas como sli
    * qué rapidez corre la máquina ese día, que es la peor clase de prueba inestable.
    */
   await expect
-    .poll(
-      () =>
-        pista.evaluate((nodo) => Math.abs(nodo.scrollLeft - 2 * nodo.clientWidth)),
-      { timeout: 5_000 },
-    )
+    .poll(() => pista.evaluate((nodo) => Math.abs(nodo.scrollLeft - 2 * nodo.clientWidth)), {
+      timeout: 5_000,
+    })
     .toBeLessThanOrEqual(1);
 
   /*

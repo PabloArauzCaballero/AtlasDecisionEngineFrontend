@@ -24,7 +24,9 @@ const ejecucion = {
 describe('buildExecutionReport', () => {
   it('enmascara en el PDF exactamente lo que la pantalla enmascara', () => {
     const informe = buildExecutionReport(ejecucion);
-    const tabla = informe.sections.find((seccion) => seccion.title === 'Variables resueltas')?.table;
+    const tabla = informe.sections.find(
+      (seccion) => seccion.title === 'Variables resueltas',
+    )?.table;
 
     expect(tabla?.rows[0]).toMatchObject({ variable: 'ingreso_mensual', valor: '•••' });
     // La que no está clasificada sí viaja con su valor: enmascarar todo sería inútil.
@@ -55,7 +57,9 @@ describe('buildExecutionReport', () => {
       value: indice,
     }));
     const informe = buildExecutionReport({ ...ejecucion, variables });
-    const tabla = informe.sections.find((seccion) => seccion.title === 'Variables resueltas')?.table;
+    const tabla = informe.sections.find(
+      (seccion) => seccion.title === 'Variables resueltas',
+    )?.table;
     expect(tabla?.rows.length).toBe(2_000);
   });
 

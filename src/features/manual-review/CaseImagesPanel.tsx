@@ -67,7 +67,10 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
         `/atlas-backend/customer-onboarding/identity-verifications/${attemptId}/evidence-documents`,
         { signal },
       );
-      const meta = body.data ?? { customerId: body.customerId ?? '', documents: body.documents ?? [] };
+      const meta = body.data ?? {
+        customerId: body.customerId ?? '',
+        documents: body.documents ?? [],
+      };
       const documents = await Promise.all(
         meta.documents.map(async (document): Promise<EvidenceImage> => {
           const file = await apiDownload(

@@ -24,9 +24,22 @@
   La ampliación. Sobrevive de la rejilla porque sigue haciendo falta: el carrusel enseña la captura
   entera, y para el detalle fino —un borde raspado, un carácter de la MRZ— hace falta la pantalla.
 */
-.case-image__overlay { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: var(--space-7); border: 0; /* Velo neutro: no es un color de marca, es opacidad sobre lo que haya debajo. */
-  background: rgba(0, 0, 0, .78); cursor: zoom-out; }
-.case-image__overlay img { max-width: 100%; max-height: 100%; border-radius: var(--radius-md); }
+.case-image__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--space-7);
+  border: 0; /* Velo neutro: no es un color de marca, es opacidad sobre lo que haya debajo. */
+  background: rgba(0, 0, 0, 0.78);
+  cursor: zoom-out;
+}
+.case-image__overlay img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-md);
+}
 
 /*
   El carrusel de documentos del caso.
@@ -39,7 +52,11 @@
   BORDES —la MRZ pegada al canto inferior del reverso, el pelo y la mandíbula de la selfie— y `cover`
   es justo lo que recorta. Que sobre fondo a los lados de una tarjeta apaisada es el precio correcto.
 */
-.case-carousel { display: flex; flex-direction: column; gap: var(--space-3); }
+.case-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
 .case-carousel__track {
   display: flex;
   overflow-x: auto;
@@ -49,8 +66,13 @@
   background: var(--surface-sunken);
   border: 1px solid var(--line);
 }
-.case-carousel__track::-webkit-scrollbar { display: none; }
-.case-carousel__track:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.case-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+.case-carousel__track:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 /*
   `start` y no `center`, con slides del ancho exacto de la pista.
 
@@ -61,7 +83,12 @@
   con el borde y la posición de reposo es exactamente `índice × ancho` — que además es lo que la
   prueba puede comprobar.
 */
-.case-carousel__slide { flex: 0 0 100%; scroll-snap-align: start; margin: 0; min-width: 0; }
+.case-carousel__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  margin: 0;
+  min-width: 0;
+}
 .case-carousel__button {
   display: block;
   width: 100%;
@@ -70,10 +97,27 @@
   background: none;
   cursor: zoom-in;
 }
-.case-carousel__button img { display: block; width: 100%; height: 320px; object-fit: contain; }
-.case-carousel__caption { display: flex; align-items: baseline; gap: var(--space-2); font-size: var(--type-2xs); }
-.case-carousel__caption .mono { font-family: var(--font-mono); opacity: .6; }
-.case-carousel__nav { display: flex; align-items: center; gap: var(--space-3); }
+.case-carousel__button img {
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: contain;
+}
+.case-carousel__caption {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-size: var(--type-2xs);
+}
+.case-carousel__caption .mono {
+  font-family: var(--font-mono);
+  opacity: 0.6;
+}
+.case-carousel__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
 .case-carousel__arrow {
   border: 1px solid var(--line);
   background: none;
@@ -83,8 +127,15 @@
   height: 28px;
   cursor: pointer;
 }
-.case-carousel__arrow:disabled { opacity: .35; cursor: default; }
-.case-carousel__dots { display: flex; gap: var(--space-1); flex: 1; }
+.case-carousel__arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.case-carousel__dots {
+  display: flex;
+  gap: var(--space-1);
+  flex: 1;
+}
 .case-carousel__dot {
   width: 8px;
   height: 8px;
@@ -94,5 +145,12 @@
   background: var(--line);
   cursor: pointer;
 }
-.case-carousel__dot.is-active { width: 22px; background: var(--accent); }
-.case-carousel__count { font-size: var(--type-2xs); opacity: .6; font-variant-numeric: tabular-nums; }
+.case-carousel__dot.is-active {
+  width: 22px;
+  background: var(--accent);
+}
+.case-carousel__count {
+  font-size: var(--type-2xs);
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
