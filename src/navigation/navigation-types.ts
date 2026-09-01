@@ -12,6 +12,18 @@ export interface NavigationItem {
   path: string;
   icon: LucideIcon;
   roles: readonly string[];
+  /**
+   * Las entradas que cuelgan de ésta, si es un grupo desplegable.
+   *
+   * Existe porque «Workers» dejó de ser una pantalla con cinco pestañas para
+   * ser cinco pantallas: la elección de worker es de NAVEGACIÓN —cambia la
+   * ruta, el título y el enlace que se comparte— y estaba escondida dentro del
+   * contenido, donde no se puede enlazar ni marcar como favorita.
+   *
+   * El padre conserva su `path`: el grupo se despliega al pulsarlo, y la ruta
+   * sigue siendo válida para quien la escriba o la tenga guardada.
+   */
+  children?: readonly NavigationItem[];
 }
 
 export interface NavigationSection {

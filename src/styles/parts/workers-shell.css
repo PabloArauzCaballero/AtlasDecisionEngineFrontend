@@ -1,47 +1,112 @@
 /*
- * Concentrador de workers: elegir de cuál se habla y qué cara se mira.
+ * Las caras de un worker, como conmutador segmentado.
  *
- * Dos niveles de elección seguidos son el riesgo de esta pantalla, así que se
- * dibujan distinto a propósito. Sólo tokens, ningún color escrito a mano.
+ * Esta fila era la SEGUNDA de dos: encima había otra, idéntica en forma, para
+ * elegir de qué worker se hablaba. Dos jerarquías planas seguidas hacían dudar
+ * de cuál mandaba sobre cuál, así que ésta se dibujaba más callada a propósito.
+ *
+ * Elegir worker se fue al menú lateral y aquí ya no queda competencia: la fila
+ * puede pesar lo que le corresponde. Sigue siendo un segmentado y no pestañas
+ * subrayadas porque lo que ofrece son CARAS DEL MISMO OBJETO —el mismo worker
+ * mirado de otra forma—, no destinos distintos; el subrayado es el dibujo de
+ * cambiar de sitio, y aquí no se cambia de sitio.
+ *
+ * Sólo tokens, ningún color escrito a mano.
  */
 
-/* Los dos workers, como pestañas de primer nivel: es la elección que manda. */
-.worker-switch > .tabs-list {
-  gap: var(--space-1);
-  padding-bottom: 0;
-}
-
-.worker-switch > .tabs-list .tabs-tab {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--type-md);
-}
-
-/*
- * Las vistas de dentro (panel/consola) pesan menos que la elección de worker, y
- * por eso son un conmutador segmentado y no otra fila de pestañas idénticas:
- * dos jerarquías planas seguidas hacen dudar de cuál manda sobre cuál.
- */
 .worker-views > .tabs-list {
-  gap: 0;
+  gap: var(--space-1);
   border-bottom: 0;
-  margin-bottom: var(--space-4);
-  padding: 3px;
+  margin-bottom: var(--space-5);
+  padding: var(--space-1);
   background: var(--surface-sunken);
-  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   width: fit-content;
   max-width: 100%;
 }
 
 .worker-views > .tabs-list .tabs-tab {
+  gap: var(--space-2);
+  /* Alto cómodo de pulsar y ancho que no aprieta la etiqueta contra el icono:
+     con `--space-4` el texto tocaba el borde de la píldora activa. */
   padding: var(--space-2) var(--space-4);
   border-bottom: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   margin-bottom: 0;
-  font-size: var(--type-md);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--track-tight);
+  white-space: nowrap;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
+/*
+ * El icono va más tenue que la etiqueta y sólo se enciende en la activa.
+ *
+ * Cinco iconos al mismo tono que su texto convierten la fila en una hilera de
+ * manchas donde ninguna destaca; teniéndolos apagados, el que se enciende dice
+ * dónde estás incluso de reojo.
+ */
+.worker-views > .tabs-list .tabs-tab svg {
+  flex: none;
+  color: var(--faint);
+  transition: color 0.16s ease;
+}
+
+.worker-views > .tabs-list .tabs-tab:hover:not(:disabled):not(.active) {
+  background: var(--surface-hover);
+  color: var(--ink);
+}
+
+.worker-views > .tabs-list .tabs-tab:hover:not(:disabled):not(.active) svg {
+  color: var(--muted);
+}
+
+/*
+ * La activa se levanta del surco: fondo de superficie y una sombra corta. Es la
+ * misma metáfora del conmutador del sistema —una ficha que sube—, y funciona en
+ * claro y en oscuro sin tocar colores porque `--surface` ya cambia con el tema.
+ */
 .worker-views > .tabs-list .tabs-tab.active {
   background: var(--surface);
-  color: var(--text);
+  color: var(--ink);
   box-shadow: var(--shadow-sm);
+}
+
+.worker-views > .tabs-list .tabs-tab.active svg {
+  color: var(--accent);
+}
+
+.worker-views > .tabs-list .tabs-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+.worker-views > .tabs-list .tabs-count {
+  background: var(--surface-hover);
+}
+
+.worker-views > .tabs-list .tabs-tab.active .tabs-count {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/*
+ * En estrecho el conmutador se desplaza y ocupa el ancho: a 390 px las cuatro
+ * caras del worker de extractos no caben, y dejarlo en `fit-content` recortaba
+ * la última contra el borde sin dar a entender que había más.
+ */
+@media (max-width: 560px) {
+  .worker-views > .tabs-list {
+    width: 100%;
+  }
+
+  .worker-views > .tabs-list .tabs-tab {
+    padding: var(--space-2) var(--space-3);
+  }
 }

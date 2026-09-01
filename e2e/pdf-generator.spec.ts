@@ -20,29 +20,26 @@ test.beforeEach(async ({ page }) => {
   await mockPdfBackend(page);
 });
 
-test('la quinta pestaña aparece junto a los cuatro workers', async ({ page }) => {
+test('el quinto destino aparece junto a los cuatro workers', async ({ page }) => {
   await page.goto('/workers');
 
-  const conmutador = page.locator('.worker-switch').first();
-  await expect(conmutador.getByRole('tab', { name: 'Análisis Semántico' })).toBeVisible();
-  await expect(conmutador.getByRole('tab', { name: 'Extractos Bancarios' })).toBeVisible();
-  await expect(conmutador.getByRole('tab', { name: 'Verificación de Identidad' })).toBeVisible();
-  await expect(conmutador.getByRole('tab', { name: 'Locución' })).toBeVisible();
-  await expect(conmutador.getByRole('tab', { name: 'Documentos PDF' })).toBeVisible();
+  const cajon = page.locator('.sidebar');
+  await expect(cajon.getByRole('link', { name: 'Análisis semántico' })).toBeVisible();
+  await expect(cajon.getByRole('link', { name: 'Extractos bancarios' })).toBeVisible();
+  await expect(cajon.getByRole('link', { name: 'Identidad', exact: true })).toBeVisible();
+  await expect(cajon.getByRole('link', { name: 'Locución' })).toBeVisible();
+  await expect(cajon.getByRole('link', { name: 'Documentos PDF' })).toBeVisible();
 });
 
 test('su ruta propia entra directamente en ella', async ({ page }) => {
   await page.goto('/workers/pdf-generator');
 
-  // El título de la página es el de la pestaña elegida, no un genérico: es lo
-  // que el enlace compartido tiene que anunciar.
+  // El título de la página es el del worker elegido, no un genérico: es lo que
+  // el enlace compartido tiene que anunciar.
   await expect(page.getByRole('heading', { level: 1, name: 'Documentos PDF' })).toBeVisible();
   await expect(
-    page
-      .locator('.worker-switch')
-      .first()
-      .getByRole('tab', { name: 'Documentos PDF', selected: true }),
-  ).toBeVisible();
+    page.locator('.sidebar').getByRole('link', { name: 'Documentos PDF' }),
+  ).toHaveAttribute('aria-current', 'page');
 });
 
 test('el panel publica la salud del generador, no la de un worker', async ({ page }) => {

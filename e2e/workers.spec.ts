@@ -35,25 +35,6 @@ async function abrirConsola(page: Page) {
 test.describe('pestaña Procesamiento', () => {
   test.setTimeout(180_000);
 
-  test('una sola entrada de navegación reúne todos los workers', async ({ page }) => {
-    await mockWorkersBackend(page);
-    await page.goto(RUTAS.semantico, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
-
-    // La sección tiene que existir en el cajón: una vista a la que sólo se
-    // llega escribiendo la URL, en la práctica, no existe.
-    const cajon = page.locator('.sidebar');
-    await expect(cajon.getByText('Procesamiento', { exact: false })).toBeVisible();
-    await expect(cajon.getByRole('link', { name: /^Workers$/i })).toBeVisible();
-
-    // Y desde ahí se llega a todos, sin volver al cajón.
-    await expect(page.getByRole('tab', { name: 'Análisis Semántico' })).toBeVisible();
-    await page.getByRole('tab', { name: 'Extractos Bancarios' }).click();
-    await expect(page.getByRole('heading', { name: 'Extractos Bancarios' })).toBeVisible();
-    await page.getByRole('tab', { name: 'Locución' }).click();
-    await expect(page.getByRole('heading', { name: 'Locución' })).toBeVisible();
-  });
-
   test('el panel de control mide salud, latencia, cola e incidencias', async ({ page }) => {
     const problemas = collectProblems(page);
     await mockWorkersBackend(page);

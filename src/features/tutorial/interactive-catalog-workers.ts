@@ -23,7 +23,7 @@ export const WORKER_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="workers-switch"]',
         title: 'Qué hace un worker en la cadena',
         content:
-          'Cada pestaña es un worker distinto. El de extractos lee un PDF y saca movimientos, saldos e institución; el de análisis semántico clasifica texto en categorías del catálogo. Ninguno decide nada: producen los datos con los que después decide un algoritmo.',
+          'Cada worker es una pantalla propia: los tienes todos en «Workers», en el menú de la izquierda. El de extractos lee un PDF y saca movimientos, saldos e institución; el de análisis semántico clasifica texto en categorías del catálogo. Ninguno decide nada: producen los datos con los que después decide un algoritmo. Las pestañas de aquí arriba son las caras del worker que estés mirando.',
         tip: 'Un nodo del grafo puede llamar a un worker. Cuando lo hace, la calidad de la decisión no puede ser mejor que la calidad de esta extracción.',
       },
       {

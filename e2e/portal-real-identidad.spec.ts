@@ -93,18 +93,19 @@ test.describe('verificación de identidad · motor real', () => {
     await entrar(page);
     await capturar(page, '02-sesion-iniciada');
 
-    // --- 2. El concentrador de workers, con los tres --------------------------
+    // --- 2. El grupo de workers del cajón, con los tres -----------------------
     await page.goto('/workers', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await expect(page.getByRole('tab', { name: 'Análisis Semántico' })).toBeVisible({
+    const cajon = page.locator('.sidebar');
+    await expect(cajon.getByRole('link', { name: 'Análisis semántico' })).toBeVisible({
       timeout: 60_000,
     });
-    await expect(page.getByRole('tab', { name: 'Extractos Bancarios' })).toBeVisible();
-    const pestaña = page.getByRole('tab', { name: 'Verificación de Identidad' });
-    await expect(pestaña).toBeVisible();
+    await expect(cajon.getByRole('link', { name: 'Extractos bancarios' })).toBeVisible();
+    const enlace = cajon.getByRole('link', { name: 'Identidad', exact: true });
+    await expect(enlace).toBeVisible();
     await capturar(page, '03-workers');
 
-    // --- 3. La pestaña nueva -----------------------------------------------
-    await pestaña.click();
+    // --- 3. El worker nuevo -------------------------------------------------
+    await enlace.click();
     await expect(page.getByRole('heading', { name: 'Verificación de Identidad' })).toBeVisible();
     const mio = panelDeIdentidad(page);
     await expect(mio.locator('.worker-dashboard')).toBeVisible({ timeout: 60_000 });

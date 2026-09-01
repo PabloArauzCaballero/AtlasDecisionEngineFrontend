@@ -1,0 +1,112 @@
+/*
+ * Grupo desplegable del raíl («Workers» y los que vengan).
+ *
+ * El riesgo de un submenú es que los hijos se lean como hermanos del resto del
+ * menú y la sección entera parezca una lista de nueve cosas sueltas. Se evita
+ * con tres señales que actúan juntas —sangría, un filete que las une y una
+ * tipografía un punto más callada—, no con una sola más fuerte: el raíl ya
+ * tiene un color de acento reservado para «aquí estás», y gastarlo en «esto
+ * cuelga de aquello» dejaría la página actual sin forma de destacarse.
+ */
+
+.nav-group {
+  margin: 1px 0;
+}
+
+/* La cabecera es un botón, así que hay que devolverle la caja de un enlace. */
+.nav-group-head {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: var(--weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-group-head > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cuántos hay dentro, para que plegado siga diciendo algo. */
+.nav-group-count {
+  flex: none;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-hover);
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  line-height: 17px;
+  text-align: center;
+}
+
+.nav-group-head.active .nav-group-count {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.nav-group-chevron {
+  flex: none;
+  transition: transform 0.18s ease;
+}
+
+.nav-group-open .nav-group-chevron {
+  transform: rotate(90deg);
+}
+
+.nav-group-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/*
+ * El filete vertical hace el trabajo de la jerarquía: nace bajo el icono del
+ * padre, así que la lista se lee colgando de él y no empezando de cero.
+ */
+.nav-group-list {
+  margin: var(--space-1) 0 var(--space-2) 18px;
+  padding-left: 10px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.nav-group-list[hidden] {
+  display: none;
+}
+
+.nav-sublink {
+  position: relative;
+  padding: 6px 9px;
+  font-size: var(--type-xs);
+  color: var(--muted);
+}
+
+.nav-sublink svg {
+  width: 15px;
+}
+
+.nav-sublink:hover:not(.active) {
+  color: var(--ink);
+}
+
+/*
+ * El activo, además del tinte, muerde el filete con una marca a su altura: en
+ * una lista corta y sangrada el fondo por sí solo se distingue mal del hover.
+ */
+.nav-sublink.active::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: 50%;
+  width: 2px;
+  height: 16px;
+  transform: translateY(-50%);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}

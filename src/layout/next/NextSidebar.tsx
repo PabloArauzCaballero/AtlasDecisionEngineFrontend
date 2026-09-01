@@ -8,6 +8,7 @@ import { canAccessPath } from '../../auth/route-access';
 import { useEffectiveRoles } from '../../auth/useAuth';
 import { NavLink } from '../../navigation/NavLink';
 import { navigation } from '../../navigation/navigation';
+import { NavGroup } from './NavGroup';
 
 interface NextSidebarProps {
   open: boolean;
@@ -124,8 +125,23 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
           return (
             <section className="nav-section" key={section.label}>
               <p>{section.label}</p>
-              {visibleItems.map(({ icon: Icon, ...item }) => {
+              {visibleItems.map((item) => {
+                // Una entrada con hijos se despliega en vez de navegar: la elección que
+                // antes vivía dentro de la página (qué worker) es de navegación.
+                if (item.children) {
+                  return (
+                    <NavGroup
+                      key={item.path}
+                      item={item}
+                      roles={roles}
+                      pathname={pathname}
+                      onNavigate={onClose}
+                      isActivePath={isActivePath}
+                    />
+                  );
+                }
                 const active = isActivePath(pathname, item.path);
+                const Icon = item.icon;
                 return (
                   <NavLink
                     key={item.path}

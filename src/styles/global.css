@@ -13,6 +13,9 @@
 @import './parts/responsive-tokens.css';
 @import './parts/accessibility-feedback.css';
 @import './parts/sidebar-drawer.css';
+/* Después de `app-shell.css`, del que hereda `.nav-link`: el grupo desplegable
+   del raíl sólo añade la sangría, el filete y el galón del hijo activo. */
+@import './parts/nav-group.css';
 @import './parts/controls.css';
 @import './parts/data-display.css';
 @import './parts/metrics.css';

@@ -17,16 +17,18 @@ const RUTA = '/workers/identity-verification';
 test.describe('pestaña Verificación de Identidad', () => {
   test.setTimeout(180_000);
 
-  test('es una pestaña más, junto a los dos workers anteriores', async ({ page }) => {
+  test('es un worker más del grupo, junto a los dos anteriores', async ({ page }) => {
     await mockWorkersBackend(page);
     await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page.locator('.sidebar')).toBeVisible({ timeout: 30_000 });
 
     // Regresión de la más barata: añadir un worker no puede hacer desaparecer
     // los otros dos ni sacar la sección del cajón.
-    await expect(page.getByRole('tab', { name: 'Análisis Semántico' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Extractos Bancarios' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Verificación de Identidad' })).toBeVisible();
+    const cajon = page.locator('.sidebar');
+    await expect(cajon.getByRole('link', { name: 'Análisis semántico' })).toBeVisible();
+    await expect(cajon.getByRole('link', { name: 'Extractos bancarios' })).toBeVisible();
+    const propio = cajon.getByRole('link', { name: 'Identidad', exact: true });
+    await expect(propio).toHaveAttribute('aria-current', 'page');
 
     // Y el enlace directo aterriza en ESTE worker, no en el primero de la lista.
     await expect(page.getByRole('heading', { name: 'Verificación de Identidad' })).toBeVisible();
