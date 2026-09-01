@@ -67,6 +67,7 @@ export const REJECTION_REASONS = [
   'TAMPERED_DOCUMENT',
   'ACTIVE_CONTENT',
   'INSUFFICIENT_PERIOD',
+  'STALE_PERIOD',
 ] as const;
 
 export type StatementRejectionReason = (typeof REJECTION_REASONS)[number];
@@ -80,6 +81,7 @@ export const REJECTION_REASON_LABEL: Record<StatementRejectionReason, string> = 
   TAMPERED_DOCUMENT: 'Documento manipulado',
   ACTIVE_CONTENT: 'PDF con contenido ejecutable',
   INSUFFICIENT_PERIOD: 'Periodo insuficiente',
+  STALE_PERIOD: 'Extracto vencido',
 };
 
 /**
@@ -115,6 +117,14 @@ export const REJECTION_ADVICE: Record<StatementRejectionReason, string> = {
     'El PDF contiene elementos ejecutables o archivos incrustados. No se abre: hay que descargar el extracto otra vez de la banca por internet.',
   INSUFFICIENT_PERIOD:
     'El extracto es válido y cubre menos de 3 meses completos. Con menos tiempo, un ingreso extraordinario o un gasto puntual bastan para desviar el cálculo, así que no hay capacidad de pago que calcular: hay que pedir el periodo de los últimos 3 meses.',
+  /*
+   * El vencido es la CONTRARIA del insuficiente, y por eso tiene motivo propio aunque los dos
+   * hablen del periodo: al corto le faltan meses hacia atrás y al vencido le falta el presente.
+   * Decirle «consigue tres meses» a quien subió doce cerrados en marzo es pedirle justo lo que no
+   * le falta, y es la clase de mensaje que hace que alguien vuelva a subir el mismo archivo.
+   */
+  STALE_PERIOD:
+    'El extracto es válido y su último movimiento es demasiado antiguo: ya no describe la situación actual. Hay que descargar de la banca por internet el extracto hasta la fecha de hoy y volver a subirlo.',
 };
 
 export const REVIEW_PRIORITY_LABEL: Record<number, string> = {

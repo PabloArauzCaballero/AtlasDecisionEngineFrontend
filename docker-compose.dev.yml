@@ -1,0 +1,56 @@
+# Despliegue de PRUEBAS del portal del motor en el VPS de Contabo (Ubuntu).
+#
+# ## Qué se hornea y qué no
+#
+# Este portal es el único de los tres cuya configuración importante NO se hornea: `DECISION_ENGINE_URL`,
+# `ATLAS_BACKEND_URL` y `PDF_WORKER_SERVICE_KEY` son variables de SERVIDOR, las lee Next en tiempo de
+# ejecución y llegan por `env_file`. Cambiar de motor es reiniciar, no reconstruir.
+#
+# Lo que sí se hornea son las `NEXT_PUBLIC_*`, y la que gobierna todo es `NEXT_PUBLIC_API_BASE_URL=/`:
+# el navegador llama al MISMO origen que le sirve la página y el servidor de Next reenvía al motor.
+# Por eso el 3020 no necesita estar publicado ni abierto en el firewall — sólo el 5173.
+#
+# ## Los intérpretes del cuaderno de datos
+#
+# `ENGINE_FRONTEND_INTERPRETES=false` por omisión: pyodide y webR son ~80 MB que en un VPS con el
+# disco contado pueden no compensar. Consecuencia que hay que conocer ANTES de reportar un fallo:
+# sin ellos esa pestaña responde «No se encontró el intérprete en /pyodide/». Es el comportamiento
+# esperado de esta imagen, no una regresión. Para tenerlos: `ENGINE_FRONTEND_INTERPRETES=true` en el
+# `.env` de este repositorio y reconstruir.
+#
+# ## Red compartida
+#
+#   docker network create atlas_vps     # una sola vez, en el VPS
+
+name: atlas-engine-frontend-vps
+
+services:
+  frontend:
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    image: atlas-engine-frontend:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      cache_from: ['atlas-engine-frontend:dev']
+      args:
+        SETUP_INTERPRETES: '${ENGINE_FRONTEND_INTERPRETES:-false}'
+        NEXT_PUBLIC_ENVIRONMENT: DEV
+    env_file: ['${ATLAS_ENV_DIR:-/opt/atlas/env}/engine-frontend.env']
+    ports:
+      - '5173:5173'
+    networks:
+      atlas_vps:
+        aliases: [engine-frontend]
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+networks:
+  atlas_vps:
+    external: true
