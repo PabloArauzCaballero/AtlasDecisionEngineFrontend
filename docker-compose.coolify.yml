@@ -1,0 +1,58 @@
+# Portal del motor de decisión, gestionado por COOLIFY.
+#
+# Va aparte de `docker-compose.dev.yml` —el del VPS operado a mano, con los `.env` en
+# `/opt/atlas/env` y la red compartida `atlas_vps`—.
+#
+# ## Este portal habla con el motor desde el SERVIDOR, no desde el navegador
+#
+# A diferencia del portal interno, aquí las llamadas salen del proceso de Next (hace de proxy),
+# así que `DECISION_ENGINE_URL` y `ATLAS_BACKEND_URL` son variables de EJECUCIÓN y viajan en el
+# `.env` de Coolify, no como `build.args`. Ya apuntan a la IP de Tailscale del host: el nombre
+# `motor` era un alias de la red compartida `atlas_vps` y en Coolify no resuelve.
+#
+# Lo que SÍ se hornea al construir es `NEXT_PUBLIC_ENVIRONMENT` —la etiqueta del entorno que se
+# ve en pantalla— y `SETUP_INTERPRETES`.
+#
+# ## `SETUP_INTERPRETES=false`, y lo que eso significa
+#
+# Deja fuera el intérprete de Python del navegador (Pyodide, ~200 MB). La pestaña del cuaderno
+# dirá «No se encontró el intérprete en /pyodide/»: es lo ESPERADO de este despliegue, no una
+# avería. Para tenerlo, ponlo en `true` y RECONSTRUYE — reiniciar no basta.
+#
+# ## Lo que este archivo NO trae
+#
+# La red externa `atlas_vps` ni `env_file`: Coolify añade `env_file: - .env` por su cuenta. Pega
+# ahí `atlas-vps-testing/env/engine-frontend.env`, EN BLOQUE.
+#
+# Ojo con `PDF_WORKER_URL=http://pdf-worker:3100` de ese archivo: el generador documental está
+# detrás de un perfil y no se despliega aquí (su imagen son ~4,7 GB). La descarga de informes dará
+# error hasta que lo montes; es lo esperado.
+
+name: atlas-engine-frontend
+
+services:
+  frontend:
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    image: atlas-engine-frontend:coolify
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      cache_from: ['atlas-engine-frontend:coolify']
+      args:
+        SETUP_INTERPRETES: 'false'
+        NEXT_PUBLIC_ENVIRONMENT: 'DEV'
+    # `init: true` reparte SIGTERM al proceso de Node, sin depender de instalar un binario.
+    init: true
+    # Publicado en la interfaz de Tailscale, que es por donde entras.
+    ports: ['100.101.207.88:5173:5173']
+    expose: ['5173']
+    stop_grace_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 512m
