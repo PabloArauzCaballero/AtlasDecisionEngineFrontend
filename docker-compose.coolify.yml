@@ -32,6 +32,7 @@ name: atlas-engine-frontend
 
 services:
   frontend:
+    networks: ['default', 'coolify']
     restart: unless-stopped
     logging:
       driver: json-file
@@ -56,3 +57,17 @@ services:
       resources:
         limits:
           memory: 512m
+
+# ---------------------------------------------------------------------------------------------
+# La red COMPARTIDA de Coolify.
+#
+# Es como este portal alcanza a los backends: por su ALIAS estable (`atlas-backend`, `motor`,
+# `erp`), no por una IP del host. Coolify nombra cada contenedor con una marca de tiempo, así que
+# los nombres cambian en cada despliegue pero los alias no.
+#
+# **Hace falta activar «Connect To Predefined Network» en esta aplicación dentro de Coolify.**
+networks:
+  default: {}
+  coolify:
+    external: true
+    name: coolify
