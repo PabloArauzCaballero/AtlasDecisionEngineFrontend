@@ -30,6 +30,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 
 FROM base AS dependencies
+# `NODE_ENV` se FIJA aquí, y no es defensa teórica: Coolify declara un `ARG NODE_ENV` en TODAS las
+# etapas y le pasa el valor de Environment Variables, y un ARG llega a los `RUN` como variable de
+# entorno. Si alguien pone `production` en el panel, `yarn install` se salta las devDependencies
+# —typescript, eslint, los tipos— y el build muere despues, en otra etapa, sin nombrar la causa.
+# Instalar SIEMPRE con `development`: esta etapa existe para tener el arbol completo.
+ENV NODE_ENV=development
 COPY package.json yarn.lock ./
 # `--network-timeout` y `--network-concurrency` NO son adorno en este VPS.
 #
@@ -47,6 +53,20 @@ RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
     yarn install --frozen-lockfile --network-timeout 600000 --network-concurrency 4
 
 FROM base AS builder
+# La otra mitad de lo mismo, y esta es la que rompia el despliegue.
+#
+# Con `NODE_ENV=development` puesto por el ARG de Coolify, `next build` compila bien pero MUERE
+# prerenderizando las paginas de error:
+#
+#   Error: <Html> should not be imported outside of pages/_document.
+#   Export encountered an error on /_error: /404, exiting the build.
+#   ⨯ Next.js build worker exited with code: 1
+#
+# El panel de Coolify solo publica `did not complete successfully: exit code: 1`, asi que el fallo
+# se lee como falta de memoria o como un problema de red. No lo es. Este `ENV` gana sobre el ARG
+# —un ENV explicito tiene prioridad sobre el valor de un build-arg del mismo nombre— y deja el
+# build inmune a lo que haya en el panel.
+ENV NODE_ENV=production
 # `/` a propósito: el navegador llama al MISMO origen que le sirve la página y el servidor de Next
 # reenvía al motor. Así el tester no necesita que el 3020 esté publicado ni abierto en el firewall.
 ARG NEXT_PUBLIC_API_BASE_URL=/
