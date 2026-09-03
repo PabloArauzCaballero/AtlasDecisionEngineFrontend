@@ -115,6 +115,19 @@ describe('describeLoginError', () => {
     expect(describeLoginError(new ApiError('x', 503)).title).toMatch(/no está disponible/);
   });
 
+  it('no culpa a la cuenta cuando el rechazo es del origen', () => {
+    // Un 403 pelado sí habla de roles; con `UNTRUSTED_ORIGIN` el fallo es del
+    // despliegue, y decirle al usuario que no tiene rol manda a buscar en el
+    // sitio equivocado.
+    const problem = describeLoginError(new ApiError('x', 403, 'UNTRUSTED_ORIGIN'));
+
+    expect(problem.title).toMatch(/no está autorizado/);
+    expect(problem.body).toMatch(/No es tu cuenta/);
+    expect(problem.body).not.toMatch(/rol/);
+    expect(problem.action).toMatch(/CORS_ALLOWED_ORIGINS/);
+    expect(problem.retryable).toBe(false);
+  });
+
   it('explica la cuenta bloqueada y qué hacer al respecto', () => {
     const problem = describeLoginError(new ApiError('x', 401, 'ACCOUNT_LOCKED'));
 

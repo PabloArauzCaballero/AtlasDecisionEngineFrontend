@@ -32,6 +32,28 @@ export function describeLoginError(error: unknown): LoginProblem {
   }
 
   const code = (error.code ?? '').toUpperCase();
+  /*
+   * `UNTRUSTED_ORIGIN` va ANTES del `switch`, y por eso existe esta rama.
+   *
+   * El backend responde 403 cuando el `Origin` del navegador no está en
+   * `CORS_ALLOWED_ORIGINS`, y lo hace ANTES de mirar credencial ninguna
+   * (`SessionOriginService.assertAllowed`). Cayendo en `forbidden` por el
+   * código HTTP, el portal le decía a quien entraba que su usuario no tenía
+   * ningún rol habilitado: una acusación falsa sobre su cuenta por un fallo de
+   * configuración del despliegue. Costó una tarde de buscar roles que estaban
+   * bien puestos.
+   */
+  if (code === 'UNTRUSTED_ORIGIN') {
+    return {
+      title: 'Este portal no está autorizado a hablar con el motor',
+      body: 'No es tu cuenta: el servidor rechazó la dirección desde la que se abrió el portal, así que ni siquiera llegó a comprobar tus credenciales.',
+      action:
+        'Avisa al equipo de plataforma: falta añadir esta dirección a CORS_ALLOWED_ORIGINS del motor.',
+      tone: 'error',
+      retryable: false,
+    };
+  }
+
   if (code.includes('LOCKED') || code.includes('DISABLED') || code.includes('SUSPENDED')) {
     return {
       title: 'Tu cuenta está bloqueada',
