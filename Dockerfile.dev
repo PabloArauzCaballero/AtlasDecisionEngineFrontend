@@ -31,8 +31,20 @@ RUN corepack enable
 
 FROM base AS dependencies
 COPY package.json yarn.lock ./
-RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
-  yarn install --frozen-lockfile
+# `--network-timeout` y `--network-concurrency` NO son adorno en este VPS.
+#
+# Los tres portales se despliegan a veces a la vez, y cada uno resuelve su árbol entero con
+# `--no-cache`. Medido en un despliegue real: con los tres en paralelo y el swap ya al 83 %, este
+# mismo `yarn install` tardó ONCE MINUTOS y murió con `exit code: 1` — la máquina estaba paginando,
+# no había un problema de dependencias (el mismo build en solitario resuelve en menos de un
+# minuto). El error no menciona la memoria por ninguna parte.
+#
+# El timeout largo evita que una descarga lenta se dé por perdida; la concurrencia baja reduce las
+# conexiones simultáneas y con ellas el pico de memoria y de E/S. Ninguna de las dos arregla
+# desplegar tres portales a la vez —eso se arregla desplegándolos de uno en uno— pero suben mucho
+# el listón antes de que la lentitud se convierta en fallo.
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn,sharing=locked \
+    yarn install --frozen-lockfile --network-timeout 600000 --network-concurrency 4
 
 FROM base AS builder
 # `/` a propósito: el navegador llama al MISMO origen que le sirve la página y el servidor de Next
