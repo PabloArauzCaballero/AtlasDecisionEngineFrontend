@@ -644,6 +644,12 @@
       "tag": "Outcome Ingestion"
     },
     {
+      "method": "GET",
+      "path": "/v1/platform/catalog-manifest",
+      "operationId": "platformCatalogManifest",
+      "tag": "Platform Catalog"
+    },
+    {
       "method": "POST",
       "path": "/v1/qa-lab/counterexamples/{p}/replay",
       "operationId": "qaLabReplay",
@@ -1112,9 +1118,33 @@
       "tag": "Workers · Entidades financieras"
     },
     {
+      "method": "DELETE",
+      "path": "/v1/workers/bank-statement/institutions/{p}/logo",
+      "operationId": "financialInstitutionRemoveLogo",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/bank-statement/institutions/{p}/logo",
+      "operationId": "financialInstitutionLogo",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/workers/bank-statement/institutions/{p}/logo",
+      "operationId": "financialInstitutionSetLogo",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
       "method": "POST",
       "path": "/v1/workers/bank-statement/institutions/{p}/reactivate",
       "operationId": "financialInstitutionReactivate",
+      "tag": "Workers · Entidades financieras"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/bank-statement/institutions/logos/sync",
+      "operationId": "financialInstitutionSyncLogos",
       "tag": "Workers · Entidades financieras"
     },
     {
@@ -1203,6 +1233,36 @@
     },
     {
       "method": "GET",
+      "path": "/v1/workers/identity-verification/reviews",
+      "operationId": "identityReviewList",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/reviews/{p}",
+      "operationId": "identityReviewGet",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/identity-verification/reviews/{p}/claim",
+      "operationId": "identityReviewClaim",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/identity-verification/reviews/{p}/resolve",
+      "operationId": "identityReviewResolve",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/reviews/categories",
+      "operationId": "identityReviewCategories",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
       "path": "/v1/workers/identity-verification/runs",
       "operationId": "identityVerificationListRuns",
       "tag": "Workers · Verificación de identidad"
@@ -1223,6 +1283,12 @@
       "method": "POST",
       "path": "/v1/workers/identity-verification/runs/{p}/cancel",
       "operationId": "identityVerificationCancelRun",
+      "tag": "Workers · Verificación de identidad"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/identity-verification/runs/{p}/images/{p}",
+      "operationId": "identityVerificationGetRunImage",
       "tag": "Workers · Verificación de identidad"
     },
     {

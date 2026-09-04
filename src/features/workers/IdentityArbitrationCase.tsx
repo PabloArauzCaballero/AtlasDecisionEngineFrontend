@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
 import { formatDateTime } from '../../config/locale';
 import { claimIdentityReview, resolveIdentityReview } from './identity-review.api';
+import { ImagenesDeLaEjecucion } from './IdentityRunImagesPanel';
 import {
   IDENTITY_CONFIRMABLE_TYPES,
   IDENTITY_REASON_LABEL,
@@ -56,9 +57,20 @@ export function CasoDeArbitraje({ item }: { item: IdentityReviewItem }) {
   const mio = item.status === 'IN_REVIEW';
   const evidencia = item.documentTypeConfidence;
 
+  /*
+   * Las imágenes sólo se piden con el caso ABIERTO.
+   *
+   * La cola pinta veinticinco casos por página y cada uno es un `<details>` cerrado. Montar el
+   * panel sin esta guarda descargaría el carnet y la cara de veinticinco personas para enseñar una
+   * lista de resúmenes: megas de PII moviéndose por la red sin que nadie las mire, y la pantalla
+   * tardando en aparecer por culpa de lo que aún no se ha abierto. Es el mismo motivo por el que la
+   * consulta de la cola en el motor NO selecciona las columnas de imágenes.
+   */
+  const [abierto, setAbierto] = useState(false);
+
   return (
     <li className="revision-caso" data-prioridad={item.reviewPriority ?? undefined}>
-      <details>
+      <details onToggle={(evento) => setAbierto(evento.currentTarget.open)}>
         <summary>
           <StatusBadge
             value={mio ? 'RUNNING' : 'WARNING'}
@@ -74,6 +86,15 @@ export function CasoDeArbitraje({ item }: { item: IdentityReviewItem }) {
             {IDENTITY_REASON_LABEL[item.reviewReason] ?? item.reviewReason}
           </span>
         </summary>
+
+        {/*
+          Las imágenes van ARRIBA del todo, antes del detalle y de los botones.
+
+          Es el orden en que se hace el trabajo: se mira el carnet y la cara, y sólo después se
+          decide. Ponerlas debajo del formulario invita a resolver por el código de motivo —que es
+          exactamente lo que esta cola existía para evitar cuando no había imágenes que mirar.
+        */}
+        {abierto ? <ImagenesDeLaEjecucion requestId={item.requestId} /> : null}
 
         <p className="field-help">{item.errorMessage ?? 'Sin detalle del motor.'}</p>
         <p className="field-help">
