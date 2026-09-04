@@ -4,6 +4,7 @@ import { apiRequest } from '../../api/http-client';
 import { apiDownload } from '../../api/file-download';
 import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
+import { env } from '../../config/env';
 
 /**
  * Las fotos con las que hay que decidir.
@@ -116,6 +117,25 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
             pie: documento.sha256 ? `${documento.sha256.slice(0, 12)}…` : undefined,
           }))}
         />
+      ) : null}
+
+      {/*
+        Estas tres imágenes son las que el Motor evaluó, no todo lo que la persona entregó: los
+        extractos, lo que subió después y lo que añadió un operador viven en su expediente. Quien
+        revisa a mano necesita saber que existe ese resto; decidir creyendo que se vio todo es
+        peor que saber que falta por mirar.
+      */}
+      {env.adminPortalUrl && query.data?.customerId ? (
+        <p className="muted">
+          <a
+            href={`${env.adminPortalUrl}/internal/files/cliente/${encodeURIComponent(query.data.customerId)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Ver el expediente completo del cliente
+          </a>{' '}
+          — extractos, documentos añadidos después y la bitácora de quién abrió cada uno.
+        </p>
       ) : null}
     </Panel>
   );
