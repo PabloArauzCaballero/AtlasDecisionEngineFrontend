@@ -1,4 +1,12 @@
-import { Gauge, Inbox, Landmark, ListTree, SquareTerminal, UserSearch } from 'lucide-react';
+import {
+  Gauge,
+  Inbox,
+  Landmark,
+  ListTree,
+  Settings2,
+  SquareTerminal,
+  UserSearch,
+} from 'lucide-react';
 import type { WorkerCode } from './workers.api';
 
 /**
@@ -46,6 +54,12 @@ export const WORKER_VIEWS = [
     label: 'Pendientes de revisión',
     icon: UserSearch,
     hint: 'Casos que el motor no resolvió solo porque la duda era real. Lo que claramente no era el documento esperado se rechaza y no llega aquí.',
+  },
+  {
+    id: 'configuracion',
+    label: 'Configuración',
+    icon: Settings2,
+    hint: 'Qué gateway y qué modelo de lenguaje atienden este worker. Se cambia en caliente, sin desplegar.',
   },
 ] as const;
 
@@ -132,11 +146,26 @@ const REVISAN: readonly TabCode[] = ['identity-verification', 'bank-statement'];
  */
 const ADMINISTRAN_PADRON: readonly TabCode[] = ['bank-statement'];
 
+/**
+ * La configuración del modelo es SÓLO del semántico, y no por omisión.
+ *
+ * Es el único worker que habla con un modelo de lenguaje: identidad compara
+ * caras con Tesseract y Human en local, locución tiene su propio proveedor de
+ * voz, y extractos no llama a ningún modelo por su cuenta —cada glosa se la
+ * manda al semántico—. Ofrecer «qué modelo usar» en los demás prometería una
+ * palanca que sus contratos no tienen. Y el de extractos, que sí depende del
+ * modelo, tampoco la tiene aquí: la elección es del worker dueño, y dos
+ * pestañas que escriben la misma fila desde dos sitios es una forma de que
+ * alguien la cambie sin saber desde dónde.
+ */
+const CONFIGURAN_MODELO: readonly TabCode[] = ['semantic-analysis'];
+
 export function viewsFor(worker: TabCode): readonly WorkerView[] {
   return WORKER_VIEWS.filter((view) => {
     if (VISTAS_DEL_CATALOGO.includes(view.id)) return CLASIFICAN.includes(worker);
     if (view.id === 'entidades') return ADMINISTRAN_PADRON.includes(worker);
     if (view.id === 'revision') return REVISAN.includes(worker);
+    if (view.id === 'configuracion') return CONFIGURAN_MODELO.includes(worker);
     return true;
   });
 }

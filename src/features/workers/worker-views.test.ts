@@ -20,7 +20,26 @@ function idsDe(worker: WorkerCode): string[] {
 
 describe('pestañas de cada worker', () => {
   it('el semántico tiene las del catálogo: clasifica contra él', () => {
-    expect(idsDe('semantic-analysis')).toEqual(['panel', 'consola', 'categorias', 'pendientes']);
+    expect(idsDe('semantic-analysis')).toEqual([
+      'panel',
+      'consola',
+      'categorias',
+      'pendientes',
+      'configuracion',
+    ]);
+  });
+
+  /*
+   * La configuración del modelo es del ÚNICO worker que habla con un modelo de
+   * lenguaje. El de extractos depende de él pero no la tiene: la elección es
+   * del worker dueño, y dos pestañas escribiendo la misma fila desde dos sitios
+   * es una forma de que alguien la cambie sin saber desde dónde.
+   */
+  it('la configuración del modelo es sólo del semántico', () => {
+    expect(idsDe('semantic-analysis')).toContain('configuracion');
+    for (const worker of ['bank-statement', ...OTROS] as const) {
+      expect(idsDe(worker)).not.toContain('configuracion');
+    }
   });
 
   /*

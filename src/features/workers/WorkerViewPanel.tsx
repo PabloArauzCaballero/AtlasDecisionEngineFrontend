@@ -8,6 +8,7 @@ import { IdentityVerificationWorkerConsole } from '../../pages/IdentityVerificat
 import { SemanticAnalysisWorkerConsole } from '../../pages/SemanticAnalysisWorkerPage';
 import { IdentityArbitrationQueue } from './IdentityArbitrationQueue';
 import { IdentityReviewQueue } from './IdentityReviewQueue';
+import { SemanticModelSettingsPanel } from './SemanticModelSettingsPanel';
 import { StatementReviewQueue } from './StatementReviewQueue';
 import { UnresolvedConsole } from './UnresolvedConsole';
 import { WorkerCategoriesConsole } from './WorkerCategoriesConsole';
@@ -80,6 +81,14 @@ export function WorkerViewPanel({
     return (
       <div data-tutorial-id="workers-categories">
         <WorkerCategoriesConsole />
+      </div>
+    );
+  }
+
+  if (view === 'configuracion') {
+    return (
+      <div data-tutorial-id="workers-model-settings">
+        <SemanticModelSettingsPanel active={active} />
       </div>
     );
   }

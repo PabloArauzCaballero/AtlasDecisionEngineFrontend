@@ -1328,6 +1328,36 @@
       "tag": "Workers · Análisis semántico"
     },
     {
+      "method": "DELETE",
+      "path": "/v1/workers/semantic-analysis/model-settings",
+      "operationId": "semanticModelSettingsReset",
+      "tag": "Workers · Modelo semántico"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/model-settings",
+      "operationId": "semanticModelSettingsDescribe",
+      "tag": "Workers · Modelo semántico"
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/workers/semantic-analysis/model-settings",
+      "operationId": "semanticModelSettingsUpdate",
+      "tag": "Workers · Modelo semántico"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/workers/semantic-analysis/model-settings/catalog",
+      "operationId": "semanticModelSettingsListCatalog",
+      "tag": "Workers · Modelo semántico"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/workers/semantic-analysis/model-settings/test",
+      "operationId": "semanticModelSettingsTest",
+      "tag": "Workers · Modelo semántico"
+    },
+    {
       "method": "GET",
       "path": "/v1/workers/semantic-analysis/runs",
       "operationId": "semanticAnalysisListRuns",

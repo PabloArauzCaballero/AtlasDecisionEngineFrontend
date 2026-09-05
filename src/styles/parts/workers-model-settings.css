@@ -1,0 +1,201 @@
+/*
+ * Configuración del modelo del worker semántico: gateway y modelo por nivel.
+ *
+ * Hoja aparte de `workers-categories.css` y `workers-institutions.css` porque
+ * no es un catálogo: es UNA elección con dos tarjetas y dos campos, y lo que
+ * necesita —tarjetas de radio, una tabla corta de resultados— no lo tiene
+ * ninguna de las otras dos.
+ *
+ * Sólo tokens, ningún color escrito a mano.
+ */
+
+.modelo-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- El aviso de «no aplica» -------------------------------------------------- */
+
+/*
+ * Ámbar y no rojo: no ha fallado nada. El despliegue clasifica en local y la
+ * pestaña, sencillamente, no gobierna nada ahí.
+ */
+.modelo-aviso {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--warning-wash);
+  color: var(--text);
+  font-size: var(--type-sm);
+}
+
+.modelo-aviso-inline {
+  color: var(--warning-text, var(--text));
+}
+
+/* --- Las dos tarjetas de gateway --------------------------------------------- */
+
+.modelo-form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.modelo-form:disabled {
+  opacity: 0.7;
+}
+
+.modelo-gateways {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+/* Los anchos son los de la escala (`breakpoints.ts`): `md` para las dos columnas. */
+@media (min-width: 820px) {
+  .modelo-gateways {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/*
+ * Una tarjeta es un CONTROL: responde al ratón y al foco, al contrario que las
+ * fichas de `worker-facts`. El radio nativo queda visible —es lo que el lector
+ * de pantalla y el teclado entienden— y la tarjeta entera es su etiqueta.
+ */
+.modelo-gateway {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-1) var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.modelo-gateway input {
+  margin-top: 0.2em;
+}
+
+.modelo-gateway:hover:not(.is-disabled) {
+  border-color: var(--line-strong, var(--line));
+}
+
+.modelo-gateway:focus-within {
+  outline: 2px solid var(--focus-ring, var(--accent));
+  outline-offset: 2px;
+}
+
+.modelo-gateway.is-active {
+  background: var(--success-wash);
+  border-color: var(--success-line);
+}
+
+.modelo-gateway.is-disabled {
+  cursor: not-allowed;
+  color: var(--text-muted);
+  background: var(--surface-inset);
+}
+
+.modelo-gateway-nombre {
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.modelo-gateway-nota {
+  grid-column: 2;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  overflow-wrap: anywhere;
+}
+
+/* --- Los dos campos por nivel ------------------------------------------------ */
+
+.modelo-campos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 820px) {
+  .modelo-campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.modelo-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* El identificador es largo y el precio va detrás: que el desplegable no empuje la rejilla. */
+.modelo-selector select {
+  max-width: 100%;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--type-xs);
+}
+
+.modelo-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* --- Acciones y resultado de la prueba --------------------------------------- */
+
+.modelo-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: center;
+  margin: var(--space-4) 0 var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line-soft);
+}
+
+.modelo-sonda {
+  margin-top: var(--space-4);
+}
+
+.modelo-sonda-titulo {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-md);
+}
+
+.modelo-sonda-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-sm);
+}
+
+.modelo-sonda-tabla th,
+.modelo-sonda-tabla td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.modelo-sonda-tabla thead th {
+  color: var(--text-muted);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--track-normal);
+}
+
+/*
+ * Sólo se tiñe la fila fallida: es la SEÑAL. Una fila correcta se lee como
+ * datos, no como un semáforo en verde.
+ */
+.modelo-sonda-tabla tr.is-error td,
+.modelo-sonda-tabla tr.is-error th {
+  background: var(--danger-wash);
+  color: var(--danger-text);
+}
