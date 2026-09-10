@@ -3,6 +3,7 @@ import { env } from '../config/env';
 import { ApiError } from './ApiError';
 import { createRequestSignal } from './request-signal';
 import { parseResponse } from './response';
+import { setOriginHeaders } from './screen-origin';
 
 type ClientSession = {
   getAccessToken: () => string | null;
@@ -234,6 +235,8 @@ async function send<T>(
    */
   if (!headers.has('accept')) headers.set('accept', 'application/json');
   if (token) headers.set('authorization', `Bearer ${token}`);
+  // Quién llama y desde qué pantalla: ver `screen-origin.ts`.
+  setOriginHeaders(headers);
   if (body !== undefined && !isMultipart && !headers.has('content-type')) {
     headers.set('content-type', 'application/json');
   }
