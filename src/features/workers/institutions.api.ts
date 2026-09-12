@@ -21,7 +21,21 @@ export type InstitutionKind =
   | 'COOPERATIVE'
   | 'DEVELOPMENT_IFD';
 
-export type InstitutionLicenseStatus = 'LICENSED' | 'SUSPENDED' | 'REVOKED';
+/**
+ * Los siete que declara el padrón del motor, no tres.
+ *
+ * Con tres, una entidad en quiebra —las hay en el corte de ASFI— se pintaba con la celda de
+ * licencia VACÍA, y al abrir su ficha el desplegable la mostraba como «licencia vigente» y la
+ * guardaba así: el formulario cambiaba en silencio un estado que nadie tocó.
+ */
+export type InstitutionLicenseStatus =
+  | 'LICENSED'
+  | 'SUSPENDED'
+  | 'INTERVENED'
+  | 'VOLUNTARY_LIQUIDATION'
+  | 'BANKRUPTCY'
+  | 'ABSORBED'
+  | 'REVOKED';
 
 export interface FinancialInstitution {
   code: string;
@@ -125,6 +139,12 @@ export const INSTITUTION_KIND_LABELS: Record<InstitutionKind, string> = {
 export const LICENSE_STATUS_LABELS: Record<InstitutionLicenseStatus, string> = {
   LICENSED: 'Licencia vigente',
   SUSPENDED: 'Suspendida',
+  // «Intervenida» no es «revocada»: una intervención no implica revocación automática, y el
+  // corte de ASFI publica entidades intervenidas sin resolución de revocación.
+  INTERVENED: 'Intervenida',
+  VOLUNTARY_LIQUIDATION: 'En liquidación voluntaria',
+  BANKRUPTCY: 'En quiebra',
+  ABSORBED: 'Absorbida',
   REVOKED: 'Revocada',
 };
 
