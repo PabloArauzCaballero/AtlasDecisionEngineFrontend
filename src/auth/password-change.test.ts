@@ -34,7 +34,7 @@ describe('cambio de contraseña desde el portal', () => {
 
   it('confirma sin reintentar tras un 401', async () => {
     const input = {
-      challengeToken: 'desafio-opaco-1234567890',
+      challengeToken: 'desafio-opaco-1234567890', // gitleaks:allow — fixture inventado
       code: '123456',
       newPassword: 'NuevaClave#2026',
     };
