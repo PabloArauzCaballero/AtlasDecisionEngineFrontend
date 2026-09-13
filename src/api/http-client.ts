@@ -1,7 +1,9 @@
 import type { ZodType, ZodTypeDef } from 'zod';
 import { env } from '../config/env';
 import { ApiError } from './ApiError';
+import { assertSafeApiPath } from './api-path';
 import { createRequestSignal } from './request-signal';
+import { retryModeFor, sendWithRetry } from './gateway-retry';
 import { parseResponse } from './response';
 import { setOriginHeaders } from './screen-origin';
 
@@ -32,18 +34,6 @@ export interface PublicApiRequestOptions<TResponse = unknown> extends Omit<
 
 export interface ApiRequestOptions<TResponse = unknown> extends PublicApiRequestOptions<TResponse> {
   retryOnUnauthorized?: boolean;
-}
-
-function assertSafeApiPath(path: string): void {
-  if (!path.startsWith('/') || path.startsWith('//')) {
-    throw new ApiError(
-      'La ruta de API no es válida.',
-      400,
-      'INVALID_API_PATH',
-      undefined,
-      'validation',
-    );
-  }
 }
 
 /**
@@ -194,7 +184,23 @@ export async function apiEventStream(
   }
 }
 
+/**
+ * Envía y repite si el servicio de aguas abajo no estaba. Ver `gateway-retry.ts`: durante un
+ * despliegue contesta el proxy con `*_UNAVAILABLE`, y eso no es un error que la persona tenga que
+ * ver ni resolver.
+ */
 async function send<T>(
+  path: string,
+  options: ApiRequestOptions<T>,
+  token?: string,
+): Promise<Response> {
+  return sendWithRetry(() => sendOnce(path, options, token), {
+    mode: retryModeFor(options.method),
+    signal: options.signal,
+  });
+}
+
+async function sendOnce<T>(
   path: string,
   options: ApiRequestOptions<T>,
   token?: string,

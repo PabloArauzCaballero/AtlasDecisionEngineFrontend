@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 import { SessionExpiryDialog } from './SessionExpiryDialog';
 import { useSessionLimits } from './useSessionLimits';
+import { sessionRejected } from '../api/gateway-retry';
 import { configureHttpClient } from '../api/http-client';
 import { AuthContext, type AuthStatus } from './AuthContext';
 import * as authApi from './auth.api';
@@ -82,7 +83,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
     try {
       return (await refreshSession()).accessToken;
     } catch (error) {
-      expireSession();
+      /*
+        La sesión se cierra SÓLO si el motor rechazó el refresco.
+
+        Antes se cerraba ante cualquier fallo, y un refresco que coincidía con un despliegue —el
+        servicio sin levantar, el proxy contestando `*_UNAVAILABLE`— echaba del portal a quien tenía
+        un refresh token perfectamente válido, con el mensaje «Tu sesión venció». Si el motor no
+        contestó, el token sigue valiendo: se informa del fallo y la siguiente operación lo resuelve.
+      */
+      if (sessionRejected(error)) expireSession();
       throw error;
     }
   }, [expireSession, refreshSession]);
