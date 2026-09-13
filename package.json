@@ -34,7 +34,7 @@
     "@tanstack/react-query": "^5.83.0",
     "lucide-react": "^0.468.0",
     "monaco-editor": "^0.56.0",
-    "next": "^16.2.11",
+    "next": "^16.3.5",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "webr": "0.6.0",
@@ -66,6 +66,7 @@
     "dompurify": "^3.4.13",
     "js-yaml": "^4.3.1",
     "nanoid": "^3.3.18",
-    "postcss": "^8.5.26"
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.4"
   }
 }
