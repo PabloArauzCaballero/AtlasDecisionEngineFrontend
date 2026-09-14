@@ -116,6 +116,23 @@ function insercionDe(simbolo: SimboloNotebook, language: NotebookLanguage): stri
   return `'${simbolo.nombre}'`;
 }
 
+/**
+ * Fin de línea SIEMPRE `\n`, nunca `\r\n`.
+ *
+ * Monaco crea sus modelos con el fin de línea de Windows por omisión, así que una celda de más de
+ * una línea salía del editor con `\r\n` y ese `\r` viajaba hasta el intérprete. R lo rechaza al
+ * analizar —«unexpected invalid token» señalando el final de la primera línea—, de modo que
+ * CUALQUIER celda de R con dos líneas fallaba, para cualquiera, con un mensaje que apunta a la
+ * columna equivocada y no menciona el carácter culpable. Python y JavaScript toleran `\r\n` y por
+ * eso el defecto parecía «cosa de R».
+ *
+ * Se normaliza aquí, en el único punto por donde sale el valor del editor, y no en cada intérprete:
+ * el fin de línea es una decisión del editor, y los tres motores deben recibir el mismo texto.
+ */
+function normalizarFinDeLinea(texto: string): string {
+  return texto.replace(/\r\n?/gu, '\n');
+}
+
 export function NotebookCodeEditor({
   language,
   value,
@@ -184,7 +201,7 @@ export function NotebookCodeEditor({
         language={MONACO_LANGUAGE[language]}
         theme="vs-dark"
         value={value}
-        onChange={(siguiente) => onChange(siguiente ?? '')}
+        onChange={(siguiente) => onChange(normalizarFinDeLinea(siguiente ?? ''))}
         onMount={alMontar}
         options={{
           minimap: { enabled: false },

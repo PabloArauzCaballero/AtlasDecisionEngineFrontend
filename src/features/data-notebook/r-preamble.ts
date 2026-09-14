@@ -94,9 +94,34 @@ const EJECUTOR = `
 }
 `;
 
-/** La sentencia que corre en cada celda. Constante: lo variable es `.atlas_codigo`. */
-export const CORRER_CELDA = `.atlas_ultimo <- .atlas_ejecuta(.atlas_codigo)
+/**
+ * La sentencia que corre en cada celda. Constante: lo variable es `.atlas_codigo`.
+ *
+ * El `tryCatch` no es prudencia: sin él, **un error de R no llegaba nunca a JavaScript**. La captura
+ * de WebR corre con `captureConditions: false`, así que el fallo salía por el flujo de texto, se
+ * mezclaba con lo que la celda hubiera impreso y la ejecución se daba por BUENA — la pantalla
+ * enseñaba «object 'x' not found» como si fuera un resultado más, sin marcar la celda en rojo y sin
+ * que nada distinguiera una celda que falló de una que terminó. Se guarda el motivo en
+ * `.atlas_error` y el runtime lo lee después.
+ */
+export const CORRER_CELDA = `.atlas_error <- NULL
+.atlas_ultimo <- tryCatch(
+  .atlas_ejecuta(.atlas_codigo),
+  error = function(e) {
+    .atlas_error <<- conditionMessage(e)
+    NULL
+  }
+)
 invisible(NULL)`;
+
+/**
+ * El motivo del fallo, o cadena vacía.
+ *
+ * Se devuelve `conditionMessage`, no el error entero: el envoltorio de la celda
+ * (`eval(expresion, envir = globalenv())`) aparecería en la traza y mandaría a buscar el problema
+ * en una función que quien escribió la celda no escribió.
+ */
+export const LEER_ERROR = `if (is.null(.atlas_error)) "" else .atlas_error`;
 
 /** Lee el valor de la última expresión, ya normalizado a JSON. */
 export const LEER_RESULTADO = `.atlas_normaliza(.atlas_visible())`;

@@ -5,6 +5,7 @@ import {
   CORRER_CELDA,
   INVENTARIO_SIMBOLOS,
   LEER_RESULTADO,
+  LEER_ERROR,
   PREAMBULO_DATOS,
 } from './r-preamble';
 import { columnasParaR, type ColumnasR } from './r-data';
@@ -116,6 +117,23 @@ export async function runRCell(webR: WebR, codigo: string): Promise<CellOutcome>
 
     for (const linea of captura.output) {
       if (typeof linea.data === 'string') registro.push(linea.data);
+    }
+
+    /*
+     * ¿Falló la celda? Se pregunta, no se deduce del texto.
+     *
+     * `captureConditions: false` deja los errores de R fuera de lo que WebR devuelve a JavaScript,
+     * así que antes una celda que reventaba terminaba con `status: 'ok'` y su mensaje mezclado
+     * entre las líneas impresas. `.atlas_error` lo fija el `tryCatch` del envoltorio.
+     */
+    const fallo = (await webR.evalRString(LEER_ERROR)).trim();
+    if (fallo) {
+      return {
+        status: 'error',
+        error: fallo,
+        logs: registro,
+        durationMs: Math.round(performance.now() - iniciado),
+      };
     }
 
     const normalizado = await leerResultado(webR);
