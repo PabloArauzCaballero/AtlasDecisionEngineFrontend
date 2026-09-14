@@ -8,8 +8,14 @@ import { apiRequest } from '../../api/http-client';
  * audita**. Una cadena de hashes que nadie verifica no es una garantía, es una promesa.
  */
 
-/** Por qué un eslabón no verifica. Los tres motivos significan cosas distintas. */
-export type MotivoInvalido = 'PREVIOUS_HASH_MISMATCH' | 'HASH_MISMATCH' | 'HASH_KEY_UNAVAILABLE';
+/** Por qué un eslabón no verifica. Los motivos significan cosas distintas. */
+export type MotivoInvalido =
+  | 'PREVIOUS_HASH_MISMATCH'
+  /** El nombre que EMITE el motor (`audit-query.service.ts`). */
+  | 'EVENT_HASH_MISMATCH'
+  /** Nombre anterior del mismo motivo; se conserva para informes ya archivados. */
+  | 'HASH_MISMATCH'
+  | 'HASH_KEY_UNAVAILABLE';
 
 export interface EventoInvalido {
   readonly id: string;
@@ -35,8 +41,35 @@ export interface MetricasAuditoria {
   };
 }
 
+/**
+ * Normaliza la respuesta en el BORDE.
+ *
+ * El tipo declaraba `invalid` como obligatorio y nadie lo comprobaba: una respuesta sin esa clave
+ * —un motor más antiguo, una pasarela que contesta otra cosa durante un despliegue— reventaba la
+ * vista entera con «Cannot read properties of undefined (reading 'some')», y el registro de
+ * auditoría es justo la pantalla que no puede desaparecer.
+ *
+ * Sin lista de eslabones NO se afirma que la cadena esté bien: `valid` sólo es cierto si llegó
+ * `true`, y de una respuesta ilegible se dice lo único que se sabe: que no hay nada que enumerar.
+ */
+export function normalizarVerificacion(bruto: unknown): VerificacionCadena {
+  const dato = (bruto ?? {}) as Partial<VerificacionCadena>;
+  const invalid = Array.isArray(dato.invalid)
+    ? dato.invalid.filter(
+        (evento): evento is EventoInvalido =>
+          !!evento && typeof evento === 'object' && 'id' in evento && 'reason' in evento,
+      )
+    : [];
+  return {
+    valid: dato.valid === true,
+    eventCount: typeof dato.eventCount === 'number' ? dato.eventCount : 0,
+    headHash: typeof dato.headHash === 'string' ? dato.headHash : null,
+    invalid,
+  };
+}
+
 export function verifyAuditChain(signal?: AbortSignal): Promise<VerificacionCadena> {
-  return apiRequest<VerificacionCadena>('/v1/audit/chain/verify', { signal });
+  return apiRequest<unknown>('/v1/audit/chain/verify', { signal }).then(normalizarVerificacion);
 }
 
 export function fetchAuditMetrics(signal?: AbortSignal): Promise<MetricasAuditoria> {
@@ -58,6 +91,17 @@ export const MOTIVOS: Record<string, { titulo: string; explicacion: string; inci
         'Este evento no enlaza con el anterior. Falta un eslabón o se insertó algo entre medias.',
       incidente: true,
     },
+    EVENT_HASH_MISMATCH: {
+      titulo: 'El evento fue alterado',
+      explicacion:
+        'El contenido del evento ya no corresponde a su firma: alguien lo cambió después de ' +
+        'escribirlo.',
+      incidente: true,
+    },
+    // El motor emitió `HASH_MISMATCH` antes de llamarlo `EVENT_HASH_MISMATCH`. Se conserva porque
+    // un informe archivado o un motor sin actualizar siguen usándolo, y porque no reconocerlo no
+    // producía un texto feo: `MOTIVOS[reason]` quedaba indefinido, `incidente` también, y una
+    // MANIPULACIÓN REAL se pintaba en ámbar —«no se pudo comprobar»— en vez de en rojo.
     HASH_MISMATCH: {
       titulo: 'El evento fue alterado',
       explicacion:
