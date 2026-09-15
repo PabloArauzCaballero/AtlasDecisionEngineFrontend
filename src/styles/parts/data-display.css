@@ -198,8 +198,15 @@ tbody tr:hover {
 }
 .form-row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  /* `minmax(0, …)`: sin él cada columna se niega a encoger por debajo de su contenido y, con las
+     métricas de fuente de Linux, `/simulator` a 320 px desbordaba 2 px en CI (en Mac cabía). */
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 14px;
+}
+@media (max-width: 560px) {
+  .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .two-column {
   display: grid;

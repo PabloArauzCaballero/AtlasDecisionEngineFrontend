@@ -172,6 +172,18 @@ function respuestaDeConsulta(statement: string) {
 
 export async function mockSqlConsoleBackend(page: Page): Promise<void> {
   await page.route('**/health/**', (route) => route.fulfill({ json: { status: 'UP' } }));
+  /*
+   * El SEGUNDO origen de la consola (AtlasBackend) contesta que no tiene consola.
+   *
+   * Sin esta ruta la petición llegaba al proxy del portal, que en CI no tiene destino: devolvía
+   * 502 y el cliente lo reintentaba como caída de pasarela durante más de los 10 s que las
+   * pruebas esperan al explorador —la consola espera a los DOS catálogos—, así que la prueba
+   * leía un catálogo vacío. En un Mac pasaba porque había un AtlasBackend escuchando. Un 404 no
+   * se reintenta y deja la consola con sólo el motor, que es lo que estas pruebas miden.
+   */
+  await page.route('**/atlas-backend/sql-console/**', (route) =>
+    route.fulfill({ status: 404, json: { message: 'Not Found' } }),
+  );
   await page.route('**/v1/**', async (route) => {
     const request = route.request();
     const url = request.url();

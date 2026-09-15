@@ -34,6 +34,36 @@ test.use({
 });
 
 test.describe('tomar la selfie con la cámara', () => {
+  /*
+   * El SENSOR se simula aquí, y sólo el sensor.
+   *
+   * Las banderas de arriba no bastan: en CI (Chromium sin interfaz en Linux) no hay dispositivo
+   * falso que abrir, `getUserMedia` falla y «Tomar foto» no se habilita nunca; y en un Mac, como
+   * dice la cabecera, Chromium abría la cámara REAL. Un lienzo animado da un `MediaStream` de
+   * verdad —pistas con `stop()` y `readyState`, un `<video>` que reproduce y un lienzo que
+   * captura—, así que todo lo que la prueba afirma sigue ejercitándose de verdad. Se registra
+   * antes que el envoltorio de la segunda prueba, que así cuenta las pistas de esta cámara.
+   */
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      navigator.mediaDevices.getUserMedia = async () => {
+        const lienzo = document.createElement('canvas');
+        lienzo.width = 640;
+        lienzo.height = 480;
+        const contexto = lienzo.getContext('2d');
+        let paso = 0;
+        const pintar = () => {
+          if (!contexto) return;
+          contexto.fillStyle = `hsl(${(paso += 7) % 360} 55% 50%)`;
+          contexto.fillRect(0, 0, lienzo.width, lienzo.height);
+        };
+        pintar();
+        window.setInterval(pintar, 100);
+        return lienzo.captureStream(15);
+      };
+    });
+  });
+
   test('la foto tomada entra en el formulario como un archivo más', async ({ page }) => {
     const problemas = collectProblems(page);
     await mockWorkersBackend(page);
