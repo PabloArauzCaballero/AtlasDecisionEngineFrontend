@@ -78,6 +78,17 @@
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-normal);
 }
+.editor-version-control .option-select {
+  /* Ancho fijo, como el select nativo al que sustituye: sin él el desplegable toma el de su texto,
+     aprieta la barra, «Constructor manual» baja a dos líneas y el lienzo sale de la primera
+     pantalla. */
+  width: 170px;
+  flex: none;
+}
+.editor-identity strong,
+.editor-identity small {
+  white-space: nowrap;
+}
 .editor-version-control .option-select-button {
   min-height: 34px;
   padding-block: 7px;
