@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { useOutcomeBatch, type OutcomeDraft, type OutcomeRowResult } from './decision-quality.api';
+import { Field } from '../../components/Field';
 
 const SAMPLE = `LOAN-2026-000841,90,BAD,COLLECTIONS_SYSTEM,320.50
 LOAN-2026-000842,90,GOOD,COLLECTIONS_SYSTEM
@@ -57,8 +58,10 @@ export function OutcomeUploadPanel() {
       meta="referencia de crédito, ventana, resultado, origen, importe"
       tutorialId="quality-upload"
     >
-      <label className="field">
-        <span>Filas en CSV</span>
+      <Field
+        label="Filas en CSV"
+        tooltip="Desenlaces observados en CSV, una fila por decisión y con la cabecera del ejemplo."
+      >
         <textarea
           rows={8}
           value={text}
@@ -69,7 +72,7 @@ export function OutcomeUploadPanel() {
             setRows(null);
           }}
         />
-      </label>
+      </Field>
 
       {parseErrors.length > 0 && (
         <ul className="quality-row-errors">

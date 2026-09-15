@@ -6,6 +6,7 @@ import { ModalDialog } from '../components/ModalDialog';
 import { confirmPasswordChange, requestPasswordChange } from './auth.api';
 import type { PinChallenge } from './auth.types';
 import { useAuth } from './useAuth';
+import { Field } from '../components/Field';
 
 /**
  * Cambio de contraseña de quien ya está dentro, en dos pasos y con el mismo
@@ -74,8 +75,10 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
         onClose={onClose}
       >
         <form className="password-change-form" onSubmit={(event) => void onConfirm(event)}>
-          <label>
-            <span>Código del correo</span>
+          <Field
+            label="Código del correo"
+            tooltip="Código enviado a tu correo para confirmar el cambio de contraseña."
+          >
             <input
               value={code}
               onChange={(event) => setCode(event.target.value)}
@@ -84,9 +87,11 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
               maxLength={6}
               required
             />
-          </label>
-          <label>
-            <span>Contraseña nueva</span>
+          </Field>
+          <Field
+            label="Contraseña nueva"
+            tooltip="La contraseña que usarás desde ahora: mínimo 10 caracteres, con letra y número o símbolo."
+          >
             <input
               type="password"
               value={newPassword}
@@ -96,9 +101,11 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
               required
             />
             <small>Mínimo 10 caracteres, con al menos una letra y un número o símbolo.</small>
-          </label>
-          <label>
-            <span>Repite la contraseña nueva</span>
+          </Field>
+          <Field
+            label="Repite la contraseña nueva"
+            tooltip="Escríbela otra vez para descartar un error de tecleo."
+          >
             <input
               type="password"
               value={repeatPassword}
@@ -106,7 +113,7 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
               autoComplete="new-password"
               required
             />
-          </label>
+          </Field>
           {error ? (
             <p className="password-change-error" role="alert">
               {error}
@@ -128,8 +135,10 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
       onClose={onClose}
     >
       <form className="password-change-form" onSubmit={(event) => void onRequest(event)}>
-        <label>
-          <span>Contraseña actual</span>
+        <Field
+          label="Contraseña actual"
+          tooltip="La contraseña con la que entraste; confirma que el cambio lo pides tú."
+        >
           <input
             type="password"
             value={currentPassword}
@@ -137,7 +146,7 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
             autoComplete="current-password"
             required
           />
-        </label>
+        </Field>
         {error ? (
           <p className="password-change-error" role="alert">
             {error}

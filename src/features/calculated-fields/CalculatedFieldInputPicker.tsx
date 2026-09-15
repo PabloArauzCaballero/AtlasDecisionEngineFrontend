@@ -8,6 +8,8 @@ import { parseConstraints, type VariableConstraints } from '../../contracts/cons
 import { normalizeDataType } from '../../contracts/data-types';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import type { CalculatedFieldInput } from './calculated-field.types';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   taken: string[];
@@ -105,28 +107,26 @@ export function CalculatedFieldInputPicker({ taken, onAdd, onConstraints }: Prop
 
       {origin === 'CATALOG' ? (
         <div className="output-contract-controls">
-          <label className="constraint-field">
-            <span>Variable del catálogo</span>
-            <select
-              aria-label="Variable del catálogo"
+          <Field
+            className="constraint-field"
+            label={'Variable del catálogo'}
+            tooltip="Variable del catálogo que entra como dato del campo calculado."
+          >
+            <OptionSelect
+              name="variable-catalogo"
               value={chosen}
               disabled={catalog.isPending}
-              onChange={(event) => {
-                setChosen(event.target.value);
-                if (event.target.value) void addFromCatalog(event.target.value);
+              placeholder={catalog.isPending ? 'Cargando el catálogo…' : '— elegir variable —'}
+              onChange={(valor) => {
+                setChosen(valor);
+                if (valor) void addFromCatalog(valor);
               }}
-            >
-              <option value="">
-                {catalog.isPending ? 'Cargando el catálogo…' : '— elegir variable —'}
-              </option>
-              {rows.map((row) => (
-                <option key={display(row, 'definitionId')} value={display(row, 'definitionId')}>
-                  {display(row, 'variableCode')} · {display(row, 'canonicalName')} (
-                  {display(row, 'dataType')})
-                </option>
-              ))}
-            </select>
-          </label>
+              options={rows.map((row) => ({
+                value: display(row, 'definitionId'), // sin-ayuda: variables del catálogo, entidades de los datos
+                label: `${display(row, 'variableCode')} · ${display(row, 'canonicalName')} (${display(row, 'dataType')})`,
+              }))}
+            />
+          </Field>
           <small className="field-hint">
             Trae ya puestos el identificador, el nombre, el tipo y las restricciones que el catálogo
             declara.
@@ -134,15 +134,18 @@ export function CalculatedFieldInputPicker({ taken, onAdd, onConstraints }: Prop
         </div>
       ) : (
         <div className="output-contract-controls">
-          <label className="constraint-field">
-            <span>Identificador de la entrada</span>
+          <Field
+            className="constraint-field"
+            label="Identificador de la entrada"
+            tooltip="Nombre técnico de la entrada nueva, en minúsculas. Ej.: factor_conversion."
+          >
             <input
               aria-label="Identificador de la nueva entrada"
               placeholder="factor_conversion"
               value={draftId}
               onChange={(event) => setDraftId(event.target.value)}
             />
-          </label>
+          </Field>
           <button
             className="button button-primary"
             type="button"

@@ -11,6 +11,7 @@ import { FieldControl } from './SimulatorFieldControl';
 import { missingRequired, seedPayload } from './simulator-payload';
 import { PairsEditor } from './SimulatorPairsEditor';
 import { SimulatorSampleBar } from './SimulatorSampleBar';
+import { OptionSelect } from '../../components/OptionSelect';
 
 type View = 'form' | 'json' | 'pairs';
 
@@ -148,6 +149,7 @@ export function SimulatorInputEditor({
         <JsonTextarea
           id="variables"
           label="Variables de entrada (JSON)"
+          tooltip="Valores de las variables de entrada en JSON, como los mandaría quien llama al motor."
           value={value}
           onChange={onChange}
           rows={16}
@@ -182,7 +184,10 @@ export function SimulatorInputEditor({
                 const allowed = Array.isArray(schema.enum) ? schema.enum : [];
                 const current = parsed[code];
                 return (
-                  <label className="field" key={code}>
+                  <label
+                    /* sin-ayuda: la variable del contrato se describe bajo el campo */ className="field"
+                    key={code}
+                  >
                     {/*
                      * Manda el nombre legible, y el código baja al pie.
                      *
@@ -200,19 +205,22 @@ export function SimulatorInputEditor({
                       {required ? ' *' : ''}
                     </span>
                     {allowed.length ? (
-                      <select
+                      <OptionSelect
+                        name={`valor-${code}`}
                         value={current === undefined || current === null ? '' : String(current)}
-                        onChange={(event) =>
-                          setField(code, event.target.value === '' ? undefined : event.target.value)
-                        }
-                      >
-                        <option value="">Sin valor</option>
-                        {allowed.map((option) => (
-                          <option key={String(option)} value={String(option)}>
-                            {String(option)}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(valor) => setField(code, valor === '' ? undefined : valor)}
+                        options={[
+                          {
+                            value: '',
+                            label: 'Sin valor',
+                            description: 'Deja la variable sin valor en la simulación.',
+                          },
+                          ...allowed.map((option) => ({
+                            value: String(option), // sin-ayuda: valores permitidos por el contrato de la variable
+                            label: String(option),
+                          })),
+                        ]}
+                      />
                     ) : (
                       <FieldControl
                         dataType={dataType}

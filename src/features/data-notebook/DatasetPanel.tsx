@@ -4,6 +4,8 @@ import { Database, EyeOff, RefreshCw, Scissors, ShieldAlert } from 'lucide-react
 import { esDelMotor } from './engine-datasets';
 import type { NotebookCatalog, NotebookDataset, NotebookPage } from './notebook.api';
 import { ResultTable } from './ResultTable';
+import { FieldLabel } from '../../components/FieldLabel';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface DatasetPanelProps {
   catalog: NotebookCatalog;
@@ -76,33 +78,37 @@ export function DatasetPanel({
   return (
     <section className="notebook-dataset" aria-label="Datos cargados en el cuaderno">
       <header className="notebook-dataset__head">
-        <label className="notebook-dataset__picker">
-          <span className="notebook-dataset__label">
-            <Database aria-hidden="true" size={14} /> Dataset
-          </span>
-          <select
+        <div className="notebook-dataset__picker">
+          <FieldLabel
+            htmlFor="notebook-dataset"
+            className="notebook-dataset__label"
+            label={
+              <>
+                <Database aria-hidden="true" size={14} /> Dataset
+              </>
+            }
+            tooltip="Vista de datos que se carga en el cuaderno; cada una viene de AtlasBackend o del motor."
+          />
+          <OptionSelect
+            id="notebook-dataset"
+            name="dataset"
             value={selected}
-            onChange={(evento) => onSelect(evento.target.value)}
+            onChange={onSelect}
             disabled={loading}
-          >
-            <optgroup label="AtlasBackend · clientes, casos y bitácora">
-              {deAtlasBackend.map((candidato) => (
-                <option key={candidato.code} value={candidato.code}>
-                  {candidato.label}
-                </option>
-              ))}
-            </optgroup>
-            {delMotor.length ? (
-              <optgroup label="Motor de decisión · decisiones y riesgo">
-                {delMotor.map((candidato) => (
-                  <option key={candidato.code} value={candidato.code}>
-                    {candidato.label}
-                  </option>
-                ))}
-              </optgroup>
-            ) : null}
-          </select>
-        </label>
+            options={[
+              ...deAtlasBackend.map((candidato) => ({
+                value: candidato.code,
+                label: candidato.label,
+                description: `AtlasBackend · ${candidato.description}`,
+              })),
+              ...delMotor.map((candidato) => ({
+                value: candidato.code,
+                label: candidato.label,
+                description: `Motor de decisión · ${candidato.description}`,
+              })),
+            ]}
+          />
+        </div>
         <button type="button" className="button" onClick={onReload} disabled={loading}>
           <RefreshCw aria-hidden="true" size={14} /> Recargar
         </button>

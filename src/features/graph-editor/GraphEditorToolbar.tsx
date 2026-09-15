@@ -87,7 +87,8 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
                 testId="select-graph-version"
                 options={[
                   ...(!hasCurrent && props.versionId
-                    ? [{ value: props.versionId, label: props.versionId }]
+                    ? // sin-ayuda: la versión abierta, que no está en el catálogo cargado
+                      [{ value: props.versionId, label: props.versionId }]
                     : []),
                   ...versionRows.map((row) => ({
                     value: display(row, 'id'),

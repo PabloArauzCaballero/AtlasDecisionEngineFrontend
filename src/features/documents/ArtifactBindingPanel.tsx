@@ -6,6 +6,8 @@ import { Panel } from '../../components/Panel';
 import { StatusBadge } from '../../components/StatusBadge';
 import { fetchArtifactSample, fetchBindableArtifacts, fetchCompatibility } from './documents.api';
 import type { FieldValues } from './SchemaDrivenForm';
+import { FieldLabel } from '../../components/FieldLabel';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Casar el documento con un artefacto, a nivel de datos.
@@ -140,22 +142,23 @@ export function ArtifactBindingPanel({
       {compatibles.length > 0 ? (
         <>
           <div className="doc-picker">
-            <label className="doc-form__label" htmlFor="doc-artifact">
-              Artefacto
-            </label>
-            <select
+            <FieldLabel
+              htmlFor="doc-artifact"
+              className="doc-form__label"
+              label="Artefacto"
+              tooltip="Artefacto del motor cuyos datos de salida rellenan la plantilla."
+            />
+            <OptionSelect
               id="doc-artifact"
+              name="artefacto-documento"
               value={selected}
               disabled={disabled || traerDatos.isPending}
-              onChange={(event) => setArtifactId(event.target.value)}
-            >
-              {compatibles.map((artifact) => (
-                <option key={artifact.artifactId} value={artifact.artifactId}>
-                  {artifact.title} · {artifact.artifactId}@{artifact.artifactVersion} (
-                  {artifact.outputFieldCount} campos)
-                </option>
-              ))}
-            </select>
+              onChange={setArtifactId}
+              options={compatibles.map((artifact) => ({
+                value: artifact.artifactId, // sin-ayuda: artefactos del motor, entidades de los datos
+                label: `${artifact.title} · ${artifact.artifactId}@${artifact.artifactVersion} (${artifact.outputFieldCount} campos)`,
+              }))}
+            />
           </div>
 
           {ocultos.length > 0 ? (

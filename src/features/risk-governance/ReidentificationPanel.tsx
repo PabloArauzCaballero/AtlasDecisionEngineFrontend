@@ -11,6 +11,7 @@ import {
   useRequestReidentification,
 } from './risk-governance.api';
 import { ReidentificationStatusBadge } from './ConsentPanel';
+import { Field } from '../../components/Field';
 
 /**
  * Ir del caso seudónimo a la persona, con dos firmas y por escrito.
@@ -62,22 +63,27 @@ export function ReidentificationPanel() {
         tutorialId="risk-reidentification"
       >
         <div className="quality-form-grid">
-          <label className="field">
-            <span>Referencia del titular</span>
+          <Field
+            label="Referencia del titular"
+            tooltip="Referencia de la persona titular que se quiere reidentificar."
+          >
             <input
               value={form.subjectReference}
               autoComplete="off"
               onChange={(event) => setForm({ ...form, subjectReference: event.target.value })}
             />
-          </label>
-          <label className="field quality-field-wide">
-            <span>Por qué hace falta</span>
+          </Field>
+          <Field
+            className="quality-field-wide"
+            label="Por qué hace falta"
+            tooltip="Motivo concreto que justifica reidentificar al titular."
+          >
             <input
               value={form.purpose}
               placeholder="Reclamo 4471 en defensa del consumidor: hay que contactar al titular."
               onChange={(event) => setForm({ ...form, purpose: event.target.value })}
             />
-          </label>
+          </Field>
         </div>
         <div className="quality-inline-actions">
           <button

@@ -12,6 +12,7 @@ import { OutcomeUploadPanel } from '../features/decision-quality/OutcomeUploadPa
 import { PendingWindowsPanel } from '../features/decision-quality/PendingWindowsPanel';
 import { VintageMatrix } from '../features/decision-quality/VintageMatrix';
 import { useCoverageReport } from '../features/decision-quality/decision-quality.api';
+import { Field } from '../components/Field';
 
 const TABS: readonly TabDefinition[] = [
   {
@@ -134,14 +135,17 @@ function VintageTab() {
   const [versionId, setVersionId] = useState('');
   return (
     <div className="quality-stack">
-      <label className="field quality-filter">
-        <span>Versión del algoritmo (vacío = todas)</span>
+      <Field
+        className="quality-filter"
+        label="Versión del algoritmo (vacío = todas)"
+        tooltip="Limita la medición a una versión; vacío mide todas."
+      >
         <input
           value={versionId}
           onChange={(event) => setVersionId(event.target.value)}
           placeholder="4001"
         />
-      </label>
+      </Field>
       <VintageMatrix artifactVersionId={versionId.trim()} />
     </div>
   );

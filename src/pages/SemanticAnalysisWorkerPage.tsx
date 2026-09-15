@@ -22,6 +22,7 @@ import { useNotifications } from '../notifications/useNotifications';
 import { SemanticResultView } from '../features/workers/SemanticResultView';
 import { WorkerNotes } from '../features/workers/WorkerNotes';
 import { asRecord, asStrings } from '../utils/records';
+import { Field } from '../components/Field';
 
 const WORKER = 'semantic-analysis' as const;
 
@@ -168,17 +169,16 @@ export function SemanticAnalysisWorkerConsole() {
           ownLabel="Escribir un texto"
           disabled={requestId !== null}
         >
-          <label className="field">
-            <span className="field-label" id="worker-text-label">
-              Texto a analizar
-            </span>
+          <Field
+            label="Texto a analizar"
+            tooltip="Glosa o texto libre que clasifica el worker semántico."
+          >
             <textarea
               className="worker-textarea"
               rows={7}
               value={text}
               onChange={(event) => setText(event.target.value)}
               disabled={requestId !== null}
-              aria-labelledby="worker-text-label"
               aria-describedby="worker-text-help"
               placeholder="Pega aquí el texto que quieres clasificar."
             />
@@ -189,7 +189,7 @@ export function SemanticAnalysisWorkerConsole() {
               {formatNumber(text.length)} de {formatNumber(maxLength)} caracteres
               {text.length > maxLength ? ' — excede el máximo permitido' : ''}
             </small>
-          </label>
+          </Field>
         </WorkerInputChoice>
 
         {requestId === null ? (

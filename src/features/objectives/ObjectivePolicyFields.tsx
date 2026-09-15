@@ -1,5 +1,7 @@
 import { CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { normalizeObjectiveCode, type PolicyDraft } from './objective-authoring';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 type ObjectivePolicyFieldsProps = {
   policies: PolicyDraft[];
@@ -51,8 +53,10 @@ export function ObjectivePolicyFields({
               </button>
             </header>
             <div className="objective-form-grid">
-              <label className="field">
-                <span>Código</span>
+              <Field
+                label="Código"
+                tooltip="Identificador de la política en mayúsculas. Ej.: POL_FRAUDE_01."
+              >
                 <input
                   required
                   minLength={2}
@@ -64,29 +68,50 @@ export function ObjectivePolicyFields({
                     onUpdate(index, { policyCode: normalizeObjectiveCode(event.target.value) })
                   }
                 />
-              </label>
-              <label className="field">
-                <span>Severidad</span>
-                <select
+              </Field>
+              <Field
+                label={'Severidad'}
+                tooltip="Qué pasa cuando la política del objetivo no se cumple."
+              >
+                <OptionSelect
+                  name={`severidad-${index}`}
                   value={policy.severity}
-                  onChange={(event) => onUpdate(index, { severity: event.target.value })}
-                >
-                  <option value="INFO">Informativa</option>
-                  <option value="WARNING">Advertencia</option>
-                  <option value="BLOCKING">Bloqueante</option>
-                </select>
-              </label>
-              <label className="field">
-                <span>Responsable</span>
+                  onChange={(valor) => onUpdate(index, { severity: valor })}
+                  options={[
+                    {
+                      value: 'INFO',
+                      label: 'Informativa',
+                      description: 'Sólo informa del incumplimiento; no bloquea nada.',
+                    },
+                    {
+                      value: 'WARNING',
+                      label: 'Advertencia',
+                      description: 'Avisa del incumplimiento sin impedir avanzar.',
+                    },
+                    {
+                      value: 'BLOCKING',
+                      label: 'Bloqueante',
+                      description: 'Impide avanzar mientras la política no se cumpla.',
+                    },
+                  ]}
+                />
+              </Field>
+              <Field
+                label="Responsable"
+                tooltip="Área que vela por el cumplimiento de la política. Ej.: Compliance."
+              >
                 <input
                   required
                   placeholder="Compliance"
                   value={policy.owner}
                   onChange={(event) => onUpdate(index, { owner: event.target.value })}
                 />
-              </label>
-              <label className="field objective-field-wide">
-                <span>Justificación</span>
+              </Field>
+              <Field
+                className="objective-field-wide"
+                label="Justificación"
+                tooltip="Por qué esta política sostiene el objetivo."
+              >
                 <textarea
                   required
                   rows={2}
@@ -94,7 +119,7 @@ export function ObjectivePolicyFields({
                   value={policy.rationale}
                   onChange={(event) => onUpdate(index, { rationale: event.target.value })}
                 />
-              </label>
+              </Field>
             </div>
           </article>
         ))}

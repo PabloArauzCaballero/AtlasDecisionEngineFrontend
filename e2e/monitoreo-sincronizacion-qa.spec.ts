@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { QA_RUNS, monitoringBackend } from './support/monitoring-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * La sincronización entre el QA Lab y el monitoreo del modelo.
@@ -19,8 +20,8 @@ async function elegirVersion(page: Page) {
   await page.setViewportSize({ width: 1512, height: 900 });
   await page.goto('/model-monitoring', { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Monitoreo del modelo');
-  await page.getByLabel(/^Artefacto/).selectOption('CREDIT_ORIGINATION');
-  await page.getByLabel(/^Versión a monitorear/).selectOption('4001');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Artefacto/ }), 'CREDIT_ORIGINATION');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Versión a monitorear/ }), '4001');
 }
 
 function carril(page: Page) {
@@ -101,8 +102,8 @@ test('dos corridas configuradas distinto NO se comparan', async ({ page }) => {
     }),
   );
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.getByLabel(/^Artefacto/).selectOption('CREDIT_ORIGINATION');
-  await page.getByLabel(/^Versión a monitorear/).selectOption('4001');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Artefacto/ }), 'CREDIT_ORIGINATION');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Versión a monitorear/ }), '4001');
 
   await expect(carril(page)).toContainText('Hacen falta dos corridas');
   await expect(carril(page)).toContainText('mediría la configuración y no el motor');
@@ -115,8 +116,8 @@ test('una versión sin corridas lo dice, en vez de enseñar ceros', async ({ pag
     route.fulfill({ json: { total: 0, items: [] } }),
   );
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.getByLabel(/^Artefacto/).selectOption('CREDIT_ORIGINATION');
-  await page.getByLabel(/^Versión a monitorear/).selectOption('4001');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Artefacto/ }), 'CREDIT_ORIGINATION');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Versión a monitorear/ }), '4001');
 
   await expect(carril(page)).toContainText('Esta versión no se ha sometido a estrés');
   // Y dice cómo se arregla, con la condición que hace legible la serie.

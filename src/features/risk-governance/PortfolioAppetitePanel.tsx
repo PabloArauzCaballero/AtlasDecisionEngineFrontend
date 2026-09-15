@@ -10,6 +10,7 @@ import {
   useUpsertLimit,
   type ExposureLimit,
 } from './risk-governance.api';
+import { Field } from '../../components/Field';
 
 /**
  * Apetito de cartera: cuánto queda antes de topar.
@@ -122,36 +123,35 @@ function LimitForm() {
       meta="empieza en «sólo mide» y endurécelo cuando veas el consumo"
     >
       <div className="quality-form-grid">
-        <label className="field">
-          <span>Código</span>
+        <Field label="Código" tooltip="Identificador del límite de cartera.">
           <input
             value={form.limitCode}
             onChange={(event) => setForm({ ...form, limitCode: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Segmento (vacío = toda la cartera)</span>
+        </Field>
+        <Field
+          label="Segmento (vacío = toda la cartera)"
+          tooltip="Segmento al que aplica el límite; vacío lo aplica a toda la cartera."
+        >
           <input
             value={form.segment}
             onChange={(event) => setForm({ ...form, segment: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Máximo</span>
+        </Field>
+        <Field label="Máximo" tooltip="Valor máximo que admite el límite.">
           <input
             value={form.maxValue}
             inputMode="decimal"
             onChange={(event) => setForm({ ...form, maxValue: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Moneda</span>
+        </Field>
+        <Field label="Moneda" tooltip="Código ISO de 3 letras de la moneda del límite.">
           <input
             value={form.currencyCode}
             maxLength={3}
             onChange={(event) => setForm({ ...form, currencyCode: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
       <label className="field-inline">
         <input
@@ -202,28 +202,25 @@ function PortfolioStateForm() {
       meta="lo normal es que lo haga la conciliación; esto es para verlo y corregirlo"
     >
       <div className="quality-form-grid">
-        <label className="field">
-          <span>Métrica</span>
+        <Field label="Métrica" tooltip="Métrica de cartera cuyo valor se registra.">
           <input
             value={form.metricCode}
             onChange={(event) => setForm({ ...form, metricCode: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Segmento</span>
+        </Field>
+        <Field label="Segmento" tooltip="Segmento de cartera al que corresponde el valor.">
           <input
             value={form.segment}
             onChange={(event) => setForm({ ...form, segment: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Valor</span>
+        </Field>
+        <Field label="Valor" tooltip="Valor medido de la métrica para ese segmento.">
           <input
             value={form.value}
             inputMode="decimal"
             onChange={(event) => setForm({ ...form, value: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
       <div className="quality-inline-actions">
         <button

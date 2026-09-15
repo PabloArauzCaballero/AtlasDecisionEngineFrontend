@@ -8,6 +8,8 @@ import {
   type OpenRouterModel,
   type SemanticModelSettings,
 } from './model-settings.api';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface ModelSettingsFormProps {
   ajustes: SemanticModelSettings;
@@ -86,8 +88,10 @@ export function ModelSettingsForm({
         </div>
       ) : (
         <div className="modelo-campos">
-          <label className="field">
-            <span className="field-label">Alias del nivel rápido</span>
+          <Field
+            label="Alias del nivel rápido"
+            tooltip="Alias del modelo rápido tal como lo define el gateway LiteLLM."
+          >
             <input
               className="mono"
               value={valor.fastModel}
@@ -96,15 +100,17 @@ export function ModelSettingsForm({
             <span className="field-help">
               Un alias del <code>model_list</code> del gateway, nunca un modelo físico.
             </span>
-          </label>
-          <label className="field">
-            <span className="field-label">Alias del nivel profundo</span>
+          </Field>
+          <Field
+            label="Alias del nivel profundo"
+            tooltip="Alias del modelo profundo tal como lo define el gateway LiteLLM."
+          >
             <input
               className="mono"
               value={valor.deepModel}
               onChange={(evento) => onChange({ ...valor, deepModel: evento.target.value })}
             />
-          </label>
+          </Field>
         </div>
       )}
     </fieldset>
@@ -193,18 +199,21 @@ function SelectorModelo({
 
   return (
     <div className="field modelo-selector">
-      <label className="field">
-        <span className="field-label">{rotulo}</span>
-        <select value={valor} onChange={(evento) => onChange(evento.target.value)}>
-          {opciones.map((modelo) => (
-            <option key={modelo.id} value={modelo.id}>
-              {describir(modelo)}
-            </option>
-          ))}
-        </select>
+      <Field label={rotulo} tooltip={ayuda}>
+        <OptionSelect
+          name={rotulo}
+          value={valor}
+          onChange={onChange}
+          options={opciones.map((modelo) => ({
+            value: modelo.id, // sin-ayuda: modelos del catálogo; precio y contexto van en el rótulo
+            label: describir(modelo),
+          }))}
+        />
         <span className="field-help">{ayuda}</span>
-      </label>
-      <label className="modelo-filtro">
+      </Field>
+      <label
+        /* sin-ayuda: filtro de búsqueda del catálogo, no un dato que se guarda */ className="modelo-filtro"
+      >
         <span className="field-label">Filtrar el catálogo</span>
         <input
           type="search"

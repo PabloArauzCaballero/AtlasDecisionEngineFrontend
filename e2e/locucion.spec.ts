@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mockWorkersBackend } from './support/workers-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * La consola de locución, afirmada y fotografiada a la vez.
@@ -56,7 +57,7 @@ test('la consola locuta desde el catálogo, no desde un cuadro de texto libre', 
   await capturar(page, '02-consola-escenarios.png');
 
   await consola.getByRole('radio', { name: /Elegir una plantilla/ }).check();
-  await consola.locator('select').first().selectOption('onboarding.welcome.named');
+  await elegirOpcion(consola.getByTestId('select-plantilla'), 'onboarding.welcome.named');
 
   /*
    * La plantilla decide qué se puede decir Y qué hay que rellenar. Mientras
@@ -81,7 +82,9 @@ test('el desenlace se dice con todas las letras y el audio se puede oír', async
   await page.goto(RUTA, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   const consola = await abrirConsola(page);
 
-  await consola.locator('.worker-fixtures select').selectOption('bienvenida-con-nombre');
+  await consola.getByTestId('select-escenario').click();
+
+  await consola.page().getByTestId('select-escenario-option-bienvenida-con-nombre').click();
   await consola.getByRole('button', { name: 'Locutar' }).click();
 
   await expect(consola.getByText('En cola')).toBeVisible({ timeout: 20_000 });
@@ -112,7 +115,8 @@ test('la misma pantalla en tema oscuro', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
   const consola = await abrirConsola(page);
-  await consola.locator('.worker-fixtures select').selectOption('bienvenida-con-nombre');
+  await consola.getByTestId('select-escenario').click();
+  await consola.page().getByTestId('select-escenario-option-bienvenida-con-nombre').click();
   await consola.getByRole('button', { name: 'Locutar' }).click();
   await expect(consola.locator('.worker-audio-player audio')).toBeVisible({ timeout: 30_000 });
   await capturar(page, '07-resultado-oscuro.png');

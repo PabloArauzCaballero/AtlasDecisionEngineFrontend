@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 import { HAY_CREDENCIALES, entrar } from './support/real-portal';
+import { elegirOpcion, valorDe } from './support/option-select';
 
 /**
  * La sincronización QA Lab → monitoreo del modelo, contra el motor REAL.
@@ -59,12 +60,13 @@ test('una serie de estrés del QA Lab se lee en el monitoreo del modelo', async 
    */
   await page.goto('/model-monitoring', { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Monitoreo del modelo');
-  await page.getByLabel(/^Artefacto/).selectOption({ index: 1 });
-  const version = page.getByLabel(/^Versión a monitorear/);
-  await expect
-    .poll(async () => version.locator('option').count(), { timeout: 30_000 })
-    .toBeGreaterThan(1);
-  await version.selectOption(versionId);
+  const artefactoMonitoreo = page.getByRole('combobox', { name: /^Artefacto/ });
+  await expect(artefactoMonitoreo).toBeEnabled({ timeout: 30_000 });
+  await artefactoMonitoreo.click();
+  await page.getByRole('option').first().click();
+  const version = page.getByRole('combobox', { name: /^Versión a monitorear/ });
+  await expect(version).toBeEnabled({ timeout: 30_000 });
+  await elegirOpcion(version, versionId);
 
   const carril = page.locator('.panel').filter({ hasText: 'Sincronización con QA Lab' });
   await expect(carril).toBeVisible({ timeout: 30_000 });
@@ -123,19 +125,17 @@ async function prepararQaLab(page: Page): Promise<string> {
 
   // La versión se descubre navegando: contra la base real un identificador escrito a mano casi
   // nunca existe, y la prueba acabaría midiendo una pantalla de «no encontrado».
-  const artefacto = page.getByLabel(/^Artefacto/);
-  await expect(artefacto).toBeVisible({ timeout: 30_000 });
-  await expect
-    .poll(async () => artefacto.locator('option').count(), { timeout: 30_000 })
-    .toBeGreaterThan(1);
-  await artefacto.selectOption({ index: 1 });
+  const artefacto = page.getByRole('combobox', { name: /^Artefacto/ });
+  await expect(artefacto).toBeEnabled({ timeout: 30_000 });
+  await artefacto.click();
+  // La lista es un portal del `body`: la primera fila es un artefacto, no un marcador.
+  await page.getByRole('option').first().click();
 
-  const version = page.getByLabel(/^Versión del artefacto/);
-  await expect
-    .poll(async () => version.locator('option').count(), { timeout: 30_000 })
-    .toBeGreaterThan(1);
-  await version.selectOption({ index: 1 });
-  const versionId = await version.inputValue();
+  const version = page.getByRole('combobox', { name: /^Versión del artefacto/ });
+  await expect(version).toBeEnabled({ timeout: 30_000 });
+  await version.click();
+  await page.getByRole('option').first().click();
+  const versionId = (await valorDe(version)) ?? '';
   await page.getByRole('button', { name: 'Usar esta versión' }).click();
 
   await expect(page.getByLabel('Concurrencia')).toBeVisible({ timeout: 30_000 });

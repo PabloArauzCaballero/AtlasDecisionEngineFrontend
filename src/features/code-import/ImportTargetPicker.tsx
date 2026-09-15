@@ -7,6 +7,7 @@ import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { ArtifactVersionPicker } from '../../components/ArtifactVersionPicker';
 import { errorMessage } from '../../api/ApiError';
+import { Field } from '../../components/Field';
 
 /**
  * Dónde va a parar el código importado.
@@ -152,8 +153,10 @@ export function ImportTargetPicker({ versionId, onVersionChange, onLockVersionCh
 
       {mode === 'NEW_ARTIFACT' ? (
         <>
-          <label className="field">
-            <span>Código del algoritmo</span>
+          <Field
+            label="Código del algoritmo"
+            tooltip="Identificador del algoritmo en mayúsculas, números y guion bajo. Ej.: SCORING_CONSUMO."
+          >
             <input
               value={code}
               placeholder="SCORING_CONSUMO"
@@ -162,15 +165,17 @@ export function ImportTargetPicker({ versionId, onVersionChange, onLockVersionCh
             <small className="field-hint">
               Mayúsculas, números y guion bajo. Es el identificador con el que se le llamará.
             </small>
-          </label>
-          <label className="field">
-            <span>Nombre legible</span>
+          </Field>
+          <Field
+            label="Nombre legible"
+            tooltip="Nombre con el que se ve el algoritmo en el portal."
+          >
             <input
               value={name}
               placeholder="Scoring de consumo"
               onChange={(event) => setName(event.target.value)}
             />
-          </label>
+          </Field>
           <button
             type="button"
             className="button"

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { elegirOpcion, esperarOpcion, valorDe } from '../../test/option-select';
 import { SemanticModelSettingsPanel } from './SemanticModelSettingsPanel';
 import {
   fetchModelSettings,
@@ -152,13 +153,13 @@ describe('configuración del modelo del worker semántico', () => {
 
     fireEvent.click(await screen.findByRole('radio', { name: /OpenRouter/ }));
     // Al cambiar de gateway, los modelos pasan a los que dicta el entorno para ÉSE.
-    const profundo = await screen.findByLabelText(/Nivel profundo/);
-    await waitFor(() => expect(profundo).toHaveValue('anthropic/claude-sonnet-4.5'));
+    const profundo = () => screen.getByRole('combobox', { name: /Nivel profundo/ });
+    await waitFor(() => expect(valorDe(profundo())).toBe('anthropic/claude-sonnet-4.5'));
     // El catálogo llega aparte: hasta que no está, la opción no existe y el
     // cambio no tendría a qué agarrarse.
-    await screen.findAllByRole('option', { name: /gemini-2\.5-flash/ });
-    fireEvent.change(profundo, { target: { value: 'google/gemini-2.5-flash' } });
-    expect(profundo).toHaveValue('google/gemini-2.5-flash');
+    await esperarOpcion(profundo, 'google/gemini-2.5-flash');
+    elegirOpcion(profundo(), 'google/gemini-2.5-flash');
+    expect(valorDe(profundo())).toBe('google/gemini-2.5-flash');
 
     const boton = screen.getByRole('button', { name: /^Guardar/ });
     await waitFor(() => expect(boton).toBeEnabled());

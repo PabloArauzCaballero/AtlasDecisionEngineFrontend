@@ -14,6 +14,8 @@ import {
   isInformationRequestReady,
   type InformationRequestDraft,
 } from './information-request';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface CaseInformationRequestDialogProps {
   caseId: string;
@@ -85,28 +87,32 @@ export function CaseInformationRequestDialog({
       {request.isError ? (
         <Alert tone="error">{informationRequestError(request.error)}</Alert>
       ) : null}
-      <label className="field">
-        <span>A quién se le pide</span>
-        <select
+      <Field
+        label={'A quién se le pide'}
+        tooltip="Quién tiene que aportar el dato que falta para resolver el caso."
+      >
+        <OptionSelect
+          name="origen-informacion"
           value={draft.source}
-          onChange={(event) =>
+          placeholder="Elegir origen…"
+          onChange={(valor) =>
             setDraft((current) => ({
               ...current,
-              source: event.target.value as InformationRequestDraft['source'],
+              source: valor as InformationRequestDraft['source'],
             }))
           }
-        >
-          <option value="">Elegir origen…</option>
-          {INFORMATION_SOURCES.map((source) => (
-            <option key={source.value} value={source.value}>
-              {source.label}
-            </option>
-          ))}
-        </select>
-      </label>
+          options={INFORMATION_SOURCES.map((source) => ({
+            value: source.value,
+            label: source.label,
+            description: source.help,
+          }))}
+        />
+      </Field>
       {chosen ? <p className="muted-note">{chosen.help}</p> : null}
-      <label className="field">
-        <span>Qué dato falta y para qué</span>
+      <Field
+        label="Qué dato falta y para qué"
+        tooltip="La pregunta concreta: qué dato hace falta y para qué decisión."
+      >
         <textarea
           rows={6}
           value={draft.question}
@@ -115,7 +121,7 @@ export function CaseInformationRequestDialog({
             setDraft((current) => ({ ...current, question: event.target.value }))
           }
         />
-      </label>
+      </Field>
       {draft.question.trim() && !ready ? (
         <p className="muted-note">
           Describe la petición con algo más de detalle: quien la atienda no ve el caso.

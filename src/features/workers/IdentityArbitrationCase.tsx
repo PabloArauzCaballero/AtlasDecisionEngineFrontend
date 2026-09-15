@@ -17,6 +17,8 @@ import {
   type IdentityRejectionReason,
   type IdentityReviewItem,
 } from './identity-review';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Un caso, con lo que hace falta para decidirlo y las dos acciones que lo cierran.
@@ -123,44 +125,44 @@ export function CasoDeArbitraje({ item }: { item: IdentityReviewItem }) {
           </div>
         ) : (
           <div className="identity-arbitration-form">
-            <label className="field">
-              <span className="field-label">Qué documento es</span>
-              <select
+            <Field
+              label={'Qué documento es'}
+              tooltip="Tipo de documento que confirmas tras mirar la imagen."
+            >
+              <OptionSelect
+                name="tipo-documento"
                 value={documentType}
-                onChange={(evento) =>
-                  setDocumentType(evento.target.value as IdentityConfirmableType)
-                }
-              >
-                {IDENTITY_CONFIRMABLE_TYPES.map((tipo) => (
-                  <option key={tipo} value={tipo}>
-                    {IDENTITY_TYPE_LABEL[tipo]}
-                  </option>
-                ))}
-              </select>
+                onChange={(valor) => setDocumentType(valor as IdentityConfirmableType)}
+                options={IDENTITY_CONFIRMABLE_TYPES.map((tipo) => ({
+                  value: tipo, // sin-ayuda: nombres de documentos, se entienden por sí solos
+                  label: IDENTITY_TYPE_LABEL[tipo],
+                }))}
+              />
               <span className="field-help">
                 Al confirmar, la verificación se reanuda desde el principio con este tipo ya
                 decidido: la puerta no vuelve a preguntar.
               </span>
-            </label>
+            </Field>
 
-            <label className="field">
-              <span className="field-label">Si no lo es, por qué</span>
-              <select
+            <Field
+              label={'Si no lo es, por qué'}
+              tooltip="Por qué la imagen no sirve como documento para este trámite."
+            >
+              <OptionSelect
+                name="motivo-rechazo"
                 value={rejectionReason}
-                onChange={(evento) =>
-                  setRejectionReason(evento.target.value as IdentityRejectionReason)
-                }
-              >
-                {IDENTITY_REJECTION_REASONS.map((motivo) => (
-                  <option key={motivo} value={motivo}>
-                    {IDENTITY_REJECTION_LABEL[motivo]}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={(valor) => setRejectionReason(valor as IdentityRejectionReason)}
+                options={IDENTITY_REJECTION_REASONS.map((motivo) => ({
+                  value: motivo, // sin-ayuda: cada rótulo ya es una frase que explica el motivo
+                  label: IDENTITY_REJECTION_LABEL[motivo],
+                }))}
+              />
+            </Field>
 
-            <label className="field">
-              <span className="field-label">Por qué decidiste esto</span>
+            <Field
+              label="Por qué decidiste esto"
+              tooltip="Tu razonamiento; queda en la fila y en la auditoría."
+            >
               <textarea
                 value={notes}
                 onChange={(evento) => setNotes(evento.target.value)}
@@ -168,7 +170,7 @@ export function CasoDeArbitraje({ item }: { item: IdentityReviewItem }) {
                 maxLength={2000}
                 placeholder="Queda en la fila y en la auditoría."
               />
-            </label>
+            </Field>
 
             <div className="worker-run-actions">
               <button

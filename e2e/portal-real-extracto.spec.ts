@@ -65,7 +65,11 @@ test.describe('extracto bancario · clasificación con el motor real', () => {
      * para que reordenar el catálogo de escenarios no cambie en silencio lo que
      * se mide.
      */
-    await page.getByLabel('Escenario').selectOption({ label: 'Extracto completo' });
+    await page.getByTestId('select-escenario').click();
+    await page
+      .page()
+      .getByRole('option', { name: /Extracto completo/ })
+      .click();
     await page.getByRole('button', { name: 'Convertir' }).click();
 
     await expect(page.locator('.worker-table-scroll table')).toBeVisible({ timeout: 5 * 60_000 });

@@ -24,6 +24,8 @@ import {
   sampleInputsSchema,
   type SampleKind,
 } from './sample-batch';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   artifactCode: string;
@@ -198,29 +200,29 @@ export function SimulatorSampleBar({
   return (
     <div className="sample-bar" data-tutorial-id="simulator-samples">
       <div className="sample-bar-actions">
-        <label className="field sample-bar-kind">
-          <span>Valores de prueba</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
-            {SAMPLE_KINDS.map((option) => (
-              <option key={option} value={option}>
-                {KIND_OPTIONS[option]}
-              </option>
-            ))}
-          </select>
-        </label>
-        {/*
-         * El número de casos DESAPARECE con «uno por cada resultado»: no es que no se
-         * pueda tocar, es que no existe —lo fija el grafo—. Dejarlo deshabilitado con un
-         * marcador recortado invitaba a intentar escribir en él.
-         */}
+        <Field
+          className="sample-bar-kind"
+          label={'Valores de prueba'}
+          tooltip="Qué clase de valores de prueba genera el motor para rellenar el formulario."
+        >
+          <OptionSelect
+            name="tipo-muestra"
+            value={kind}
+            onChange={(valor) => setKind(valor as SampleKind)}
+            options={SAMPLE_KINDS.map((option) => ({
+              value: option, // sin-ayuda: el rótulo ya dice qué valores genera
+              label: KIND_OPTIONS[option],
+            }))}
+          />
+        </Field>
+        {/* Con «uno por cada resultado» el número de casos no existe —lo fija el grafo—:
+            dejarlo deshabilitado invitaba a intentar escribir en él. */}
         {kind === 'OUTCOMES' ? null : (
-          <label className="field sample-bar-count">
-            <span>Casos</span>
-            {/*
-             * Con «uno por cada resultado» el número lo fija el grafo, no quien pulsa:
-             * pedir tres casos a un algoritmo con cinco finales dejaría dos decisiones
-             * sin probar y la tanda parecería completa.
-             */}
+          <Field
+            className="sample-bar-count"
+            label="Casos"
+            tooltip="Cuántos casos de prueba se generan, hasta 20."
+          >
             <input
               type="number"
               min={1}
@@ -230,7 +232,7 @@ export function SimulatorSampleBar({
                 setCount(Math.min(20, Math.max(1, Number(event.target.value) || 1)))
               }
             />
-          </label>
+          </Field>
         )}
         <button
           type="button"

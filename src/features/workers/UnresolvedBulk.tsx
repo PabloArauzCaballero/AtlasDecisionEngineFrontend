@@ -13,6 +13,7 @@ import {
 } from './unresolved-contract';
 import type { UnresolvedItem } from './unresolved.api';
 import { saveBlob } from '../../utils/download';
+import { Field } from '../../components/Field';
 
 /**
  * Resolver la bandeja en bloque: sacar el problema entero y devolver las
@@ -180,8 +181,10 @@ export function UnresolvedBulk({
 
       {abierto ? (
         <div className="pendientes-bloque-panel">
-          <label className="field">
-            <span className="field-label">Asignaciones (JSON o CSV)</span>
+          <Field
+            label="Asignaciones (JSON o CSV)"
+            tooltip="Pares valor y categoría en JSON o CSV para resolver pendientes en bloque."
+          >
             <textarea
               rows={7}
               value={respuesta}
@@ -189,7 +192,7 @@ export function UnresolvedBulk({
               placeholder={'[{ "id": "12", "categoryCode": "GASTOS.ALIMENTACION.SUPERMERCADO" }]'}
               spellCheck={false}
             />
-          </label>
+          </Field>
           <p className="field-help">
             En CSV la cabecera es <code>{COLUMNAS_PENDIENTES.join(', ')}</code> y sólo se leen{' '}
             <code>id</code> y <code>categoryCode</code>: una fila con la categoría en blanco sigue

@@ -8,6 +8,8 @@ import {
   type TutorialLevel,
 } from './interactive-types';
 import { EMPTY_FILTERS, STATE_LABELS, type CenterFilters } from './tutorial-center-state';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   filters: CenterFilters;
@@ -26,7 +28,10 @@ export function TutorialCenterFilters({ filters, onChange, resultCount }: Props)
 
   return (
     <div className="tutorial-center-filters" data-tutorial-id="tutorial-center-filters">
-      <label className="tutorial-center-search" data-tutorial-id="tutorial-center-search">
+      <label
+        /* sin-ayuda: buscador con icono; el texto oculto lo nombra */ className="tutorial-center-search"
+        data-tutorial-id="tutorial-center-search"
+      >
         <Search size={15} aria-hidden />
         <span className="sr-only">Buscar un tutorial</span>
         <input
@@ -37,56 +42,64 @@ export function TutorialCenterFilters({ filters, onChange, resultCount }: Props)
         />
       </label>
 
-      <label>
-        <span>Módulo</span>
-        <select
+      <Field label={'Módulo'} tooltip="Filtra los tutoriales por el área del portal que enseñan.">
+        <OptionSelect
+          name="category"
           value={filters.category}
-          onChange={(event) =>
-            onChange({ ...filters, category: event.target.value as CenterFilters['category'] })
+          onChange={(valor) =>
+            onChange({ ...filters, category: valor as CenterFilters['category'] })
           }
-        >
-          <option value="all">Todos</option>
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {TUTORIAL_CATEGORY_LABELS[category]}
-            </option>
-          ))}
-        </select>
-      </label>
+          options={[
+            {
+              value: 'all',
+              label: 'Todos',
+              description: 'Sin filtrar: tutoriales de todos los módulos.',
+            },
+            ...CATEGORIES.map((item) => ({
+              value: item, // sin-ayuda: el rótulo ya nombra el valor del filtro
+              label: TUTORIAL_CATEGORY_LABELS[item],
+            })),
+          ]}
+        />
+      </Field>
 
-      <label>
-        <span>Estado</span>
-        <select
+      <Field label={'Estado'} tooltip="Filtra los tutoriales por tu avance en cada uno.">
+        <OptionSelect
+          name="state"
           value={filters.state}
-          onChange={(event) =>
-            onChange({ ...filters, state: event.target.value as CenterFilters['state'] })
-          }
-        >
-          <option value="all">Todos</option>
-          {STATES.map((state) => (
-            <option key={state} value={state}>
-              {STATE_LABELS[state]}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(valor) => onChange({ ...filters, state: valor as CenterFilters['state'] })}
+          options={[
+            {
+              value: 'all',
+              label: 'Todos',
+              description: 'Sin filtrar: tutoriales en cualquier estado de avance.',
+            },
+            ...STATES.map((item) => ({
+              value: item, // sin-ayuda: el rótulo ya nombra el valor del filtro
+              label: STATE_LABELS[item],
+            })),
+          ]}
+        />
+      </Field>
 
-      <label>
-        <span>Nivel</span>
-        <select
+      <Field label={'Nivel'} tooltip="Filtra por cuánto hay que saber ya para seguir el tutorial.">
+        <OptionSelect
+          name="level"
           value={filters.level}
-          onChange={(event) =>
-            onChange({ ...filters, level: event.target.value as CenterFilters['level'] })
-          }
-        >
-          <option value="all">Todos</option>
-          {LEVELS.map((level) => (
-            <option key={level} value={level}>
-              {TUTORIAL_LEVEL_LABELS[level]}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(valor) => onChange({ ...filters, level: valor as CenterFilters['level'] })}
+          options={[
+            {
+              value: 'all',
+              label: 'Todos',
+              description: 'Sin filtrar: tutoriales de cualquier nivel.',
+            },
+            ...LEVELS.map((item) => ({
+              value: item, // sin-ayuda: el rótulo ya nombra el valor del filtro
+              label: TUTORIAL_LEVEL_LABELS[item],
+            })),
+          ]}
+        />
+      </Field>
 
       {dirty ? (
         <button className="button" type="button" onClick={() => onChange(EMPTY_FILTERS)}>

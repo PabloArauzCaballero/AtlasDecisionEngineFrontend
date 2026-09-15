@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { apiRequest } from '../../api/http-client';
 import { CalculatedFieldInputsForm } from './CalculatedFieldInputsForm';
 import type { CalculatedFieldInput } from './calculated-field.types';
+import { abrirYEsperar, elegirOpcion } from '../../test/option-select';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
@@ -56,9 +57,10 @@ function renderForm(initial: CalculatedFieldInput[] = []) {
 describe('entradas de un campo calculado', () => {
   it('ofrece las variables del catálogo en un select, con su código y su tipo', async () => {
     renderForm();
-    const select = await screen.findByLabelText('Variable del catálogo');
-    await waitFor(() =>
-      expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
+    const select = await screen.findByRole('combobox', { name: /^Variable del catálogo/ });
+    await abrirYEsperar(
+      () => select,
+      () => expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
     );
     expect(select).toBeInTheDocument();
     expect(
@@ -68,12 +70,13 @@ describe('entradas de un campo calculado', () => {
 
   it('al elegir una variable copia identificador, nombre, tipo y obligatoriedad', async () => {
     const onChange = renderForm();
-    const select = await screen.findByLabelText('Variable del catálogo');
-    await waitFor(() =>
-      expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
+    const select = await screen.findByRole('combobox', { name: /^Variable del catálogo/ });
+    await abrirYEsperar(
+      () => select,
+      () => expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
     );
 
-    fireEvent.change(select, { target: { value: '3000' } });
+    elegirOpcion(select, '3000');
 
     await waitFor(() => expect(onChange).toHaveBeenCalled());
     expect(onChange.mock.calls[0][0]).toEqual([
@@ -88,12 +91,13 @@ describe('entradas de un campo calculado', () => {
 
   it('trae también las restricciones, que son lo que hace útil generar datos de prueba', async () => {
     renderForm();
-    const select = await screen.findByLabelText('Variable del catálogo');
-    await waitFor(() =>
-      expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
+    const select = await screen.findByRole('combobox', { name: /^Variable del catálogo/ });
+    await abrirYEsperar(
+      () => select,
+      () => expect(screen.getByRole('option', { name: /monthly_income/ })).toBeInTheDocument(),
     );
 
-    fireEvent.change(select, { target: { value: '3000' } });
+    elegirOpcion(select, '3000');
 
     // Llegan en una segunda petición: el picker no las trae, viven en el detalle.
     await waitFor(() => expect(mockedApiRequest).toHaveBeenCalledWith('/v1/variables/3000'));
@@ -123,8 +127,9 @@ describe('entradas de un campo calculado', () => {
         required: true,
       },
     ]);
-    await waitFor(() =>
-      expect(screen.getByRole('option', { name: /bureau_score/ })).toBeInTheDocument(),
+    await abrirYEsperar(
+      () => screen.getByRole('combobox', { name: /^Variable del catálogo/ }),
+      () => expect(screen.getByRole('option', { name: /bureau_score/ })).toBeInTheDocument(),
     );
     expect(screen.queryByRole('option', { name: /monthly_income/ })).not.toBeInTheDocument();
   });

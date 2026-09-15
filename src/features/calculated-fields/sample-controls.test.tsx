@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { apiRequest } from '../../api/http-client';
 import { CalculatedFieldSampleControls } from './CalculatedFieldSampleControls';
+import { campo, elegirOpcion } from '../../test/option-select';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
@@ -45,7 +46,7 @@ describe('generación de datos de prueba', () => {
   it('manda la clase, el número de casos y la semilla que se pidieron', async () => {
     renderControls(BATCH);
 
-    fireEvent.change(screen.getByLabelText('Datos de prueba'), { target: { value: 'BOUNDARY' } });
+    elegirOpcion(campo('Datos de prueba'), 'BOUNDARY');
     fireEvent.change(screen.getByLabelText('Casos'), { target: { value: '7' } });
     fireEvent.change(screen.getByLabelText('Semilla'), { target: { value: 'mi-semilla' } });
     fireEvent.click(screen.getByRole('button', { name: /Generar/ }));
@@ -80,7 +81,7 @@ describe('generación de datos de prueba', () => {
     fireEvent.change(screen.getByLabelText('Casos'), { target: { value: '99' } });
     expect(screen.getByLabelText('Casos')).toHaveValue(20);
 
-    fireEvent.change(screen.getByLabelText('Datos de prueba'), { target: { value: 'OUTCOMES' } });
+    elegirOpcion(campo('Datos de prueba'), 'OUTCOMES');
     fireEvent.change(screen.getByLabelText('Casos por clase'), { target: { value: '99' } });
     expect(screen.getByLabelText('Casos por clase')).toHaveValue(10);
   });
@@ -131,7 +132,7 @@ describe('tipos de salida', () => {
 
   it('pide la cobertura por su propio camino y enseña lo que NO se alcanzó', async () => {
     renderControls(REPORT);
-    fireEvent.change(screen.getByLabelText('Datos de prueba'), { target: { value: 'OUTCOMES' } });
+    elegirOpcion(campo('Datos de prueba'), 'OUTCOMES');
     fireEvent.click(screen.getByRole('button', { name: /Generar/ }));
 
     await waitFor(() =>
@@ -145,7 +146,7 @@ describe('tipos de salida', () => {
 
   it('distingue «no se alcanzó» de «no puede alcanzarse nunca»', async () => {
     renderControls(REPORT);
-    fireEvent.change(screen.getByLabelText('Datos de prueba'), { target: { value: 'OUTCOMES' } });
+    elegirOpcion(campo('Datos de prueba'), 'OUTCOMES');
     fireEvent.click(screen.getByRole('button', { name: /Generar/ }));
 
     expect(

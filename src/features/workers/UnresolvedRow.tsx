@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Check, Ban, Repeat } from 'lucide-react';
 import { textoDePendiente } from './unresolved-contract';
 import type { ResolutionType, UnresolvedItem } from './unresolved.api';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Un caso de la bandeja, con todo lo que hace falta para decidirlo en un clic.
@@ -84,17 +85,17 @@ export function FilaPendiente({
       ) : null}
 
       <div className="pendiente-acciones">
-        <label className="field">
-          <span className="sr-only">Categoría a asignar</span>
-          <select value={elegida} onChange={(evento) => setElegida(evento.target.value)}>
-            <option value="">Elige una categoría…</option>
-            {hojas.map((codigo) => (
-              <option key={codigo} value={codigo}>
-                {codigo}
-              </option>
-            ))}
-          </select>
-        </label>
+        <OptionSelect
+          name="categoria-asignar"
+          ariaLabel="Categoría a asignar"
+          value={elegida}
+          onChange={setElegida}
+          placeholder="Elige una categoría…"
+          options={hojas.map((codigo) => ({
+            value: codigo, // sin-ayuda: códigos del árbol de categorías, sin ficha
+            label: codigo,
+          }))}
+        />
         <button
           type="button"
           className="button button-primary"

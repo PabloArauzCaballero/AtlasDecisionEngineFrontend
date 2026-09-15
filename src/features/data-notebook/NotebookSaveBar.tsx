@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNotifications } from '../../notifications/useNotifications';
 import type { NotebookCell } from './notebook-types';
 import { updateNotebook, type NotebookDocument, type StoredCell } from './notebook-documents.api';
+import { Field } from '../../components/Field';
 
 interface NotebookSaveBarProps {
   documento: NotebookDocument;
@@ -90,15 +91,18 @@ export function NotebookSaveBar({ documento, datasetCode, cells }: NotebookSaveB
 
   return (
     <div className="notebook-savebar">
-      <label className="notebook-savebar__nombre">
-        <span className="sr-only">Nombre del cuaderno</span>
+      <Field
+        className="notebook-savebar__nombre"
+        label="Nombre del cuaderno"
+        tooltip="Título con el que se guarda este cuaderno."
+      >
         <input
           type="text"
           value={titulo}
           maxLength={160}
           onChange={(evento) => setTitulo(evento.target.value)}
         />
-      </label>
+      </Field>
       <button
         type="button"
         className="button button--primary"

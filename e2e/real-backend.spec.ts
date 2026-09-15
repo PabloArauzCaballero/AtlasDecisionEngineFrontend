@@ -1,5 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { collectProblems, MOCK_SESSION } from './support/backend-mock';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Pasada contra el Decision Engine real.
@@ -196,7 +197,7 @@ test.describe('backend real', () => {
     await expect(page.locator('.data-table tbody tr').first()).toContainText(/\d+\.\d+\.\d+/);
 
     // El filtro por tipo reduce el listado sin recargar nada.
-    await page.getByLabel('Filtrar acciones por tipo').selectOption('EMIT_REASON');
+    await elegirOpcion(page.getByRole('combobox', { name: /^Tipo/ }), 'EMIT_REASON');
     await expect
       .poll(() => page.locator('.data-table tbody tr').count())
       .toBeLessThanOrEqual(total);

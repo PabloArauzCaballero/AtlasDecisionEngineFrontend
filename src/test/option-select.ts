@@ -37,14 +37,32 @@ export function elegirOpcion(control: HTMLElement, value: string) {
   fireEvent.click(fila);
 }
 
+/**
+ * Abre el desplegable en cuanto se pueda y espera a que `comprobar` pase.
+ *
+ * El clic sólo ocurre UNA vez: `waitFor` vuelve a llamar a su función en cada mutación del DOM, y
+ * una función que abre y cierra la lista en cada intento se realimenta sin fin mientras el catálogo
+ * no llega —el temporizador que la cortaría nunca llega a correr y la prueba se cuelga—.
+ */
+export async function abrirYEsperar(control: () => HTMLElement, comprobar: () => void) {
+  await waitFor(() => {
+    const boton = control();
+    if (boton.getAttribute('aria-expanded') !== 'true' && !(boton as HTMLButtonElement).disabled) {
+      fireEvent.click(boton);
+    }
+    comprobar();
+  });
+}
+
 /** Espera a que el desplegable ofrezca una opción con ese valor (catálogo asíncrono). */
 export async function esperarOpcion(control: () => HTMLElement, value: string) {
-  await waitFor(() => {
-    const filas = abrirOpciones(control());
-    const hay = filas.some((row) => row.getAttribute('data-testid')?.endsWith(`-option-${value}`));
-    cerrarOpciones(control());
+  await abrirYEsperar(control, () => {
+    const hay = screen
+      .queryAllByRole('option')
+      .some((row) => row.getAttribute('data-testid')?.endsWith(`-option-${value}`));
     if (!hay) throw new Error(`Todavía no hay opción «${value}»`);
   });
+  cerrarOpciones(control());
 }
 
 /** El valor de un control, sea un input nativo o un `OptionSelect` (`data-value`). */

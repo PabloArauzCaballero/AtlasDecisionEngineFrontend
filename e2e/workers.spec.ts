@@ -86,7 +86,8 @@ test.describe('pestaña Procesamiento', () => {
 
     // Acotado al bloque de escenarios: `getByLabel('Escenario')` también casaba
     // con el radio que lo activa, porque su explicación menciona la palabra.
-    await consola.locator('.worker-fixtures select').selectOption('gasto-claro');
+    await consola.getByTestId('select-escenario').click();
+    await consola.page().getByTestId('select-escenario-option-gasto-claro').click();
     await expect(consola.getByText(/El camino feliz/i)).toBeVisible();
 
     await consola.getByRole('button', { name: 'Analizar' }).click();
@@ -120,7 +121,8 @@ test.describe('pestaña Procesamiento', () => {
 
     // Acotado al bloque de escenarios: `getByLabel('Escenario')` también casaba
     // con el radio que lo activa, porque su explicación menciona la palabra.
-    await consola.locator('.worker-fixtures select').selectOption('valid-basic');
+    await consola.getByTestId('select-escenario').click();
+    await consola.page().getByTestId('select-escenario-option-valid-basic').click();
     await consola.getByRole('button', { name: 'Convertir' }).click();
 
     await expect(consola.getByText('Completado con advertencias')).toBeVisible({ timeout: 30_000 });
@@ -158,7 +160,9 @@ test.describe('pestaña Procesamiento', () => {
     await page.goto(RUTAS.locucion, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     const consola = await abrirConsola(page);
 
-    await consola.locator('.worker-fixtures select').selectOption('bienvenida-con-nombre');
+    await consola.getByTestId('select-escenario').click();
+
+    await consola.page().getByTestId('select-escenario-option-bienvenida-con-nombre').click();
     await consola.getByRole('button', { name: 'Locutar' }).click();
 
     await expect(consola.getByText('En cola')).toBeVisible({ timeout: 20_000 });

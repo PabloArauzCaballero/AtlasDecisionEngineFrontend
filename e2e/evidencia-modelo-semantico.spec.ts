@@ -165,13 +165,13 @@ test('la configuración del modelo se prueba y se guarda desde el worker', async
 
   // --- 2. OpenRouter, con el catálogo y sus precios -----------------------------
   await panel.getByRole('radio', { name: /OpenRouter/ }).check();
-  const profundo = panel.getByLabel(/Nivel profundo/);
-  await expect(profundo).toHaveValue('anthropic/claude-sonnet-4.5');
+  const profundo = panel.getByRole('combobox', { name: /Nivel profundo/ });
+  await expect(profundo).toHaveAttribute('data-value', 'anthropic/claude-sonnet-4.5');
   // El precio va en la propia opción: es lo que se compara al elegir.
-  await expect(profundo.locator('option', { hasText: 'gemini-2.5-flash' })).toContainText(
-    '$0.30 / $2.50 por M',
-  );
-  await profundo.selectOption('google/gemini-2.5-flash');
+  await profundo.click();
+  const gemini = page.getByRole('option', { name: /gemini-2\.5-flash/ });
+  await expect(gemini).toContainText('$0.30 / $2.50 por M');
+  await gemini.click();
   await expect(panel.getByRole('button', { name: /^Guardar/ })).toBeEnabled();
 
   // --- 3. Probar antes de guardar ------------------------------------------------

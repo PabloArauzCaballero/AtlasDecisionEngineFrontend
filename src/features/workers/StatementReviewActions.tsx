@@ -10,6 +10,7 @@ import {
   resolveStatementReview,
 } from './statement-review.api';
 import {
+  REJECTION_ADVICE,
   REJECTION_REASON_LABEL,
   REJECTION_REASONS,
   REVIEW_ACTION_LABEL,
@@ -18,6 +19,8 @@ import {
   type StatementRejectionReason,
   type StatementReviewDetail,
 } from './statement-review';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Lo que una persona puede hacer con un caso.
@@ -143,38 +146,41 @@ export function StatementReviewActions({ detalle }: { detalle: StatementReviewDe
         resolver.mutate();
       }}
     >
-      <label className="field">
-        <span>Decisión</span>
-        <select
+      <Field label={'Decisión'} tooltip="Qué haces con el extracto que acabas de revisar.">
+        <OptionSelect
+          name="decision"
           value={accion}
-          onChange={(evento) => setAccion(evento.target.value as ReviewAction)}
-        >
-          {REVIEW_ACTIONS.map((valor) => (
-            <option key={valor} value={valor}>
-              {REVIEW_ACTION_LABEL[valor]}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(valor) => setAccion(valor as ReviewAction)}
+          options={REVIEW_ACTIONS.map((valor) => ({
+            value: valor, // sin-ayuda: el motor no publica ayuda por acción; el rótulo nombra el efecto
+            label: REVIEW_ACTION_LABEL[valor],
+          }))}
+        />
+      </Field>
 
       {accion === 'MARK_INVALID' ? (
-        <label className="field">
-          <span>Motivo del rechazo</span>
-          <select
+        <Field
+          label={'Motivo del rechazo'}
+          tooltip="Motivo del rechazo; cada uno lleva el mensaje que verá quien subió el documento."
+        >
+          <OptionSelect
+            name="motivo"
             value={motivo}
-            onChange={(evento) => setMotivo(evento.target.value as StatementRejectionReason)}
-          >
-            {REJECTION_REASONS.map((valor) => (
-              <option key={valor} value={valor}>
-                {REJECTION_REASON_LABEL[valor]}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(valor) => setMotivo(valor as StatementRejectionReason)}
+            options={REJECTION_REASONS.map((valor) => ({
+              value: valor,
+              label: REJECTION_REASON_LABEL[valor],
+              description: REJECTION_ADVICE[valor],
+            }))}
+          />
+        </Field>
       ) : null}
 
-      <label className="field revision-acciones-notas">
-        <span>Por qué</span>
+      <Field
+        className="revision-acciones-notas"
+        label="Por qué"
+        tooltip="Qué comprobaste y qué concluyes; queda junto a la decisión."
+      >
         <textarea
           value={notas}
           rows={3}
@@ -182,7 +188,7 @@ export function StatementReviewActions({ detalle }: { detalle: StatementReviewDe
           placeholder="Qué comprobaste y qué concluyes."
           onChange={(evento) => setNotas(evento.target.value)}
         />
-      </label>
+      </Field>
 
       <div className="worker-run-actions">
         <button type="submit" className="button button-primary" disabled={resolver.isPending}>

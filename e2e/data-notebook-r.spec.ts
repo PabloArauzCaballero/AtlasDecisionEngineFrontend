@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
 import { escribirEnCelda } from './support/notebook-editor';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * El intérprete de R del cuaderno, ejecutándose de verdad.
@@ -35,7 +36,7 @@ test.describe('cuaderno de datos · R', () => {
     await abrirCuadernoDeTrabajo(page);
     // La celda de serie es de Python: se cambia el lenguaje en el desplegable, que es también el
     // camino que hace cualquiera y el que rompería si `setLanguage` no conociera R.
-    await page.locator('.notebook-cell__language select').first().selectOption('r');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]').first(), 'r');
   }
 
   /**

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { monitoringBackend } from './support/monitoring-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Las dos vistas que le dan cara al trabajo que el motor ya hacía sin que nadie lo viera:
@@ -27,8 +28,8 @@ async function medir(page: Page) {
    * omisión: el de la versión acaba llamándose «Versión a monitorearElige primero un artefacto»,
    * que contiene «artefacto» y hace ambigua cualquier búsqueda por subcadena.
    */
-  await page.getByLabel(/^Artefacto/).selectOption('CREDIT_ORIGINATION');
-  await page.getByLabel(/^Versión a monitorear/).selectOption('4001');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Artefacto/ }), 'CREDIT_ORIGINATION');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Versión a monitorear/ }), '4001');
   await page.getByLabel('Variable a comparar').fill('ingresos_mensuales');
   await page.getByLabel('Atributo de sesgo').fill('AGE_BAND');
   await page.getByLabel('Referencia — desde').fill('2025-07-01');

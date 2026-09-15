@@ -1,5 +1,7 @@
 'use client';
 
+import { OptionSelect } from '../../components/OptionSelect';
+
 const NUMERIC = new Set(['NUMBER', 'INTEGER', 'INT', 'DECIMAL', 'FLOAT']);
 const STRUCTURED = new Set(['OBJECT', 'JSON', 'ARRAY', 'LIST']);
 
@@ -25,17 +27,20 @@ export function FieldControl({ dataType, value, onCommit }: Props) {
   }
   if (dataType === 'BOOLEAN' || dataType === 'BOOL') {
     return (
-      <select
+      <OptionSelect
+        name={`booleano-${dataType}`}
         value={value === true ? 'true' : value === false ? 'false' : ''}
-        onChange={(event) => {
-          const raw = event.target.value;
-          onCommit(raw === '' ? undefined : raw === 'true');
-        }}
-      >
-        <option value="">Sin valor</option>
-        <option value="true">Verdadero</option>
-        <option value="false">Falso</option>
-      </select>
+        onChange={(raw) => onCommit(raw === '' ? undefined : raw === 'true')}
+        options={[
+          { value: '', label: 'Sin valor', description: 'Deja la variable sin valor en el caso.' },
+          {
+            value: 'true',
+            label: 'Verdadero',
+            description: 'La variable vale verdadero en el caso.',
+          },
+          { value: 'false', label: 'Falso', description: 'La variable vale falso en el caso.' },
+        ]}
+      />
     );
   }
   if (STRUCTURED.has(dataType)) {

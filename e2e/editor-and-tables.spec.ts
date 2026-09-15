@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { collectProblems } from './support/backend-mock';
 import { desbordes, editorTablesBackend } from './support/editor-tables-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Cuatro defectos de composición que se veían a simple vista y que ninguna
@@ -76,7 +77,7 @@ test('la sección de datos se despliega y vuelve a plegarse', async ({ page }) =
 test('los casos de prueba caben en su columna con payloads reales', async ({ page }) => {
   await page.goto('/test-cases');
   await page.waitForSelector('.test-cases-layout', { timeout: 30_000 });
-  await page.selectOption('.filter-bar select', '4');
+  await elegirOpcion(page.locator('.filter-bar [role="combobox"]').first(), '4');
   await page.getByRole('button', { name: /cargar casos/i }).click();
   await expect(page.locator('tbody tr')).not.toHaveCount(0);
 
@@ -109,7 +110,7 @@ test('los casos de prueba caben en su columna con payloads reales', async ({ pag
 test('un caso se despliega y enseña sus payloads legibles', async ({ page }) => {
   await page.goto('/test-cases');
   await page.waitForSelector('.test-cases-layout', { timeout: 30_000 });
-  await page.selectOption('.filter-bar select', '4');
+  await elegirOpcion(page.locator('.filter-bar [role="combobox"]').first(), '4');
   await page.getByRole('button', { name: /cargar casos/i }).click();
 
   const primero = page.locator('.case-toggle').first();

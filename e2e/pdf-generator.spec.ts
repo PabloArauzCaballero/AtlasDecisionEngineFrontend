@@ -68,14 +68,16 @@ test('el formulario se construye con los campos que publica el motor', async ({ 
 
   // El enum llega con sus valores; sin ellos sería un campo de texto donde
   // cualquier errata acabaría en un 422 del motor.
-  const decision = consola.getByLabel(/^decision/);
+  const decision = consola.getByRole('combobox', { name: /^decision/ });
   await expect(decision).toBeVisible();
-  await expect(decision.locator('option')).toHaveText([
+  await decision.click();
+  await expect(page.locator('[role="listbox"] .option-select-option-label')).toHaveText([
     '— sin elegir —',
     'APPROVED',
     'REJECTED',
     'REVIEW',
   ]);
+  await page.keyboard.press('Escape');
 
   // El formulario se siembra con el ejemplo del propio template: un formulario
   // vacío con doce campos obliga a adivinar la forma de cada uno.

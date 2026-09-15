@@ -28,7 +28,8 @@ async function abrirConsola(page: Page) {
 /** Lanza una conversión desde un escenario y espera a que el motor la cierre. */
 async function convertir(page: Page) {
   const consola = await abrirConsola(page);
-  await consola.getByLabel('Escenario').selectOption('valid-basic');
+  await consola.getByTestId('select-escenario').click();
+  await consola.page().getByTestId('select-escenario-option-valid-basic').click();
   await consola.getByRole('button', { name: 'Convertir' }).click();
   return consola;
 }

@@ -15,6 +15,8 @@ import {
   validateDocumentPayload,
 } from './documents.api';
 import type { PayloadIssue } from './document-types';
+import { FieldLabel } from '../../components/FieldLabel';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Consola del generador documental: elegir un documento, rellenarlo y bajarlo.
@@ -126,21 +128,24 @@ export function DocumentGeneratorConsole() {
         ) : null}
 
         <div className="doc-picker">
-          <label className="doc-form__label" htmlFor="doc-template">
-            Plantilla
-          </label>
-          <select
+          <FieldLabel
+            htmlFor="doc-template"
+            className="doc-form__label"
+            label="Plantilla"
+            tooltip="Plantilla del generador documental con la que se imprime el PDF."
+          />
+          <OptionSelect
             id="doc-template"
+            name="plantilla-documento"
             value={selected}
             disabled={busy || templates.isLoading}
-            onChange={(event) => setTemplateId(event.target.value)}
-          >
-            {(templates.data ?? []).map((template) => (
-              <option key={template.id} value={template.id}>
-                {template.title} · {template.id}@{template.version}
-              </option>
-            ))}
-          </select>
+            onChange={setTemplateId}
+            options={(templates.data ?? []).map((template) => ({
+              value: template.id,
+              label: `${template.title} · ${template.id}@${template.version}`,
+              description: template.description,
+            }))}
+          />
         </div>
 
         {current ? (

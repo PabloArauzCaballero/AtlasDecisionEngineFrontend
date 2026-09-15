@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { MOCK_SESSION, mockBackend } from './support/backend-mock';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * El cuaderno contra AtlasBackend DE VERDAD, sin simular ni una respuesta suya.
@@ -45,7 +46,10 @@ async function abrirConSesionReal(page: Page) {
    * ellos. El fallo no decía «cambió el orden», decía «no encuentro CUS-DEMO-001», que manda a
    * buscar el defecto donde no está.
    */
-  await page.locator('.notebook-dataset__picker select').selectOption('customer-overview');
+  await elegirOpcion(
+    page.locator('.notebook-dataset__picker [role="combobox"]'),
+    'customer-overview',
+  );
   await expect(page.locator('.notebook-dataset .notebook-table tbody tr').first()).toBeVisible({
     timeout: 30_000,
   });
@@ -88,14 +92,20 @@ test.describe('cuaderno de datos · AtlasBackend real', () => {
   test('los siete datasets de AtlasBackend responden', async ({ page }) => {
     await abrirConSesionReal(page);
 
-    const selector = page.locator('.notebook-dataset__picker select');
-    const codigos = await selector
-      .locator('option')
-      .evaluateAll((opciones) => opciones.map((opcion) => (opcion as HTMLOptionElement).value));
+    const selector = page.locator('.notebook-dataset__picker [role="combobox"]');
+    await selector.click();
+    const codigos = await page
+      .locator('[role="option"]')
+      .evaluateAll((opciones) =>
+        opciones.map((opcion) =>
+          (opcion.getAttribute('data-testid') ?? '').replace(/^select-dataset-option-/, ''),
+        ),
+      );
+    await page.keyboard.press('Escape');
     expect(codigos).toEqual(expect.arrayContaining(DATASETS_DE_ATLASBACKEND));
 
     for (const codigo of DATASETS_DE_ATLASBACKEND) {
-      await selector.selectOption(codigo);
+      await elegirOpcion(selector, codigo);
       // El fallo que esto atrapa es el de un dataset que responde 503 —le falta la columna de
       // inquilino, la vista no existe— y deja la pantalla con un error en vez de una tabla.
       await expect(page.locator('.notebook-dataset__error')).toHaveCount(0, { timeout: 30_000 });
@@ -132,11 +142,10 @@ test.describe('cuaderno de datos · AtlasBackend real', () => {
     });
 
     const marca = `# real ${Date.now()}`;
-    await page
-      .locator('.notebook-cell__language')
-      .first()
-      .locator('select')
-      .selectOption('javascript');
+    await elegirOpcion(
+      page.locator('.notebook-cell__language').first().locator('[role="combobox"]'),
+      'javascript',
+    );
     await page.locator('.notebook-cell__code').first().fill(`${marca}\nreturn rows.slice(0, 2);`);
     await page.locator('.notebook-cell__run').first().click();
     await expect(page.locator('.notebook-cell__output').first()).toBeVisible({ timeout: 30_000 });

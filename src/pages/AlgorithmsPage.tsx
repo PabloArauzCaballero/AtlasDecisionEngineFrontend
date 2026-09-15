@@ -13,6 +13,9 @@ import { AlgorithmVersions } from '../features/algorithms/AlgorithmVersions';
 import type { PagedResponse, ResourceRow } from '../resources/resource.types';
 import { asRows, display } from '../utils/records';
 import { ScrollRegion } from '../components/ScrollRegion';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
+import { ARTIFACT_STATUS_HELP } from '../resources/resource-option-help';
 
 const STATUSES = [
   'DRAFT',
@@ -69,31 +72,35 @@ export function AlgorithmsPage() {
         hint="Cada fila es un algoritmo (artefacto). Despliégala para ver sus versiones, en qué estado está cada una y saltar a su grafo, compilación o pruebas."
       />
       <form className="filter-bar" onSubmit={submit}>
-        <label>
-          <span>Buscar algoritmo</span>
+        <Field label="Buscar algoritmo" tooltip="Código o nombre del algoritmo que buscas.">
           <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Código, nombre o equipo"
           />
-        </label>
-        <label>
-          <span>Estado</span>
-          <select
+        </Field>
+        <Field label={'Estado'} tooltip="Filtra los algoritmos por el estado de su versión.">
+          <OptionSelect
+            name="estado-algoritmo"
             value={status}
-            onChange={(event) => {
-              setStatus(event.target.value);
+            onChange={(valor) => {
+              setStatus(valor);
               setPage(1);
             }}
-          >
-            <option value="">Todos</option>
-            {STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={[
+              {
+                value: '',
+                label: 'Todos',
+                description: 'Sin filtrar: algoritmos en cualquier estado.',
+              },
+              ...STATUSES.map((value) => ({
+                value,
+                label: value,
+                description: ARTIFACT_STATUS_HELP[value],
+              })),
+            ]}
+          />
+        </Field>
         <button className="button button-primary" type="submit">
           <Search size={17} /> Buscar
         </button>

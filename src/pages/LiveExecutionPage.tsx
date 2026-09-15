@@ -18,6 +18,8 @@ import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows } from '../utils/records';
 import { parseJsonObject } from '../utils/json';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 interface NestedExecutionEntry {
   nodeKey: string;
@@ -191,26 +193,27 @@ export function LiveExecutionPage() {
               versionLabel="Versión a dibujar"
               required
             />
-            <label className="field">
-              <span>Ambiente seguro</span>
-              <select
+            <Field
+              label={'Ambiente seguro'}
+              tooltip="Ambiente fuera de producción donde se ensaya la decisión sin tocar la operación."
+            >
+              <OptionSelect
+                name="ambiente-seguro"
                 value={environmentCode}
                 disabled={safeEnvironments.isPending || !safeEnvironments.environments.length}
-                onChange={(event) => setEnvironmentCode(event.target.value)}
-              >
-                {safeEnvironments.environments.map((environment) => (
-                  <option key={environment.id} value={environment.code}>
-                    {environment.name} ({environment.code})
-                  </option>
-                ))}
-              </select>
+                onChange={setEnvironmentCode}
+                options={safeEnvironments.environments.map((environment) => ({
+                  value: environment.code, // sin-ayuda: ambientes que declara el motor
+                  label: `${environment.name} (${environment.code})`,
+                }))}
+              />
               {safeEnvironments.isEmpty ? (
                 <small className="field-hint">
                   El motor no declara ningún ambiente activo fuera de producción, así que no hay
                   dónde ensayar. Créalo en Ambientes.
                 </small>
               ) : null}
-            </label>
+            </Field>
             {/* Sin valores de prueba, la pantalla arrancaba con `{}` y lo único
                 que se podía obtener era VARIABLE_MISSING_OR_INVALID: para ver
                 una ejecución había que teclear a mano las decenas de variables
@@ -225,6 +228,7 @@ export function LiveExecutionPage() {
             <JsonTextarea
               id="live-variables"
               label="Variables (JSON)"
+              tooltip="Valores de las variables de la ejecución en vivo, en JSON."
               value={variables}
               onChange={setVariables}
               rows={10}

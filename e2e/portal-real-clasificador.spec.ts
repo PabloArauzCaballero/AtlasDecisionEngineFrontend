@@ -205,7 +205,8 @@ Disponible»: el patrón con dos puntos NO casaba nunca y estas
 
     // El escenario que el motor rechaza ANTES de encolar: el portal tiene que
     // enseñar el rechazo, no quedarse esperando una ejecución que nunca existió.
-    await page.locator('.worker-fixtures select').selectOption('invalid-example');
+    await page.getByTestId('select-escenario').click();
+    await page.page().getByTestId('select-escenario-option-invalid-example').click();
     await page.getByRole('button', { name: 'Analizar' }).click();
 
     // Los errores de mutación los publica el `MutationCache` global como toast,

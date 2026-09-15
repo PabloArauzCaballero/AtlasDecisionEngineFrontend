@@ -13,10 +13,19 @@ import { useNotifications } from '../../notifications/useNotifications';
 import { display, type UnknownRecord } from '../../utils/records';
 import { TrafficRulesEditor, trafficRulesValid, type TrafficRuleDraft } from './TrafficRulesEditor';
 import { usePromotionTargets } from './usePromotionTargets';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 type DeploymentCreateFormProps = { onClose: () => void };
 
 const MODES = ['DIRECT', 'CANARY', 'CHAMPION_CHALLENGER'] as const;
+
+const MODO_AYUDA: Record<(typeof MODES)[number], string> = {
+  DIRECT: 'Todo el tráfico pasa a la versión nueva de una vez.',
+  CANARY: 'Una parte del tráfico prueba la versión nueva antes de ampliarla.',
+  CHAMPION_CHALLENGER:
+    'La versión nueva compite con la vigente sobre el tráfico que fijan sus reglas.',
+};
 
 /**
  * Promueve una versión aprobada a un ambiente vía
@@ -147,25 +156,20 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
                     };
               }}
             />
-            <label className="field">
-              <span>Ambiente</span>
-              <select
+            <Field label={'Ambiente'} tooltip="Ambiente donde queda activa la versión desplegada.">
+              <OptionSelect
+                name="ambiente-despliegue"
                 required
                 value={environmentCode}
                 disabled={targets.isPending}
-                onChange={(event) => setEnvironmentCode(event.target.value)}
-              >
-                <option value="">
-                  {targets.isPending ? 'Cargando ambientes…' : 'Elegir ambiente…'}
-                </option>
-                {targets.allowed.map((environment) => (
-                  <option key={environment.code} value={environment.code}>
-                    {environment.name} ({environment.code})
-                    {environment.isProduction ? ' · producción' : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={setEnvironmentCode}
+                placeholder={targets.isPending ? 'Cargando ambientes…' : 'Elegir ambiente…'}
+                options={targets.allowed.map((environment) => ({
+                  value: environment.code, // sin-ayuda: ambientes que declara el motor
+                  label: `${environment.name} (${environment.code})${environment.isProduction ? ' · producción' : ''}`,
+                }))}
+              />
+            </Field>
             {targets.isError ? (
               <Alert tone="warning">
                 No fue posible consultar los ambientes, así que no se puede saber cuál es
@@ -180,19 +184,21 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
               </Alert>
             ) : null}
             {denial ? <Alert tone="error">{denial}</Alert> : null}
-            <label className="field">
-              <span>Modo de despliegue</span>
-              <select
+            <Field
+              label={'Modo de despliegue'}
+              tooltip="Cómo entra la versión nueva a recibir tráfico."
+            >
+              <OptionSelect
+                name="modo-despliegue"
                 value={deploymentMode}
-                onChange={(event) => setDeploymentMode(event.target.value)}
-              >
-                {MODES.map((mode) => (
-                  <option key={mode} value={mode}>
-                    {mode}
-                  </option>
-                ))}
-              </select>
-            </label>
+                onChange={setDeploymentMode}
+                options={MODES.map((mode) => ({
+                  value: mode,
+                  label: mode,
+                  description: MODO_AYUDA[mode],
+                }))}
+              />
+            </Field>
             {deploymentMode !== 'DIRECT' ? (
               <TrafficRulesEditor rules={traffic} onChange={setTraffic} />
             ) : null}

@@ -85,7 +85,8 @@ test.describe('árbol de categorías · CRUD contra el motor real', () => {
     await formulario
       .getByLabel(/^Descripción/)
       .fill('Categoría creada por la prueba automática para verificar el CRUD contra el motor.');
-    await formulario.getByLabel(/^Categoría padre/).selectOption('GASTOS');
+    await formulario.getByTestId('select-categoria-padre').click();
+    await formulario.page().getByTestId('select-categoria-padre-option-GASTOS').click();
     /*
      * `exact` porque «Ejemplos» está contenido en «Contraejemplos»: sin él, el
      * localizador casa con los dos campos y la prueba falla por ambigüedad en

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { useRecordDossier } from './risk-governance.api';
+import { Field } from '../../components/Field';
 
 /**
  * Expediente del modelo: quién lo validó, con qué límites y cuándo toca revisarlo.
@@ -58,48 +59,52 @@ export function ModelDossierPanel() {
       tutorialId="risk-dossier"
     >
       <div className="quality-form-grid">
-        <label className="field">
-          <span>Versión del algoritmo</span>
+        <Field
+          label="Versión del algoritmo"
+          tooltip="Identificador de la versión del algoritmo cuyo expediente se registra. Ej.: 4001."
+        >
           <input
             value={form.artifactVersionId}
             placeholder="4001"
             onChange={(event) => setForm({ ...form, artifactVersionId: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Quién validó (independiente del autor)</span>
+        </Field>
+        <Field
+          label="Quién validó (independiente del autor)"
+          tooltip="Persona que validó el modelo sin haberlo construido."
+        >
           <input
             value={form.validatedBy}
             placeholder="validacion.independiente@atlas"
             onChange={(event) => setForm({ ...form, validatedBy: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Fecha de validación</span>
+        </Field>
+        <Field label="Fecha de validación" tooltip="Día en que se validó el modelo.">
           <input
             type="date"
             value={form.validatedAt}
             onChange={(event) => setForm({ ...form, validatedAt: event.target.value })}
           />
-        </label>
-        <label className="field">
-          <span>Revalidar antes de</span>
+        </Field>
+        <Field label="Revalidar antes de" tooltip="Fecha límite para volver a validar el modelo.">
           <input
             type="date"
             value={form.revalidationDueAt}
             onChange={(event) => setForm({ ...form, revalidationDueAt: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
-      <label className="field">
-        <span>Limitaciones declaradas</span>
+      <Field
+        label="Limitaciones declaradas"
+        tooltip="Para qué población o con qué supuestos NO sirve el modelo."
+      >
         <textarea
           rows={3}
           value={form.limitationsNotes}
           placeholder="Población para la que NO sirve, supuestos, datos que el modelo no vio."
           onChange={(event) => setForm({ ...form, limitationsNotes: event.target.value })}
         />
-      </label>
+      </Field>
       <p className="quality-note">
         Las limitaciones son la parte del expediente que más se usa y la que menos se escribe. «No
         validado para solicitantes sin seis meses de historial bancario» es lo que impide que

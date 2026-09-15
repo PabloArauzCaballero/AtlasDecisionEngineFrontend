@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../../api/http-client';
 import { SimulatorSampleBar } from './SimulatorSampleBar';
 import type { ImportField } from './sample-import';
+import { campo, elegirOpcion } from '../../test/option-select';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
@@ -55,7 +56,7 @@ describe('SimulatorSampleBar', () => {
     } as never);
     const onLoad = renderBar();
 
-    fireEvent.change(screen.getByLabelText('Valores de prueba'), { target: { value: 'VALID' } });
+    elegirOpcion(campo('Valores de prueba'), 'VALID');
     fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
 
     await waitFor(() => expect(onLoad).toHaveBeenCalledWith({ score: 700, country: 'PE' }));
@@ -114,7 +115,7 @@ describe('SimulatorSampleBar', () => {
     mockedApiRequest.mockResolvedValue({ seed: 's', kind: 'INVALID', cases: [] } as never);
     renderBar();
 
-    fireEvent.change(screen.getByLabelText('Valores de prueba'), { target: { value: 'INVALID' } });
+    elegirOpcion(campo('Valores de prueba'), 'INVALID');
     fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
 
     await waitFor(() =>

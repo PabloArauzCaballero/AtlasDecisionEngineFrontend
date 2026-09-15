@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
 import { abrirHistorial, escribirEnCelda, esperarContenido } from './support/notebook-editor';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Los controles que la primera especificación NO llegó a pulsar, y la evidencia visual.
@@ -44,11 +45,10 @@ async function capturar(page: Page, nombre: string, anclaje: string) {
 }
 
 async function ejecutarJs(page: Page, codigo: string) {
-  await page
-    .locator('.notebook-cell__language')
-    .first()
-    .locator('select')
-    .selectOption('javascript');
+  await elegirOpcion(
+    page.locator('.notebook-cell__language').first().locator('[role="combobox"]'),
+    'javascript',
+  );
   // Escribir pasa por `support/notebook-editor.ts`: el editor es Monaco y el
   // `.notebook-cell__code` de antes sólo existe hasta que monta.
   await escribirEnCelda(page, 0, codigo);
@@ -112,7 +112,7 @@ test.describe('cuaderno de datos · controles restantes', () => {
     await salida.getByRole('button', { name: 'Anterior' }).click();
     await expect(salida.locator('.notebook-result__page')).toContainText('Página 1 de 2');
 
-    await salida.getByLabel('Filas por página').selectOption('25');
+    await elegirOpcion(salida.getByRole('combobox', { name: /^Filas por página/ }), '25');
     await expect(salida.locator('.notebook-result__page')).toContainText('Página 1 de 4');
     await expect(salida.locator('.notebook-table tbody tr')).toHaveCount(25);
   });
@@ -206,11 +206,10 @@ test.describe('cuaderno de datos · historial y techo de tamaño', () => {
   test('una celda que falla también deja rastro, con su error', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page
-      .locator('.notebook-cell__language')
-      .first()
-      .locator('select')
-      .selectOption('javascript');
+    await elegirOpcion(
+      page.locator('.notebook-cell__language').first().locator('[role="combobox"]'),
+      'javascript',
+    );
     await escribirEnCelda(page, 0, 'throw new Error("sin permiso");');
     await page.locator('.notebook-cell__run').first().click();
     await expect(page.locator('.notebook-cell__error')).toBeVisible({ timeout: 30_000 });

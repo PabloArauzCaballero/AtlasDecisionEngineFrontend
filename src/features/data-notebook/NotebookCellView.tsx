@@ -10,6 +10,7 @@ import type { SimboloNotebook } from './notebook-symbols';
 import type { NotebookCell } from './notebook-types';
 import { LENGUAJES, marcaDeCelda, ORDEN_LENGUAJES } from './language-catalog';
 import { PLANTILLA_COMENTARIO } from './useNotebookCells';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface NotebookCellViewProps {
   cell: NotebookCell;
@@ -140,21 +141,23 @@ export function NotebookCellView({
               </button>
             </div>
           ) : (
-            <label className="notebook-cell__language">
+            <label
+              /* sin-ayuda: control compacto de la celda; lo nombra el texto oculto */ className="notebook-cell__language"
+            >
               <span className="sr-only">Lenguaje de la celda {index + 1}</span>
               {/* El punto es DECORATIVO: quien no distinga los tres tonos lee el nombre en el
                   propio desplegable, que es donde ya estaba. El color añade velocidad, no dato. */}
               <span className="notebook-cell__marca" aria-hidden="true" />
-              <select
+              <OptionSelect
+                name={`lenguaje-${index + 1}`}
+                compact
                 value={cell.language}
-                onChange={(evento) => onLanguage(evento.target.value as NotebookCell['language'])}
-              >
-                {ORDEN_LENGUAJES.map((lenguaje) => (
-                  <option key={lenguaje} value={lenguaje}>
-                    {LENGUAJES[lenguaje].label}
-                  </option>
-                ))}
-              </select>
+                onChange={(valor) => onLanguage(valor as NotebookCell['language'])}
+                options={ORDEN_LENGUAJES.map((lenguaje) => ({
+                  value: lenguaje, // sin-ayuda: nombres de lenguajes de programación
+                  label: LENGUAJES[lenguaje].label,
+                }))}
+              />
             </label>
           )}
           <div className="notebook-cell__tools">

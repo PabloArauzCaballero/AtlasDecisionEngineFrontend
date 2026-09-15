@@ -3,6 +3,7 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import type { CalculatedFieldInput, OperationArg, OperationNode } from './calculated-field.types';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   /** Catálogo de operaciones autorizadas devuelto por el backend. */
@@ -88,15 +89,30 @@ function OperationNodeEditor({
   return (
     <div className="operation-node" style={{ marginInlineStart: depth ? 16 : 0 }}>
       <div className="operation-node-head">
-        <select
-          aria-label="Tipo de argumento"
+        <OptionSelect
+          name="tipo-argumento"
+          ariaLabel="Tipo de argumento"
+          compact
           value={kind}
-          onChange={(event) => changeKind(event.target.value)}
-        >
-          <option value="OPERATION">Operación</option>
-          <option value="INPUT">Entrada</option>
-          <option value="LITERAL">Valor fijo</option>
-        </select>
+          onChange={changeKind}
+          options={[
+            {
+              value: 'OPERATION',
+              label: 'Operación',
+              description: 'Aplica una operación autorizada a sus argumentos.',
+            },
+            {
+              value: 'INPUT',
+              label: 'Entrada',
+              description: 'Toma el valor de una entrada del campo calculado.',
+            },
+            {
+              value: 'LITERAL',
+              label: 'Valor fijo',
+              description: 'Usa un valor fijo escrito a mano.',
+            },
+          ]}
+        />
 
         {kind === 'OPERATION' ? (
           <OperationPicker
@@ -107,18 +123,18 @@ function OperationNodeEditor({
         ) : null}
 
         {kind === 'INPUT' ? (
-          <select
-            aria-label="Entrada del campo calculado"
+          <OptionSelect
+            name="entrada-argumento"
+            ariaLabel="Entrada del campo calculado"
+            compact
             value={String(record.input ?? '')}
-            onChange={(event) => onChange({ input: event.target.value })}
-          >
-            <option value="">— elegir entrada —</option>
-            {inputs.map((entry) => (
-              <option key={entry.id} value={entry.id}>
-                {entry.id}
-              </option>
-            ))}
-          </select>
+            onChange={(valor) => onChange({ input: valor })}
+            placeholder="— elegir entrada —"
+            options={inputs.map((entry) => ({
+              value: entry.id, // sin-ayuda: entradas declaradas por el propio campo
+              label: entry.id,
+            }))}
+          />
         ) : null}
 
         {kind === 'LITERAL' ? (
@@ -195,22 +211,21 @@ function OperationPicker({
   onPick: (operationId: string) => void;
 }) {
   return (
-    <select
-      aria-label="Operación autorizada"
+    <OptionSelect
+      name="operacion"
+      ariaLabel="Operación autorizada"
+      compact
       value={value}
-      onChange={(event) => onPick(event.target.value)}
-    >
-      <option value="">— elegir operación —</option>
-      {[...byCategory.entries()].map(([category, items]) => (
-        <optgroup key={category} label={category}>
-          {items.map((operation) => (
-            <option key={display(operation, 'id')} value={display(operation, 'id')}>
-              {display(operation, 'label')}
-            </option>
-          ))}
-        </optgroup>
-      ))}
-    </select>
+      onChange={onPick}
+      placeholder="— elegir operación —"
+      options={[...byCategory.entries()].flatMap(([category, items]) =>
+        items.map((operation) => ({
+          value: display(operation, 'id'),
+          label: display(operation, 'label'),
+          description: `Categoría: ${category}`,
+        })),
+      )}
+    />
   );
 }
 

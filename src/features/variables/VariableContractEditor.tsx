@@ -18,6 +18,10 @@ import {
   toPayload,
   type VariableContractDraft,
 } from './variable-contract.draft';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
+import { DATA_TYPE_HELP, SENSITIVITY_HELP } from '../../contracts/contract-help';
+import { EXPECTED_ORIGIN_HELP } from '../../resources/resource-option-help';
 
 export { emptyContractDraft, toPayload };
 export type { VariableContractDraft };
@@ -85,52 +89,64 @@ export function VariableContractEditor({ definitionId, draft, onChange }: Props)
   return (
     <div className="variable-contract-editor">
       <div className="constraint-grid">
-        <label className="constraint-field">
-          <span>Tipo de dato</span>
-          <select
+        <Field
+          className="constraint-field"
+          label={'Tipo de dato'}
+          tooltip="Tipo de valor que admite la variable; el motor valida cada entrada contra él."
+        >
+          <OptionSelect
+            name="tipo-dato"
             value={draft.dataType}
-            onChange={(event) => patch({ dataType: event.target.value })}
-          >
-            {DATA_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {DATA_TYPE_LABELS[type]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>Nombre visible</span>
+            onChange={(valor) => patch({ dataType: valor })}
+            options={DATA_TYPES.map((type) => ({
+              value: type,
+              label: DATA_TYPE_LABELS[type],
+              description: DATA_TYPE_HELP[type],
+            }))}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Nombre visible"
+          tooltip="Nombre legible de la variable en el portal."
+        >
           <input
             value={draft.displayName}
             onChange={(event) => patch({ displayName: event.target.value })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Origen esperado</span>
-          <select
+        </Field>
+        <Field
+          className="constraint-field"
+          label={'Origen esperado'}
+          tooltip="De dónde se espera que llegue el valor de la variable."
+        >
+          <OptionSelect
+            name="origen-esperado"
             value={draft.expectedOrigin}
-            onChange={(event) => patch({ expectedOrigin: event.target.value })}
-          >
-            {ORIGINS.map((origin) => (
-              <option key={origin.value} value={origin.value}>
-                {origin.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>Clasificación de sensibilidad</span>
-          <select
+            onChange={(valor) => patch({ expectedOrigin: valor })}
+            options={ORIGINS.map((origin) => ({
+              value: origin.value,
+              label: origin.label,
+              description: EXPECTED_ORIGIN_HELP[origin.value],
+            }))}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label={'Clasificación de sensibilidad'}
+          tooltip="Qué tan sensible es el dato; decide cómo se enmascara y se conserva."
+        >
+          <OptionSelect
+            name="sensibilidad"
             value={draft.sensitivityClass}
-            onChange={(event) => patch({ sensitivityClass: event.target.value })}
-          >
-            {SENSITIVITY_CLASSES.map((value) => (
-              <option key={value} value={value}>
-                {SENSITIVITY_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(valor) => patch({ sensitivityClass: valor })}
+            options={SENSITIVITY_CLASSES.map((value) => ({
+              value,
+              label: SENSITIVITY_LABELS[value],
+              description: SENSITIVITY_HELP[value],
+            }))}
+          />
+        </Field>
         <label className="constraint-field constraint-checkbox">
           <input
             type="checkbox"
@@ -139,36 +155,48 @@ export function VariableContractEditor({ definitionId, draft, onChange }: Props)
           />
           <span>Admite quedarse sin valor</span>
         </label>
-        <label className="constraint-field constraint-wide">
-          <span>Descripción</span>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Descripción"
+          tooltip="Qué representa la variable y de dónde sale."
+        >
           <textarea
             rows={2}
             value={draft.description}
             onChange={(event) => patch({ description: event.target.value })}
           />
-        </label>
-        <label className="constraint-field constraint-wide">
-          <span>Mensaje cuando el valor no cumple el contrato</span>
+        </Field>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Mensaje cuando el valor no cumple el contrato"
+          tooltip="Texto que recibe quien envía un valor fuera del contrato."
+        >
           <input
             placeholder="El ingreso mensual debe ser mayor que cero"
             value={draft.validationMessage}
             onChange={(event) => patch({ validationMessage: event.target.value })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Ejemplo válido</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Ejemplo válido"
+          tooltip="Un valor que cumple el contrato, para probarlo."
+        >
           <input
             value={draft.exampleValid}
             onChange={(event) => patch({ exampleValid: event.target.value })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Ejemplo inválido</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Ejemplo inválido"
+          tooltip="Un valor que el contrato debe rechazar, para probarlo."
+        >
           <input
             value={draft.exampleInvalid}
             onChange={(event) => patch({ exampleInvalid: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
 
       <details open>

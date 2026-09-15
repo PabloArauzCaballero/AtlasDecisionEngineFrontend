@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { CODE_IMPORT_WARNING, EXECUTION, GRAPH, VARIABLES } from './support/graph-fixtures';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Generador de evidencias visuales.
@@ -185,7 +186,7 @@ test('captura las correcciones de tablas, nodos y avisos del importador', async 
 
   // Importador: el aviso del motor acompañado de causa y solución.
   await page.goto('/code-import', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await page.getByLabel('Lenguaje').selectOption('PYTHON');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Lenguaje/ }), 'PYTHON');
   await page
     .getByLabel('Código')
     .fill(

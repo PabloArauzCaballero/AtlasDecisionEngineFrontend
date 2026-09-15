@@ -1,7 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../api/http-client';
-import { campo, elegirOpcion, esperarOpcion } from '../test/option-select';
+import {
+  abrirYEsperar,
+  campo,
+  cerrarOpciones,
+  elegirOpcion,
+  esperarOpcion,
+} from '../test/option-select';
 import { SimulatorPage } from './SimulatorPage';
 
 const notify = vi.fn();
@@ -85,8 +91,12 @@ describe('SimulatorPage', () => {
 
   it('offers only non-production environments and calls the dry-run endpoint', async () => {
     renderPage();
-    expect(await screen.findByRole('option', { name: /Development/ })).toBeInTheDocument();
+    await abrirYEsperar(
+      () => campo('Ambiente seguro'),
+      () => expect(screen.getByRole('option', { name: /Development/ })).toBeInTheDocument(),
+    );
     expect(screen.queryByRole('option', { name: /Production/ })).not.toBeInTheDocument();
+    cerrarOpciones(campo('Ambiente seguro'));
 
     await esperarOpcion(() => campo('Artefacto'), 'POLICY');
     elegirOpcion(campo('Artefacto'), 'POLICY');

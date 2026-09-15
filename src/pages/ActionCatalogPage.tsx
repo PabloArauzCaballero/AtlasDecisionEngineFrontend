@@ -18,6 +18,8 @@ import {
 } from '../features/actions/action-bank';
 import { ActionTargetPanel } from '../features/actions/ActionTargetPanel';
 import { useActionBank, useActionWrite } from '../features/actions/useActionBank';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 const COLUMNS: TableColumn<BankEntry>[] = [
   { key: 'code', label: 'Acción', mono: true },
@@ -104,8 +106,7 @@ export function ActionCatalogPage() {
       />
 
       <form className="filter-bar" onSubmit={(event) => event.preventDefault()}>
-        <label>
-          <span>Buscar</span>
+        <Field label="Buscar" tooltip="Busca por código, campo, variable o motivo de la acción.">
           <input
             type="search"
             value={filters.search}
@@ -114,68 +115,92 @@ export function ActionCatalogPage() {
               setFilters((current) => ({ ...current, search: event.target.value }))
             }
           />
-        </label>
-        <label>
-          <span>Tipo</span>
-          <select
-            aria-label="Filtrar acciones por tipo"
+        </Field>
+        <Field label={'Tipo'} tooltip="Filtra las acciones por el efecto que producen.">
+          <OptionSelect
+            name="tipo-accion"
             value={filters.type}
-            onChange={(event) =>
-              setFilters((current) => ({ ...current, type: event.target.value }))
-            }
-          >
-            <option value="">Todos</option>
-            {options.types.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Algoritmo</span>
-          <select
-            aria-label="Filtrar acciones por algoritmo"
+            onChange={(valor) => setFilters((current) => ({ ...current, type: valor }))}
+            options={[
+              {
+                value: '',
+                label: 'Todos',
+                description: 'Sin filtrar: acciones de cualquier tipo.',
+              },
+              ...options.types.map((type) => ({
+                value: type, // sin-ayuda: tipos de acción que salen del catálogo
+                label: type,
+              })),
+            ]}
+          />
+        </Field>
+        <Field label={'Algoritmo'} tooltip="Filtra las acciones por el algoritmo que las guarda.">
+          <OptionSelect
+            name="algoritmo-accion"
             value={filters.algorithm}
-            onChange={(event) =>
-              setFilters((current) => ({ ...current, algorithm: event.target.value }))
-            }
-          >
-            <option value="">Todos</option>
-            {options.algorithms.map((code) => (
-              <option key={code} value={code}>
-                {code}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Uso en el flujo</span>
-          <select
-            aria-label="Filtrar acciones por uso en el flujo"
+            onChange={(valor) => setFilters((current) => ({ ...current, algorithm: valor }))}
+            options={[
+              {
+                value: '',
+                label: 'Todos',
+                description: 'Sin filtrar: acciones de cualquier algoritmo.',
+              },
+              ...options.algorithms.map((code) => ({
+                value: code, // sin-ayuda: códigos de algoritmo, entidades de los datos
+                label: code,
+              })),
+            ]}
+          />
+        </Field>
+        <Field
+          label={'Uso en el flujo'}
+          tooltip="Filtra las acciones según las ejecute o no algún paso del grafo."
+        >
+          <OptionSelect
+            name="uso-accion"
             value={filters.usage}
-            onChange={(event) =>
-              setFilters((current) => ({ ...current, usage: event.target.value }))
-            }
-          >
-            <option value="">Todas</option>
-            <option value="usadas">Sólo las que ejecuta algún paso</option>
-            <option value="huerfanas">Sólo las que no ejecuta nadie</option>
-          </select>
-        </label>
-        <label>
-          <span>Coherencia</span>
-          <select
-            aria-label="Filtrar acciones por coherencia entre algoritmos"
+            onChange={(valor) => setFilters((current) => ({ ...current, usage: valor }))}
+            options={[
+              {
+                value: '',
+                label: 'Todas',
+                description: 'Sin filtrar: usadas y sin usar por algún paso.',
+              },
+              {
+                value: 'usadas',
+                label: 'Sólo las que ejecuta algún paso',
+                description: 'Acciones que ejecuta al menos un paso de algún grafo.',
+              },
+              {
+                value: 'huerfanas',
+                label: 'Sólo las que no ejecuta nadie',
+                description: 'Acciones que ningún paso de ningún grafo ejecuta.',
+              },
+            ]}
+          />
+        </Field>
+        <Field
+          label={'Coherencia'}
+          tooltip="Filtra las acciones cuya definición cambia de un algoritmo a otro."
+        >
+          <OptionSelect
+            name="coherencia-accion"
             value={filters.consistency}
-            onChange={(event) =>
-              setFilters((current) => ({ ...current, consistency: event.target.value }))
-            }
-          >
-            <option value="">Todas</option>
-            <option value="diverge">Sólo las que divergen entre algoritmos</option>
-          </select>
-        </label>
+            onChange={(valor) => setFilters((current) => ({ ...current, consistency: valor }))}
+            options={[
+              {
+                value: '',
+                label: 'Todas',
+                description: 'Sin filtrar por coherencia entre algoritmos.',
+              },
+              {
+                value: 'diverge',
+                label: 'Sólo las que divergen entre algoritmos',
+                description: 'Acciones con el mismo código definidas distinto en dos algoritmos.',
+              },
+            ]}
+          />
+        </Field>
         {hasFilters ? (
           <button className="button" type="button" onClick={() => setFilters(EMPTY_BANK_FILTERS)}>
             <X size={16} /> Limpiar

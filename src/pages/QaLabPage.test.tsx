@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../api/http-client';
 import { QaLabPage } from './QaLabPage';
+import { abrirOpciones, cerrarOpciones, valorDe } from '../test/option-select';
 
 /**
  * Lo que se fija aquí es el ciclo de una corrida ASÍNCRONA y el catálogo de semillas.
@@ -86,14 +87,22 @@ describe('QaLabPage', () => {
     renderPage();
     await elegirVersion();
 
-    const semilla = await screen.findByLabelText('Semilla');
-    expect(semilla.tagName).toBe('SELECT');
+    const semilla = await screen.findByRole('combobox', { name: /^Semilla/ });
+    const filas = () => {
+      const ids = abrirOpciones(semilla).map((fila) => fila.getAttribute('data-testid'));
+      cerrarOpciones(semilla);
+      return ids;
+    };
     // El catálogo, y además la semilla de la corrida que ya está en el historial.
-    expect(screen.getByRole('option', { name: 'Base' })).toBeTruthy();
-    expect(screen.getByRole('option', { name: 'Regresión' })).toBeTruthy();
-    await waitFor(() => expect(screen.getByRole('option', { name: 'k3f2m1a' })).toBeTruthy());
+    expect(filas()).toEqual(
+      expect.arrayContaining([
+        'select-semilla-option-qa-base',
+        'select-semilla-option-qa-regresion',
+      ]),
+    );
+    await waitFor(() => expect(filas()).toContain('select-semilla-option-k3f2m1a'));
     // Y la opción por omisión sigue siendo dejársela al motor.
-    expect((semilla as HTMLSelectElement).value).toBe('');
+    expect(valorDe(semilla)).toBe('');
   });
 
   it('lanza la corrida y la sigue hasta que cierra, sin esperar al POST', async () => {

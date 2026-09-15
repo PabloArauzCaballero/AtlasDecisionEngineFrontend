@@ -8,6 +8,8 @@ import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import type { SampleKind } from './suite-types';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 const sampleSchema = z.object({
   seed: z.string(),
@@ -90,15 +92,40 @@ export function GenerateCaseInputButton({
   return (
     <div className="sample-bar">
       <div className="sample-bar-actions">
-        <label className="field sample-bar-kind">
-          <span>Generar entrada de ejemplo</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
-            <option value="OUTCOMES">Una por cada resultado posible</option>
-            <option value="VALID">Válida</option>
-            <option value="BOUNDARY">En el límite del contrato</option>
-            <option value="INVALID">Inválida (el caso debe rechazarse)</option>
-          </select>
-        </label>
+        <Field
+          className="sample-bar-kind"
+          label={'Generar entrada de ejemplo'}
+          tooltip="Qué clase de entrada de ejemplo se genera para el caso de prueba."
+        >
+          <OptionSelect
+            name="entrada-ejemplo"
+            value={kind}
+            onChange={(valor) => setKind(valor as SampleKind)}
+            options={[
+              {
+                value: 'OUTCOMES',
+                label: 'Una por cada resultado posible',
+                description: 'Genera una entrada por cada desenlace que el algoritmo puede dar.',
+              },
+              {
+                value: 'VALID',
+                label: 'Válida',
+                description: 'Una entrada que cumple el contrato de cada variable.',
+              },
+              {
+                value: 'BOUNDARY',
+                label: 'En el límite del contrato',
+                description:
+                  'Valores justo en el límite de las restricciones: donde suelen aparecer los fallos.',
+              },
+              {
+                value: 'INVALID',
+                label: 'Inválida (el caso debe rechazarse)',
+                description: 'Una entrada que el contrato debe rechazar.',
+              },
+            ]}
+          />
+        </Field>
         <button
           type="button"
           className="button"

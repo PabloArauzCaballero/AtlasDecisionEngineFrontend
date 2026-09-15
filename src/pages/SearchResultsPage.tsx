@@ -51,7 +51,9 @@ export function SearchResultsPage() {
           setSubmitted(term.trim());
         }}
       >
-        <label className="global-search search-page-input">
+        <label
+          /* sin-ayuda: buscador con icono; el campo se nombra con aria-label */ className="global-search search-page-input"
+        >
           <Search />
           <input
             aria-label="Buscar en ATLAS"

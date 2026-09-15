@@ -6,6 +6,7 @@ import { JsonTextarea } from '../components/JsonTextarea';
 import { FieldControl } from '../features/simulator/SimulatorFieldControl';
 import { PairsEditor } from '../features/simulator/SimulatorPairsEditor';
 import { useVersionInputContract } from './useVersionInputContract';
+import { OptionSelect } from '../components/OptionSelect';
 
 type View = 'form' | 'pairs' | 'json';
 
@@ -93,7 +94,14 @@ export function CaseInputEditor({ artifactVersionId, id, label, value, onChange 
       ) : null}
 
       {view === 'json' ? (
-        <JsonTextarea id={id} label={label} value={value} onChange={onChange} rows={12} />
+        <JsonTextarea
+          id={id}
+          label={label}
+          tooltip={`Entrada del caso en JSON: «${label}» con los valores que recibirá el algoritmo.`}
+          value={value}
+          onChange={onChange}
+          rows={12}
+        />
       ) : view === 'pairs' && parsed !== null ? (
         <PairsEditor parsed={parsed} onCommit={(next) => onChange(JSON.stringify(next, null, 2))} />
       ) : view === 'form' && parsed !== null ? (
@@ -125,28 +133,31 @@ export function CaseInputEditor({ artifactVersionId, id, label, value, onChange 
           {contract.inputs.map((input) => {
             const current = parsed[input.code];
             return (
-              <label className="field" key={input.code}>
+              <label
+                /* sin-ayuda: la variable del contrato se describe bajo el campo */ className="field"
+                key={input.code}
+              >
                 <span>
                   {input.code}
                   {input.required ? ' *' : ''}
                 </span>
                 {input.allowed.length ? (
-                  <select
+                  <OptionSelect
+                    name={`valor-${input.code}`}
                     value={current === undefined || current === null ? '' : String(current)}
-                    onChange={(event) =>
-                      setField(
-                        input.code,
-                        event.target.value === '' ? undefined : event.target.value,
-                      )
-                    }
-                  >
-                    <option value="">Sin valor</option>
-                    {input.allowed.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(valor) => setField(input.code, valor === '' ? undefined : valor)}
+                    options={[
+                      {
+                        value: '',
+                        label: 'Sin valor',
+                        description: 'Deja la entrada sin valor en el caso.',
+                      },
+                      ...input.allowed.map((option) => ({
+                        value: option, // sin-ayuda: valores permitidos por el contrato de la entrada
+                        label: option,
+                      })),
+                    ]}
+                  />
                 ) : (
                   <FieldControl
                     dataType={input.dataType}

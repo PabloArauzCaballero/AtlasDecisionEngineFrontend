@@ -11,6 +11,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { formatDate } from '../config/locale';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
 import { LibraryChip } from '../features/libraries/LibraryChip';
+import { OptionSelect } from '../components/OptionSelect';
 
 const LANGUAGES = ['', 'JAVASCRIPT', 'PYTHON'] as const;
 
@@ -61,17 +62,22 @@ export function LibrariesPage() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-          <select
-            aria-label="Lenguaje"
+          <OptionSelect
+            name="lenguaje-libreria"
+            ariaLabel="Lenguaje"
+            compact
             value={language}
-            onChange={(event) => setLanguage(event.target.value)}
-          >
-            {LANGUAGES.map((value) => (
-              <option key={value || 'all'} value={value}>
-                {value || 'Todos los lenguajes'}
-              </option>
-            ))}
-          </select>
+            onChange={setLanguage}
+            options={LANGUAGES.map((value) =>
+              value
+                ? { value, label: value } // sin-ayuda: nombres de lenguajes de programación
+                : {
+                    value,
+                    label: 'Todos los lenguajes',
+                    description: 'Sin filtrar: librerías de cualquier lenguaje.',
+                  },
+            )}
+          />
         </div>
       </Panel>
 

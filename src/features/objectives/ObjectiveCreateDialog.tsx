@@ -14,6 +14,7 @@ import {
   normalizeObjectiveCode,
   type PolicyDraft,
 } from './objective-authoring';
+import { Field } from '../../components/Field';
 
 type ObjectiveCreateDialogProps = { onClose: () => void };
 
@@ -124,8 +125,10 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
                 </div>
               </div>
               <div className="objective-form-grid">
-                <label className="field">
-                  <span>Código del objetivo</span>
+                <Field
+                  label="Código del objetivo"
+                  tooltip="Identificador del objetivo en mayúsculas, números y guiones. Ej.: REDUCIR_FRAUDE."
+                >
                   <input
                     ref={codeInput}
                     required
@@ -139,25 +142,30 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
                     }
                   />
                   <small>Mayúsculas, números, guion o guion bajo.</small>
-                </label>
-                <label className="field">
-                  <span>Equipo responsable</span>
+                </Field>
+                <Field
+                  label="Equipo responsable"
+                  tooltip="Equipo que responde por el objetivo. Ej.: Riesgo de Crédito."
+                >
                   <input
                     required
                     placeholder="Riesgo de Crédito"
                     value={ownerTeam}
                     onChange={(event) => setOwnerTeam(event.target.value)}
                   />
-                </label>
-                <label className="field objective-field-wide">
-                  <span>Nombre del objetivo</span>
+                </Field>
+                <Field
+                  className="objective-field-wide"
+                  label="Nombre del objetivo"
+                  tooltip="Nombre legible del objetivo de negocio."
+                >
                   <input
                     required
                     placeholder="Reducir fraude en originación digital"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
                   />
-                </label>
+                </Field>
               </div>
             </section>
             <section className="objective-form-section">
@@ -169,32 +177,36 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
                 </div>
               </div>
               <div className="objective-form-grid objective-target-grid">
-                <label className="field objective-field-wide">
-                  <span>Métrica</span>
+                <Field
+                  className="objective-field-wide"
+                  label="Métrica"
+                  tooltip="Indicador con el que se mide el objetivo. Ej.: tasa de fraude confirmado."
+                >
                   <input
                     required
                     placeholder="Tasa de fraude confirmado"
                     value={metric}
                     onChange={(event) => setMetric(event.target.value)}
                   />
-                </label>
-                <label className="field">
-                  <span>Meta</span>
+                </Field>
+                <Field label="Meta" tooltip="Valor que la métrica debe alcanzar. Ej.: menor a 0.8.">
                   <input
                     required
                     placeholder="Menor a 0.8"
                     value={target}
                     onChange={(event) => setTarget(event.target.value)}
                   />
-                </label>
-                <label className="field">
-                  <span>Unidad (opcional)</span>
+                </Field>
+                <Field
+                  label="Unidad (opcional)"
+                  tooltip="Unidad en la que se expresa la meta. Ej.: %."
+                >
                   <input
                     placeholder="%"
                     value={targetUnit}
                     onChange={(event) => setTargetUnit(event.target.value)}
                   />
-                </label>
+                </Field>
               </div>
             </section>
             <ObjectivePolicyFields

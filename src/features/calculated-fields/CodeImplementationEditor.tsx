@@ -18,6 +18,7 @@ import {
   countExecutableLines,
   type ImplementationKind,
 } from './calculated-field.types';
+import { Field } from '../../components/Field';
 
 interface Props {
   language: Exclude<ImplementationKind, 'OPERATION'>;
@@ -68,15 +69,18 @@ export function CodeImplementationEditor({
 
   return (
     <div className="code-implementation">
-      <label className="constraint-field constraint-wide">
-        <span>Código ({language === 'PYTHON' ? 'Python' : 'JavaScript'})</span>
+      <Field
+        className="constraint-field constraint-wide"
+        label={<>Código ({language === 'PYTHON' ? 'Python' : 'JavaScript'})</>}
+        tooltip="El código de la fórmula; lee cada entrada con el nombre exacto que se lista debajo."
+      >
         <MonacoCodeEditor
           language={language}
           value={sourceCode}
           placeholder={PLACEHOLDERS[language]}
           onChange={onChangeSource}
         />
-      </label>
+      </Field>
 
       {/* Las entradas declaradas, con el nombre EXACTO con el que se leen. Es el
           error más común: escribir `inputs.x` en vez de `variables.x`, o usar el

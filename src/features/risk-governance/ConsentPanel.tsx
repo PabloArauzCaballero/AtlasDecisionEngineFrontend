@@ -10,6 +10,8 @@ import {
   useRecordConsent,
   useRevokeConsent,
 } from './risk-governance.api';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 const BASES = [
   { code: 'CONSENT', label: 'Consentimiento del titular' },
@@ -18,6 +20,15 @@ const BASES = [
   { code: 'CREDIT_PROTECTION', label: 'Protección del crédito' },
   { code: 'LEGITIMATE_INTEREST', label: 'Interés legítimo' },
 ] as const;
+
+/** Qué significa cada fundamento, para elegirlo sin conocer la ley de memoria. */
+const BASE_AYUDA: Record<string, string> = {
+  CONSENT: 'El titular autorizó expresamente este tratamiento.',
+  CONTRACT: 'Hace falta para ejecutar un contrato firmado con el titular.',
+  LEGAL_OBLIGATION: 'Lo exige una norma que obliga a la entidad.',
+  CREDIT_PROTECTION: 'Sirve para evaluar y proteger el crédito otorgado.',
+  LEGITIMATE_INTEREST: 'Interés legítimo de la entidad, ponderado con los derechos del titular.',
+};
 
 const REASON_LABELS: Record<string, string> = {
   VALID: 'Vigente',
@@ -92,14 +103,16 @@ export function ConsentPanel() {
         tutorialId="risk-consent"
       >
         <div className="quality-form-grid">
-          <label className="field">
-            <span>Referencia del titular</span>
+          <Field
+            label="Referencia del titular"
+            tooltip="Referencia de la persona titular del dato, no su nombre."
+          >
             <input
               value={reference}
               autoComplete="off"
               onChange={(event) => setReference(event.target.value)}
             />
-          </label>
+          </Field>
         </div>
         <div className="quality-inline-actions">
           <button
@@ -178,34 +191,34 @@ export function ConsentPanel() {
         meta="vacío en «caduca» = sin caducidad declarada, que es una decisión"
       >
         <div className="quality-form-grid">
-          <label className="field">
-            <span>Finalidad</span>
+          <Field label="Finalidad" tooltip="Para qué se trata el dato con este consentimiento.">
             <input
               value={form.purpose}
               onChange={(event) => setForm({ ...form, purpose: event.target.value })}
             />
-          </label>
-          <label className="field">
-            <span>Base legal</span>
-            <select
+          </Field>
+          <Field
+            label={'Base legal'}
+            tooltip="Fundamento legal que permite tratar el dato del titular para esta finalidad."
+          >
+            <OptionSelect
+              name="base-legal"
               value={form.basis}
-              onChange={(event) => setForm({ ...form, basis: event.target.value })}
-            >
-              {BASES.map((basis) => (
-                <option key={basis.code} value={basis.code}>
-                  {basis.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Caduca</span>
+              onChange={(valor) => setForm({ ...form, basis: valor })}
+              options={BASES.map((basis) => ({
+                value: basis.code,
+                label: basis.label,
+                description: BASE_AYUDA[basis.code],
+              }))}
+            />
+          </Field>
+          <Field label="Caduca" tooltip="Fecha en que el consentimiento deja de valer.">
             <input
               type="date"
               value={form.expiresAt}
               onChange={(event) => setForm({ ...form, expiresAt: event.target.value })}
             />
-          </label>
+          </Field>
         </div>
         <div className="quality-inline-actions">
           <button

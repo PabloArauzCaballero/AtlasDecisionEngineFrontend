@@ -12,6 +12,7 @@ import {
   rollbackDeployment,
   suspendDeployment,
 } from './deployment-controls.api';
+import { Field } from '../../components/Field';
 
 export type DeploymentControlKind = 'rollback' | 'suspend';
 
@@ -122,8 +123,10 @@ export function DeploymentControlDialog({
         <strong>Qué va a pasar.</strong> {texto.consecuencia}
       </Alert>
 
-      <label className="field" htmlFor="deployment-control-reason">
-        <span className="field-label">Motivo</span>
+      <Field
+        label="Motivo"
+        tooltip="Por qué cambias el despliegue; queda en la auditoría con tu nombre y la hora."
+      >
         <textarea
           id="deployment-control-reason"
           className="field-input"
@@ -137,7 +140,7 @@ export function DeploymentControlDialog({
           Obligatorio y queda en el registro de auditoría con tu nombre y la hora. Escríbelo para
           quien lo lea dentro de seis meses sin recordar este día: qué se observó y desde cuándo.
         </span>
-      </label>
+      </Field>
 
       {recortado.length > 0 && !suficiente ? (
         <p className="field-error" role="status">

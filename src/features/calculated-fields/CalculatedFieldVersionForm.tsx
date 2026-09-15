@@ -14,6 +14,7 @@ import {
   type CalculatedFieldDraft,
   type ImplementationKind,
 } from './calculated-field.types';
+import { Field } from '../../components/Field';
 
 interface Props {
   draft: CalculatedFieldDraft;
@@ -124,11 +125,13 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
         <div className="constraint-grid">
           <CommentField
             label="Descripción general"
+            tooltip="Qué hace el campo calculado, para quien vaya a reutilizarlo."
             value={draft.comments.overview ?? ''}
             onChange={(overview) => patch({ comments: { ...draft.comments, overview } })}
           />
           <CommentField
             label="Explicación de las entradas"
+            tooltip="Qué significa cada entrada y de dónde sale su valor."
             value={draft.comments.inputsExplained ?? ''}
             onChange={(inputsExplained) =>
               patch({ comments: { ...draft.comments, inputsExplained } })
@@ -136,6 +139,7 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
           />
           <CommentField
             label="Explicación de la salida"
+            tooltip="Qué representa el valor devuelto y cómo leerlo."
             value={draft.comments.outputExplained ?? ''}
             onChange={(outputExplained) =>
               patch({ comments: { ...draft.comments, outputExplained } })
@@ -143,6 +147,7 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
           />
           <CommentField
             label="Supuestos (uno por línea)"
+            tooltip="Condiciones que la fórmula da por ciertas; una por línea."
             value={(draft.comments.assumptions ?? []).join('\n')}
             onChange={(text) =>
               patch({ comments: { ...draft.comments, assumptions: splitLines(text) } })
@@ -150,6 +155,7 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
           />
           <CommentField
             label="Limitaciones (una por línea)"
+            tooltip="Casos o poblaciones para los que la fórmula no sirve; una por línea."
             value={(draft.comments.limitations ?? []).join('\n')}
             onChange={(text) =>
               patch({ comments: { ...draft.comments, limitations: splitLines(text) } })
@@ -157,6 +163,7 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
           />
           <CommentField
             label="Ejemplo"
+            tooltip="Un caso concreto con sus entradas y el valor que devuelve."
             value={draft.comments.example ?? ''}
             onChange={(example) => patch({ comments: { ...draft.comments, example } })}
           />
@@ -168,18 +175,19 @@ export function CalculatedFieldVersionForm({ draft, onChange }: Props) {
 
 function CommentField({
   label,
+  tooltip,
   value,
   onChange,
 }: {
   label: string;
+  tooltip: string;
   value: string;
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="constraint-field constraint-wide">
-      <span>{label}</span>
+    <Field className="constraint-field constraint-wide" label={label} tooltip={tooltip}>
       <textarea rows={2} value={value} onChange={(event) => onChange(event.target.value)} />
-    </label>
+    </Field>
   );
 }
 

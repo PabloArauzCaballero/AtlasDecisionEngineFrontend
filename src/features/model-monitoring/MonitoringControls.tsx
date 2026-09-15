@@ -1,6 +1,7 @@
 'use client';
 
 import { ArtifactVersionPicker } from '../../components/ArtifactVersionPicker';
+import { Field } from '../../components/Field';
 
 export interface MonitoringForm {
   versionId: string;
@@ -43,60 +44,66 @@ export function MonitoringControls({ form, onChange, onRun, running }: Monitorin
       />
 
       <div className="monitoring-field-row">
-        <label>
-          <span>Ventana actual — desde</span>
+        <Field label="Ventana actual — desde" tooltip="Inicio del periodo que se mide ahora.">
           <input
             type="date"
             value={form.from}
             onChange={(event) => onChange({ from: event.target.value })}
           />
-        </label>
-        <label>
-          <span>Ventana actual — hasta</span>
+        </Field>
+        <Field label="Ventana actual — hasta" tooltip="Fin del periodo que se mide ahora.">
           <input
             type="date"
             value={form.to}
             onChange={(event) => onChange({ to: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
 
       <div className="monitoring-field-row" data-tutorial-id="monitoring-comparison">
-        <label>
-          <span>Variable a comparar</span>
+        <Field
+          label="Variable a comparar"
+          tooltip="Variable cuya distribución se compara entre referencia y ventana actual. Ej.: ingresos_mensuales."
+        >
           <input
             value={form.variableCode}
             placeholder="ingresos_mensuales"
             onChange={(event) => onChange({ variableCode: event.target.value })}
           />
-        </label>
-        <label>
-          <span>Atributo de sesgo</span>
+        </Field>
+        <Field
+          label="Atributo de sesgo"
+          tooltip="Atributo por el que se mide el impacto adverso. Ej.: AGE_BAND."
+        >
           <input
             value={form.attribute}
             placeholder="AGE_BAND"
             onChange={(event) => onChange({ attribute: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
 
       <div className="monitoring-field-row" data-tutorial-id="monitoring-reference">
-        <label>
-          <span>Referencia — desde</span>
+        <Field
+          label="Referencia — desde"
+          tooltip="Inicio del periodo de referencia contra el que se compara."
+        >
           <input
             type="date"
             value={form.referenceFrom}
             onChange={(event) => onChange({ referenceFrom: event.target.value })}
           />
-        </label>
-        <label>
-          <span>Referencia — hasta</span>
+        </Field>
+        <Field
+          label="Referencia — hasta"
+          tooltip="Fin del periodo de referencia contra el que se compara."
+        >
           <input
             type="date"
             value={form.referenceTo}
             onChange={(event) => onChange({ referenceTo: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
 
       <button

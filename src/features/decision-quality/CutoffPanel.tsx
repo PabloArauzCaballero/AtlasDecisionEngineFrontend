@@ -6,6 +6,7 @@ import { apiRequest } from '../../api/http-client';
 import { EmptyState } from '../../components/EmptyState';
 import { Panel } from '../../components/Panel';
 import { asPercent } from './decision-quality.api';
+import { Field } from '../../components/Field';
 
 interface CutoffPoint {
   cutoff: number;
@@ -87,29 +88,35 @@ export function CutoffPanel() {
         tutorialId="quality-cutoff"
       >
         <div className="quality-form-grid">
-          <label className="field">
-            <span>Versión del algoritmo</span>
+          <Field
+            label="Versión del algoritmo"
+            tooltip="Identificador de la versión del algoritmo que se analiza. Ej.: 4001."
+          >
             <input
               value={form.artifactVersionId}
               placeholder="4001"
               onChange={(event) => setForm({ ...form, artifactVersionId: event.target.value })}
             />
-          </label>
-          <label className="field">
-            <span>Campo del puntaje</span>
+          </Field>
+          <Field
+            label="Campo del puntaje"
+            tooltip="Campo de la salida que trae el puntaje sobre el que se corta."
+          >
             <input
               value={form.scoreField}
               onChange={(event) => setForm({ ...form, scoreField: event.target.value })}
             />
-          </label>
-          <label className="field">
-            <span>Ventana (días)</span>
+          </Field>
+          <Field
+            label="Ventana (días)"
+            tooltip="Días de desenlaces observados que entran en el análisis."
+          >
             <input
               value={form.windowDays}
               inputMode="numeric"
               onChange={(event) => setForm({ ...form, windowDays: event.target.value })}
             />
-          </label>
+          </Field>
         </div>
         <p className="quality-note">
           El corte se aplica con la convención «más alto = más riesgo»: se aprueba lo que queda por
@@ -119,14 +126,17 @@ export function CutoffPanel() {
       </Panel>
 
       <Panel title="Champion contra challenger" meta="comparados por desenlace, no por volumen">
-        <label className="field quality-filter">
-          <span>Despliegue</span>
+        <Field
+          className="quality-filter"
+          label="Despliegue"
+          tooltip="Identificador del despliegue al que se aplica el punto de corte. Ej.: 912."
+        >
           <input
             value={deploymentId}
             placeholder="912"
             onChange={(event) => setDeploymentId(event.target.value)}
           />
-        </label>
+        </Field>
         {comparison.data && <BranchTable comparison={comparison.data} />}
       </Panel>
     </div>

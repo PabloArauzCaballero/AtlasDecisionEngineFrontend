@@ -10,6 +10,7 @@ import { asRecord, asRows, display, type UnknownRecord } from '../../utils/recor
 import { CalculatedFieldSampleControls } from './CalculatedFieldSampleControls';
 import { parseInputValues, stringifyInput } from './calculated-field-values';
 import { draftBlocker, testCall, tryCall, type TryTarget } from './calculated-field-preview';
+import { Field } from '../../components/Field';
 
 interface Props {
   target: TryTarget;
@@ -60,11 +61,17 @@ export function CalculatedFieldTryPanel({ target, inputs, testCases }: Props) {
         {inputs.map((input) => {
           const id = display(input, 'id');
           return (
-            <label className="constraint-field" key={id}>
-              <span>
-                {display(input, 'name') || id}
-                {input.required ? ' *' : ''}
-              </span>
+            <Field
+              key={id}
+              className="constraint-field"
+              label={
+                <>
+                  {display(input, 'name') || id}
+                  {input.required ? ' *' : ''}
+                </>
+              }
+              tooltip={`Valor de prueba para la entrada ${id}, del tipo que declara el contrato.`}
+            >
               <input
                 value={values[id] ?? ''}
                 placeholder={display(input, 'dataType')}
@@ -72,7 +79,7 @@ export function CalculatedFieldTryPanel({ target, inputs, testCases }: Props) {
                   setValues((current) => ({ ...current, [id]: event.target.value }))
                 }
               />
-            </label>
+            </Field>
           );
         })}
       </div>

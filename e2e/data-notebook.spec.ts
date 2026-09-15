@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { collectProblems } from './support/backend-mock';
 import { abrirCuadernoDeTrabajo, mockDataNotebookBackend } from './support/data-notebook-backend';
 import { ejecutarConAtajo, escribirEnCelda, esperarContenido } from './support/notebook-editor';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * El cuaderno de datos, con TODOS sus controles pulsados.
@@ -76,7 +77,7 @@ test.describe('cuaderno de datos', () => {
   test('una celda de JavaScript se ejecuta y su resultado sale como tabla', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page.locator('.notebook-cell__language select').selectOption('javascript');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]'), 'javascript');
     await escribir(
       page,
       0,
@@ -94,7 +95,7 @@ test.describe('cuaderno de datos', () => {
   test('console.log de una celda se recoge como salida, no se pierde', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page.locator('.notebook-cell__language select').selectOption('javascript');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]'), 'javascript');
     await escribir(page, 0, 'console.log("filas:", rows.length); return null;');
     await page.locator('.notebook-cell__run').click();
 
@@ -106,7 +107,7 @@ test.describe('cuaderno de datos', () => {
   test('un error de la celda se enseña con su mensaje y no rompe la página', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page.locator('.notebook-cell__language select').selectOption('javascript');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]'), 'javascript');
     await escribir(page, 0, 'throw new Error("algo salió mal");');
     await page.locator('.notebook-cell__run').click();
 
@@ -148,12 +149,15 @@ test.describe('cuaderno de datos', () => {
   test('cambiar de dataset descarta los resultados que ya no corresponden', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page.locator('.notebook-cell__language select').selectOption('javascript');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]'), 'javascript');
     await escribir(page, 0, 'return [{ ok: true }];');
     await page.locator('.notebook-cell__run').click();
     await expect(page.locator('.notebook-cell__output')).toBeVisible({ timeout: 30_000 });
 
-    await page.locator('.notebook-dataset__picker select').selectOption('audit-event-feed');
+    await elegirOpcion(
+      page.locator('.notebook-dataset__picker [role="combobox"]'),
+      'audit-event-feed',
+    );
     // Dejar el resultado anterior junto a datos nuevos es la forma más silenciosa de concluir mal.
     await expect(page.locator('.notebook-cell__output')).toHaveCount(0);
   });
@@ -175,7 +179,7 @@ test.describe('cuaderno de datos', () => {
   test('el atajo Ctrl+Enter ejecuta la celda', async ({ page }) => {
     await abrirCuaderno(page);
 
-    await page.locator('.notebook-cell__language select').selectOption('javascript');
+    await elegirOpcion(page.locator('.notebook-cell__language [role="combobox"]'), 'javascript');
     await escribir(page, 0, 'return [{ atajo: true }];');
     await ejecutarConAtajo(page, 0);
 

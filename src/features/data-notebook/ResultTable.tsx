@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import type { NotebookColumn } from './notebook.api';
 import { cellText, downloadFile, fileName, toCsv, toJson } from './notebook-export';
 import type { DerivedTable } from './notebook-types';
+import { FieldLabel } from '../../components/FieldLabel';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface ResultTableProps {
   table: DerivedTable;
@@ -164,22 +166,27 @@ export function ResultTable({ table, name, policies, server }: ResultTableProps)
           Siguiente <ChevronRight aria-hidden="true" size={14} />
         </button>
         {server ? null : (
-          <label className="notebook-result__size">
-            Filas por página
-            <select
-              value={pageSize}
-              onChange={(evento) => {
-                setPageSize(Number(evento.target.value));
+          <span className="notebook-result__size">
+            <FieldLabel
+              htmlFor="notebook-page-size"
+              label="Filas por página"
+              tooltip="Cuántas filas de la salida se ven a la vez; la descarga se lleva todas."
+            />
+            <OptionSelect
+              id="notebook-page-size"
+              name="filas-por-pagina"
+              compact
+              value={String(pageSize)}
+              onChange={(valor) => {
+                setPageSize(Number(valor));
                 setClientPage(1);
               }}
-            >
-              {TAMANOS_CLIENTE.map((tamano) => (
-                <option key={tamano} value={tamano}>
-                  {tamano}
-                </option>
-              ))}
-            </select>
-          </label>
+              options={TAMANOS_CLIENTE.map((tamano) => ({
+                value: String(tamano), // sin-ayuda: el número ya dice cuántas filas
+                label: String(tamano),
+              }))}
+            />
+          </span>
         )}
       </div>
     </div>

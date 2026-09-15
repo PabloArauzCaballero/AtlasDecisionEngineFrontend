@@ -20,14 +20,15 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:tools": "playwright test --config playwright.tools.config.ts",
     "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
-    "verify": "yarn format:check && yarn lint && yarn verify:source && yarn typecheck && yarn test && yarn build",
+    "verify": "yarn format:check && yarn lint && yarn verify:source && yarn verify:help && yarn typecheck && yarn test && yarn build",
     "setup:pyodide": "node scripts/setup-pyodide.mjs",
     "setup:webr": "node scripts/setup-webr.mjs",
     "setup:interpretes": "yarn setup:pyodide && yarn setup:webr",
     "evidencia:responsive": "node scripts/evidencia-responsive.mjs",
     "evidencia:responsive:auditar": "node scripts/evidencia-responsive.mjs --solo-auditar",
     "security:audit": "node scripts/audit-high.mjs",
-    "security:audit:todo": "node scripts/audit-high.mjs --todos"
+    "security:audit:todo": "node scripts/audit-high.mjs --todos",
+    "verify:help": "node scripts/check-field-help.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

@@ -59,7 +59,8 @@ test.describe('pestaña Verificación de Identidad', () => {
     await expect(consola.locator('.worker-input')).toBeVisible({ timeout: 30_000 });
 
     await consola.getByRole('radio', { name: /Usar datos de prueba/i }).check();
-    await consola.getByLabel('Escenario').selectOption('identidad-revision');
+    await consola.getByTestId('select-escenario').click();
+    await consola.page().getByTestId('select-escenario-option-identidad-revision').click();
     await consola.getByRole('button', { name: 'Verificar' }).click();
 
     // El seguimiento: se comprueba el estado terminal y no los intermedios, que
@@ -171,7 +172,8 @@ test.describe('pestaña Verificación de Identidad', () => {
     const consola = page.locator('.worker-console');
     await expect(consola.locator('.worker-input')).toBeVisible({ timeout: 30_000 });
     await consola.getByRole('radio', { name: /Usar datos de prueba/i }).check();
-    await consola.getByLabel('Escenario').selectOption('identidad-revision');
+    await consola.getByTestId('select-escenario').click();
+    await consola.page().getByTestId('select-escenario-option-identidad-revision').click();
     await consola.getByRole('button', { name: 'Verificar' }).click();
 
     const veredicto = consola.locator('.identity-result');
@@ -230,7 +232,8 @@ test.describe('pestaña Verificación de Identidad', () => {
     const consola = page.locator('.worker-console');
     await expect(consola.locator('.worker-input')).toBeVisible({ timeout: 30_000 });
     await consola.getByRole('radio', { name: /Usar datos de prueba/i }).check();
-    await consola.getByLabel('Escenario').selectOption('identidad-revision');
+    await consola.getByTestId('select-escenario').click();
+    await consola.page().getByTestId('select-escenario-option-identidad-revision').click();
     await consola.getByRole('button', { name: 'Verificar' }).click();
 
     const seguimiento = consola.locator('.worker-run');

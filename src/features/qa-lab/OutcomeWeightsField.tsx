@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { Field } from '../../components/Field';
 
 interface Props {
   /** Versión compilada cuyos desenlaces se reparten. Sin ella no hay nada que listar. */
@@ -53,8 +54,12 @@ export function OutcomeWeightsField({ versionId, weights, onChange }: Props) {
         {items.map((item) => {
           const nodeKey = display(item, 'nodeKey');
           return (
-            <label className="constraint-field" key={nodeKey}>
-              <span>{display(item, 'label')}</span>
+            <Field
+              key={nodeKey}
+              className="constraint-field"
+              label={display(item, 'label')}
+              tooltip={`Peso relativo de los casos válidos que terminan en «${display(item, 'label')}».`}
+            >
               <input
                 type="number"
                 min={0}
@@ -63,7 +68,7 @@ export function OutcomeWeightsField({ versionId, weights, onChange }: Props) {
                 value={weights[nodeKey] ?? ''}
                 onChange={(event) => patch(nodeKey, event.target.value)}
               />
-            </label>
+            </Field>
           );
         })}
       </div>

@@ -3,6 +3,7 @@
 import { AlertCircle, ArrowLeft, Loader2, MailCheck } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { LoginProblem } from './login-errors';
+import { Field } from '../../../components/Field';
 
 interface LoginPinFormProps {
   email: string;
@@ -85,8 +86,11 @@ export function LoginPinForm({
       ) : null}
 
       <form onSubmit={submit} className="login-form" noValidate>
-        <label className="field login-field">
-          <span>Código de verificación</span>
+        <Field
+          className="login-field"
+          label="Código de verificación"
+          tooltip="Código que llegó a tu correo después de escribir la contraseña."
+        >
           <input
             ref={inputRef}
             className="login-pin-input"
@@ -106,7 +110,7 @@ export function LoginPinForm({
               ? 'El código caducó. Vuelve al paso anterior para pedir uno nuevo.'
               : `El código caduca en ${formatCountdown(secondsLeft)}.`}
           </small>
-        </label>
+        </Field>
 
         <button
           className="button button-primary login-submit"

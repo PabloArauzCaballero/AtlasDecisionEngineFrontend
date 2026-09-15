@@ -6,6 +6,8 @@ import { EmptyState } from '../../components/EmptyState';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { useManualOutcome, usePendingWindows, type PendingWindow } from './decision-quality.api';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /** Los cinco desenlaces que el motor reconoce, con el nombre que usa quien los carga. */
 const LABELS = [
@@ -120,20 +122,26 @@ function ManualOutcomeForm({
         Decisión <Link href={`/executions/${item.executionId}`}>{item.executionId}</Link>, ventana
         de {item.windowDays} días.
       </p>
-      <label className="field">
-        <span>Qué pasó</span>
-        <select value={label} onChange={(event) => setLabel(event.target.value)}>
-          {LABELS.map((option) => (
-            <option key={option.code} value={option.code}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span>Nota (opcional)</span>
+      <Field
+        label={'Qué pasó'}
+        tooltip="Desenlace observado de la decisión en su ventana de seguimiento."
+      >
+        <OptionSelect
+          name={`desenlace-${item.executionId}`}
+          value={label}
+          onChange={setLabel}
+          options={LABELS.map((option) => ({
+            value: option.code, // sin-ayuda: cada rótulo ya describe el desenlace
+            label: option.label,
+          }))}
+        />
+      </Field>
+      <Field
+        label="Nota (opcional)"
+        tooltip="Aclaración sobre el desenlace que se registra; queda con el registro."
+      >
         <input value={notes} onChange={(event) => setNotes(event.target.value)} />
-      </label>
+      </Field>
       <div className="quality-inline-actions">
         <button
           type="button"

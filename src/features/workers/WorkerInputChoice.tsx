@@ -2,6 +2,8 @@
 
 import type { ReactNode } from 'react';
 import type { WorkerFixture } from './worker-types';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface WorkerInputChoiceProps {
   mode: 'fixture' | 'own';
@@ -99,22 +101,23 @@ export function WorkerInputChoice({
 
       {mode === 'fixture' ? (
         <div className="worker-fixtures">
-          <label className="field">
-            <span className="field-label">Escenario</span>
-            <select
+          <Field
+            label={'Escenario'}
+            tooltip="Caso sintético del motor con el que se ejecuta el worker, sin datos personales."
+          >
+            <OptionSelect
+              name="escenario"
               value={selectedFixture}
-              onChange={(event) => onFixtureChange(event.target.value)}
+              onChange={onFixtureChange}
               disabled={disabled || !fixturesEnabled}
-            >
-              <option value="">Elige un escenario…</option>
-              {fixtures.map((fixture) => (
-                <option key={fixture.code} value={fixture.code}>
-                  {fixture.name}
-                  {fixture.expectsFailure ? ' — termina en error, a propósito' : ''}
-                </option>
-              ))}
-            </select>
-          </label>
+              placeholder="Elige un escenario…"
+              options={fixtures.map((fixture) => ({
+                value: fixture.code,
+                label: `${fixture.name}${fixture.expectsFailure ? ' — termina en error, a propósito' : ''}`,
+                description: fixture.description,
+              }))}
+            />
+          </Field>
 
           {chosen ? (
             <div className="worker-fixture-detail">

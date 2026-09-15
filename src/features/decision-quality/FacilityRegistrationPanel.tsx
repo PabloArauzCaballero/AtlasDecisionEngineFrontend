@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Panel } from '../../components/Panel';
 import { useNotifications } from '../../notifications/useNotifications';
 import { useFacilityRegistration, type OutcomeRowResult } from './decision-quality.api';
+import { Field } from '../../components/Field';
 
 /**
  * Alta puntual de un crédito concedido.
@@ -65,46 +66,48 @@ export function FacilityRegistrationPanel() {
   return (
     <Panel title="Alta de crédito concedido" meta="el solicitante se toma de la decisión de origen">
       <div className="quality-form-grid">
-        <label className="field">
-          <span>Referencia en cartera</span>
+        <Field
+          label="Referencia en cartera"
+          tooltip="Referencia del crédito en el sistema de cartera. Ej.: LOAN-2026-000841."
+        >
           <input
             value={form.externalReference}
             onChange={set('externalReference')}
             placeholder="LOAN-2026-000841"
           />
-        </label>
-        <label className="field">
-          <span>Decisión que lo originó</span>
+        </Field>
+        <Field
+          label="Decisión que lo originó"
+          tooltip="Identificador de la ejecución del motor que aprobó el crédito."
+        >
           <input
             value={form.originationExecutionId}
             onChange={set('originationExecutionId')}
             placeholder="88001"
           />
-        </label>
-        <label className="field">
-          <span>Importe</span>
+        </Field>
+        <Field label="Importe" tooltip="Capital del crédito que se desembolsó.">
           <input
             value={form.principalAmount}
             onChange={set('principalAmount')}
             inputMode="decimal"
           />
-        </label>
-        <label className="field">
-          <span>Moneda</span>
+        </Field>
+        <Field label="Moneda" tooltip="Código ISO de 3 letras de la moneda. Ej.: BOB.">
           <input value={form.currencyCode} onChange={set('currencyCode')} maxLength={3} />
-        </label>
-        <label className="field">
-          <span>Plazo (meses)</span>
+        </Field>
+        <Field label="Plazo (meses)" tooltip="Duración del crédito en meses.">
           <input value={form.termMonths} onChange={set('termMonths')} inputMode="numeric" />
-        </label>
-        <label className="field">
-          <span>Tasa anual (tanto por uno)</span>
+        </Field>
+        <Field
+          label="Tasa anual (tanto por uno)"
+          tooltip="Tasa de interés anual como fracción. Ej.: 0.18 para un 18 %."
+        >
           <input value={form.annualRate} onChange={set('annualRate')} inputMode="decimal" />
-        </label>
-        <label className="field">
-          <span>Desembolso</span>
+        </Field>
+        <Field label="Desembolso" tooltip="Fecha en que se entregó el dinero al cliente.">
           <input type="date" value={form.disbursedAt} onChange={set('disbursedAt')} />
-        </label>
+        </Field>
       </div>
 
       <div className="quality-inline-actions">

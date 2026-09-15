@@ -144,7 +144,8 @@
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
-.tutorial-center-filters label {
+.tutorial-center-filters label,
+.tutorial-center-filters .field {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

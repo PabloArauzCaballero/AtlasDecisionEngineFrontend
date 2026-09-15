@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { collectProblems } from './support/backend-mock';
 import { notificationsBackend } from './support/notifications-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Lo que el portal le dice al operador, medido sobre el DOM ya pintado.
@@ -27,7 +28,7 @@ async function abrirNotas(page: import('@playwright/test').Page) {
   await page.goto('/graph-editor');
   await page.waitForSelector('.graph-workbench', { timeout: 30_000 });
   // Las notas pertenecen a una versión: sin elegirla, el panel ni se pinta.
-  await page.locator('#graph-version-id').selectOption('ver-demo');
+  await elegirOpcion(page.getByTestId('select-graph-version'), 'ver-demo');
   await page.getByRole('button', { name: /Análisis del flujo/ }).click();
   const notas = page.locator('.graph-notes');
   await expect(notas).toBeVisible();
@@ -92,9 +93,9 @@ test('una ejecución larga acaba diciendo en qué acabó', async ({ page }) => {
 
   // Los dos selectores del par artefacto/versión comparten nombre accesible con
   // su marcador de posición, así que se toman por posición dentro del control.
-  const picker = page.locator('.artifact-version-picker select');
-  await picker.first().selectOption('BNPL_CREDIT_DECISION');
-  await picker.nth(1).selectOption('ver-demo');
+  const picker = page.locator('.artifact-version-picker [role="combobox"]');
+  await elegirOpcion(picker.first(), 'BNPL_CREDIT_DECISION');
+  await elegirOpcion(picker.nth(1), 'ver-demo');
 
   const lanzar = page.getByRole('button', { name: /Iniciar ejecución en vivo/ });
   await expect(lanzar).toBeEnabled();

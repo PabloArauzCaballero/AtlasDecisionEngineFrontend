@@ -13,6 +13,8 @@ import {
 import { useState, type FormEvent } from 'react';
 import { env } from '../../../config/env';
 import type { LoginProblem } from './login-errors';
+import { Field } from '../../../components/Field';
+import { FieldRow } from '../../../components/FieldRow';
 
 export interface LoginCredentials {
   tenantId: string;
@@ -91,8 +93,11 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
       ) : null}
 
       <form onSubmit={submit} className="login-form" noValidate>
-        <label className="field login-field">
-          <span>Tenant</span>
+        <Field
+          className="login-field"
+          label="Tenant"
+          tooltip="Identificador de la organización a la que pertenece tu cuenta; normalmente es 1."
+        >
           <input
             inputMode="numeric"
             pattern="[1-9][0-9]*"
@@ -101,73 +106,101 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
             onChange={(event) => setTenantId(event.target.value)}
           />
           <small className="login-help">Identificador de tu organización. Normalmente es 1.</small>
-        </label>
+        </Field>
 
-        <label className="field login-field">
-          <span>Correo electrónico</span>
-          <div className={`input-with-icon ${emailError ? 'has-error' : ''}`}>
-            <UserRound />
-            <input
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              placeholder="usuario@empresa.com"
-              aria-invalid={emailError}
-              aria-describedby="login-email-status"
-              onChange={(event) => setEmail(event.target.value)}
-              onBlur={() => setTouched((state) => ({ ...state, email: true }))}
-            />
-            {touched.email ? (
-              <span className={`field-status ${emailValid ? 'is-valid' : 'is-invalid'}`}>
-                {emailValid ? <Check size={15} /> : <AlertCircle size={15} />}
-              </span>
-            ) : null}
-          </div>
-          <small
-            id="login-email-status"
-            className={emailError ? 'field-error' : 'login-help'}
-            role={emailError ? 'alert' : undefined}
-          >
-            {emailError
-              ? 'Escribe un correo completo, con @ y dominio (ejemplo: nombre@empresa.com).'
-              : 'Usa el correo con el que te dieron de alta en la plataforma.'}
-          </small>
-        </label>
+        <FieldRow
+          className="login-field"
+          label="Correo electrónico"
+          tooltip="Correo con el que te dieron de alta en la plataforma."
+        >
+          {(control) => (
+            <>
+              <div className={`input-with-icon ${emailError ? 'has-error' : ''}`}>
+                <UserRound />
+                <input
+                  type="email"
+                  autoComplete="username"
+                  required
+                  value={email}
+                  placeholder="usuario@empresa.com"
+                  aria-invalid={emailError}
+                  id={control.id}
+                  aria-describedby={['login-email-status', control['aria-describedby']]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onChange={(event) => setEmail(event.target.value)}
+                  onFocus={control.onFocus}
+                  onBlur={() => {
+                    control.onBlur();
+                    setTouched((state) => ({ ...state, email: true }));
+                  }}
+                />
+                {touched.email ? (
+                  <span className={`field-status ${emailValid ? 'is-valid' : 'is-invalid'}`}>
+                    {emailValid ? <Check size={15} /> : <AlertCircle size={15} />}
+                  </span>
+                ) : null}
+              </div>
+              <small
+                id="login-email-status"
+                className={emailError ? 'field-error' : 'login-help'}
+                role={emailError ? 'alert' : undefined}
+              >
+                {emailError
+                  ? 'Escribe un correo completo, con @ y dominio (ejemplo: nombre@empresa.com).'
+                  : 'Usa el correo con el que te dieron de alta en la plataforma.'}
+              </small>
+            </>
+          )}
+        </FieldRow>
 
-        <label className="field login-field">
-          <span>Contraseña</span>
-          <div className={`input-with-icon ${passwordError ? 'has-error' : ''}`}>
-            <KeyRound />
-            <input
-              type={visible ? 'text' : 'password'}
-              autoComplete="current-password"
-              required
-              value={password}
-              aria-invalid={passwordError}
-              aria-describedby="login-password-status"
-              onChange={(event) => setPassword(event.target.value)}
-              onBlur={() => setTouched((state) => ({ ...state, password: true }))}
-            />
-            <button
-              type="button"
-              onClick={() => setVisible((current) => !current)}
-              aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-              title={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-            >
-              {visible ? <EyeOff /> : <Eye />}
-            </button>
-          </div>
-          <small
-            id="login-password-status"
-            className={passwordError ? 'field-error' : 'login-help'}
-            role={passwordError ? 'alert' : undefined}
-          >
-            {passwordError
-              ? 'Escribe tu contraseña para continuar.'
-              : 'Nunca compartas tu contraseña; el equipo de soporte jamás te la pedirá.'}
-          </small>
-        </label>
+        <FieldRow
+          className="login-field"
+          label="Contraseña"
+          tooltip="Tu contraseña de la plataforma; nunca la compartas."
+        >
+          {(control) => (
+            <>
+              <div className={`input-with-icon ${passwordError ? 'has-error' : ''}`}>
+                <KeyRound />
+                <input
+                  type={visible ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  aria-invalid={passwordError}
+                  id={control.id}
+                  aria-describedby={['login-password-status', control['aria-describedby']]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onChange={(event) => setPassword(event.target.value)}
+                  onFocus={control.onFocus}
+                  onBlur={() => {
+                    control.onBlur();
+                    setTouched((state) => ({ ...state, password: true }));
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setVisible((current) => !current)}
+                  aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  title={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                >
+                  {visible ? <EyeOff /> : <Eye />}
+                </button>
+              </div>
+              <small
+                id="login-password-status"
+                className={passwordError ? 'field-error' : 'login-help'}
+                role={passwordError ? 'alert' : undefined}
+              >
+                {passwordError
+                  ? 'Escribe tu contraseña para continuar.'
+                  : 'Nunca compartas tu contraseña; el equipo de soporte jamás te la pedirá.'}
+              </small>
+            </>
+          )}
+        </FieldRow>
 
         <div className="login-row">
           <label className="login-remember">

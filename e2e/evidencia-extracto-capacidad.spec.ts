@@ -66,7 +66,8 @@ async function convertir(escenario: string) {
   await pestana('Consola');
   const consola = sesion.locator('.worker-console');
   await expect(consola.locator('.worker-input')).toBeVisible({ timeout: 30_000 });
-  await consola.getByLabel('Escenario').selectOption(escenario);
+  await consola.getByTestId('select-escenario').click();
+  await consola.page().getByTestId(`select-escenario-option-${escenario}`).click();
   await consola.getByRole('button', { name: 'Convertir' }).click();
   return consola;
 }

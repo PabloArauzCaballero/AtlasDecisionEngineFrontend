@@ -28,6 +28,8 @@ import { useNotifications } from '../notifications/useNotifications';
 import { simulationResponseSchema, type SimulationResponse } from '../testing/testing.schemas';
 import { parseJsonObject } from '../utils/json';
 import { asRecord, asRows, display } from '../utils/records';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 // El payload arranca VACÍO: en cuanto se elige un artefacto, el editor lo siembra
 // con las variables que ese artefacto declara (features/simulator/simulator-payload.ts).
@@ -176,25 +178,21 @@ export function SimulatorPage() {
                   label: `${display(row, 'artifactCode')} · ${display(row, 'name')}`,
                 })}
               />
-              <label className="field">
-                <span>Ambiente seguro</span>
-                <select
+              <Field
+                label={'Ambiente seguro'}
+                tooltip="Ambiente fuera de producción donde se ensaya la decisión sin tocar la operación."
+              >
+                <OptionSelect
+                  name="ambiente-seguro"
                   value={environmentCode}
                   disabled={environments.isPending || !safeEnvironments.length}
-                  onChange={(event) => setEnvironmentCode(event.target.value)}
-                >
-                  {safeEnvironments.map((environment) => (
-                    <option key={environment.id} value={environment.code}>
-                      {environment.name} ({environment.code})
-                      {/* Se marca, no se oculta: saber que un ambiente existe y
-                          que el artefacto no está allí es información útil. */}
-                      {artifactCode && !deployments.has(environment.code)
-                        ? ' — sin despliegue activo'
-                        : ''}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  onChange={setEnvironmentCode}
+                  options={safeEnvironments.map((environment) => ({
+                    value: environment.code, // sin-ayuda: ambientes que declara el motor
+                    label: `${environment.name} (${environment.code})${artifactCode && !deployments.has(environment.code) ? ' — sin despliegue activo' : ''}`,
+                  }))}
+                />
+              </Field>
             </div>
 
             {artifactCode && !deployedHere ? (

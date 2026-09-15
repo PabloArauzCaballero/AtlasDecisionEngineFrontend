@@ -18,6 +18,7 @@ import {
 } from '../testing/testing.schemas';
 import { asRecord, asRows, display } from '../utils/records';
 import { ScrollRegion } from '../components/ScrollRegion';
+import { Field } from '../components/Field';
 
 interface TestCasesPageProps {
   initialSuiteId?: string;
@@ -130,10 +131,12 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
     <div className="test-cases-layout">
       <div className="filters-panel">
         <h2>Filtros</h2>
-        <label className="field">
-          <span>Buscar caso o tag</span>
+        <Field
+          label="Buscar caso o tag"
+          tooltip="Filtra los casos por su código o por una etiqueta."
+        >
           <input value={search} onChange={(event) => setSearch(event.target.value)} />
-        </label>
+        </Field>
         <label>
           <input
             type="checkbox"

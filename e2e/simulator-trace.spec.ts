@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mockSimulatorBackend } from './support/simulator-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * El recorrido paso a paso de una simulación.
@@ -14,7 +15,10 @@ async function simularConTraza(page: Page) {
   await page.goto('/simulator', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await expect(page.locator('.simulator-form')).toBeVisible({ timeout: 30_000 });
 
-  await page.locator('.simulator-form select').first().selectOption('EXTRACTO_CAPACIDAD_PAGO');
+  await elegirOpcion(
+    page.locator('.simulator-form [role="combobox"]').first(),
+    'EXTRACTO_CAPACIDAD_PAGO',
+  );
   const ejecutar = page.getByRole('button', { name: /Ejecutar simulación/ });
   await expect(ejecutar).toBeEnabled({ timeout: 20_000 });
   await ejecutar.click();

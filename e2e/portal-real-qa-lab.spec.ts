@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import { HAY_CREDENCIALES, entrar } from './support/real-portal';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * QA Lab contra el motor REAL: la corrida asíncrona, la semilla catalogada y el reparto
@@ -53,26 +54,24 @@ test('una corrida larga sobrevive al techo de 15 s de la petición', async ({ pa
    */
   // Anclado al principio: «Artefacto» a secas también casa con «Versión del artefacto», y
   // el nombre accesible arrastra además el texto de la opción de carga.
-  const artefacto = page.getByLabel(/^Artefacto/);
-  await expect(artefacto).toBeVisible({ timeout: 30_000 });
-  await expect
-    .poll(async () => artefacto.locator('option').count(), { timeout: 30_000 })
-    .toBeGreaterThan(1);
-  await artefacto.selectOption({ index: 1 });
+  const artefacto = page.getByRole('combobox', { name: /^Artefacto/ });
+  await expect(artefacto).toBeEnabled({ timeout: 30_000 });
+  await artefacto.click();
+  // La lista es un portal del `body`: la primera fila es un artefacto, no un marcador.
+  await page.getByRole('option').first().click();
 
-  const version = page.getByLabel(/^Versión del artefacto/);
-  await expect
-    .poll(async () => version.locator('option').count(), { timeout: 30_000 })
-    .toBeGreaterThan(1);
-  await version.selectOption({ index: 1 });
+  const version = page.getByRole('combobox', { name: /^Versión del artefacto/ });
+  await expect(version).toBeEnabled({ timeout: 30_000 });
+  await version.click();
+  await page.getByRole('option').first().click();
   await page.getByRole('button', { name: 'Usar esta versión' }).click();
 
-  const semilla = page.getByLabel('Semilla');
+  const semilla = page.getByRole('combobox', { name: /^Semilla/ });
   await expect(semilla).toBeVisible({ timeout: 30_000 });
 
   // La semilla es un CATÁLOGO, no un campo libre: se elige una entrada con nombre.
-  expect(await semilla.evaluate((nodo) => nodo.tagName)).toBe('SELECT');
-  await semilla.selectOption('qa-base');
+  expect(await semilla.getAttribute('role')).toBe('combobox');
+  await elegirOpcion(semilla, 'qa-base');
 
   await page.screenshot({ path: `${EVIDENCIA}/01-configuracion-semilla-catalogada.png` });
 

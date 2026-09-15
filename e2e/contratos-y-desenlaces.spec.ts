@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mockDesenlacesBackend } from './support/desenlaces-backend';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Las cuatro pantallas que cambiaron, medidas contra la forma REAL del motor.
@@ -70,8 +71,14 @@ test('el simulador genera un caso por cada resultado posible', async ({ page }) 
   await expect(page.locator('.sample-bar')).toBeVisible({ timeout: 30_000 });
 
   // La opción por omisión ya no es «válidos»: es la que prueba las decisiones.
-  await expect(page.locator('.sample-bar-kind select')).toHaveValue('OUTCOMES');
-  await page.locator('.simulator-form select').first().selectOption('BNPL_CREDIT_DECISION');
+  await expect(page.locator('.sample-bar-kind [role="combobox"]')).toHaveAttribute(
+    'data-value',
+    'OUTCOMES',
+  );
+  await elegirOpcion(
+    page.locator('.simulator-form [role="combobox"]').first(),
+    'BNPL_CREDIT_DECISION',
+  );
   await page.getByRole('button', { name: /Generar valores/ }).click();
 
   // Un chip por desenlace, rotulado con el desenlace y no con «Caso 3».
@@ -89,10 +96,10 @@ test('el QA Lab reparte los casos válidos entre los desenlaces del algoritmo', 
   await page.goto('/qa-lab', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await expect(page.locator('.artifact-version-picker')).toBeVisible({ timeout: 30_000 });
 
-  const selects = page.locator('.artifact-version-picker select');
-  await selects.first().selectOption('BNPL_CREDIT_DECISION');
+  const selects = page.locator('.artifact-version-picker [role="combobox"]');
+  await elegirOpcion(selects.first(), 'BNPL_CREDIT_DECISION');
   await expect(selects.nth(1)).toBeEnabled({ timeout: 20_000 });
-  await selects.nth(1).selectOption('274');
+  await elegirOpcion(selects.nth(1), '274');
   await page.getByRole('button', { name: 'Usar esta versión' }).click();
 
   // La cobertura por desenlace viene activada: es lo que responde «¿probé cada decisión?».

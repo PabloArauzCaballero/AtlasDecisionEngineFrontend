@@ -6,6 +6,7 @@ import { Search } from 'lucide-react';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { LibraryChip } from './LibraryChip';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   /** Lenguaje de la implementación; filtra el catálogo (§7). */
@@ -87,7 +88,9 @@ export function LibrarySelector({ language, environment, selectedIds, onChange, 
       {!disabled ? (
         <>
           <div className="library-filters">
-            <label className="library-search">
+            <label
+              /* sin-ayuda: buscador con icono; el campo se nombra con aria-label */ className="library-search"
+            >
               <Search size={14} aria-hidden />
               <input
                 placeholder="Buscar librería"
@@ -96,18 +99,24 @@ export function LibrarySelector({ language, environment, selectedIds, onChange, 
                 onChange={(event) => setSearch(event.target.value)}
               />
             </label>
-            <select
-              aria-label="Categoría de librería"
+            <OptionSelect
+              name="categoria-libreria"
+              ariaLabel="Categoría de librería"
+              compact
               value={category}
-              onChange={(event) => setCategory(event.target.value)}
-            >
-              <option value="">Todas las categorías</option>
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
+              onChange={setCategory}
+              options={[
+                {
+                  value: '',
+                  label: 'Todas las categorías',
+                  description: 'Sin filtrar: librerías de cualquier categoría.',
+                },
+                ...categories.map((item) => ({
+                  value: item, // sin-ayuda: categorías que salen del catálogo de librerías
+                  label: item,
+                })),
+              ]}
+            />
           </div>
 
           {catalog.isError ? (

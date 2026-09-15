@@ -18,7 +18,8 @@
   gap: var(--space-3);
 }
 
-.monitoring-field-row label {
+.monitoring-field-row label,
+.monitoring-field-row .field {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);

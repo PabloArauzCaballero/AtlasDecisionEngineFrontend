@@ -17,12 +17,9 @@ import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutor
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, display, resolvePath } from '../utils/records';
-
-const RESOLUTION_LABEL: Record<string, string> = {
-  APPROVE: 'aprobado',
-  REJECT: 'rechazado',
-  ESCALATE: 'escalado',
-};
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
+import { RESOLUTION_LABEL, RESOLUTION_OPTIONS } from '../features/manual-review/resolution-options';
 
 interface ManualReviewDetailPageProps {
   caseId: string;
@@ -245,23 +242,25 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
         </div>
         <div data-tutorial-id="review-resolution">
           <Panel title="Resolver el caso" meta="obligatorio">
-            <label className="field">
-              <span>Decisión</span>
-              <select value={resolution} onChange={(event) => setResolution(event.target.value)}>
-                <option value="">Elegir una decisión…</option>
-                <option value="APPROVE">Aprobar</option>
-                <option value="REJECT">Rechazar</option>
-                <option value="ESCALATE">Escalar</option>
-              </select>
-            </label>
-            <label className="field">
-              <span>Comentarios (obligatorios)</span>
+            <Field label={'Decisión'} tooltip="Cómo se resuelve este caso de revisión manual.">
+              <OptionSelect
+                name="resolucion"
+                value={resolution}
+                onChange={setResolution}
+                placeholder="Elegir una decisión…"
+                options={RESOLUTION_OPTIONS}
+              />
+            </Field>
+            <Field
+              label="Comentarios (obligatorios)"
+              tooltip="Por qué resuelves así el caso; queda con la resolución."
+            >
               <textarea
                 rows={8}
                 value={comments}
                 onChange={(event) => setComments(event.target.value)}
               />
-            </label>
+            </Field>
             <button
               className="button button-primary full-width"
               disabled={!resolution || !comments || !caseId || resolve.isPending}

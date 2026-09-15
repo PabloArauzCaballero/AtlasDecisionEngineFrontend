@@ -14,6 +14,8 @@ import {
   useSubmitDataSubjectRequest,
 } from '../features/data-subject/data-subject.api';
 import { asRecord, asRows, display } from '../utils/records';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 /**
  * Derechos del titular de datos (LGPD art. 18 y 20; CCPA/CPRA).
@@ -65,37 +67,50 @@ export function DataSubjectRequestsPage() {
             });
           }}
         >
-          <label data-tutorial-id="dsr-subject">
-            <span>Referencia del titular</span>
-            <input
-              value={subjectReference}
-              onChange={(event) => setSubjectReference(event.target.value)}
-              placeholder="La misma con la que se ejecutaron las decisiones"
-              autoComplete="off"
-              required
-            />
-          </label>
+          <div data-tutorial-id="dsr-subject">
+            <Field
+              label="Referencia del titular"
+              tooltip="Referencia de la persona que ejerce el derecho, no su nombre."
+            >
+              <input
+                value={subjectReference}
+                onChange={(event) => setSubjectReference(event.target.value)}
+                placeholder="La misma con la que se ejecutaron las decisiones"
+                autoComplete="off"
+                required
+              />
+            </Field>
+          </div>
 
-          <label data-tutorial-id="dsr-type">
-            <span>Derecho ejercido</span>
-            <select value={requestType} onChange={(event) => setRequestType(event.target.value)}>
-              {REQUEST_TYPES.map((type) => (
-                <option key={type.code} value={type.code}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div data-tutorial-id="dsr-type">
+            <Field
+              label="Derecho ejercido"
+              tooltip="Qué derecho ejerce el titular con esta solicitud."
+            >
+              <OptionSelect
+                name="derecho"
+                value={requestType}
+                onChange={setRequestType}
+                options={REQUEST_TYPES.map((type) => ({
+                  value: type.code,
+                  label: type.label,
+                  description: type.hint,
+                }))}
+              />
+            </Field>
+          </div>
 
-          <label>
-            <span>Expediente del canal (opcional)</span>
+          <Field
+            label="Expediente del canal (opcional)"
+            tooltip="Número del trámite en el canal de entrada. Ej.: TICKET-9912."
+          >
             <input
               value={reference}
               onChange={(event) => setReference(event.target.value)}
               placeholder="TICKET-9912"
               autoComplete="off"
             />
-          </label>
+          </Field>
 
           <p className="dsr-note">
             <ShieldCheck size={14} aria-hidden />

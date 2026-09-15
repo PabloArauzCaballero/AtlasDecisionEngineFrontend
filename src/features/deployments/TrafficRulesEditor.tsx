@@ -2,6 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
+import { Field } from '../../components/Field';
 
 export interface TrafficRuleDraft {
   /*
@@ -70,16 +71,20 @@ export function TrafficRulesEditor({ rules, onChange }: TrafficRulesEditorProps)
       {rules.map((rule, index) => (
         <div key={rule.id} className="traffic-rule">
           <div className="form-row">
-            <label className="field">
-              <span>Segmento</span>
+            <Field
+              label="Segmento"
+              tooltip="Segmento de clientes al que aplica la regla. Ej.: ALL o MX_RETAIL."
+            >
               <input
                 value={rule.segmentKey}
                 placeholder="ALL, MX_RETAIL…"
                 onChange={(event) => update(index, { segmentKey: event.target.value })}
               />
-            </label>
-            <label className="field">
-              <span>% de tráfico</span>
+            </Field>
+            <Field
+              label="% de tráfico"
+              tooltip="Porcentaje del tráfico del segmento que recibe la versión, de 0 a 100."
+            >
               <input
                 type="number"
                 min={0}
@@ -87,18 +92,20 @@ export function TrafficRulesEditor({ rules, onChange }: TrafficRulesEditorProps)
                 value={rule.trafficPercentage}
                 onChange={(event) => update(index, { trafficPercentage: event.target.value })}
               />
-            </label>
+            </Field>
           </div>
           <div className="inline-actions">
-            <label className="field">
-              <span>Prioridad</span>
+            <Field
+              label="Prioridad"
+              tooltip="Orden en que se evalúa esta regla frente a las demás."
+            >
               <input
                 type="number"
                 min={1}
                 value={rule.priority}
                 onChange={(event) => update(index, { priority: event.target.value })}
               />
-            </label>
+            </Field>
             <ConfirmButton
               className="button button-danger"
               label={`Quitar regla ${index + 1}`}

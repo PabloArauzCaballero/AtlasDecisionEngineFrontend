@@ -3,6 +3,8 @@
 import { FlaskConical } from 'lucide-react';
 import { OutcomeWeightsField } from './OutcomeWeightsField';
 import { GENERATED_SEED, QA_SEED_CATALOG, describeSeed } from './seed-catalog';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Cuántas semillas del historial se ofrecen. El desplegable es para ELEGIR entre lotes
@@ -75,19 +77,26 @@ export function QaRunConfigForm({
   return (
     <div className="qa-config">
       <div className="constraint-grid">
-        <label className="constraint-field">
-          <span>Ambiente</span>
-          <select
+        <Field
+          className="constraint-field"
+          label={'Ambiente'}
+          tooltip="Ambiente del motor contra el que se lanzan los casos de la corrida."
+        >
+          <OptionSelect
+            name="ambiente"
             value={config.environmentCode}
-            onChange={(event) => patch({ environmentCode: event.target.value })}
-          >
-            <option value="DEV">DEV</option>
-            <option value="TEST">TEST</option>
-            <option value="STAGING">STAGING</option>
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>Número de casos</span>
+            onChange={(valor) => patch({ environmentCode: valor })}
+            options={['DEV', 'TEST', 'STAGING'].map((codigo) => ({
+              value: codigo, // sin-ayuda: códigos de ambiente del motor
+              label: codigo,
+            }))}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Número de casos"
+          tooltip="Cuántos casos genera la corrida, hasta 5000."
+        >
           <input
             type="number"
             min={1}
@@ -95,35 +104,43 @@ export function QaRunConfigForm({
             value={config.caseCount}
             onChange={(event) => patch({ caseCount: Number(event.target.value) })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Semilla</span>
-          <select value={config.seed} onChange={(event) => patch({ seed: event.target.value })}>
-            <option value={GENERATED_SEED}>Generar una nueva</option>
-            <optgroup label="Catálogo">
-              {QA_SEED_CATALOG.map((entry) => (
-                <option key={entry.seed} value={entry.seed}>
-                  {entry.label}
-                </option>
-              ))}
-            </optgroup>
-            {used.length ? (
-              <optgroup label="Ya usadas en esta versión">
-                {used.map((seed) => (
-                  <option key={seed} value={seed}>
-                    {seed}
-                  </option>
-                ))}
-              </optgroup>
-            ) : null}
-            {/* Una semilla que llega de fuera —al reproducir una corrida de otra versión—
-                tiene que poder seleccionarse, o el desplegable la descartaría en silencio
-                y la corrida saldría con otra distinta a la que se pidió repetir. */}
-            {loose ? <option value={config.seed}>{config.seed}</option> : null}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>Concurrencia</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label={'Semilla'}
+          tooltip="Semilla del generador: la misma semilla produce el mismo lote de casos."
+        >
+          <OptionSelect
+            name="semilla"
+            value={config.seed}
+            onChange={(valor) => patch({ seed: valor })}
+            options={[
+              {
+                value: GENERATED_SEED,
+                label: 'Generar una nueva',
+                description:
+                  'El motor crea una semilla nueva y la devuelve para poder repetir el lote.',
+              },
+              ...QA_SEED_CATALOG.map((entry) => ({
+                value: entry.seed,
+                label: `Catálogo · ${entry.label}`,
+                description: entry.hint,
+              })),
+              // Una semilla tecleada o heredada que no está en ninguna lista se conserva: sin ella el
+              // desplegable la enseñaría vacía y parecería perdida.
+              ...(loose ? [{ value: config.seed, label: config.seed }] : []), // sin-ayuda: semilla suelta, sin ficha
+              ...used.map((seed) => ({
+                value: seed, // sin-ayuda: semillas ya usadas en esta versión, sin ficha
+                label: `Ya usada · ${seed}`,
+              })),
+            ]}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Concurrencia"
+          tooltip="Cuántos casos ejecuta el motor a la vez, hasta 32."
+        >
           <input
             type="number"
             min={1}
@@ -131,9 +148,12 @@ export function QaRunConfigForm({
             value={config.concurrency}
             onChange={(event) => patch({ concurrency: Number(event.target.value) })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>% casos válidos</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="% casos válidos"
+          tooltip="Porcentaje de casos que cumplen el contrato."
+        >
           <input
             type="number"
             min={0}
@@ -141,9 +161,12 @@ export function QaRunConfigForm({
             value={config.validPercent}
             onChange={(event) => patch({ validPercent: Number(event.target.value) })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>% casos de frontera</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="% casos de frontera"
+          tooltip="Porcentaje de casos en el límite de las restricciones."
+        >
           <input
             type="number"
             min={0}
@@ -151,9 +174,12 @@ export function QaRunConfigForm({
             value={config.boundaryPercent}
             onChange={(event) => patch({ boundaryPercent: Number(event.target.value) })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>% casos inválidos</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="% casos inválidos"
+          tooltip="Porcentaje de casos que el contrato debe rechazar."
+        >
           <input
             type="number"
             min={0}
@@ -161,9 +187,12 @@ export function QaRunConfigForm({
             value={config.invalidPercent}
             onChange={(event) => patch({ invalidPercent: Number(event.target.value) })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Tiempo máximo (ms)</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Tiempo máximo (ms)"
+          tooltip="Tope de tiempo de la corrida, en milisegundos."
+        >
           <input
             type="number"
             min={1000}
@@ -172,7 +201,7 @@ export function QaRunConfigForm({
             value={config.timeoutMs}
             onChange={(event) => patch({ timeoutMs: Number(event.target.value) })}
           />
-        </label>
+        </Field>
         <label className="constraint-field constraint-checkbox">
           <input
             type="checkbox"

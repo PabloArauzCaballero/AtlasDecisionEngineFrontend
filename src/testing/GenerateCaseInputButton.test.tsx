@@ -45,7 +45,7 @@ describe('Generar entrada de un caso de prueba', () => {
     } as never);
     renderForm('55');
 
-    fireEvent.click(screen.getByRole('button', { name: /Generar entrada/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Generar entrada$/ }));
 
     await waitFor(() => expect(screen.getByText(/semilla z9x/)).toBeInTheDocument());
     expect(jsonTextarea('new-case-input')).toHaveValue(
@@ -64,7 +64,7 @@ describe('Generar entrada de un caso de prueba', () => {
     // aparecen los defectos, y un barrido de casos cómodos no encuentra nada.
     renderForm('55', 'GENERATED');
 
-    fireEvent.click(screen.getByRole('button', { name: /Generar entrada/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Generar entrada$/ }));
 
     await waitFor(() => expect(screen.getByText(/semilla s/)).toBeInTheDocument());
     const sampleCall = mockedApiRequest.mock.calls.find(([path]) =>
@@ -77,7 +77,7 @@ describe('Generar entrada de un caso de prueba', () => {
     mockedApiRequest.mockResolvedValue({ seed: 's', cases: [{ input: { edad: 20 } }] } as never);
     renderForm('55');
 
-    fireEvent.click(screen.getByRole('button', { name: /Generar entrada/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Generar entrada$/ }));
 
     await waitFor(() => expect(screen.getByText(/semilla s/)).toBeInTheDocument());
     expect(jsonTextarea('new-case-expected')).toHaveValue('{}');
@@ -85,14 +85,14 @@ describe('Generar entrada de un caso de prueba', () => {
 
   it('sin versión conocida no ofrece el botón, en vez de generar contra otra cosa', () => {
     renderForm(undefined);
-    expect(screen.queryByRole('button', { name: /Generar entrada/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Generar entrada$/ })).not.toBeInTheDocument();
   });
 
   it('un fallo del backend se muestra y no deja la entrada a medias', async () => {
     mockedApiRequest.mockRejectedValue(new Error('La versión no está compilada'));
     renderForm('55');
 
-    fireEvent.click(screen.getByRole('button', { name: /Generar entrada/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Generar entrada$/ }));
 
     await waitFor(() => expect(screen.getAllByRole('alert').length).toBeGreaterThan(0));
     expect(jsonTextarea('new-case-input')).toHaveValue('{}');

@@ -16,6 +16,7 @@ import {
   type ReevaluationSummary,
   type ResolutionType,
 } from './unresolved.api';
+import { Field } from '../../components/Field';
 
 /**
  * Bandeja de valores pendientes de clasificar.
@@ -142,14 +143,16 @@ export function UnresolvedConsole() {
             setFiltro(busqueda);
           }}
         >
-          <label className="field">
-            <span className="sr-only">Buscar un valor pendiente</span>
+          <Field
+            label="Buscar un valor pendiente"
+            tooltip="Texto para encontrar un valor pendiente de categorizar."
+          >
             <input
               value={busqueda}
               onChange={(evento) => setBusqueda(evento.target.value)}
               placeholder="Buscar por el texto recibido…"
             />
-          </label>
+          </Field>
           <button type="submit" className="button">
             <Search size={15} aria-hidden="true" /> Buscar
           </button>

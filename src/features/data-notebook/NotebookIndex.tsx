@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { NavLink } from '../../navigation/NavLink';
 import { useNotifications } from '../../notifications/useNotifications';
 import { createNotebook, deleteNotebook, fetchNotebooks } from './notebook-documents.api';
+import { Field } from '../../components/Field';
 
 const CLAVE = ['data-notebook', 'notebooks'];
 
@@ -57,8 +58,11 @@ export function NotebookIndex() {
   return (
     <section className="notebook-index" aria-label="Mis cuadernos">
       <header className="notebook-index__head">
-        <label className="notebook-index__nombre">
-          <span className="sr-only">Nombre del cuaderno nuevo</span>
+        <Field
+          className="notebook-index__nombre"
+          label="Nombre del cuaderno nuevo"
+          tooltip="Título con el que se guarda el cuaderno nuevo."
+        >
           <input
             type="text"
             value={titulo}
@@ -66,7 +70,7 @@ export function NotebookIndex() {
             maxLength={160}
             onChange={(evento) => setTitulo(evento.target.value)}
           />
-        </label>
+        </Field>
         <button
           type="button"
           className="button button--primary"

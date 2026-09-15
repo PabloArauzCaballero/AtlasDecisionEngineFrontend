@@ -10,6 +10,8 @@ import {
   type InstitutionKind,
   type InstitutionLicenseStatus,
 } from './institutions.api';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Alta y edición de una entidad del padrón.
@@ -121,8 +123,7 @@ export function InstitutionForm({
       }}
     >
       <div className="entidad-form-grid">
-        <label className="field">
-          <span className="field-label">Sigla ASFI</span>
+        <Field label="Sigla ASFI" tooltip="Sigla de la entidad en la nómina de ASFI. Ej.: BNB.">
           <input
             value={code}
             onChange={(evento) => setCode(evento.target.value.toUpperCase())}
@@ -138,44 +139,39 @@ export function InstitutionForm({
             La que usa ASFI en su nómina: BNB, BME, CJN. Es la que queda en la traza de cada
             documento atribuido, así que se cruza con cualquier reporte del regulador.
           </small>
-        </label>
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Razón social</span>
+        <Field label="Razón social" tooltip="Nombre legal de la entidad financiera.">
           <input value={name} onChange={(evento) => setName(evento.target.value)} required />
-        </label>
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Tipo</span>
-          <select
+        <Field label={'Tipo'} tooltip="Clase de entidad según la nómina de ASFI.">
+          <OptionSelect
+            name="tipo"
             value={kind}
-            onChange={(evento) => setKind(evento.target.value as InstitutionKind)}
-          >
-            {Object.entries(INSTITUTION_KIND_LABELS).map(([valor, rotulo]) => (
-              <option key={valor} value={valor}>
-                {rotulo}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(valor) => setKind(valor as InstitutionKind)}
+            options={Object.entries(INSTITUTION_KIND_LABELS).map(([valor, rotulo]) => ({
+              value: valor, // sin-ayuda: nombres oficiales de la nómina de ASFI
+              label: rotulo,
+            }))}
+          />
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Licencia</span>
-          <select
+        <Field label={'Licencia'} tooltip="Situación de la licencia de la entidad ante ASFI.">
+          <OptionSelect
+            name="licencia"
             value={licenseStatus}
-            onChange={(evento) => setLicenseStatus(evento.target.value as InstitutionLicenseStatus)}
-          >
-            {Object.entries(LICENSE_STATUS_LABELS).map(([valor, rotulo]) => (
-              <option key={valor} value={valor}>
-                {rotulo}
-              </option>
-            ))}
-          </select>
+            onChange={(valor) => setLicenseStatus(valor as InstitutionLicenseStatus)}
+            options={Object.entries(LICENSE_STATUS_LABELS).map(([valor, rotulo]) => ({
+              value: valor, // sin-ayuda: estados oficiales de ASFI; su efecto lo explica la pista del campo
+              label: rotulo,
+            }))}
+          />
           <small className="field-help">
             Sin licencia vigente, sus extractos dejan de procesarse y pasan a la bandeja de
             revisión. No se rechazan: el documento es auténtico y su historial sigue siendo cierto.
           </small>
-        </label>
+        </Field>
       </div>
 
       <label className="field field-check">
@@ -192,8 +188,10 @@ export function InstitutionForm({
         </small>
       </label>
 
-      <label className="field">
-        <span className="field-label">Marcadores · una expresión por línea</span>
+      <Field
+        label="Marcadores · una expresión por línea"
+        tooltip="Textos de la carátula que atribuyen el documento a esta entidad."
+      >
         <textarea
           value={markers}
           onChange={(evento) => setMarkers(evento.target.value)}
@@ -206,10 +204,12 @@ export function InstitutionForm({
           marca comercial, su dominio. Se evalúan sin distinguir mayúsculas y sólo sobre la
           carátula, así que una transferencia que mencione al banco en el cuerpo no cuenta.
         </small>
-      </label>
+      </Field>
 
-      <label className="field">
-        <span className="field-label">Exclusiones · una expresión por línea</span>
+      <Field
+        label="Exclusiones · una expresión por línea"
+        tooltip="Textos que anulan la atribución aunque coincida un marcador."
+      >
         <textarea
           value={exclusions}
           onChange={(evento) => setExclusions(evento.target.value)}
@@ -220,12 +220,12 @@ export function InstitutionForm({
           Lo que ANULA la atribución aunque un marcador coincida. Es lo que separa a un banco de su
           aseguradora o su agencia de bolsa, que llevan la misma marca en la carátula.
         </small>
-      </label>
+      </Field>
 
-      <label className="field">
-        <span className="field-label">
-          Motivo {licenseStatus === 'LICENSED' ? '(opcional)' : '· obligatorio'}
-        </span>
+      <Field
+        label={<>Motivo {licenseStatus === 'LICENSED' ? '(opcional)' : '· obligatorio'}</>}
+        tooltip="Por qué cambia la licencia; es obligatorio si deja de estar vigente."
+      >
         <textarea value={note} onChange={(evento) => setNote(evento.target.value)} rows={2} />
         {faltaMotivo ? (
           <span className="field-error">
@@ -233,10 +233,9 @@ export function InstitutionForm({
             revise el caso podrá leer.
           </span>
         ) : null}
-      </label>
+      </Field>
 
-      <label className="field">
-        <span className="field-label">Sitio oficial</span>
+      <Field label="Sitio oficial" tooltip="Web oficial de la entidad, de donde sale su logotipo.">
         <input
           value={website}
           onChange={(evento) => setWebsite(evento.target.value)}
@@ -247,7 +246,7 @@ export function InstitutionForm({
           De donde sale el logotipo, y lo que permite volver a descargarlo cuando la entidad cambia
           de marca.
         </small>
-      </label>
+      </Field>
 
       {/*
         El logotipo sólo al EDITAR. En un alta la entidad todavía no existe en el padrón, así que

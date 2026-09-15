@@ -24,6 +24,8 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { VariableList } from '../components/VariableIo';
 import { asRecord, asRows, display } from '../utils/records';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 /**
  * Code -> Flow generator (Fase 5): paste JS/Python, analyze it (syntax, contract,
@@ -116,19 +118,29 @@ export function CodeImportPage() {
             onSubmit={submitAnalysis}
             data-tutorial-id="code-import-form"
           >
-            <label className="field">
-              <span>Lenguaje</span>
-              <select
+            <Field label={'Lenguaje'} tooltip="Lenguaje del código que se importa como algoritmo.">
+              <OptionSelect
+                name="lenguaje-importacion"
                 value={language}
-                onChange={(event) => setLanguage(event.target.value as ImportLanguage)}
-              >
-                <option value="JAVASCRIPT">JavaScript</option>
-                <option value="PYTHON">Python</option>
-              </select>
-            </label>
+                onChange={(valor) => setLanguage(valor as ImportLanguage)}
+                options={[
+                  {
+                    value: 'JAVASCRIPT',
+                    label: 'JavaScript',
+                    description: 'El algoritmo que se importa está escrito en JavaScript.',
+                  },
+                  {
+                    value: 'PYTHON',
+                    label: 'Python',
+                    description: 'El algoritmo que se importa está escrito en Python.',
+                  },
+                ]}
+              />
+            </Field>
             <JsonTextarea
               id="code-import-source"
               label="Código"
+              tooltip="Código fuente del algoritmo que se analiza antes de importarlo."
               value={sourceCode}
               onChange={setSourceCode}
               rows={16}
@@ -225,15 +237,17 @@ export function CodeImportPage() {
               onVersionChange={setArtifactVersionId}
               onLockVersionChange={setExpectedLockVersion}
             />
-            <label className="field">
-              <span>Lock Version esperado</span>
+            <Field
+              label="Lock Version esperado"
+              tooltip="Versión de bloqueo del borrador; si otro lo cambió antes, el motor rechaza el guardado."
+            >
               <input
                 type="number"
                 min={1}
                 value={expectedLockVersion}
                 onChange={(event) => setExpectedLockVersion(event.target.value)}
               />
-            </label>
+            </Field>
             {/* El motor también lo rechaza, pero con un 409 al pulsar. Frenarlo
                 aquí dice qué falta y dónde declararlo, que es lo que hace falta
                 para arreglarlo, en vez de un error después del viaje. */}

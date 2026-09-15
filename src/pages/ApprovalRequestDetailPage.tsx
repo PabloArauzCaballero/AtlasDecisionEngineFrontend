@@ -21,6 +21,7 @@ import { VersionDiffPanel } from '../features/governance/VersionDiffPanel';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, asRows, display } from '../utils/records';
+import { Field } from '../components/Field';
 
 interface ApprovalRequestDetailPageProps {
   requestId: string;
@@ -212,14 +213,16 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
             </div>
             {gate.canDecide ? (
               <>
-                <label className="field">
-                  <span>Comentario obligatorio</span>
+                <Field
+                  label="Comentario obligatorio"
+                  tooltip="Justificación de tu firma; queda registrada con la aprobación."
+                >
                   <textarea
                     rows={5}
                     value={comments}
                     onChange={(event) => setComments(event.target.value)}
                   />
-                </label>
+                </Field>
                 <div className="decision-buttons">
                   <button
                     className="button button-danger"

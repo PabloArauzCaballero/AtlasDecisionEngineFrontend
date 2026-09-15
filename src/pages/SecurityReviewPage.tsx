@@ -10,6 +10,7 @@ import { Panel } from '../components/Panel';
 import { SeverityBadge } from '../components/SeverityBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
+import { Field } from '../components/Field';
 
 interface SecurityReviewPageProps {
   versionId: string;
@@ -184,14 +185,16 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
 
       {pendingStepId ? (
         <Panel title="Decisión de seguridad" meta={`Paso #${pendingStepId}`}>
-          <label className="field">
-            <span>Comentarios</span>
+          <Field
+            label="Comentarios"
+            tooltip="Observaciones de la revisión de seguridad; quedan con el dictamen."
+          >
             <textarea
               value={comments}
               onChange={(event) => setComments(event.target.value)}
               rows={3}
             />
-          </label>
+          </Field>
           <div className="inline-actions">
             <button
               className="button"

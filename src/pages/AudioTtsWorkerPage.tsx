@@ -21,6 +21,8 @@ import type { WorkerDescriptor } from '../features/workers/worker-types';
 import { useUnsavedWork } from '../navigation/UnsavedWorkProvider';
 import { useNotifications } from '../notifications/useNotifications';
 import { asStrings } from '../utils/records';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 const WORKER = 'audio-tts' as const;
 
@@ -137,30 +139,31 @@ export function AudioTtsWorkerConsole() {
           ownLabel="Elegir una plantilla"
           disabled={requestId !== null}
         >
-          <label className="field">
-            <span className="field-label">Plantilla</span>
-            <select
+          <Field
+            label={'Plantilla'}
+            tooltip="Plantilla del catálogo que decide qué se puede decir con esta voz."
+          >
+            <OptionSelect
+              name="plantilla"
               value={templateCode}
-              onChange={(event) => {
-                setTemplateCode(event.target.value);
+              disabled={requestId !== null}
+              describedById="audio-template-help"
+              placeholder="Elige una plantilla…"
+              onChange={(valor) => {
+                setTemplateCode(valor);
                 // Las variables de la anterior no valen para la nueva: dejarlas
                 // enviaría valores que esta plantilla no declara.
                 setValues({});
               }}
-              disabled={requestId !== null}
-              aria-describedby="audio-template-help"
-            >
-              <option value="">Elige una plantilla…</option>
-              {(templates.data ?? []).map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.code}
-                </option>
-              ))}
-            </select>
+              options={(templates.data ?? []).map((item) => ({
+                value: item.code, // sin-ayuda: códigos del catálogo de plantillas; su texto se ve al elegir
+                label: item.code,
+              }))}
+            />
             <small id="audio-template-help" className="field-help">
               El catálogo decide qué se puede decir con esta voz. No hay texto libre.
             </small>
-          </label>
+          </Field>
 
           {template ? (
             <div className="worker-audio-template">
@@ -170,8 +173,11 @@ export function AudioTtsWorkerConsole() {
           ) : null}
 
           {variables.map((name) => (
-            <label className="field" key={name}>
-              <span className="field-label">{name}</span>
+            <Field
+              key={name}
+              label={name}
+              tooltip={`Valor de la variable «${name}» que se inserta en la plantilla.`}
+            >
               <input
                 type="text"
                 value={values[name] ?? ''}
@@ -181,7 +187,7 @@ export function AudioTtsWorkerConsole() {
                 disabled={requestId !== null}
                 maxLength={80}
               />
-            </label>
+            </Field>
           ))}
 
           {pending.length > 0 ? (

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * Client-side runtime error detector.
@@ -231,7 +232,7 @@ test('list filters send the real backend query param', async ({ page }) => {
   await page.goto('/artifacts', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.locator('.app-main, .content, main').first().waitFor({ timeout: 30_000 });
   await page.getByRole('button', { name: 'Más filtros' }).click();
-  await page.getByLabel('Estado').selectOption('APPROVED');
+  await elegirOpcion(page.getByRole('combobox', { name: /^Estado/ }), 'APPROVED');
 
   await expect
     .poll(() => artifactRequests.some((url) => url.includes('status=APPROVED')), {

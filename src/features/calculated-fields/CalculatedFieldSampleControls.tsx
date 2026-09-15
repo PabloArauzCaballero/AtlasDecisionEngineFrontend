@@ -20,6 +20,8 @@ import {
   type SampleKind,
   type TryTarget,
 } from './calculated-field-preview';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   target: TryTarget;
@@ -87,18 +89,27 @@ export function CalculatedFieldSampleControls({ target, blocked, onLoad }: Props
   return (
     <div className="calculated-sample-bar">
       <div className="sample-bar-actions">
-        <label className="constraint-field">
-          <span>Datos de prueba</span>
-          <select value={kind} onChange={(event) => setKind(event.target.value as SampleKind)}>
-            {SAMPLE_KINDS.map((option) => (
-              <option key={option} value={option}>
-                {KIND_LABELS[option]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>{kind === 'OUTCOMES' ? 'Casos por clase' : 'Casos'}</span>
+        <Field
+          className="constraint-field"
+          label={'Datos de prueba'}
+          tooltip="Qué clase de datos de ejemplo se generan para probar el campo calculado."
+        >
+          <OptionSelect
+            name="datos-prueba"
+            value={kind}
+            onChange={(valor) => setKind(valor as SampleKind)}
+            options={SAMPLE_KINDS.map((option) => ({
+              value: option,
+              label: KIND_LABELS[option],
+              description: KIND_HINTS[option],
+            }))}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label={kind === 'OUTCOMES' ? 'Casos por clase' : 'Casos'}
+          tooltip="Cuántos casos de ejemplo se generan: hasta 20, o 10 por clase de salida."
+        >
           <input
             type="number"
             min={1}
@@ -109,15 +120,18 @@ export function CalculatedFieldSampleControls({ target, blocked, onLoad }: Props
               setCount(Math.min(top, Math.max(1, Number(event.target.value) || 1)));
             }}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Semilla</span>
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Semilla"
+          tooltip="Semilla del generador; vacía crea una nueva y la misma repite el lote."
+        >
           <input
             placeholder="vacía = una nueva"
             value={seed}
             onChange={(event) => setSeed(event.target.value)}
           />
-        </label>
+        </Field>
         <button
           type="button"
           className="button"

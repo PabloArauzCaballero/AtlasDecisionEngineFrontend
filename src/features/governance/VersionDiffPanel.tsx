@@ -7,6 +7,8 @@ import { Panel } from '../../components/Panel';
 import type { UnknownRecord } from '../../utils/records';
 import { groupByCollection, type DiffEntry } from './version-diff';
 import { adaptarDiffDelMotor } from './version-diff-remote';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 export interface DiffBase {
   versionId: string;
@@ -96,17 +98,21 @@ export function VersionDiffPanel({ targetVersionId, targetLabel, bases }: Versio
       ) : (
         <>
           {bases.length > 1 ? (
-            <label className="field">
-              <span>Comparar contra</span>
-              <select value={base?.versionId} onChange={(event) => setBaseId(event.target.value)}>
-                {bases.map((candidate) => (
-                  <option key={candidate.versionId} value={candidate.versionId}>
-                    {candidate.label}
-                    {candidate.hint ? ` · ${candidate.hint}` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Field
+              label={'Comparar contra'}
+              tooltip="Versión con la que se compara la que estás revisando."
+            >
+              <OptionSelect
+                name="comparar-contra"
+                value={base?.versionId}
+                onChange={setBaseId}
+                options={bases.map((candidate) => ({
+                  value: candidate.versionId,
+                  label: candidate.label,
+                  description: candidate.hint,
+                }))}
+              />
+            </Field>
           ) : (
             <p className="diff-caption">
               Comparando <strong>{targetLabel}</strong> contra <strong>{base?.label}</strong>

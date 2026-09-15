@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { apiRequest } from '../api/http-client';
 import { CodeImportPage } from './CodeImportPage';
+import { campo, elegirOpcion } from '../test/option-select';
 
 vi.mock('../api/http-client', () => ({ apiRequest: vi.fn() }));
 vi.mock('../navigation/NavLink', () => ({
@@ -113,7 +114,7 @@ describe('CodeImportPage', () => {
 
   it('bloquea el guardado cuando el contrato usa variables o motivos sin declarar', async () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText('Lenguaje'), { target: { value: 'PYTHON' } });
+    elegirOpcion(campo('Lenguaje'), 'PYTHON');
     pasteSource(PYTHON_SOURCE);
     fireEvent.click(screen.getByRole('button', { name: 'Analizar' }));
 
@@ -154,7 +155,7 @@ describe('CodeImportPage', () => {
       return [] as never;
     });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Lenguaje'), { target: { value: 'PYTHON' } });
+    elegirOpcion(campo('Lenguaje'), 'PYTHON');
     pasteSource(PYTHON_SOURCE);
     fireEvent.click(screen.getByRole('button', { name: 'Analizar' }));
 
@@ -183,7 +184,7 @@ describe('CodeImportPage', () => {
       return [] as never;
     });
     renderPage();
-    fireEvent.change(screen.getByLabelText('Lenguaje'), { target: { value: 'PYTHON' } });
+    elegirOpcion(campo('Lenguaje'), 'PYTHON');
     pasteSource(PYTHON_SOURCE);
     fireEvent.click(screen.getByRole('button', { name: 'Analizar' }));
 

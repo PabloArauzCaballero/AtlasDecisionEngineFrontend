@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { mockDataNotebookBackend } from './support/data-notebook-backend';
 import { escribirEnCelda, esperarContenido } from './support/notebook-editor';
+import { elegirOpcion } from './support/option-select';
 
 /**
  * El flujo de DOS pantallas: primero se elige el cuaderno, después se trabaja dentro.
@@ -63,7 +64,10 @@ test.describe('cuadernos de datos · el avance se guarda', () => {
 
     // JavaScript y no Python: esta prueba mide que el AVANCE se guarda, y arrancar 21 MB de
     // intérprete para eso ataría la batería general a un artefacto que no se versiona.
-    await page.locator('.notebook-cell__language select').first().selectOption('javascript');
+    await elegirOpcion(
+      page.locator('.notebook-cell__language [role="combobox"]').first(),
+      'javascript',
+    );
     await escribirEnCelda(page, 0, 'return rows.length');
     await page.locator('.notebook-cell__run').first().click();
     await expect(page.locator('.notebook-cell__output')).toBeVisible();

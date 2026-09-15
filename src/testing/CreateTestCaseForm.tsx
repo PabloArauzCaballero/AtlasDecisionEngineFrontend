@@ -9,6 +9,7 @@ import { CaseInputEditor } from './CaseInputEditor';
 import { GenerateCaseInputButton } from './GenerateCaseInputButton';
 import { suiteType } from './suite-types';
 import { testCaseSchema, type TestCase } from './testing.schemas';
+import { Field } from '../components/Field';
 
 interface CreateTestCaseFormProps {
   suiteId: string;
@@ -57,22 +58,20 @@ export function CreateTestCaseForm({
     <Panel title="Agregar caso" meta={`Suite ${suiteId}`}>
       <form className="simulator-form" onSubmit={submit}>
         <div className="form-row">
-          <label className="field">
-            <span>Código</span>
+          <Field label="Código" tooltip="Identificador único del caso de prueba.">
             <input
               required
               value={caseCode}
               onChange={(event) => setCaseCode(event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>Nombre</span>
+          </Field>
+          <Field label="Nombre" tooltip="Nombre legible del caso de prueba.">
             <input
               required
               value={testName}
               onChange={(event) => setTestName(event.target.value)}
             />
-          </label>
+          </Field>
         </div>
         {artifactVersionId ? (
           <GenerateCaseInputButton

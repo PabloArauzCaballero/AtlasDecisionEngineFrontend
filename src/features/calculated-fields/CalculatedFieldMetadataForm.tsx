@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Field } from '../../components/Field';
 
 export interface FieldMetadata {
   fieldCode: string;
@@ -46,8 +47,11 @@ export function CalculatedFieldMetadataForm({ onCancel, onNext }: Props) {
       <p className="field-hint constraint-wide">
         Paso 1 de 2 — identidad del campo. Después definirás qué calcula.
       </p>
-      <label className="constraint-field">
-        <span>Código técnico</span>
+      <Field
+        className="constraint-field"
+        label="Código técnico"
+        tooltip="Identificador único del campo en minúsculas, números y guion bajo. Ej.: debt_to_income."
+      >
         <input
           required
           pattern="[a-z][a-z0-9_]{2,119}"
@@ -55,49 +59,64 @@ export function CalculatedFieldMetadataForm({ onCancel, onNext }: Props) {
           value={form.fieldCode}
           onChange={(event) => patch({ fieldCode: event.target.value })}
         />
-      </label>
-      <label className="constraint-field">
-        <span>Nombre visible</span>
+      </Field>
+      <Field
+        className="constraint-field"
+        label="Nombre visible"
+        tooltip="Nombre legible del campo calculado en el catálogo."
+      >
         <input
           required
           value={form.name}
           onChange={(event) => patch({ name: event.target.value })}
         />
-      </label>
-      <label className="constraint-field">
-        <span>Categoría</span>
+      </Field>
+      <Field
+        className="constraint-field"
+        label="Categoría"
+        tooltip="Grupo del catálogo en el que se clasifica el campo."
+      >
         <input
           required
           value={form.category}
           onChange={(event) => patch({ category: event.target.value })}
         />
-      </label>
-      <label className="constraint-field">
-        <span>Equipo responsable</span>
+      </Field>
+      <Field
+        className="constraint-field"
+        label="Equipo responsable"
+        tooltip="Equipo que responde por la fórmula y sus cambios."
+      >
         <input
           required
           value={form.ownerTeam}
           onChange={(event) => patch({ ownerTeam: event.target.value })}
         />
-      </label>
-      <label className="constraint-field constraint-wide">
-        <span>Descripción</span>
+      </Field>
+      <Field
+        className="constraint-field constraint-wide"
+        label="Descripción"
+        tooltip="Qué calcula el campo, en lenguaje de negocio."
+      >
         <textarea
           required
           rows={2}
           value={form.description}
           onChange={(event) => patch({ description: event.target.value })}
         />
-      </label>
-      <label className="constraint-field constraint-wide">
-        <span>Justificación funcional: ¿por qué existe este cálculo?</span>
+      </Field>
+      <Field
+        className="constraint-field constraint-wide"
+        label="Justificación funcional: ¿por qué existe este cálculo?"
+        tooltip="Por qué hace falta este cálculo; lo lee quien aprueba la versión."
+      >
         <textarea
           required
           rows={2}
           value={form.rationale}
           onChange={(event) => patch({ rationale: event.target.value })}
         />
-      </label>
+      </Field>
       <div className="constraint-wide panel-actions">
         <button type="button" className="button" onClick={onCancel}>
           Cancelar

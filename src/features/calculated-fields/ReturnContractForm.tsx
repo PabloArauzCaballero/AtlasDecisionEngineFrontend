@@ -7,6 +7,9 @@ import {
   ERROR_POLICY_LABELS,
   type CalculatedFieldReturn,
 } from './calculated-field.types';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
+import { DATA_TYPE_HELP } from '../../contracts/contract-help';
 
 interface Props {
   value: CalculatedFieldReturn;
@@ -25,16 +28,17 @@ export function ReturnContractForm({ value, onChange }: Props) {
     label: string,
     hint: string,
   ) => (
-    <label className="constraint-field" key={key}>
-      <span title={hint}>{label}</span>
-      <select value={value[key]} onChange={(event) => patch({ [key]: event.target.value })}>
-        {ERROR_POLICIES.map((policy) => (
-          <option key={policy} value={policy}>
-            {ERROR_POLICY_LABELS[policy]}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Field className="constraint-field" key={key} label={label} tooltip={hint}>
+      <OptionSelect
+        name={String(key)}
+        value={value[key]}
+        onChange={(next) => patch({ [key]: next })}
+        options={ERROR_POLICIES.map((policy) => ({
+          value: policy, // sin-ayuda: cada rótulo ya es la frase que describe la política
+          label: ERROR_POLICY_LABELS[policy],
+        }))}
+      />
+    </Field>
   );
 
   const nullPolicyConflict =
@@ -44,24 +48,28 @@ export function ReturnContractForm({ value, onChange }: Props) {
   return (
     <div className="return-contract">
       <div className="constraint-grid">
-        <label className="constraint-field">
-          <span>Tipo devuelto</span>
-          <select
+        <Field
+          className="constraint-field"
+          label={'Tipo devuelto'}
+          tooltip="Tipo del valor que devuelve el campo calculado."
+        >
+          <OptionSelect
+            name="tipo-devuelto"
             value={value.dataType}
-            onChange={(event) =>
-              patch({ dataType: event.target.value as CalculatedFieldReturn['dataType'] })
-            }
-          >
-            {DATA_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {DATA_TYPE_LABELS[type]}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(next) => patch({ dataType: next as CalculatedFieldReturn['dataType'] })}
+            options={DATA_TYPES.map((type) => ({
+              value: type,
+              label: DATA_TYPE_LABELS[type],
+              description: DATA_TYPE_HELP[type],
+            }))}
+          />
+        </Field>
 
-        <label className="constraint-field">
-          <span>Decimales del resultado</span>
+        <Field
+          className="constraint-field"
+          label="Decimales del resultado"
+          tooltip="Cuántos decimales conserva el valor devuelto, de 0 a 10."
+        >
           <input
             type="number"
             min={0}
@@ -73,7 +81,7 @@ export function ReturnContractForm({ value, onChange }: Props) {
               })
             }
           />
-        </label>
+        </Field>
 
         <label className="constraint-field constraint-checkbox">
           <input
@@ -84,14 +92,17 @@ export function ReturnContractForm({ value, onChange }: Props) {
           <span>Puede devolver sin valor (null)</span>
         </label>
 
-        <label className="constraint-field">
-          <span>Código de error</span>
+        <Field
+          className="constraint-field"
+          label="Código de error"
+          tooltip="Código que devuelve el campo cuando no puede calcular. Ej.: DTI_NOT_COMPUTABLE."
+        >
           <input
             value={value.errorCode}
             placeholder="DTI_NOT_COMPUTABLE"
             onChange={(event) => patch({ errorCode: event.target.value.toUpperCase() })}
           />
-        </label>
+        </Field>
 
         {policyField(
           'divisionByZero',
@@ -110,8 +121,11 @@ export function ReturnContractForm({ value, onChange }: Props) {
         )}
 
         {value.nullable ? (
-          <label className="constraint-field constraint-wide">
-            <span>¿En qué condiciones no devuelve valor? (una por línea)</span>
+          <Field
+            className="constraint-field constraint-wide"
+            label="¿En qué condiciones no devuelve valor? (una por línea)"
+            tooltip="Situaciones en las que el campo devuelve vacío; una por línea."
+          >
             <textarea
               rows={2}
               value={value.nullConditions.join('\n')}
@@ -124,7 +138,7 @@ export function ReturnContractForm({ value, onChange }: Props) {
                 })
               }
             />
-          </label>
+          </Field>
         ) : null}
       </div>
 

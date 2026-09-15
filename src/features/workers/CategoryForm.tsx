@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Save, X } from 'lucide-react';
 import type { SemanticCategory } from './categories.api';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Alta y edición de una categoría.
@@ -68,8 +70,10 @@ export function CategoryForm({
       }}
     >
       <div className="categoria-form-grid">
-        <label className="field">
-          <span className="field-label">Código</span>
+        <Field
+          label="Código"
+          tooltip="Código de la categoría en mayúsculas, con puntos entre niveles."
+        >
           <input
             value={code}
             onChange={(evento) => setCode(evento.target.value)}
@@ -83,34 +87,45 @@ export function CategoryForm({
           <small className="field-help">
             Mayúsculas y puntos entre niveles. El prefijo dice de quién cuelga.
           </small>
-        </label>
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Nombre</span>
+        <Field label="Nombre" tooltip="Nombre legible de la categoría.">
           <input
             value={name}
             onChange={(evento) => setName(evento.target.value)}
             required
             placeholder="Alquiler"
           />
-        </label>
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Categoría padre</span>
-          <select value={parentCode} onChange={(evento) => setParentCode(evento.target.value)}>
-            <option value="">(ninguna: es una raíz)</option>
-            {padres
-              .filter((candidato) => candidato !== code)
-              .map((candidato) => (
-                <option key={candidato} value={candidato}>
-                  {candidato}
-                </option>
-              ))}
-          </select>
-        </label>
+        <Field
+          label={'Categoría padre'}
+          tooltip="Categoría de la que cuelga esta; sin padre queda como raíz del árbol."
+        >
+          <OptionSelect
+            name="categoria-padre"
+            value={parentCode}
+            onChange={setParentCode}
+            options={[
+              {
+                value: '',
+                label: '(ninguna: es una raíz)',
+                description: 'La categoría queda en la raíz del árbol.',
+              },
+              ...padres
+                .filter((candidato) => candidato !== code)
+                .map((candidato) => ({
+                  value: candidato, // sin-ayuda: códigos del árbol de categorías, sin ficha
+                  label: candidato,
+                })),
+            ]}
+          />
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Umbral de aceptación</span>
+        <Field
+          label="Umbral de aceptación"
+          tooltip="Confianza mínima que exige la clasificación para aceptarse, de 0 a 1."
+        >
           <input
             type="number"
             min={0}
@@ -124,11 +139,10 @@ export function CategoryForm({
             Cuánta confianza exige antes de aceptarse. <strong>1</strong> la vuelve inalcanzable,
             que es lo que se pone en las ramas: agrupan, no clasifican.
           </small>
-        </label>
+        </Field>
       </div>
 
-      <label className="field">
-        <span className="field-label">Descripción</span>
+      <Field label="Descripción" tooltip="Qué movimientos entran en esta categoría.">
         <textarea
           value={description}
           onChange={(evento) => setDescription(evento.target.value)}
@@ -136,11 +150,13 @@ export function CategoryForm({
           required
           placeholder="Pago periódico por el uso de una vivienda que no es propiedad propia."
         />
-      </label>
+      </Field>
 
       <div className="categoria-form-ejemplos">
-        <label className="field">
-          <span className="field-label">Ejemplos (uno por línea)</span>
+        <Field
+          label="Ejemplos (uno por línea)"
+          tooltip="Glosas que sí son de esta categoría, como las imprime el banco."
+        >
           <textarea
             value={positivos}
             onChange={(evento) => setPositivos(evento.target.value)}
@@ -150,10 +166,12 @@ export function CategoryForm({
           <small className="field-help">
             Escríbelos como los imprime el banco: cortos, en mayúsculas y abreviados.
           </small>
-        </label>
+        </Field>
 
-        <label className="field">
-          <span className="field-label">Contraejemplos (uno por línea)</span>
+        <Field
+          label="Contraejemplos (uno por línea)"
+          tooltip="Glosas parecidas que NO son de esta categoría."
+        >
           <textarea
             value={contra}
             onChange={(evento) => setContra(evento.target.value)}
@@ -163,7 +181,7 @@ export function CategoryForm({
           <small className="field-help">
             Pesan tanto como los ejemplos: son los que evitan que un cobro se lea como un pago.
           </small>
-        </label>
+        </Field>
       </div>
 
       <div className="categoria-form-acciones">

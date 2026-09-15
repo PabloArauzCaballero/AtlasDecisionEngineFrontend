@@ -5,6 +5,7 @@ import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
+import { Field } from '../components/Field';
 
 interface EntityLookupPageProps {
   eyebrow: string;
@@ -33,15 +34,14 @@ export function EntityLookupPage({
     <>
       <PageHeader eyebrow={eyebrow} title={title} description={description} />
       <form className="filter-bar" onSubmit={submit}>
-        <label>
-          <span>{idLabel}</span>
+        <Field label={idLabel} tooltip="Identificador numérico del registro que quieres consultar.">
           <input
             required
             pattern="[1-9][0-9]*"
             value={id}
             onChange={(event) => setId(event.target.value)}
           />
-        </label>
+        </Field>
         <button className="button button-primary" type="submit" disabled={lookup.isPending}>
           Consultar
         </button>

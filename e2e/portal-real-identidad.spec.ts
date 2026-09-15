@@ -124,7 +124,11 @@ test.describe('verificación de identidad · motor real', () => {
     );
 
     await consolaVista.getByRole('radio', { name: /Usar datos de prueba/i }).check();
-    await consolaVista.getByLabel('Escenario').selectOption({ label: 'Verificación limpia' });
+    await consolaVista.getByTestId('select-escenario').click();
+    await consolaVista
+      .page()
+      .getByRole('option', { name: /Verificación limpia/ })
+      .click();
     await capturar(page, '05-entrada');
 
     // --- 5. Ejecución -------------------------------------------------------
@@ -212,7 +216,11 @@ test.describe('verificación de identidad · motor real', () => {
     await consola.getByRole('radio', { name: /Usar datos de prueba/i }).check();
     // Por su NOMBRE del catálogo del motor, no por su posición: reordenar los
     // escenarios no debe cambiar en silencio lo que esta regresión mide.
-    await consola.getByLabel('Escenario').selectOption({ label: 'Extracto mínimo' });
+    await consola.getByTestId('select-escenario').click();
+    await consola
+      .page()
+      .getByRole('option', { name: /Extracto mínimo/ })
+      .click();
     await consola.getByRole('button', { name: 'Convertir' }).click();
 
     await expect(suyo.locator('.worker-table-scroll table')).toBeVisible({ timeout: 4 * 60_000 });

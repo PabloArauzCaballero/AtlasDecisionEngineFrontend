@@ -2,6 +2,8 @@
 
 import type { StatementReviewQuery } from './statement-review.api';
 import { REVIEW_PRIORITY_LABEL } from './statement-review';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 /**
  * Filtros de la cola, todos servidos por el motor.
@@ -37,50 +39,64 @@ export function StatementReviewFilters({
 
   return (
     <div className="revision-filtros">
-      <label className="field">
-        <span>Estado</span>
-        <select
+      <Field label={'Estado'} tooltip="Filtra la cola por si alguien ya reclamó el caso.">
+        <OptionSelect
+          name="estado"
           value={value.status ?? ''}
-          onChange={(evento) =>
-            actualizar({
-              status: (evento.target.value || undefined) as StatementReviewQuery['status'],
-            })
+          onChange={(valor) =>
+            actualizar({ status: (valor || undefined) as StatementReviewQuery['status'] })
           }
-        >
-          <option value="">Todos</option>
-          <option value="PENDING_REVIEW">Sin reclamar</option>
-          <option value="IN_REVIEW">En revisión</option>
-        </select>
-      </label>
+          options={[
+            {
+              value: '',
+              label: 'Todos',
+              description: 'Sin filtrar: casos sin reclamar y en revisión.',
+            },
+            {
+              value: 'PENDING_REVIEW',
+              label: 'Sin reclamar',
+              description: 'Nadie ha reclamado todavía el caso.',
+            },
+            {
+              value: 'IN_REVIEW',
+              label: 'En revisión',
+              description: 'Una persona ya tiene reclamado el caso.',
+            },
+          ]}
+        />
+      </Field>
 
-      <label className="field">
-        <span>Prioridad</span>
-        <select
+      <Field
+        label={'Prioridad'}
+        tooltip="Filtra la cola por la prioridad que publica el motor para cada caso."
+      >
+        <OptionSelect
+          name="prioridad"
           value={value.priority ? String(value.priority) : ''}
-          onChange={(evento) =>
-            actualizar({ priority: evento.target.value ? Number(evento.target.value) : undefined })
-          }
-        >
-          <option value="">Todas</option>
-          {[1, 2, 3].map((nivel) => (
-            <option key={nivel} value={String(nivel)}>
-              {REVIEW_PRIORITY_LABEL[nivel]}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(valor) => actualizar({ priority: valor ? Number(valor) : undefined })}
+          options={[
+            {
+              value: '',
+              label: 'Todas',
+              description: 'Sin filtrar: casos de cualquier prioridad.',
+            },
+            ...[1, 2, 3].map((nivel) => ({
+              value: String(nivel), // sin-ayuda: el nombre del nivel ya dice el orden de la cola
+              label: REVIEW_PRIORITY_LABEL[nivel],
+            })),
+          ]}
+        />
+      </Field>
 
-      <label className="field">
-        <span>Banco</span>
+      <Field label="Banco" tooltip="Código de la entidad para acotar la cola de revisión.">
         <input
           value={value.bank ?? ''}
           placeholder="Código de entidad"
           onChange={(evento) => actualizar({ bank: evento.target.value.trim() })}
         />
-      </label>
+      </Field>
 
-      <label className="field">
-        <span>Desde</span>
+      <Field label="Desde" tooltip="Fecha inicial de los casos que se muestran.">
         <input
           type="date"
           value={value.dateFrom?.slice(0, 10) ?? ''}
@@ -92,10 +108,9 @@ export function StatementReviewFilters({
             })
           }
         />
-      </label>
+      </Field>
 
-      <label className="field">
-        <span>Hasta</span>
+      <Field label="Hasta" tooltip="Fecha final de los casos que se muestran.">
         <input
           type="date"
           value={value.dateTo?.slice(0, 10) ?? ''}
@@ -109,7 +124,7 @@ export function StatementReviewFilters({
             })
           }
         />
-      </label>
+      </Field>
 
       {activos ? (
         <button type="button" className="button button-ghost" onClick={() => onChange({})}>

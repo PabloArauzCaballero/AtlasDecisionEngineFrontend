@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Panel } from '../../components/Panel';
 import { useComputeCalibration, type CalibrationReport } from './risk-governance.api';
+import { Field } from '../../components/Field';
 
 /**
  * Curva de calibración: ¿el NIVEL de la probabilidad es correcto?
@@ -40,29 +41,35 @@ export function CalibrationPanel() {
         tutorialId="risk-calibration"
       >
         <div className="quality-form-grid">
-          <label className="field">
-            <span>Versión del algoritmo</span>
+          <Field
+            label="Versión del algoritmo"
+            tooltip="Identificador de la versión del algoritmo que se calibra. Ej.: 4001."
+          >
             <input
               value={form.artifactVersionId}
               placeholder="4001"
               onChange={(event) => setForm({ ...form, artifactVersionId: event.target.value })}
             />
-          </label>
-          <label className="field">
-            <span>Ventana (días)</span>
+          </Field>
+          <Field
+            label="Ventana (días)"
+            tooltip="Días de desenlaces observados que entran en la calibración."
+          >
             <input
               value={form.windowDays}
               inputMode="numeric"
               onChange={(event) => setForm({ ...form, windowDays: event.target.value })}
             />
-          </label>
-          <label className="field">
-            <span>Campo con la probabilidad</span>
+          </Field>
+          <Field
+            label="Campo con la probabilidad"
+            tooltip="Campo de la salida con la probabilidad que se compara con lo ocurrido."
+          >
             <input
               value={form.predictionField}
               onChange={(event) => setForm({ ...form, predictionField: event.target.value })}
             />
-          </label>
+          </Field>
         </div>
         <p className="quality-note">
           La calibración a 30 días y a 360 no son la misma curva, y mezclarlas es el error clásico:

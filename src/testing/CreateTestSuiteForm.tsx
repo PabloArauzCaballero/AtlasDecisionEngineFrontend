@@ -9,6 +9,8 @@ import { CaseInputEditor } from './CaseInputEditor';
 import { GenerateCaseInputButton } from './GenerateCaseInputButton';
 import { SUITE_TYPES, suiteType } from './suite-types';
 import { testSuiteSchema, type TestSuite } from './testing.schemas';
+import { Field } from '../components/Field';
+import { OptionSelect } from '../components/OptionSelect';
 
 interface CreateTestSuiteFormProps {
   versionId: string;
@@ -59,33 +61,36 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
     <Panel title="Crear suite" meta={`Versión ${versionId}`}>
       <form className="simulator-form" onSubmit={submit}>
         <div className="form-row">
-          <label className="field">
-            <span>Código</span>
+          <Field label="Código" tooltip="Identificador único de la suite de pruebas.">
             <input
               required
               value={suiteCode}
               onChange={(event) => setSuiteCode(event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>Nombre</span>
+          </Field>
+          <Field label="Nombre" tooltip="Nombre legible de la suite de pruebas.">
             <input required value={name} onChange={(event) => setName(event.target.value)} />
-          </label>
+          </Field>
         </div>
         <div className="form-row">
-          <label className="field">
-            <span>Tipo</span>
-            <select value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
-              {SUITE_TYPES.map((option) => (
-                <option key={option.code} value={option.code}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+          <Field
+            label={'Tipo'}
+            tooltip="Clase de suite; decide además con qué valores se siembra el primer caso."
+          >
+            <OptionSelect
+              name="tipo-suite"
+              value={selectedType}
+              onChange={setSelectedType}
+              options={SUITE_TYPES.map((option) => ({
+                value: option.code,
+                label: option.label,
+                description: option.purpose,
+              }))}
+            />
             {/* Qué es cada tipo, aquí y no en un manual: el tipo decide además
                 con qué valores se siembra el primer caso. */}
             <small className="field-hint">{type.purpose}</small>
-          </label>
+          </Field>
           <label className="field">
             <span>
               <input
@@ -98,22 +103,23 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
           </label>
         </div>
         <div className="form-row">
-          <label className="field">
-            <span>Código del primer caso</span>
+          <Field
+            label="Código del primer caso"
+            tooltip="Identificador del caso con el que nace la suite."
+          >
             <input
               required
               value={caseCode}
               onChange={(event) => setCaseCode(event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>Nombre del caso</span>
+          </Field>
+          <Field label="Nombre del caso" tooltip="Nombre legible del primer caso de la suite.">
             <input
               required
               value={testName}
               onChange={(event) => setTestName(event.target.value)}
             />
-          </label>
+          </Field>
         </div>
         {/*
           El primer caso de la suite es un caso como cualquier otro, así que se

@@ -9,6 +9,8 @@ import { display, type UnknownRecord } from '../../utils/records';
 import { ActionForm } from '../graph-editor/ActionForm';
 import type { BankEntry, VersionGraph } from './action-bank';
 import type { useActionWrite } from './useActionBank';
+import { Field } from '../../components/Field';
+import { OptionSelect } from '../../components/OptionSelect';
 
 interface Props {
   /** Entrada del banco a aplicar, o null para crear una acción nueva. */
@@ -39,16 +41,19 @@ export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
 
   return (
     <div className="action-target">
-      <label className="field">
-        <span>{entry ? 'Algoritmo destino' : 'Algoritmo inicial'}</span>
-        <select value={versionId} onChange={(event) => setVersionId(event.target.value)}>
-          {versions.map((version) => (
-            <option key={version.versionId} value={version.versionId}>
-              {version.artifactCode} · {version.semanticVersion} · {version.status}
-              {present.includes(version.versionId) ? ' · ya la tiene' : ''}
-            </option>
-          ))}
-        </select>
+      <Field
+        label={entry ? 'Algoritmo destino' : 'Algoritmo inicial'}
+        tooltip="Algoritmo en el que se guarda la acción; el motor guarda cada acción dentro de uno."
+      >
+        <OptionSelect
+          name="algoritmo-destino"
+          value={versionId}
+          onChange={setVersionId}
+          options={versions.map((version) => ({
+            value: version.versionId, // sin-ayuda: versiones de algoritmos, entidades de los datos
+            label: `${version.artifactCode} · ${version.semanticVersion} · ${version.status}${present.includes(version.versionId) ? ' · ya la tiene' : ''}`,
+          }))}
+        />
         <small className="field-hint">
           {exists
             ? 'La acción ya existe en este algoritmo: se reemplazará su definición.'
@@ -56,7 +61,7 @@ export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
               ? 'La acción se añadirá al algoritmo; después podrás asignarla a un paso en el editor de grafo.'
               : 'El motor todavía guarda cada acción dentro de un algoritmo (no es un límite de este portal): elige uno para crearla y luego aplícala a los demás desde su fila en el banco.'}
         </small>
-      </label>
+      </Field>
 
       {deployed ? (
         <Alert tone="warning">
