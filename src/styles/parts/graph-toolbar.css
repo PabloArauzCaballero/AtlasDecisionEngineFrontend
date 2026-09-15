@@ -78,6 +78,10 @@
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-normal);
 }
+.editor-version-control .option-select-button {
+  min-height: 34px;
+  padding-block: 7px;
+}
 .editor-version-control input {
   width: 150px;
   min-height: 34px;

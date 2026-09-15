@@ -79,6 +79,9 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
             ) : (
               <OptionSelect
                 name="graphVersion"
+                // Compacto: en la barra no cabe la línea de descripción bajo el botón; cada estado
+                // se sigue explicando en la lista, y la barra empujaba el lienzo fuera de pantalla.
+                compact
                 id="graph-version-id"
                 value={props.versionId}
                 onChange={(value) => props.onVersionIdChange(value)}
