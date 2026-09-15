@@ -103,9 +103,12 @@ test('sólo ofrece artefactos que encajan, y dice cuántos ocultó', async ({ pa
 
   // Sólo el compatible llega al desplegable. Ofrecer uno que el motor va a
   // rechazar es invitar a preparar una generación que no se puede completar.
-  const opciones = vinculo.locator('#doc-artifact option');
+  // El desplegable es un OptionSelect: sus filas sólo existen con la lista abierta, en un portal.
+  await vinculo.locator('#doc-artifact').click();
+  const opciones = page.getByRole('listbox').getByRole('option');
   await expect(opciones).toHaveCount(1);
   await expect(opciones.first()).toContainText('informe-generico');
+  await page.keyboard.press('Escape');
 
   // Pero el filtro NO es silencioso, y no se queda en el recuento: dice CUÁL se
   // ocultó y POR QUÉ. Un número a secas obliga a adivinar si hay que corregir el

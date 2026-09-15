@@ -72,8 +72,42 @@ export function verifyAuditChain(signal?: AbortSignal): Promise<VerificacionCade
   return apiRequest<unknown>('/v1/audit/chain/verify', { signal }).then(normalizarVerificacion);
 }
 
+/**
+ * Normaliza las métricas en el BORDE, igual que la verificación.
+ *
+ * El panel leía `statuses.length` y `total.toLocaleString()` sin comprobar nada: una respuesta sin
+ * esas claves —un motor más antiguo, una pasarela que contesta otra cosa— tumbaba la ruta entera de
+ * la bitácora con «Cannot read properties of undefined (reading 'length')». Medido en el barrido de
+ * errores de cliente sobre `/audit-events`. Lo que no llega se trata como ausente, nunca como cero
+ * afirmado: `total` sólo vale lo que el motor dijo si lo dijo con un número.
+ */
+export function normalizarMetricas(bruto: unknown): MetricasAuditoria {
+  const dato = (bruto ?? {}) as Partial<MetricasAuditoria>;
+  const filas = <T>(valor: unknown, esValida: (fila: unknown) => fila is T): T[] =>
+    Array.isArray(valor) ? valor.filter(esValida) : [];
+  return {
+    total: typeof dato.total === 'number' ? dato.total : 0,
+    outcomes: filas(
+      dato.outcomes,
+      (fila): fila is { outcome: string | null; count: number } =>
+        !!fila &&
+        typeof fila === 'object' &&
+        typeof (fila as { count?: unknown }).count === 'number',
+    ),
+    statuses: filas(
+      dato.statuses,
+      (fila): fila is { status: string; count: number } =>
+        !!fila &&
+        typeof fila === 'object' &&
+        typeof (fila as { status?: unknown }).status === 'string' &&
+        typeof (fila as { count?: unknown }).count === 'number',
+    ),
+    latencyMs: dato.latencyMs && typeof dato.latencyMs === 'object' ? dato.latencyMs : {},
+  };
+}
+
 export function fetchAuditMetrics(signal?: AbortSignal): Promise<MetricasAuditoria> {
-  return apiRequest<MetricasAuditoria>('/v1/audit/metrics', { signal });
+  return apiRequest<unknown>('/v1/audit/metrics', { signal }).then(normalizarMetricas);
 }
 
 /**

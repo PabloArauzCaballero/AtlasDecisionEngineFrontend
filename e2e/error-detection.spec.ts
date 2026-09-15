@@ -117,6 +117,14 @@ test('login page has no client-side runtime errors', async ({ page }) => {
   const problems: Problem[] = [];
   const where = { route: '/login' };
   watch(page, where, problems);
+  /*
+   * Sin sesión que recuperar, como llega alguien a la pantalla de acceso. Sin esta respuesta el
+   * refresco salía hacia un motor que en la prueba no existe, se quedaba colgado más que la espera
+   * y la pantalla seguía en «Recuperando sesión»: la prueba medía un spinner, no el formulario.
+   */
+  await page.route('**/v1/session/refresh', (route) =>
+    route.fulfill({ status: 401, json: { code: 'SESSION_EXPIRED', message: 'Sin sesión' } }),
+  );
 
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: /Bienvenido nuevamente/i })).toBeVisible();

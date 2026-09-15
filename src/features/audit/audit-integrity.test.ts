@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { MOTIVOS, normalizarVerificacion, tonoVerificacion } from './audit-integrity.api';
+import {
+  MOTIVOS,
+  normalizarMetricas,
+  normalizarVerificacion,
+  tonoVerificacion,
+} from './audit-integrity.api';
 
 /**
  * Dos defectos medidos el 2026-09-13 sobre el portal desplegado, los dos en la misma pantalla y
@@ -94,6 +99,46 @@ describe('integridad del registro de auditoría', () => {
       expect(
         normalizarVerificacion({ valid: true, eventCount: 1, headHash: 42 }).headHash,
       ).toBeNull();
+    });
+  });
+
+  /*
+   * Tercer defecto del mismo barrido (2026-09-15): las MÉTRICAS no se normalizaban. Una respuesta
+   * sin `statuses` —la página vacía genérica, un motor más antiguo— tumbaba `/audit-events` con
+   * «Cannot read properties of undefined (reading 'length')».
+   */
+  describe('las métricas también se normalizan en el borde', () => {
+    it('sin `statuses` ni `outcomes` no revienta: se quedan en listas vacías', () => {
+      const dato = normalizarMetricas({ items: [], page: 1, total: 0 });
+      expect(dato.statuses).toEqual([]);
+      expect(dato.outcomes).toEqual([]);
+      expect(dato.total).toBe(0);
+      expect(dato.latencyMs).toEqual({});
+    });
+
+    it('una respuesta vacía o ilegible no inventa decisiones', () => {
+      for (const bruto of [undefined, null, {}, 'no es un objeto']) {
+        expect(normalizarMetricas(bruto)).toEqual({
+          total: 0,
+          outcomes: [],
+          statuses: [],
+          latencyMs: {},
+        });
+      }
+    });
+
+    it('descarta las filas mal formadas y conserva las que traen estado y recuento', () => {
+      const dato = normalizarMetricas({
+        total: 12,
+        statuses: [{ status: 'COMPLETED', count: 10 }, { status: 'FAILED' }, null, 'roto'],
+        outcomes: [
+          { outcome: 'APPROVED', count: 7 },
+          { outcome: null, count: 'x' },
+        ],
+      });
+      expect(dato.total).toBe(12);
+      expect(dato.statuses).toEqual([{ status: 'COMPLETED', count: 10 }]);
+      expect(dato.outcomes).toEqual([{ outcome: 'APPROVED', count: 7 }]);
     });
   });
 });

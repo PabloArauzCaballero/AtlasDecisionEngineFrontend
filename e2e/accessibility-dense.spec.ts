@@ -27,12 +27,38 @@ const SUSPENDED: string[] = [];
 /** Filas mínimas para dar la vista por poblada: cero sería medir el vacío otra vez. */
 const MIN_ROWS = 5;
 
+/**
+ * Espera a que terminen las animaciones de ENTRADA antes de medir.
+ *
+ * Cada vista entra con `fade-rise` (opacidad 0 → 1). axe calcula el contraste con la opacidad
+ * efectiva del nodo, así que medir durante la entrada daba por ilegible texto que en reposo pasa
+ * de sobra: `--muted` sobre blanco es 6,9:1 y el primario del tema oscuro 9:1, y aun así salían
+ * como incumplimientos en tarjetas, antecabeceras y explicadores de todas las rutas. Las
+ * animaciones infinitas (indicadores de carga, fondo ambiental) no terminan nunca y se ignoran.
+ */
+async function entradasTerminadas(page: Page) {
+  await page.waitForFunction(
+    () =>
+      document
+        .getAnimations()
+        .every(
+          (animacion) =>
+            animacion.playState !== 'running' ||
+            animacion.effect?.getComputedTiming().iterations === Infinity,
+        ),
+    undefined,
+    { timeout: 10_000 },
+  );
+}
+
 async function settle(page: Page, route: string): Promise<number> {
   await page.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   // Señal POSITIVA de vista montada, nunca una espera a plazo fijo: analizar una
   // pantalla en blanco devuelve cero incumplimientos, que se lee igual que «no
   // hay incumplimientos».
   await expect(page.locator('#main-content')).toContainText(/\S/, { timeout: 60_000 });
+
+  await entradasTerminadas(page);
 
   if ((await page.locator('table').count()) === 0) return -1;
   await page
@@ -61,6 +87,7 @@ for (const theme of ['light', 'dark'] as const) {
       // -1 = la vista no es una tabla (el editor de grafo, el simulador).
       if (rows >= 0 && rows < MIN_ROWS) empty.push(`${route} (${rows} filas)`);
 
+      await entradasTerminadas(page);
       const { violations } = await new AxeBuilder({ page })
         .withTags(TAGS)
         .disableRules(SUSPENDED)

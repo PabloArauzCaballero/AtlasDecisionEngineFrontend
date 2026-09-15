@@ -58,7 +58,7 @@ export function OutcomeWeightsField({ versionId, weights, onChange }: Props) {
               key={nodeKey}
               className="constraint-field"
               label={display(item, 'label')}
-              tooltip={`Peso relativo de los casos válidos que terminan en «${display(item, 'label')}».`}
+              tooltip="Peso relativo de los casos válidos que acaban en este resultado; no hace falta que sumen 100."
             >
               <input
                 type="number"

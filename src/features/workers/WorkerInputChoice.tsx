@@ -107,6 +107,9 @@ export function WorkerInputChoice({
           >
             <OptionSelect
               name="escenario"
+              // Compacto: la descripción del escenario elegido ya la pinta el detalle de al lado, y
+              // repetirla bajo el campo ponía el mismo párrafo dos veces en pantalla.
+              compact
               value={selectedFixture}
               onChange={onFixtureChange}
               disabled={disabled || !fixturesEnabled}

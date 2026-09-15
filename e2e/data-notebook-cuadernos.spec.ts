@@ -75,7 +75,10 @@ test.describe('cuadernos de datos · el avance se guarda', () => {
     await expect(page.locator('.notebook-cell__restaurado')).toHaveCount(0);
 
     await page.getByRole('button', { name: 'Guardar avance' }).click();
-    await expect(page.locator('.notebook-savebar button')).toContainText('Guardar avance');
+    // `.notebook-savebar button` casaba también con el ⓘ del nombre: se busca por su nombre.
+    await expect(
+      page.locator('.notebook-savebar').getByRole('button', { name: 'Guardar avance' }),
+    ).toBeVisible();
 
     await page.screenshot({ path: `${EVIDENCIA}/08-avance-guardado.png`, fullPage: true });
 

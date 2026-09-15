@@ -79,7 +79,10 @@ test.describe('cuaderno de datos · controles restantes', () => {
     await page.getByRole('button', { name: /Celda de Python/ }).click();
     await expect(page.locator('.notebook-cell')).toHaveCount(2);
     // El lenguaje del botón que se pulsó, no el de la celda anterior.
-    await expect(page.locator('.notebook-cell__language select').nth(1)).toHaveValue('python');
+    await expect(page.locator('.notebook-cell__language [role="combobox"]').nth(1)).toHaveAttribute(
+      'data-value',
+      'python',
+    );
   });
 
   test('«Subir» mueve la celda hacia arriba', async ({ page }) => {

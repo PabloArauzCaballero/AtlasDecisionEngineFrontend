@@ -129,6 +129,41 @@ const TARGET_GRAPH = {
 };
 
 /**
+ * El diff tal como lo publica el MOTOR (`GET /v1/artifact-versions/{izq}/diff/{der}`).
+ *
+ * La pantalla dejó de calcular el diff a partir de los dos grafos y ahora lo pide al motor
+ * (`version-diff-remote.ts`). Este doble seguía sirviendo sólo los grafos, así que el panel recibía
+ * la página vacía genérica y decía «ninguna versión expone un grafo comparable»: la prueba del diff
+ * estructural llevaba en rojo por el doble, no por la vista. Se deriva de los MISMOS dos grafos
+ * para que no puedan desalinearse.
+ */
+type Fila = Record<string, unknown>;
+function diffDelMotor(base: Record<string, Fila[]>, destino: Record<string, Fila[]>) {
+  const ids: Record<string, string> = { nodes: 'key', edges: 'key', variables: 'code' };
+  return Object.fromEntries(
+    Object.entries(ids).map(([coleccion, id]) => {
+      const antes = new Map((base[coleccion] ?? []).map((fila) => [String(fila[id]), fila]));
+      const despues = new Map((destino[coleccion] ?? []).map((fila) => [String(fila[id]), fila]));
+      return [
+        coleccion,
+        {
+          added: [...despues].filter(([clave]) => !antes.has(clave)).map(([, fila]) => fila),
+          removed: [...antes].filter(([clave]) => !despues.has(clave)).map(([, fila]) => fila),
+          changed: [...despues]
+            .filter(
+              ([clave, fila]) =>
+                antes.has(clave) && JSON.stringify(antes.get(clave)) !== JSON.stringify(fila),
+            )
+            .map(([clave, fila]) => ({ before: antes.get(clave), after: fila })),
+        },
+      ];
+    }),
+  );
+}
+
+const REMOTE_DIFF = diffDelMotor(BASE_GRAPH, TARGET_GRAPH);
+
+/**
  * Intercepta el backend con el escenario de gobierno.
  *
  * Se registra DESPUÉS de `mockBackend` cuando ambos se usan: Playwright da
@@ -142,6 +177,9 @@ export async function governanceBackend(page: Page): Promise<void> {
     if (url.includes('unread-count')) return route.fulfill({ json: { unread: 0 } });
     if (url.includes('/v1/approval-requests/')) return route.fulfill({ json: APPROVAL_REQUEST });
     if (url.includes('/v1/deployments')) return route.fulfill({ json: DEPLOYMENTS });
+    if (url.includes('/artifact-versions/') && url.includes('/diff/')) {
+      return route.fulfill({ json: REMOTE_DIFF });
+    }
     if (url.includes('/artifact-versions/54/graph')) return route.fulfill({ json: BASE_GRAPH });
     if (url.includes('/artifact-versions/60/graph')) return route.fulfill({ json: BASE_GRAPH });
     if (url.includes('/artifact-versions/55/graph')) return route.fulfill({ json: TARGET_GRAPH });
