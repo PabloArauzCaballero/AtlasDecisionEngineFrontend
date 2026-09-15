@@ -78,7 +78,24 @@
   font-weight: var(--weight-semibold);
   letter-spacing: var(--track-normal);
 }
+/* Medido contra 821a2ba: la barra pasó de 69 a 79 px y todo salía de este bloque (52 → 62 px). La
+   fila de la etiqueta crecía con el ⓘ y la rejilla del desplegable añadía su hueco entre el botón
+   y el input oculto. Se recortan las dos dentro de la barra, sin tocar los formularios. */
+.editor-version-control .field-label {
+  height: 14px;
+}
+.editor-version-control .info-hint-trigger {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+}
+.editor-version-control .info-hint-trigger svg {
+  width: 12px;
+  height: 12px;
+}
 .editor-version-control .option-select {
+  gap: 0;
   /* Ancho fijo, como el select nativo al que sustituye: sin él el desplegable toma el de su texto,
      aprieta la barra, «Constructor manual» baja a dos líneas y el lienzo sale de la primera
      pantalla. */
