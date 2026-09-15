@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../api/http-client';
 import { ResourceCreateForm } from './ResourceCreateForm';
+import { campo, elegirOpcion, esperarOpcion } from '../test/option-select';
 import type { ResourceConfig } from './resource.types';
 
 const notify = vi.fn();
@@ -55,11 +56,11 @@ describe('ResourceCreateForm', () => {
     renderForm();
 
     fireEvent.change(screen.getByLabelText('Código'), { target: { value: 'w-1' } });
-    // The catalog field is a real <select>; choosing "Otro valor…" reveals a text
-    // input so a value NOT in the catalog can still be created inline.
-    await screen.findByRole('option', { name: 'EXISTING' });
-    fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: '__custom__' } });
-    fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: 'BRAND_NEW' } });
+    // The catalog field is a select; choosing "Otro valor…" reveals a text input
+    // so a value NOT in the catalog can still be created inline.
+    await esperarOpcion(() => campo(/Tipo/), 'EXISTING');
+    elegirOpcion(campo(/Tipo/), '__custom__');
+    fireEvent.change(campo(/Tipo/), { target: { value: 'BRAND_NEW' } });
     fireEvent.change(screen.getByLabelText('Dato'), { target: { value: 'STRING' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear widget/ }));
 

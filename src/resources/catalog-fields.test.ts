@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resources } from './resource.config';
-import type { CreateField } from './resource.types';
+import type { CreateField, ResourceFilter } from './resource.types';
 
 /**
  * Un campo de valores definidos se elige, no se escribe.
@@ -63,9 +63,65 @@ describe('altas de catálogo', () => {
 
   it('cada campo explica qué poner, para quien no conoce el modelo de datos', () => {
     const sinAyuda = allFields
-      .filter(({ field }) => !field.help && field.kind !== 'checkbox')
+      // Las casillas también: «Adverse action» o «Dato sensible» son justo las
+      // que más consecuencias tienen y las que menos se explican solas.
+      .filter(({ field }) => !field.help)
       .map(({ resource, field }) => `${resource}.${field.key}`);
 
     expect(sinAyuda).toEqual([]);
+  });
+
+  it('cada opción de dominio cerrado dice qué significa, y no repite su etiqueta', () => {
+    const malas = allFields.flatMap(({ resource, field }) =>
+      (field.options ?? [])
+        .filter((option) => problemaDeTexto(option.description, option.label))
+        .map((option) => `${resource}.${field.key}=${option.value}`),
+    );
+    expect(malas).toEqual([]);
+  });
+});
+
+const normalizar = (texto: string) =>
+  texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .trim();
+
+/** La misma vara que `scripts/check-field-help.mjs`: 4 palabras y distinto de la etiqueta. */
+function problemaDeTexto(texto: string | undefined, etiqueta: string): boolean {
+  if (!texto) return true;
+  if (normalizar(texto).split(' ').filter(Boolean).length < 4) return true;
+  return normalizar(texto) === normalizar(etiqueta);
+}
+
+const allFilters: Array<{ resource: string; filter: ResourceFilter }> = Object.values(
+  resources,
+).flatMap((resource) =>
+  (resource.filters ?? []).map((filter) => ({ resource: resource.key, filter })),
+);
+
+describe('filtros de los listados', () => {
+  it('cada filtro —el principal y los de «Más filtros»— explica qué acota', () => {
+    const sinAyuda = [
+      ...allFilters
+        .filter(({ filter }) => problemaDeTexto(filter.help, filter.label))
+        .map(({ resource, filter }) => `${resource}.${filter.param}`),
+      ...Object.values(resources)
+        .filter((resource) => resource.filterParam)
+        .filter((resource) => problemaDeTexto(resource.filterHelp, resource.filterLabel ?? ''))
+        .map((resource) => `${resource.key}.${resource.filterParam}`),
+    ];
+    expect(sinAyuda).toEqual([]);
+  });
+
+  it('cada opción de un filtro cerrado dice qué significa', () => {
+    const malas = allFilters.flatMap(({ resource, filter }) =>
+      (filter.options ?? [])
+        .filter((option) => problemaDeTexto(option.description, option.label))
+        .map((option) => `${resource}.${filter.param}=${option.value}`),
+    );
+    expect(malas).toEqual([]);
   });
 });

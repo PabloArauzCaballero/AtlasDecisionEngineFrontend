@@ -1,4 +1,6 @@
+import { FieldRow } from '../components/FieldRow';
 import { FilterSelect } from '../components/FilterSelect';
+import { OptionSelect } from '../components/OptionSelect';
 import type { ResourceFilter } from './resource.types';
 
 interface ResourceExtraFiltersProps {
@@ -12,6 +14,10 @@ interface ResourceExtraFiltersProps {
  * Renders the "Más filtros" controls: catalog/picker-backed selects, static
  * option selects, or typed free-text inputs (incl. date ranges). Extracted from
  * ResourceListPage to keep that file within the source-size budget.
+ *
+ * Cada filtro lleva su ⓘ (`help`, en `resource.filters.ts`) y cada opción de
+ * dominio cerrado su descripción: un filtro de estados era una lista de códigos
+ * en mayúsculas y había que elegir uno para averiguar qué acotaba.
  */
 export function ResourceExtraFilters({
   filters,
@@ -25,7 +31,9 @@ export function ResourceExtraFilters({
         extra.optionsEndpoint || extra.picker ? (
           <FilterSelect
             key={extra.param}
+            name={extra.param}
             label={extra.label}
+            help={extra.help}
             value={draftExtra[extra.param] ?? ''}
             endpoint={extra.picker?.endpoint ?? extra.optionsEndpoint ?? ''}
             valueKey={extra.picker?.valueKey}
@@ -34,31 +42,37 @@ export function ResourceExtraFilters({
             onChange={(value) => applySelectFilter(extra.param, value)}
           />
         ) : (
-          <label key={extra.param}>
-            <span>{extra.label}</span>
-            {extra.options ? (
-              <select
-                value={draftExtra[extra.param] ?? ''}
-                onChange={(event) => applySelectFilter(extra.param, event.target.value)}
-              >
-                <option value="">Todos</option>
-                {extra.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type={extra.inputType ?? 'text'}
-                value={draftExtra[extra.param] ?? ''}
-                placeholder={extra.placeholder}
-                onChange={(event) =>
-                  setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
-                }
-              />
-            )}
-          </label>
+          <FieldRow key={extra.param} label={extra.label} tooltip={extra.help}>
+            {(control) =>
+              extra.options ? (
+                <OptionSelect
+                  id={control.id}
+                  describedById={control['aria-describedby']}
+                  onFocus={control.onFocus}
+                  onBlur={control.onBlur}
+                  compact
+                  name={extra.param}
+                  value={draftExtra[extra.param] ?? ''}
+                  options={[
+                    { value: '', label: 'Todos', description: 'Sin acotar por este campo.' },
+                    ...extra.options,
+                  ]}
+                  placeholder="Todos"
+                  onChange={(value) => applySelectFilter(extra.param, value)}
+                />
+              ) : (
+                <input
+                  {...control}
+                  type={extra.inputType ?? 'text'}
+                  value={draftExtra[extra.param] ?? ''}
+                  placeholder={extra.placeholder}
+                  onChange={(event) =>
+                    setDraftExtra((prev) => ({ ...prev, [extra.param]: event.target.value }))
+                  }
+                />
+              )
+            }
+          </FieldRow>
         ),
       )}
     </>

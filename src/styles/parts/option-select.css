@@ -148,6 +148,21 @@
 .field-label > span {
   min-width: 0;
 }
+/* Casilla de verificación: la etiqueta envuelve al control (ahí no hay nombre
+   que contaminar) y el ⓘ va al lado, fuera de ella. */
+.field-checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.field-checkbox-line > label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.field-checkbox-line input[type='checkbox'] {
+  width: auto;
+}
 .field-label-required {
   margin-left: 2px;
   color: var(--danger);

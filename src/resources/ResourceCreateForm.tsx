@@ -6,8 +6,11 @@ import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { CatalogInput } from '../components/CatalogInput';
-import { InfoHint } from '../components/InfoHint';
+import { FieldLabel } from '../components/FieldLabel';
+import { FieldRow } from '../components/FieldRow';
+import { OptionSelect } from '../components/OptionSelect';
 import { Panel } from '../components/Panel';
+import { useFieldHelp } from '../hooks/useFieldHelp';
 import { useNotifications } from '../notifications/useNotifications';
 import { display, type UnknownRecord } from '../utils/records';
 import {
@@ -29,30 +32,49 @@ interface FieldControlProps {
   siblings: Record<string, FieldValue>;
 }
 
-function FieldControl({ field, value, onChange, siblings }: FieldControlProps) {
-  if (field.kind === 'checkbox') {
-    return (
-      <label className="field">
-        <span>
+function CheckboxField({ field, value, onChange }: Omit<FieldControlProps, 'siblings'>) {
+  const ayuda = useFieldHelp(field.help);
+  return (
+    <div className="field field-checkbox">
+      <span className="field-checkbox-line">
+        <label htmlFor={ayuda.controlId}>
           <input
+            id={ayuda.controlId}
             type="checkbox"
+            aria-describedby={ayuda.describedById}
             checked={Boolean(value)}
+            onFocus={ayuda.onFocus}
+            onBlur={ayuda.onBlur}
             onChange={(event) => onChange(event.target.checked)}
           />{' '}
           {field.label}
-          {field.help ? <InfoHint text={field.help} label={`Qué es: ${field.label}`} /> : null}
-        </span>
-      </label>
-    );
+        </label>
+        {field.help ? (
+          <FieldLabel
+            label=""
+            tooltip={field.help}
+            describedById={ayuda.describedById}
+            controlFocused={ayuda.focused}
+          />
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
+function FieldControl({ field, value, onChange, siblings }: FieldControlProps) {
+  if (field.kind === 'checkbox') {
+    return <CheckboxField field={field} value={value} onChange={onChange} />;
   }
 
-  // Catalog-backed field: suggests existing enum-like / DB-sourced values via a
-  // <datalist> but lets the user type a NEW value to create it inline.
+  // Catalog-backed field: offers the existing enum-like / DB-sourced values but
+  // lets the user type a NEW one to create it inline.
   if (field.optionsEndpoint) {
     return (
       <CatalogInput
         label={field.label}
         help={field.help}
+        name={field.key}
         value={String(value)}
         onChange={onChange}
         endpoint={field.optionsEndpoint}
@@ -86,58 +108,61 @@ function FieldControl({ field, value, onChange, siblings }: FieldControlProps) {
   }
 
   return (
-    <label className="field">
-      <span>
-        {field.label}
-        {field.help ? <InfoHint text={field.help} label={`Qué es: ${field.label}`} /> : null}
-      </span>
-      {field.kind === 'json' ? (
-        <textarea
-          rows={3}
-          spellCheck={false}
-          required={field.required}
-          placeholder={field.placeholder}
-          value={stringValue}
-          onChange={(event) => onChange(event.target.value)}
-        />
-      ) : field.kind === 'textarea' ? (
-        <textarea
-          rows={3}
-          required={field.required}
-          placeholder={field.placeholder}
-          value={stringValue}
-          onChange={(event) => handleText(event.target.value)}
-        />
-      ) : field.kind === 'select' && field.options ? (
-        <select
-          required={field.required}
-          value={stringValue}
-          onChange={(event) => onChange(event.target.value)}
-        >
-          <option value="">Elegir…</option>
-          {field.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <input
-          required={field.required}
-          placeholder={field.placeholder}
-          value={stringValue}
-          onChange={(event) => handleText(event.target.value)}
-        />
+    <FieldRow label={field.label} tooltip={field.help} required={field.required}>
+      {(control) => (
+        <>
+          {field.kind === 'json' ? (
+            <textarea
+              {...control}
+              rows={3}
+              spellCheck={false}
+              required={field.required}
+              placeholder={field.placeholder}
+              value={stringValue}
+              onChange={(event) => onChange(event.target.value)}
+            />
+          ) : field.kind === 'textarea' ? (
+            <textarea
+              {...control}
+              rows={3}
+              required={field.required}
+              placeholder={field.placeholder}
+              value={stringValue}
+              onChange={(event) => handleText(event.target.value)}
+            />
+          ) : field.kind === 'select' && field.options ? (
+            <OptionSelect
+              id={control.id}
+              describedById={control['aria-describedby']}
+              onFocus={control.onFocus}
+              onBlur={control.onBlur}
+              name={field.key}
+              value={stringValue}
+              required={field.required}
+              placeholder="Elegir…"
+              options={field.options}
+              onChange={onChange}
+            />
+          ) : (
+            <input
+              {...control}
+              required={field.required}
+              placeholder={field.placeholder}
+              value={stringValue}
+              onChange={(event) => handleText(event.target.value)}
+            />
+          )}
+          {field.example ? (
+            <ExampleCheckHint
+              value={stringValue}
+              dataType={sibling(field.dataTypeKey)}
+              constraints={sibling(field.constraintsKey)}
+              expects={field.example}
+            />
+          ) : null}
+        </>
       )}
-      {field.example ? (
-        <ExampleCheckHint
-          value={stringValue}
-          dataType={sibling(field.dataTypeKey)}
-          constraints={sibling(field.constraintsKey)}
-          expects={field.example}
-        />
-      ) : null}
-    </label>
+    </FieldRow>
   );
 }
 

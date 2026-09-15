@@ -8,9 +8,13 @@ import {
 } from './resource.create-fields';
 import type { ResourceConfig } from './resource.types';
 import { SENSITIVITY_LABELS } from '../contracts/data-types';
-
-/** Enum values whose code is already a readable label. */
-const opts = (...values: string[]) => values.map((value) => ({ value, label: value }));
+import {
+  artifactsFilters,
+  deploymentsFilters,
+  manualReviewsFilters,
+  reasonCodesFilters,
+  variablesFilters,
+} from './resource.filters';
 
 export const resources: Readonly<Record<string, ResourceConfig>> = {
   variables: {
@@ -25,6 +29,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     detailPath: (row) => `/variables/${String(row.id ?? '')}`,
     filterParam: 'search',
     filterLabel: 'Buscar variables',
+    filterHelp:
+      'Texto que se busca en el código y en el nombre de la variable; basta una parte. Ej.: INGRESO.',
     filterPlaceholder: 'Código o nombre',
     primaryAction: 'Add Variable',
     createFields: variablesCreateFields,
@@ -34,17 +40,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     createRoles: CHANGE_PROPOSAL_ROLES,
     createDeniedHint:
       'Declarar una variable requiere rol QA Analyst, Fraud Analyst o Platform Admin. Consultar el catálogo no.',
-    filters: [
-      {
-        param: 'usage',
-        label: 'Entrada / Salida',
-        options: [
-          { value: 'INPUT', label: 'Entradas (datos que se aportan)' },
-          { value: 'OUTPUT', label: 'Salidas (resultados que devuelve)' },
-        ],
-        placeholder: 'Cualquier sentido',
-      },
-    ],
+    filters: variablesFilters,
     columns: [
       { key: 'variableCode', label: 'Code', mono: true },
       { key: 'name', label: 'Name' },
@@ -82,20 +78,15 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/reason-codes',
     filterParam: 'search',
     filterLabel: 'Buscar reason code',
+    filterHelp:
+      'Texto que se busca en el código, el título y los mensajes del motivo; basta una parte. Ej.: FRAUDE.',
     filterPlaceholder: 'Código, título o mensaje',
     primaryAction: 'Add Reason Code',
     createFields: reasonCodesCreateFields,
     createRoles: CHANGE_PROPOSAL_ROLES,
     createDeniedHint:
       'Dar de alta un motivo explicable requiere rol QA Analyst, Fraud Analyst o Platform Admin.',
-    filters: [
-      {
-        param: 'category',
-        label: 'Categoría',
-        optionsEndpoint: '/v1/views/options?group=reasonCategory',
-        placeholder: 'Categoría exacta',
-      },
-    ],
+    filters: reasonCodesFilters,
     columns: [
       { key: 'reasonCode', label: 'Code', mono: true },
       { key: 'category', label: 'Category' },
@@ -118,6 +109,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/artifacts',
     filterParam: 'search',
     filterLabel: 'Buscar artefacto',
+    filterHelp:
+      'Texto que se busca en el código, el nombre y el equipo responsable del algoritmo; basta una parte.',
     filterPlaceholder: 'Código, nombre o equipo',
     primaryAction: 'Nuevo Artefacto',
     createFields: artifactsCreateFields,
@@ -127,28 +120,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     createRoles: ARTIFACT_CREATE_ROLES,
     createDeniedHint:
       'Sólo un Platform Admin crea artefactos. Para proponer un cambio, crea una versión del artefacto existente.',
-    filters: [
-      {
-        param: 'status',
-        label: 'Estado',
-        options: opts(
-          'DRAFT',
-          'VALIDATION_FAILED',
-          'VALIDATED',
-          'COMPILED',
-          'IN_REVIEW',
-          'CHANGES_REQUESTED',
-          'APPROVED',
-          'DEPLOYED_TO_DEV',
-          'DEPLOYED_TO_STAGING',
-          'DEPLOYED_TO_TEST',
-          'DEPLOYED_TO_PROD',
-          'SUSPENDED',
-          'REJECTED',
-          'RETIRED',
-        ),
-      },
-    ],
+    filters: artifactsFilters,
     detailPath: (row) => `/artifacts/${String(row.id)}`,
     columns: [
       { key: 'artifactCode', label: 'Code', mono: true },
@@ -197,16 +169,11 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/deployments',
     filterParam: 'artifactCode',
     filterLabel: 'Buscar artefacto',
+    filterHelp:
+      'Código EXACTO del algoritmo cuyo historial quieres ver; aquí no vale una parte. Ej.: SCORING_CREDITO.',
     filterPlaceholder: 'Código exacto',
     primaryAction: 'Nuevo Despliegue',
-    filters: [
-      { param: 'environmentCode', label: 'Ambiente', placeholder: 'p. ej. PROD' },
-      {
-        param: 'status',
-        label: 'Resultado',
-        options: opts('PREPARING', 'ACTIVE', 'SUSPENDED', 'SUPERSEDED', 'ROLLED_BACK', 'FAILED'),
-      },
-    ],
+    filters: deploymentsFilters,
     columns: [
       {
         key: 'artifactCode',
@@ -240,15 +207,10 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/manual-reviews',
     filterParam: 'queueCode',
     filterLabel: 'Buscar caso',
+    filterHelp:
+      'Identificador del caso o la referencia con que llegó, para ir directo a uno concreto. Ej.: CASE-1042.',
     filterPlaceholder: 'Case ID o referencia',
-    filters: [
-      {
-        param: 'status',
-        label: 'Estado',
-        options: opts('OPEN', 'ASSIGNED', 'RESOLVED_APPROVED', 'RESOLVED_DECLINED', 'CANCELLED'),
-      },
-      { param: 'assignedTo', label: 'Asignado a', placeholder: 'Usuario' },
-    ],
+    filters: manualReviewsFilters,
     detailPath: (row) => `/manual-reviews/${String(row.id)}`,
     columns: [
       { key: 'caseCode', label: 'Case ID', mono: true },

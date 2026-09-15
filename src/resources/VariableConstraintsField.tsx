@@ -2,7 +2,8 @@
 
 import { AlertTriangle, Braces, SlidersHorizontal } from 'lucide-react';
 import { useState } from 'react';
-import { InfoHint } from '../components/InfoHint';
+import { FieldLabel } from '../components/FieldLabel';
+import { useFieldHelp } from '../hooks/useFieldHelp';
 import { ConstraintEditor } from '../features/graph-editor/ConstraintEditor';
 import { parseConstraints, type VariableConstraints } from '../contracts/constraints';
 import { normalizeDataType } from '../contracts/data-types';
@@ -30,6 +31,7 @@ interface Props {
  */
 export function VariableConstraintsField({ label, help, value, onChange, dataType }: Props) {
   const [raw, setRaw] = useState(false);
+  const ayuda = useFieldHelp(help);
   const parsed = parseConstraints(safeParse(value));
   const normalized = normalizeDataType(dataType) ?? 'STRING';
 
@@ -41,10 +43,12 @@ export function VariableConstraintsField({ label, help, value, onChange, dataTyp
   return (
     <div className="field constraints-field">
       <span className="constraints-field-head">
-        <span>
-          {label}
-          {help ? <InfoHint text={help} label={`Qué es: ${label}`} /> : null}
-        </span>
+        <FieldLabel
+          label={label}
+          tooltip={help}
+          describedById={ayuda.describedById}
+          controlFocused={ayuda.focused}
+        />
         <button type="button" className="button" onClick={() => setRaw((open) => !open)}>
           {raw ? (
             <>

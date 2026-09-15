@@ -1,3 +1,4 @@
+import { EXPECTED_ORIGIN_HELP } from './resource-option-help';
 import type { CreateField } from './resource.types';
 
 /**
@@ -120,12 +121,20 @@ export const variablesCreateFields: readonly CreateField[] = [
     // Enumeración cerrada del contrato del backend (VariableVersionDto), no un
     // catálogo de base de datos: un select libre dejaría escribir un valor que
     // el backend rechaza con 422 después de rellenar todo el formulario.
+    // La explicación vivía EMBUTIDA en la etiqueta («REQUEST — llega en la
+    // petición») porque un `<option>` nativo no tenía dónde ponerla. Ahora va en
+    // `description`, que se pinta como segunda línea de la fila: la etiqueta
+    // vuelve a ser el valor y deja de crecer con su propia glosa.
     options: [
-      { value: 'REQUEST', label: 'REQUEST — llega en la petición' },
-      { value: 'PROVIDER', label: 'PROVIDER — la resuelve un proveedor externo' },
-      { value: 'DERIVED', label: 'DERIVED — se deriva de otras variables' },
-      { value: 'CALCULATED_FIELD', label: 'CALCULATED_FIELD — la produce un campo calculado' },
-      { value: 'GRAPH_NODE', label: 'GRAPH_NODE — la escribe un nodo del grafo' },
+      { value: 'REQUEST', label: 'REQUEST', description: EXPECTED_ORIGIN_HELP.REQUEST },
+      { value: 'PROVIDER', label: 'PROVIDER', description: EXPECTED_ORIGIN_HELP.PROVIDER },
+      { value: 'DERIVED', label: 'DERIVED', description: EXPECTED_ORIGIN_HELP.DERIVED },
+      {
+        value: 'CALCULATED_FIELD',
+        label: 'CALCULATED_FIELD',
+        description: EXPECTED_ORIGIN_HELP.CALCULATED_FIELD,
+      },
+      { value: 'GRAPH_NODE', label: 'GRAPH_NODE', description: EXPECTED_ORIGIN_HELP.GRAPH_NODE },
     ],
     help: 'De dónde se espera que venga el valor. Cuando llega de otro sitio, el motor lo registra en la traza y la desviación se ve en auditoría.',
   },

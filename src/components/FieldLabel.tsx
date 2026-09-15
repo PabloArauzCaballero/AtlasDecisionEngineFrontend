@@ -38,20 +38,18 @@ export function FieldLabel({
   controlFocused,
   className,
 }: FieldLabelProps) {
-  const text = (
-    <>
-      {label}
-      {required ? (
-        <span className="field-label-required" aria-hidden="true">
-          *
-        </span>
-      ) : null}
-    </>
-  );
+  // El asterisco va FUERA de la `<label>`: dentro, su texto entra en el nombre
+  // del campo («Código*») y rompe cada `getByLabelText('Código')` exacto.
+  const asterisco = required ? (
+    <span className="field-label-required" aria-hidden="true">
+      *
+    </span>
+  ) : null;
   const name = typeof label === 'string' ? label : 'este campo';
   return (
     <span className={className ? `field-label ${className}` : 'field-label'}>
-      {htmlFor ? <label htmlFor={htmlFor}>{text}</label> : <span>{text}</span>}
+      {htmlFor ? <label htmlFor={htmlFor}>{label}</label> : <span>{label}</span>}
+      {asterisco}
       {tooltip ? (
         <InfoHint
           text={tooltip}

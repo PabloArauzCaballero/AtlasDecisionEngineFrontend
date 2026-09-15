@@ -1,4 +1,5 @@
 import type { TableColumn } from '../components/DataTable';
+import type { Option } from '../contracts/option';
 
 export type ResourceRow = Record<string, unknown>;
 
@@ -33,10 +34,11 @@ export type CreateFieldKind =
    */
   | 'constraints';
 
-export interface CreateFieldOption {
-  value: string;
-  label: string;
-}
+/**
+ * La opción de un campo de alta. Es el tipo ÚNICO del repositorio: la forma
+ * propia que había aquí no admitía explicar qué significaba cada valor.
+ */
+export type CreateFieldOption = Option;
 
 export interface CreateField {
   /** Dot-notation builds a nested payload, e.g. `initialVersion.dataType`. */
@@ -46,7 +48,7 @@ export interface CreateField {
   required?: boolean;
   placeholder?: string;
   help?: string;
-  options?: readonly CreateFieldOption[];
+  options?: readonly Option[];
   /**
    * Read-model endpoint that returns `{ value, label }[]` for a catalog-backed
    * select (enum-like or DB-sourced values). Degrades to a free input if the
@@ -90,8 +92,14 @@ export interface ResourceFilter {
   /** Real backend query parameter this control sends (e.g. `status`). */
   param: string;
   label: string;
+  /**
+   * Qué acota este filtro y por qué importa. Obligatorio de hecho: lo exige
+   * `catalog-fields.test.ts` y `scripts/check-field-help.mjs`. Un filtro sin
+   * explicar obliga a probar valores para descubrir qué hace.
+   */
+  help?: string;
   /** With options → a select of allowed values; without → a free-text input. */
-  options?: readonly CreateFieldOption[];
+  options?: readonly Option[];
   /**
    * Read-model endpoint returning `{ value, label }[]` for a catalog-backed filter
    * (e.g. `/v1/views/options?group=reasonCategory`). Renders a real select whose
@@ -116,6 +124,8 @@ export interface ResourceConfig {
   columns: readonly TableColumn<ResourceRow>[];
   filterParam?: string;
   filterLabel?: string;
+  /** Qué busca el filtro principal y con qué formato. Pinta su ⓘ. */
+  filterHelp?: string;
   filterPlaceholder?: string;
   /** When set, the primary filter is a picker-backed select instead of free text. */
   filterPicker?: FilterPicker;

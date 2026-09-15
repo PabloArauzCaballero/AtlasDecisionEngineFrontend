@@ -6,6 +6,7 @@ import { hasAnyRole } from '../auth/roles';
 import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { DataTable, type RowAction } from '../components/DataTable';
+import { FieldRow } from '../components/FieldRow';
 import { FilterSelect } from '../components/FilterSelect';
 import { PageHeader } from '../components/PageHeader';
 import { ActiveFilterChips } from '../resources/ActiveFilterChips';
@@ -128,6 +129,8 @@ export function ResourceListPage({
           {config.filterPicker ? (
             <FilterSelect
               label={config.filterLabel ?? 'Filtro'}
+              help={config.filterHelp}
+              name={config.filterParam}
               value={filter}
               endpoint={config.filterPicker.endpoint}
               valueKey={config.filterPicker.valueKey}
@@ -136,14 +139,16 @@ export function ResourceListPage({
               onChange={(value) => applyNow({ filter: value })}
             />
           ) : (
-            <label>
-              <span>{config.filterLabel}</span>
-              <input
-                value={draftFilter}
-                onChange={(event) => setDraftFilter(event.target.value)}
-                placeholder={config.filterPlaceholder}
-              />
-            </label>
+            <FieldRow label={config.filterLabel ?? 'Filtro'} tooltip={config.filterHelp}>
+              {(control) => (
+                <input
+                  {...control}
+                  value={draftFilter}
+                  onChange={(event) => setDraftFilter(event.target.value)}
+                  placeholder={config.filterPlaceholder}
+                />
+              )}
+            </FieldRow>
           )}
           {showExtraFilters && config.filters?.length ? (
             <ResourceExtraFilters

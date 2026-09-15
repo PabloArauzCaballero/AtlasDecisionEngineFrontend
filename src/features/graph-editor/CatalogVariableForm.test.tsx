@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiRequest } from '../../api/http-client';
 import { CatalogVariableForm } from './CatalogVariableForm';
+import { campo, esperarOpcion, rellenar, valorDe } from '../../test/option-select';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
@@ -38,8 +39,7 @@ function renderForm() {
  * `fireEvent.change` sobre un botón no cambia nada: el borrador se enviaba con
  * los dos campos de catálogo vacíos sin que nada lo delatara.
  */
-const field = (label: RegExp) =>
-  screen.getByLabelText(label, { selector: 'input, select, textarea' });
+const field = (label: RegExp) => campo(label);
 
 describe('CatalogVariableForm', () => {
   beforeEach(() => {
@@ -63,7 +63,7 @@ describe('CatalogVariableForm', () => {
       /Clasificación de datos/,
       /Para qué sirve/,
     ]) {
-      expect(field(label)).toHaveValue('');
+      expect(valorDe(field(label))).toBe('');
     }
   });
 
@@ -82,15 +82,13 @@ describe('CatalogVariableForm', () => {
     // responde: elegir antes no guardaría nada. Se espera por el texto de la
     // opción y no por su rol, porque jsdom no expone como `option` el contenido
     // de un desplegable cerrado.
-    await screen.findByText('Riesgo');
-    await screen.findByText('Confidencial');
+    await esperarOpcion(() => field(/Equipo responsable/), 'RIESGO');
+    await esperarOpcion(() => field(/Clasificación de datos/), 'CONFIDENTIAL');
 
     fireEvent.change(field(/Código/), { target: { value: 'score_riesgo' } });
     fireEvent.change(field(/Nombre/), { target: { value: 'Score de riesgo' } });
-    fireEvent.change(field(/Equipo responsable/), { target: { value: 'RIESGO' } });
-    fireEvent.change(field(/Clasificación de datos/), {
-      target: { value: 'CONFIDENTIAL' },
-    });
+    rellenar(field(/Equipo responsable/), 'RIESGO');
+    rellenar(field(/Clasificación de datos/), 'CONFIDENTIAL');
     fireEvent.change(field(/Para qué sirve/), {
       target: { value: 'Riesgo estimado del solicitante.' },
     });

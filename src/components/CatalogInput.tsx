@@ -3,13 +3,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
+import type { Option } from '../contracts/option';
 import { asRows, type UnknownRecord } from '../utils/records';
-import { InfoHint } from './InfoHint';
+import { FieldRow } from './FieldRow';
+import { OptionSelect } from './OptionSelect';
 
-export interface CatalogOption {
-  value: string;
-  label: string;
-}
+/** El tipo de opción es uno solo en todo el repositorio. */
+export type CatalogOption = Option;
 
 interface CatalogInputProps {
   label: string;
@@ -21,18 +21,26 @@ interface CatalogInputProps {
   mapOption: (row: UnknownRecord) => CatalogOption | null;
   required?: boolean;
   placeholder?: string;
-  /** Plain-language help shown as an info (?) tooltip next to the label. */
+  /** Qué poner en el campo y por qué importa. Pinta el ⓘ junto a la etiqueta. */
   help?: string;
+  /** Nombre del control para el formulario y para `data-testid`. */
+  name?: string;
 }
 
 const CUSTOM = '__custom__';
 
 /**
- * Catalog-backed field with defined values. Renders a real <select> of the
+ * Catalog-backed field with defined values. Renders an `OptionSelect` of the
  * catalog options plus an "＋ Otro valor…" escape that reveals a text input, so
- * defined-value fields are selects (not free text) without trapping the user:
- * a brand-new value can still be created. Falls back to a plain input when the
+ * defined-value fields are chosen (not typed) without trapping the user: a
+ * brand-new value can still be created. Falls back to a plain input when the
  * catalog endpoint is unavailable or empty.
+ *
+ * Las opciones vienen de `/v1/views/options`, que publica `value` y `label` y
+ * —por ahora— no una descripción. No se inventa ninguna: una explicación
+ * fabricada sobre un valor de catálogo es peor que ninguna. Cuando la vista
+ * `vw_form_option` publique `description`, `mapOption` la traerá y las filas la
+ * pintarán sin tocar nada más.
  */
 export function CatalogInput({
   label,
@@ -44,13 +52,8 @@ export function CatalogInput({
   required = false,
   placeholder,
   help,
+  name,
 }: CatalogInputProps) {
-  const labelNode = (
-    <span>
-      {label}
-      {help ? <InfoHint text={help} label={`Qué es: ${label}`} /> : null}
-    </span>
-  );
   const [custom, setCustom] = useState(false);
   const catalog = useQuery({
     queryKey: ['catalog', queryKey, endpoint],
@@ -68,53 +71,63 @@ export function CatalogInput({
   const noCatalog = catalog.isError || (!catalog.isPending && options.length === 0);
   const inList = value !== '' && options.some((option) => option.value === value);
   const asText = noCatalog || custom || (value !== '' && !inList);
+  const field = name ?? queryKey;
 
   return (
-    <label className="field">
-      {labelNode}
-      {asText ? (
-        <>
-          <input
+    <FieldRow label={label} tooltip={help} required={required}>
+      {(control) =>
+        asText ? (
+          <>
+            <input
+              {...control}
+              value={value}
+              required={required}
+              placeholder={placeholder ?? 'Escribe el valor'}
+              onChange={(event) => onChange(event.target.value)}
+            />
+            {!noCatalog ? (
+              <button
+                type="button"
+                className="field-inline-link"
+                onClick={() => {
+                  setCustom(false);
+                  onChange('');
+                }}
+              >
+                ← Elegir de la lista
+              </button>
+            ) : null}
+          </>
+        ) : (
+          <OptionSelect
+            id={control.id}
+            describedById={control['aria-describedby']}
+            onFocus={control.onFocus}
+            onBlur={control.onBlur}
+            name={field}
             value={value}
             required={required}
-            placeholder={placeholder ?? 'Escribe el valor'}
-            onChange={(event) => onChange(event.target.value)}
-          />
-          {!noCatalog ? (
-            <button
-              type="button"
-              className="field-inline-link"
-              onClick={() => {
-                setCustom(false);
+            disabled={catalog.isPending}
+            placeholder={catalog.isPending ? 'Cargando…' : (placeholder ?? 'Elegir…')}
+            options={[
+              ...options,
+              {
+                value: CUSTOM,
+                label: '＋ Otro valor…',
+                description: 'El valor que necesitas no está en el catálogo: lo escribes a mano.',
+              },
+            ]}
+            onChange={(next) => {
+              if (next === CUSTOM) {
+                setCustom(true);
                 onChange('');
-              }}
-            >
-              ← Elegir de la lista
-            </button>
-          ) : null}
-        </>
-      ) : (
-        <select
-          value={value}
-          required={required}
-          onChange={(event) => {
-            if (event.target.value === CUSTOM) {
-              setCustom(true);
-              onChange('');
-            } else {
-              onChange(event.target.value);
-            }
-          }}
-        >
-          <option value="">{catalog.isPending ? 'Cargando…' : (placeholder ?? 'Elegir…')}</option>
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-          <option value={CUSTOM}>＋ Otro valor…</option>
-        </select>
-      )}
-    </label>
+              } else {
+                onChange(next);
+              }
+            }}
+          />
+        )
+      }
+    </FieldRow>
   );
 }

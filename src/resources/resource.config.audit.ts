@@ -1,3 +1,4 @@
+import { EXECUTION_OUTCOME_HELP } from './resource-option-help';
 import type { ResourceConfig } from './resource.types';
 
 /** Auditoría y trazabilidad de negocio (F6–F7). Se fusionan en `resources`. */
@@ -11,6 +12,8 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/audit/executions',
     filterParam: 'artifactCode',
     filterLabel: 'Artefacto',
+    filterHelp:
+      'Algoritmo cuyas decisiones quieres auditar; sin elegir ninguno se listan las de todos.',
     filterPlaceholder: 'Todos los artefactos',
     filterPicker: {
       endpoint: '/v1/views/pickers/artifacts',
@@ -21,15 +24,35 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
       {
         param: 'outcome',
         label: 'Resultado',
+        help: 'Cómo terminó la decisión: resuelta por el motor a favor o en contra, o derivada a una persona.',
         options: [
-          { value: 'APPROVED', label: 'Aprobado' },
-          { value: 'DECLINED', label: 'Rechazado' },
-          { value: 'MANUAL_REVIEW', label: 'Revisión manual' },
+          { value: 'APPROVED', label: 'Aprobado', description: EXECUTION_OUTCOME_HELP.APPROVED },
+          { value: 'DECLINED', label: 'Rechazado', description: EXECUTION_OUTCOME_HELP.DECLINED },
+          {
+            value: 'MANUAL_REVIEW',
+            label: 'Revisión manual',
+            description: EXECUTION_OUTCOME_HELP.MANUAL_REVIEW,
+          },
         ],
       },
-      { param: 'requestId', label: 'Request ID', placeholder: 'req_...' },
-      { param: 'from', label: 'Desde', inputType: 'date' },
-      { param: 'to', label: 'Hasta', inputType: 'date' },
+      {
+        param: 'requestId',
+        label: 'Request ID',
+        help: 'Identificador que quien llamó al motor puso a la petición; sirve para cruzar esta decisión con sus registros. Ej.: req_8f21c.',
+        placeholder: 'req_...',
+      },
+      {
+        param: 'from',
+        label: 'Desde',
+        help: 'Primer día que entra en la búsqueda, inclusive. Sin él se busca desde la primera ejecución registrada.',
+        inputType: 'date',
+      },
+      {
+        param: 'to',
+        label: 'Hasta',
+        help: 'Último día que entra en la búsqueda, inclusive. Sin él se busca hasta hoy.',
+        inputType: 'date',
+      },
     ],
     detailPath: (row) => `/executions/${String(row.id)}`,
     columns: [
@@ -64,10 +87,22 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
     endpoint: '/v1/audit/events',
     filterParam: 'eventType',
     filterLabel: 'Buscar evento',
+    filterHelp:
+      'Texto que se busca en el tipo de evento y en el agregado afectado; basta una parte. Ej.: DEPLOY.',
     filterPlaceholder: 'Evento, actor o IP',
     filters: [
-      { param: 'actorId', label: 'Actor', placeholder: 'ID del actor' },
-      { param: 'aggregateType', label: 'Tipo de agregado', placeholder: 'p. ej. Artifact' },
+      {
+        param: 'actorId',
+        label: 'Actor',
+        help: 'Quién provocó el evento: identificador de la persona o del servicio que actuó. Ej.: usr_204.',
+        placeholder: 'ID del actor',
+      },
+      {
+        param: 'aggregateType',
+        label: 'Tipo de agregado',
+        help: 'Sobre qué clase de objeto se produjo el evento, tal como lo nombra el motor. Ej.: Artifact, Deployment.',
+        placeholder: 'p. ej. Artifact',
+      },
     ],
     columns: [
       { key: 'createdAt', label: 'Fecha / Hora' },

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../api/http-client';
+import { campo, elegirOpcion, esperarOpcion } from '../test/option-select';
 import { SimulatorPage } from './SimulatorPage';
 
 const notify = vi.fn();
@@ -87,10 +88,8 @@ describe('SimulatorPage', () => {
     expect(await screen.findByRole('option', { name: /Development/ })).toBeInTheDocument();
     expect(screen.queryByRole('option', { name: /Production/ })).not.toBeInTheDocument();
 
-    expect(
-      await screen.findByRole('option', { name: /POLICY · Policy artifact/ }),
-    ).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Artefacto'), { target: { value: 'POLICY' } });
+    await esperarOpcion(() => campo('Artefacto'), 'POLICY');
+    elegirOpcion(campo('Artefacto'), 'POLICY');
     fireEvent.click(screen.getByRole('button', { name: /Ejecutar/ }));
 
     await waitFor(() =>
