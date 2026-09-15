@@ -137,7 +137,11 @@ test.describe('cuaderno de datos · R', () => {
     const figura = page.locator('.notebook-cell__figura img').first();
     await expect(figura).toBeVisible({ timeout: PLAZO_INTERPRETE });
     await expect(figura).toHaveAttribute('src', /^data:image\/png;base64,/);
-    expect(await figura.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(100);
+    // Se ESPERA a que decodifique: fijar `src` no pinta en el acto, y en CI el PNG tardaba lo
+    // bastante como para leer `naturalWidth` 0 sobre una imagen que un instante después era buena.
+    await expect
+      .poll(() => figura.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(100);
 
     const [descarga] = await Promise.all([
       page.waitForEvent('download'),

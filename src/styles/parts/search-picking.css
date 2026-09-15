@@ -154,6 +154,9 @@
 /* Simulator: form/JSON switch. */
 .view-tabs {
   display: inline-flex;
+  /* Las pestañas bajan de línea antes que sacar el formulario de la columna en un móvil. */
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 4px;
   padding: 4px;
   border: 1px solid var(--line);

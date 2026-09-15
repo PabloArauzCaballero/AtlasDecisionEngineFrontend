@@ -141,6 +141,11 @@
 }
 .simulator-form {
   display: grid;
+  /*
+   * `minmax(0, 1fr)`: la pista implícita crece hasta el ancho mínimo de su contenido. A 320 px el
+   * formulario medía 238 px y su columna 275, y con las fuentes de Linux de CI se salía 2 px.
+   */
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
 }
 .simulation-result {
