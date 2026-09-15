@@ -91,6 +91,14 @@ jobs:
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
 
+      # Los intérpretes del cuaderno de datos (Pyodide y WebR) son artefactos reproducibles que
+      # no se versionan (`.gitignore`) y se sirven desde `/pyodide/` y `/webr/` del propio origen.
+      # Sin este paso el build sale sin ellos y TODAS las pruebas de celdas de Python y R fallan
+      # en CI con «No se encontró el intérprete en /pyodide/», sin que el cuaderno esté roto.
+      # Va ANTES del build: `public/` se copia al artefacto al compilar.
+      - name: Install notebook interpreters (Pyodide, WebR)
+        run: yarn setup:interpretes
+
       - name: Build Next.js production bundle
         env:
           DECISION_ENGINE_URL: http://127.0.0.1:3000
@@ -180,7 +188,11 @@ jobs:
       # Inventario de software: hace falta para atestar la procedencia del
       # artefacto (NIST SSDF, y EO 14028 para cualquier comprador federal).
       - name: Generate SBOM (CycloneDX)
-        run: npx --yes @cyclonedx/cyclonedx-npm@latest --output-file sbom.json --output-format JSON
+        # `--ignore-npm-errors`: el inventario se lee con `npm ls`, que da por «inválidas» las
+        # versiones que `resolutions` de yarn fija a propósito por seguridad (dompurify, postcss,
+        # brace-expansion) y abortaba con ELSPROBLEMS sin generar nada. El árbol instalado es el
+        # que se despliega, así que es el que el SBOM tiene que describir.
+        run: npx --yes @cyclonedx/cyclonedx-npm@latest --ignore-npm-errors --output-file sbom.json --output-format JSON
 
       - name: Publish SBOM
         uses: actions/upload-artifact@v4
