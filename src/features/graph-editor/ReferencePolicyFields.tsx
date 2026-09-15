@@ -1,6 +1,9 @@
 'use client';
 
 import type { ReferenceFormState } from './reference-authoring';
+import { OptionSelect } from '../../components/OptionSelect';
+import { REFERENCE_TRACE_HELP, VERSION_SELECTION_HELP, closedOptions } from './graph-editor-help';
+import { CheckField, Field } from '../../components/Field';
 
 interface Props {
   form: ReferenceFormState;
@@ -19,32 +22,46 @@ export function ReferencePolicyFields({ form, onPatch }: Props) {
     <details className="reference-policy">
       <summary>Política de ejecución</summary>
       <div className="constraint-grid">
-        <label className="constraint-field">
-          <span>Ambiente del algoritmo referenciado</span>
+        <Field
+          className="constraint-field"
+          label="Ambiente del algoritmo referenciado"
+          tooltip="Ambiente del que se toma la subdecisión. Ej.: PROD. Debe existir allí un despliegue activo."
+        >
           <input
             placeholder="vacío = el mismo que este flujo"
             value={form.environmentCode}
             onChange={(event) => onPatch({ environmentCode: event.target.value.toUpperCase() })}
           />
-        </label>
+        </Field>
 
-        <label className="constraint-field">
-          <span>Qué versión se ejecuta</span>
-          <select
+        <Field
+          className="constraint-field"
+          label="Qué versión se ejecuta"
+          tooltip="Si se llama siempre a la misma versión o a la que esté desplegada en ese momento."
+        >
+          <OptionSelect
+            name="versionSelection"
             value={form.versionSelection}
-            onChange={(event) =>
+            onChange={(value) =>
               onPatch({
-                versionSelection: event.target.value as ReferenceFormState['versionSelection'],
+                versionSelection: value as ReferenceFormState['versionSelection'],
               })
             }
-          >
-            <option value="EXACT">La versión fijada (reproducible)</option>
-            <option value="ACTIVE_IN_ENVIRONMENT">La activa del ambiente</option>
-          </select>
-        </label>
+            options={closedOptions(
+              [
+                { value: 'EXACT', label: 'La versión fijada (reproducible)' },
+                { value: 'ACTIVE_IN_ENVIRONMENT', label: 'La activa del ambiente' },
+              ],
+              VERSION_SELECTION_HELP,
+            )}
+          />
+        </Field>
 
-        <label className="constraint-field">
-          <span>Reintentos ante error transitorio</span>
+        <Field
+          className="constraint-field"
+          label="Reintentos ante error transitorio"
+          tooltip="Cuántas veces se repite la llamada si falla por un corte pasajero; 0 para no reintentar."
+        >
           <input
             type="number"
             min={0}
@@ -52,10 +69,13 @@ export function ReferencePolicyFields({ form, onPatch }: Props) {
             value={form.maxRetries}
             onChange={(event) => onPatch({ maxRetries: Number(event.target.value) })}
           />
-        </label>
+        </Field>
 
-        <label className="constraint-field">
-          <span>Espera entre reintentos (ms)</span>
+        <Field
+          className="constraint-field"
+          label="Espera entre reintentos (ms)"
+          tooltip="Milisegundos entre un intento y el siguiente. Ej.: 500. Sólo aplica si hay reintentos."
+        >
           <input
             type="number"
             min={0}
@@ -65,34 +85,48 @@ export function ReferencePolicyFields({ form, onPatch }: Props) {
             value={form.retryDelayMs}
             onChange={(event) => onPatch({ retryDelayMs: Number(event.target.value) })}
           />
-        </label>
+        </Field>
 
-        <label className="constraint-field constraint-checkbox">
+        <CheckField
+          className="constraint-field constraint-checkbox"
+          label="Obligatoria: si falla, la decisión falla"
+          tooltip="Márcalo si sin esta subdecisión no se puede decidir; si no, se sigue sin su resultado."
+        >
           <input
             type="checkbox"
             checked={form.isRequired}
             onChange={(event) => onPatch({ isRequired: event.target.checked })}
           />
-          <span>Obligatoria: si falla, la decisión falla</span>
-        </label>
+        </CheckField>
 
-        <label className="constraint-field">
-          <span>Qué se ve del resultado en la traza</span>
-          <select
+        <Field
+          className="constraint-field"
+          label="Qué se ve del resultado en la traza"
+          tooltip="Cuánto del resultado de la subdecisión queda registrado en la traza de esta ejecución."
+        >
+          <OptionSelect
+            name="tracePolicy"
             value={form.tracePolicy}
-            onChange={(event) =>
-              onPatch({ tracePolicy: event.target.value as ReferenceFormState['tracePolicy'] })
+            onChange={(value) =>
+              onPatch({ tracePolicy: value as ReferenceFormState['tracePolicy'] })
             }
-          >
-            <option value="FULL">El resultado completo</option>
-            <option value="MASKED">Enmascarado</option>
-            <option value="REDACTED">Solo metadatos</option>
-            <option value="EXCLUDED">Nada</option>
-          </select>
-        </label>
+            options={closedOptions(
+              [
+                { value: 'FULL', label: 'El resultado completo' },
+                { value: 'MASKED', label: 'Enmascarado' },
+                { value: 'REDACTED', label: 'Solo metadatos' },
+                { value: 'EXCLUDED', label: 'Nada' },
+              ],
+              REFERENCE_TRACE_HELP,
+            )}
+          />
+        </Field>
 
-        <label className="constraint-field constraint-wide">
-          <span>Condición de ejecución (JSON; vacío = siempre se ejecuta)</span>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Condición de ejecución (JSON; vacío = siempre se ejecuta)"
+          tooltip='Expresión que decide si se llama a la subdecisión. Ej.: {"op":"gt","left":{"var":"monto"},"right":{"value":1000}}.'
+        >
           <textarea
             rows={2}
             spellCheck={false}
@@ -100,7 +134,7 @@ export function ReferencePolicyFields({ form, onPatch }: Props) {
             value={form.executionCondition}
             onChange={(event) => onPatch({ executionCondition: event.target.value })}
           />
-        </label>
+        </Field>
       </div>
 
       <small className="field-hint">

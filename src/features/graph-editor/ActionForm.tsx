@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { InfoHint } from '../../components/InfoHint';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { astToText } from './json-ast';
+import { OptionSelect } from '../../components/OptionSelect';
+import { Field } from '../../components/Field';
 
 interface Props {
   onCreate: (action: UnknownRecord) => void;
@@ -153,8 +154,10 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
       </div>
 
       <div className="form-row">
-        <label className="field">
-          <span>Código de la acción</span>
+        <Field
+          label="Código de la acción"
+          tooltip="Identificador único de la acción dentro del algoritmo, en mayúsculas. Ej.: EMITIR_FRAUDE_ALTO."
+        >
           <input
             value={code}
             placeholder="SET_SCORE_RIESGO"
@@ -163,80 +166,93 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
           <small className="field-hint">
             Se normaliza a MAYÚSCULAS con guiones bajos: {normalizedCode || '—'}
           </small>
-        </label>
-        <label className="field">
-          <span>Qué hace</span>
-          <select value={type} onChange={(event) => setType(event.target.value)}>
-            {selectableTypes.map((entry) => (
-              <option key={entry.value} value={entry.value}>
-                {entry.label}
-              </option>
-            ))}
-          </select>
+        </Field>
+        <Field
+          label="Qué hace"
+          tooltip="El efecto que produce la acción cuando un paso la ejecuta."
+        >
+          <OptionSelect
+            name="actionType"
+            value={type}
+            onChange={(value) => setType(value)}
+            options={selectableTypes.map((entry) => ({
+              value: entry.value,
+              label: entry.label,
+              description: entry.hint,
+            }))}
+          />
           <small className="field-hint">{TYPES.find((entry) => entry.value === type)?.hint}</small>
-        </label>
+        </Field>
       </div>
 
       {type !== 'EMIT_REASON' ? (
-        <label className="field">
-          <span>{type === 'SET_FIELD' ? 'Campo que escribe' : 'Cola de revisión'}</span>
+        <Field
+          label={type === 'SET_FIELD' ? 'Campo que escribe' : 'Cola de revisión'}
+          tooltip={
+            type === 'SET_FIELD'
+              ? 'Código de la variable donde se guarda el valor, para que otros pasos lo lean. Ej.: score_riesgo.'
+              : 'Bandeja de revisión manual a la que se deriva el caso. Ej.: FRAUDE_N2.'
+          }
+        >
           <input
             value={field}
             placeholder={type === 'SET_FIELD' ? 'score_riesgo' : 'FRAUDE_N2'}
             onChange={(event) => setField(event.target.value)}
           />
-        </label>
+        </Field>
       ) : null}
 
       {type === 'SET_FIELD' && mode === 'guided' ? (
         <div className="form-row">
-          <label className="field">
-            <span>
-              Valor desde una variable
-              <InfoHint text="Escribe el código de la variable cuyo valor se copiará. Deja este campo vacío si quieres fijar un valor literal." />
-            </span>
+          <Field
+            label="Valor desde una variable"
+            tooltip="Escribe el código de la variable cuyo valor se copiará. Deja este campo vacío si quieres fijar un valor literal."
+          >
             <input
               value={variable}
               placeholder="score_buro"
               onChange={(event) => setVariable(event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>o valor fijo</span>
+          </Field>
+          <Field
+            label="o valor fijo"
+            tooltip="Valor literal que se escribe siempre, si no se copia de una variable. Ej.: APROBADO, 100 o true."
+          >
             <input
               value={value}
               placeholder="APROBADO, 100, true…"
               disabled={Boolean(variable.trim())}
               onChange={(event) => setValue(event.target.value)}
             />
-          </label>
+          </Field>
         </div>
       ) : null}
 
       {type === 'SET_FIELD' && mode === 'expression' ? (
-        <label className="field">
-          <span>
-            Expresión (JSON)
-            <InfoHint text="El árbol que evalúa el motor: {op, left, right}, {var}, {value}. La vista previa de abajo lo traduce a lenguaje natural." />
-          </span>
+        <Field
+          label="Expresión (JSON)"
+          tooltip="El árbol que evalúa el motor: {op, left, right}, {var}, {value}. La vista previa de abajo lo traduce a lenguaje natural."
+        >
           <textarea
             className="code-input"
             rows={7}
             value={expression}
             onChange={(event) => setExpression(event.target.value)}
           />
-        </label>
+        </Field>
       ) : null}
 
       {type === 'EMIT_REASON' ? (
-        <label className="field">
-          <span>Reason code que emite</span>
+        <Field
+          label="Reason code que emite"
+          tooltip="Código del motivo del catálogo que se añade al resultado. Ej.: FRAUDE_ALTO; tiene que existir ya."
+        >
           <input
             value={reasonCode}
             placeholder="DOC_MISSING"
             onChange={(event) => setReasonCode(event.target.value)}
           />
-        </label>
+        </Field>
       ) : null}
 
       {type === 'SET_FIELD' ? (

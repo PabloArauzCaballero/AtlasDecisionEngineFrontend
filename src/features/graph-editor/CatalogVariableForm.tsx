@@ -3,6 +3,9 @@
 import { useState, type FormEvent } from 'react';
 import { CatalogInput } from '../../components/CatalogInput';
 import { display, type UnknownRecord } from '../../utils/records';
+import { OptionSelect } from '../../components/OptionSelect';
+import { DATA_TYPE_HELP_ANY } from '../../contracts/contract-help';
+import { Field } from '../../components/Field';
 
 export interface CatalogVariableDraft {
   variableCode: string;
@@ -61,8 +64,10 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
         onSubmit(draft);
       }}
     >
-      <label>
-        <span>Código</span>
+      <Field
+        label="Código"
+        tooltip="Identificador técnico único de la variable en el catálogo. Ej.: score_riesgo. No cambia entre versiones."
+      >
         <input
           required
           pattern="[a-zA-Z][a-zA-Z0-9_.-]+"
@@ -70,27 +75,33 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
           placeholder="score_riesgo"
           onChange={(event) => patch({ variableCode: event.target.value })}
         />
-      </label>
-      <label>
-        <span>Nombre</span>
+      </Field>
+      <Field
+        label="Nombre"
+        tooltip="Nombre legible que verán las personas en pantallas y trazas. Ej.: «Score de riesgo»."
+      >
         <input
           required
           value={draft.canonicalName}
           placeholder="Score de riesgo"
           onChange={(event) => patch({ canonicalName: event.target.value })}
         />
-      </label>
-      <label>
-        <span>Tipo</span>
-        <select
+      </Field>
+      <Field
+        label="Tipo"
+        tooltip="Qué clase de valor devuelve; decide cómo se compara y valida en otros algoritmos."
+      >
+        <OptionSelect
+          name="dataType"
           value={draft.dataType}
-          onChange={(event) => patch({ dataType: event.target.value })}
-        >
-          {DATA_TYPES.map((type) => (
-            <option key={type}>{type}</option>
-          ))}
-        </select>
-      </label>
+          onChange={(value) => patch({ dataType: value })}
+          options={DATA_TYPES.map((type) => ({
+            value: type,
+            label: type,
+            description: DATA_TYPE_HELP_ANY[type],
+          }))}
+        />
+      </Field>
       <CatalogInput
         required
         label="Equipo responsable"
@@ -111,8 +122,11 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
         queryKey="graph-variable-classification"
         mapOption={toOption}
       />
-      <label className="output-create-wide">
-        <span>Para qué sirve</span>
+      <Field
+        className="output-create-wide"
+        label="Para qué sirve"
+        tooltip="Qué representa la variable y cuándo usarla, para quien la encuentre en el catálogo."
+      >
         <textarea
           required
           rows={2}
@@ -120,7 +134,7 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
           placeholder="Qué representa este dato y por qué la decisión lo necesita."
           onChange={(event) => patch({ businessDescription: event.target.value })}
         />
-      </label>
+      </Field>
       <button className="button button-primary" disabled={pending} type="submit">
         {pending ? 'Guardando…' : 'Guardar y elegir'}
       </button>

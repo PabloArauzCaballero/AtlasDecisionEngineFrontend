@@ -3,11 +3,14 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
+import { abrirOpciones, elegirOpcion, esperarOpcion } from '../../test/option-select';
 import { CalculatedFieldCallsPanel } from './CalculatedFieldCallsPanel';
 import type { UnknownRecord } from '../../utils/records';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
+
+const campoCalculado = () => screen.getByTestId('select-calculatedField');
 
 /**
  * Invocar un campo calculado desde un nodo (§5.1). Lo que se fija aquí es que el editor
@@ -63,19 +66,20 @@ describe('CalculatedFieldCallsPanel', () => {
 
   it('solo ofrece campos aprobados o publicados', async () => {
     renderPanel(vi.fn());
-    await screen.findByRole('option', { name: /debt_to_income/ });
+    await esperarOpcion(campoCalculado, '10');
     // Un borrador puede cambiar bajo los pies del artefacto: no debe poder invocarse.
-    expect(screen.queryByRole('option', { name: /borrador/ })).not.toBeInTheDocument();
+    const filas = abrirOpciones(campoCalculado());
+    expect(filas.map((fila) => fila.getAttribute('data-testid'))).toEqual([
+      'select-calculatedField-option-10',
+    ]);
   });
 
   it('crea la llamada con la versión fijada y una entrada por cada una del contrato', async () => {
     const onChange = vi.fn();
     renderPanel(onChange);
-    await screen.findByRole('option', { name: /debt_to_income/ });
+    await esperarOpcion(campoCalculado, '10');
 
-    fireEvent.change(screen.getByLabelText('Campo calculado a invocar'), {
-      target: { value: '10' },
-    });
+    elegirOpcion(campoCalculado(), '10');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Invocar' })).toBeEnabled());
     fireEvent.click(screen.getByRole('button', { name: 'Invocar' }));
 
@@ -115,9 +119,10 @@ describe('CalculatedFieldCallsPanel', () => {
       },
     ]);
 
-    fireEvent.change(await screen.findByLabelText('Variable que alimenta deuda_mensual'), {
-      target: { value: 'deuda_mensual' },
-    });
+    elegirOpcion(
+      await screen.findByLabelText('Variable que alimenta deuda_mensual'),
+      'deuda_mensual',
+    );
     expect(onChange).toHaveBeenCalledWith([
       expect.objectContaining({
         inputMapping: { deuda_mensual: { source: 'VARIABLE', path: 'deuda_mensual' } },

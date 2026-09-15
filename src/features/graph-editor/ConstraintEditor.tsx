@@ -9,6 +9,9 @@ import {
   type VariableConstraints,
 } from '../../contracts/constraints';
 import { normalizeDataType, NUMERIC_TYPES, TEXTUAL_TYPES } from '../../contracts/data-types';
+import { OptionSelect } from '../../components/OptionSelect';
+import { CONSTRAINT_FIELD_HELP, CONSTRAINT_FORMAT_HELP } from './graph-editor-help';
+import { CheckField, Field } from '../../components/Field';
 
 interface Props {
   dataType: unknown;
@@ -54,8 +57,12 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
       | 'maxItems',
     label: string,
   ) => (
-    <label className="constraint-field" key={key}>
-      <span>{label}</span>
+    <Field
+      className="constraint-field"
+      key={key}
+      label={label}
+      tooltip={CONSTRAINT_FIELD_HELP[key]}
+    >
       <input
         type="number"
         disabled={disabled}
@@ -64,7 +71,7 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
           patch({ [key]: event.target.value === '' ? undefined : Number(event.target.value) })
         }
       />
-    </label>
+    </Field>
   );
 
   const preview = sample.trim() ? previewValidate(type, current, parseSample(sample)) : [];
@@ -87,8 +94,11 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
           <>
             {numberField('minLength', 'Longitud mínima')}
             {numberField('maxLength', 'Longitud máxima')}
-            <label className="constraint-field">
-              <span>Expresión regular</span>
+            <Field
+              className="constraint-field"
+              label="Expresión regular"
+              tooltip="Patrón que todo texto debe cumplir entero. Ej.: ^[0-9]{7,10}$ para un documento de 7 a 10 dígitos."
+            >
               <input
                 type="text"
                 disabled={disabled}
@@ -96,22 +106,31 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
                 value={current.pattern ?? ''}
                 onChange={(event) => patch({ pattern: event.target.value || undefined })}
               />
-            </label>
-            <label className="constraint-field">
-              <span>Formato</span>
-              <select
-                disabled={disabled}
+            </Field>
+            <Field
+              className="constraint-field"
+              label="Formato"
+              tooltip="Formato estándar que el motor comprueba por ti, sin escribir una expresión regular."
+            >
+              <OptionSelect
+                name="format"
                 value={current.format ?? ''}
-                onChange={(event) => patch({ format: event.target.value || undefined })}
-              >
-                <option value="">Sin formato específico</option>
-                {CONSTRAINT_FORMATS.map((format) => (
-                  <option key={format} value={format}>
-                    {format.toLowerCase()}
-                  </option>
-                ))}
-              </select>
-            </label>
+                disabled={disabled}
+                onChange={(value) => patch({ format: value || undefined })}
+                options={[
+                  {
+                    value: '',
+                    label: 'Sin formato específico',
+                    description: 'Se acepta cualquier texto que cumpla el resto de restricciones.',
+                  },
+                  ...CONSTRAINT_FORMATS.map((format) => ({
+                    value: format,
+                    label: format.toLowerCase(),
+                    description: CONSTRAINT_FORMAT_HELP[format],
+                  })),
+                ]}
+              />
+            </Field>
           </>
         ) : null}
 
@@ -119,20 +138,26 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
           <>
             {numberField('minItems', 'Mínimo de elementos')}
             {numberField('maxItems', 'Máximo de elementos')}
-            <label className="constraint-field constraint-checkbox">
+            <CheckField
+              className="constraint-field constraint-checkbox"
+              label="Los elementos no pueden repetirse"
+              tooltip="Márcalo si la lista no puede traer el mismo valor dos veces."
+            >
               <input
                 type="checkbox"
                 disabled={disabled}
                 checked={Boolean(current.unique)}
                 onChange={(event) => patch({ unique: event.target.checked || undefined })}
               />
-              <span>Los elementos no pueden repetirse</span>
-            </label>
+            </CheckField>
           </>
         ) : null}
 
-        <label className="constraint-field constraint-wide">
-          <span>Valores permitidos (uno por línea)</span>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Valores permitidos (uno por línea)"
+          tooltip="Lista cerrada de valores aceptados; cualquier otro se rechaza. Ej.: SOLTERO, CASADO."
+        >
           <textarea
             rows={3}
             disabled={disabled}
@@ -148,19 +173,22 @@ export function ConstraintEditor({ dataType, constraints, onChange, disabled }: 
               })
             }
           />
-        </label>
+        </Field>
       </div>
 
       <div className="constraint-preview">
-        <label className="constraint-field constraint-wide">
-          <span>Probar un valor de ejemplo</span>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Probar un valor de ejemplo"
+          tooltip="Escribe un valor para ver al momento si estas restricciones lo aceptan o por qué lo rechazan."
+        >
           <input
             type="text"
             placeholder="Escribe un valor y comprueba si el contrato lo acepta"
             value={sample}
             onChange={(event) => setSample(event.target.value)}
           />
-        </label>
+        </Field>
         {sample.trim() ? (
           preview.length ? (
             <p className="constraint-result constraint-invalid">

@@ -1,5 +1,7 @@
-import { InfoHint } from '../../components/InfoHint';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { OptionSelect } from '../../components/OptionSelect';
+import { ACTION_TYPE_HELP } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface ActionNodeEditorProps {
   node: UnknownRecord;
@@ -44,20 +46,29 @@ export function ActionNodeEditor({ node, config, actions, onChange }: ActionNode
   return (
     <section className="action-node-editor">
       <h3>Efecto que ejecuta</h3>
-      <label className="field">
-        <span>
-          Acción del catálogo
-          <InfoHint text="Una acción es un EFECTO del paso: emitir un motivo o abrir una revisión manual. Se define una vez por algoritmo y se reutiliza en los pasos que la necesiten. Para CALCULAR un valor no uses una acción: declara un campo calculado y llámalo desde el panel de abajo." />
-        </span>
-        <select value={code} onChange={(event) => bind(event.target.value)}>
-          <option value="">Sin acción asignada…</option>
-          {actions.map((entry) => (
-            <option key={display(entry, 'code')} value={display(entry, 'code')}>
-              {display(entry, 'code')} · {display(entry, 'type')}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Field
+        label="Acción del catálogo"
+        tooltip="Una acción es un EFECTO del paso: emitir un motivo o abrir una revisión manual. Se define una vez por algoritmo y se reutiliza en los pasos que la necesiten. Para CALCULAR un valor no uses una acción: declara un campo calculado y llámalo desde el panel de abajo."
+      >
+        <OptionSelect
+          name="actionCode"
+          value={code}
+          onChange={(value) => bind(value)}
+          placeholder="Sin acción asignada…"
+          options={[
+            {
+              value: '',
+              label: 'Sin acción asignada…',
+              description: 'El paso no produce ningún efecto al recorrerse.',
+            },
+            ...actions.map((entry) => ({
+              value: display(entry, 'code'),
+              label: `${display(entry, 'code')} · ${display(entry, 'type')}`,
+              description: ACTION_TYPE_HELP[display(entry, 'type')],
+            })),
+          ]}
+        />
+      </Field>
 
       {!actions.length ? (
         <p className="field-hint">
@@ -105,10 +116,10 @@ export function ActionNodeEditor({ node, config, actions, onChange }: ActionNode
             </div>
           ) : null}
           {Object.keys(payload).length ? (
-            <label className="field">
+            <div className="field">
               <span>Datos con los que se ejecuta</span>
               <pre className="action-payload">{JSON.stringify(payload, null, 2)}</pre>
-            </label>
+            </div>
           ) : (
             <p className="field-hint">Esta acción no necesita datos adicionales.</p>
           )}

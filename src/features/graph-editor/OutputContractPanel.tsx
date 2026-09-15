@@ -2,14 +2,12 @@
 
 import { AlertTriangle, LogOut, Wand2 } from 'lucide-react';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
-import {
-  SENSITIVITY_CLASSES,
-  SENSITIVITY_LABELS,
-  TRACE_POLICIES,
-  TRACE_POLICY_LABELS,
-} from '../../contracts/data-types';
 import { OutputContractJsonPreview } from './OutputContractJsonPreview';
 import { OutputReasonCodesField } from './OutputReasonCodesField';
+import { OptionSelect } from '../../components/OptionSelect';
+import { OUTPUT_SOURCE_HELP, closedOptions, nodeKeyOptions } from './graph-editor-help';
+import { sensitivityOptions, tracePolicyOptions } from '../../contracts/contract-help';
+import { Field } from '../../components/Field';
 
 interface Props {
   /** Variables del grafo; se usan las declaradas como salida. */
@@ -122,45 +120,39 @@ export function OutputContractPanel({
                 <small>{required ? 'obligatoria' : 'opcional'}</small>
               </div>
               <div className="constraint-grid">
-                <label className="constraint-field">
-                  <span>Origen</span>
-                  <select
+                <Field
+                  className="constraint-field"
+                  label="Origen"
+                  tooltip="De dónde sale el valor de este campo de la salida; el motor comprueba antes de publicar que exista."
+                >
+                  <OptionSelect
+                    name="sourceKind"
                     value={sourceKind}
-                    onChange={(event) => upsert(code, { sourceKind: event.target.value })}
-                  >
-                    {SOURCE_KINDS.map((kind) => (
-                      <option key={kind.value} value={kind.value}>
-                        {kind.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="constraint-field">
-                  <span>Referencia</span>
+                    onChange={(value) => upsert(code, { sourceKind: value })}
+                    options={closedOptions(SOURCE_KINDS, OUTPUT_SOURCE_HELP)}
+                  />
+                </Field>
+                <Field
+                  className="constraint-field"
+                  label="Referencia"
+                  tooltip="El paso o la variable intermedia concreta de la que se toma el valor."
+                >
                   {sourceKind === 'NODE' || sourceKind === 'REFERENCE' ? (
-                    <select
+                    <OptionSelect
+                      name="sourceRef"
                       value={display(field ?? {}, 'sourceRef')}
-                      onChange={(event) => upsert(code, { sourceRef: event.target.value })}
-                    >
-                      <option value="">— elegir nodo —</option>
-                      {nodeKeys.map((key) => (
-                        <option key={key} value={key}>
-                          {key}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(value) => upsert(code, { sourceRef: value })}
+                      placeholder="— elegir nodo —"
+                      options={nodeKeyOptions(nodeKeys)}
+                    />
                   ) : sourceKind === 'INTERMEDIATE' ? (
-                    <select
+                    <OptionSelect
+                      name="sourceRef"
                       value={display(field ?? {}, 'sourceRef')}
-                      onChange={(event) => upsert(code, { sourceRef: event.target.value })}
-                    >
-                      <option value="">— elegir intermedia —</option>
-                      {intermediateCodes.map((intermediateCode) => (
-                        <option key={intermediateCode} value={intermediateCode}>
-                          {intermediateCode}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(value) => upsert(code, { sourceRef: value })}
+                      placeholder="— elegir intermedia —"
+                      options={nodeKeyOptions(intermediateCodes)}
+                    />
                   ) : (
                     <input
                       value={display(field ?? {}, 'sourceRef')}
@@ -168,33 +160,31 @@ export function OutputContractPanel({
                       onChange={(event) => upsert(code, { sourceRef: event.target.value })}
                     />
                   )}
-                </label>
-                <label className="constraint-field">
-                  <span>Sensibilidad</span>
-                  <select
+                </Field>
+                <Field
+                  className="constraint-field"
+                  label="Sensibilidad"
+                  tooltip="Cuánto protege el motor este campo al devolverlo y registrarlo."
+                >
+                  <OptionSelect
+                    name="sensitivityClass"
                     value={display(field ?? {}, 'sensitivityClass') || 'INTERNAL'}
-                    onChange={(event) => upsert(code, { sensitivityClass: event.target.value })}
-                  >
-                    {SENSITIVITY_CLASSES.map((value) => (
-                      <option key={value} value={value}>
-                        {SENSITIVITY_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="constraint-field">
-                  <span>En la traza</span>
-                  <select
+                    onChange={(value) => upsert(code, { sensitivityClass: value })}
+                    options={sensitivityOptions()}
+                  />
+                </Field>
+                <Field
+                  className="constraint-field"
+                  label="En la traza"
+                  tooltip="Qué se guarda de este campo en la traza de cada ejecución."
+                >
+                  <OptionSelect
+                    name="tracePolicy"
                     value={display(field ?? {}, 'tracePolicy') || 'FULL'}
-                    onChange={(event) => upsert(code, { tracePolicy: event.target.value })}
-                  >
-                    {TRACE_POLICIES.map((value) => (
-                      <option key={value} value={value}>
-                        {TRACE_POLICY_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    onChange={(value) => upsert(code, { tracePolicy: value })}
+                    options={tracePolicyOptions()}
+                  />
+                </Field>
                 <div className="constraint-field constraint-wide">
                   <OutputReasonCodesField
                     selected={(Array.isArray(field?.reasonCodes) ? field.reasonCodes : []).map(
@@ -204,8 +194,11 @@ export function OutputContractPanel({
                   />
                 </div>
                 {!required ? (
-                  <label className="constraint-field constraint-wide">
-                    <span>Motivos por los que puede faltar (uno por línea)</span>
+                  <Field
+                    className="constraint-field constraint-wide"
+                    label="Motivos por los que puede faltar (uno por línea)"
+                    tooltip="Casos legítimos en que el campo sale vacío. Ej.: SIN_HISTORIAL_CREDITICIO. Sin ellos, un vacío se trata como fallo."
+                  >
                     <textarea
                       rows={2}
                       value={(Array.isArray(field?.absenceReasons) ? field.absenceReasons : [])
@@ -220,7 +213,7 @@ export function OutputContractPanel({
                         })
                       }
                     />
-                  </label>
+                  </Field>
                 ) : null}
               </div>
             </li>

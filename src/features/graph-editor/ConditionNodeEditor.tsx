@@ -1,4 +1,3 @@
-import { InfoHint } from '../../components/InfoHint';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
 import {
   defaultOperatorFor,
@@ -6,10 +5,13 @@ import {
   expectsText,
   isComposite,
   isOperatorValidFor,
-  OPERATOR_LABELS,
   operatorsFor,
   readComparison,
 } from './condition-operators';
+import { OptionSelect } from '../../components/OptionSelect';
+import { BOOLEAN_VALUE_HELP, CONDITION_SEVERITY_HELP } from './graph-node-help';
+import { closedOptions, inputOption, operatorOptions } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface ConditionNodeEditorProps {
   condition: UnknownRecord;
@@ -75,23 +77,18 @@ export function ConditionNodeEditor({
           Elige la <strong>variable de entrada</strong> que quieres evaluar para crear la condición
           de este nodo. El formulario se adaptará al tipo de dato.
         </p>
-        <label className="field">
-          <span>
-            Variable a evaluar
-            <InfoHint text="El dato de entrada sobre el que se decide (p. ej. score_buro). Al elegirlo se crea la condición editable." />
-          </span>
-          <select
+        <Field
+          label="Variable a evaluar"
+          tooltip="El dato de entrada sobre el que se decide (p. ej. score_buro). Al elegirlo se crea la condición editable."
+        >
+          <OptionSelect
+            name="newConditionVariable"
             value=""
-            onChange={(event) => event.target.value && onCreateCondition?.(event.target.value)}
-          >
-            <option value="">Elegir variable de entrada…</option>
-            {inputs.map((input) => (
-              <option key={display(input, 'code')} value={display(input, 'code')}>
-                {display(input, 'code')} · {display(input, 'dataType')}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(value) => value && onCreateCondition?.(value)}
+            placeholder="Elegir variable de entrada…"
+            options={inputs.map(inputOption)}
+          />
+        </Field>
         {!inputs.length ? (
           <p className="field-hint">
             Primero declara variables de entrada (panel “Entradas”) para poder condicionar sobre
@@ -105,17 +102,21 @@ export function ConditionNodeEditor({
   return (
     <section className="condition-node-editor">
       <h3>Condición visual</h3>
-      <label className="field">
-        <span>Código</span>
+      <Field
+        label="Código"
+        tooltip="Identificador único de la condición dentro del algoritmo. Ej.: SCORE_MINIMO. Las ramas la citan por él."
+      >
         <input readOnly value={code} />
-      </label>
-      <label className="field">
-        <span>Nombre</span>
+      </Field>
+      <Field
+        label="Nombre"
+        tooltip="Nombre legible de la condición, el que se ve en el lienzo y en la traza."
+      >
         <input
           defaultValue={display(condition, 'name')}
           onBlur={(event) => onChange({ name: event.target.value })}
         />
-      </label>
+      </Field>
       {composite ? (
         <p className="field-hint condition-composite">
           Esta condición combina varias comparaciones (por ejemplo «A o B»), así que no cabe en los
@@ -124,57 +125,46 @@ export function ConditionNodeEditor({
           <code>{JSON.stringify(condition.expression)}</code>
         </p>
       ) : null}
-      <label className="field">
-        <span>
-          Variable de entrada
-          <InfoHint text="El dato que se compara (p. ej. score_buro). Debe estar declarado como entrada del algoritmo." />
-        </span>
-        <select
+      <Field
+        label="Variable de entrada"
+        tooltip="El dato que se compara (p. ej. score_buro). Debe estar declarado como entrada del algoritmo."
+      >
+        <OptionSelect
+          name="conditionVariable"
           value={String(expression.variable ?? '')}
-          onChange={(event) => {
+          onChange={(value) => {
             const nextType = display(
-              inputs.find((input) => display(input, 'code') === event.target.value) ?? {},
+              inputs.find((input) => display(input, 'code') === value) ?? {},
               'dataType',
             ).toUpperCase();
             // Cambiar de `edad` a `estado_kyc` conservando «mayor o igual» dejaría
             // una condición que el motor acepta y que no quiere decir nada.
             updateExpression({
-              variable: event.target.value,
+              variable: value,
               operator: isOperatorValidFor(nextType, operator)
                 ? operator
                 : defaultOperatorFor(nextType),
             });
           }}
-        >
-          <option value="">Elegir variable…</option>
-          {inputs.map((input) => (
-            <option key={display(input, 'code')} value={display(input, 'code')}>
-              {display(input, 'code')} · {display(input, 'dataType')}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span>
-          Operador
-          <InfoHint text="Cómo se compara: igual, mayor que, incluido en lista… Define cuándo la condición se cumple (verdadero)." />
-        </span>
-        <select
+          placeholder="Elegir variable…"
+          options={inputs.map(inputOption)}
+        />
+      </Field>
+      <Field
+        label="Operador"
+        tooltip="Cómo se compara: igual, mayor que, incluido en lista… Define cuándo la condición se cumple (verdadero)."
+      >
+        <OptionSelect
+          name="conditionOperator"
           value={operator}
-          onChange={(event) => updateExpression({ operator: event.target.value })}
-        >
-          {available.map((value) => (
-            <option key={value} value={value}>
-              {OPERATOR_LABELS[value]}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span>
-          Valor de comparación
-          <InfoHint text="Contra qué se compara la variable. El campo se adapta al tipo de la variable elegida." />
-        </span>
+          onChange={(value) => updateExpression({ operator: value })}
+          options={operatorOptions(available)}
+        />
+      </Field>
+      <Field
+        label="Valor de comparación"
+        tooltip="Contra qué se compara la variable. El campo se adapta al tipo de la variable elegida."
+      >
         {expectsList(operator) ? (
           <textarea
             key={`${code}-list`}
@@ -186,14 +176,19 @@ export function ConditionNodeEditor({
             onBlur={(event) => updateValue(event.target.value)}
           />
         ) : selectedType === 'BOOLEAN' ? (
-          <select
+          <OptionSelect
+            name="conditionBoolean"
             value={parsed?.value === true ? 'true' : parsed?.value === false ? 'false' : ''}
-            onChange={(event) => updateExpression({ value: event.target.value === 'true' })}
-          >
-            <option value="">Elegir…</option>
-            <option value="true">Verdadero</option>
-            <option value="false">Falso</option>
-          </select>
+            onChange={(value) => updateExpression({ value: value === 'true' })}
+            placeholder="Elegir…"
+            options={closedOptions(
+              [
+                { value: 'true', label: 'Verdadero' },
+                { value: 'false', label: 'Falso' },
+              ],
+              BOOLEAN_VALUE_HELP,
+            )}
+          />
         ) : expectsText(operator) ? (
           <input
             key={`${code}-match`}
@@ -220,18 +215,25 @@ export function ConditionNodeEditor({
             onBlur={(event) => updateValue(event.target.value)}
           />
         )}
-      </label>
-      <label className="field">
-        <span>Severidad</span>
-        <select
+      </Field>
+      <Field
+        label="Severidad"
+        tooltip="Qué consecuencia tiene que la condición no se cumpla: bloquear, avisar o sólo registrar."
+      >
+        <OptionSelect
+          name="conditionSeverity"
           value={display(condition, 'severity')}
-          onChange={(event) => onChange({ severity: event.target.value })}
-        >
-          <option value="BLOCKING">Blocking</option>
-          <option value="WARNING">Warning</option>
-          <option value="INFO">Info</option>
-        </select>
-      </label>
+          onChange={(value) => onChange({ severity: value })}
+          options={closedOptions(
+            [
+              { value: 'BLOCKING', label: 'Blocking' },
+              { value: 'WARNING', label: 'Warning' },
+              { value: 'INFO', label: 'Info' },
+            ],
+            CONDITION_SEVERITY_HELP,
+          )}
+        />
+      </Field>
     </section>
   );
 }

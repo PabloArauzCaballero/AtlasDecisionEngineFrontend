@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { apiRequest } from '../../api/http-client';
 import { OutputVariableManager } from './OutputVariableManager';
+import { campo, elegirOpcion, esperarOpcion } from '../../test/option-select';
 
 vi.mock('../../api/http-client', () => ({ apiRequest: vi.fn() }));
 const mockedApiRequest = vi.mocked(apiRequest);
@@ -42,10 +43,8 @@ describe('OutputVariableManager', () => {
     const onChange = renderManager();
     // Espera larga a propósito: el desplegable depende de una consulta y el
     // segundo por defecto se queda corto cuando la suite corre en paralelo.
-    await screen.findByRole('option', { name: /scoring/ }, { timeout: 5000 });
-    fireEvent.change(screen.getByLabelText(/Variable del catálogo/), {
-      target: { value: 'def-1' },
-    });
+    await esperarOpcion(() => campo(/Variable del catálogo/), 'def-1');
+    elegirOpcion(campo(/Variable del catálogo/), 'def-1');
     fireEvent.click(screen.getByRole('button', { name: 'Añadir salida' }));
     await waitFor(() => expect(onChange).toHaveBeenCalled());
     expect(onChange).toHaveBeenCalledWith([

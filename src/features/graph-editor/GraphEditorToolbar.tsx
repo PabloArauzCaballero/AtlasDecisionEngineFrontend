@@ -1,3 +1,4 @@
+import { FieldLabel } from '../../components/FieldLabel';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlignHorizontalSpaceAround,
@@ -14,6 +15,8 @@ import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
 import type { CanvasZoom } from '../graph-view/useCanvasZoom';
 import { ZoomControls } from '../graph-view/ZoomControls';
+import { OptionSelect } from '../../components/OptionSelect';
+import { ARTIFACT_STATUS_HELP } from '../../resources/resource-option-help';
 
 interface GraphEditorToolbarProps {
   versionId: string;
@@ -60,7 +63,11 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
           </div>
         </div>
         <div className="editor-version-control">
-          <label htmlFor="graph-version-id">Versión del artefacto</label>
+          <FieldLabel
+            htmlFor="graph-version-id"
+            label="Versión del artefacto"
+            tooltip="Versión del algoritmo que se abre en el lienzo; sólo las versiones en borrador se pueden editar."
+          />
           <div>
             {versions.isError ? (
               <input
@@ -70,22 +77,25 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
                 placeholder="ID de versión"
               />
             ) : (
-              <select
+              <OptionSelect
+                name="graphVersion"
                 id="graph-version-id"
                 value={props.versionId}
-                onChange={(event) => props.onVersionIdChange(event.target.value)}
-              >
-                <option value="">
-                  {versions.isPending ? 'Cargando versiones…' : 'Elegir versión…'}
-                </option>
-                {!hasCurrent ? <option value={props.versionId}>{props.versionId}</option> : null}
-                {versionRows.map((row) => (
-                  <option key={display(row, 'id')} value={display(row, 'id')}>
-                    {display(row, 'artifactCode')} v{display(row, 'semanticVersion')} ·{' '}
-                    {display(row, 'status')}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => props.onVersionIdChange(value)}
+                placeholder="Elegir versión…"
+                emptyLabel={versions.isPending ? 'Cargando versiones…' : undefined}
+                testId="select-graph-version"
+                options={[
+                  ...(!hasCurrent && props.versionId
+                    ? [{ value: props.versionId, label: props.versionId }]
+                    : []),
+                  ...versionRows.map((row) => ({
+                    value: display(row, 'id'),
+                    label: `${display(row, 'artifactCode')} v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
+                    description: ARTIFACT_STATUS_HELP[display(row, 'status')],
+                  })),
+                ]}
+              />
             )}
             <button
               className="button"

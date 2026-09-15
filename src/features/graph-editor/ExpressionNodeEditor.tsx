@@ -1,7 +1,9 @@
-import { InfoHint } from '../../components/InfoHint';
 import { asRecord, type UnknownRecord } from '../../utils/records';
 import { CodeEditor } from './CodeEditor';
 import { lintScript } from './script-lint';
+import { OptionSelect } from '../../components/OptionSelect';
+import { SCRIPT_LANGUAGE_HELP, closedOptions } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface Props {
   nodeType: string;
@@ -32,37 +34,38 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
   return (
     <section className="result-node-editor">
       <h3>{nodeType === 'SCORE' ? 'Cálculo de score' : 'Expresión calculada'}</h3>
-      <label className="field">
-        <span>
-          Variable destino
-          <InfoHint text="Dónde se guarda el resultado del cálculo. Puede ser una salida o una variable intermedia que otros nodos usen." />
-        </span>
+      <Field
+        label="Variable destino"
+        tooltip="Dónde se guarda el resultado del cálculo. Puede ser una salida o una variable intermedia que otros nodos usen."
+      >
         <input
           value={targetVariable}
           placeholder={nodeType === 'SCORE' ? 'score_riesgo' : 'valor_calculado'}
           onChange={(event) => onChange({ ...config, targetVariable: event.target.value.trim() })}
         />
-      </label>
+      </Field>
       {!targetVariable ? (
         <p className="field-hint">
           Define el nombre de la variable donde el motor guardará el valor calculado.
         </p>
       ) : null}
-      <label className="field">
-        <span>
-          Lenguaje
-          <InfoHint text="En qué se escribe el cálculo: una expresión visual, o código (JavaScript/Python) para casos avanzados." />
-        </span>
-        <select
+      <Field
+        label="Lenguaje"
+        tooltip="En qué se escribe el cálculo: una expresión visual, o código (JavaScript/Python) para casos avanzados."
+      >
+        <OptionSelect
+          name="language"
           value={language}
-          onChange={(event) =>
-            onChange({ ...config, script: { ...script, language: event.target.value } })
-          }
-        >
-          <option>JAVASCRIPT</option>
-          <option>PYTHON</option>
-        </select>
-      </label>
+          onChange={(value) => onChange({ ...config, script: { ...script, language: value } })}
+          options={closedOptions(
+            [
+              { value: 'JAVASCRIPT', label: 'JAVASCRIPT' },
+              { value: 'PYTHON', label: 'PYTHON' },
+            ],
+            SCRIPT_LANGUAGE_HELP,
+          )}
+        />
+      </Field>
       <CodeEditor
         language={language}
         inputs={inputs}

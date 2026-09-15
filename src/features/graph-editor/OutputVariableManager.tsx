@@ -6,6 +6,8 @@ import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
 import { CatalogVariableForm, type CatalogVariableDraft } from './CatalogVariableForm';
+import { OptionSelect } from '../../components/OptionSelect';
+import { catalogVariableOption } from './graph-editor-help';
 
 interface Props {
   variables: UnknownRecord[];
@@ -154,20 +156,15 @@ export function OutputVariableManager({ variables, onChange }: Props) {
         </button>
       </div>
       <div className="output-contract-controls">
-        <select
-          aria-label="Variable del catálogo para añadir como salida"
+        <OptionSelect
+          name="catalogOutput"
           value={catalogId}
-          onChange={(event) => setCatalogId(event.target.value)}
-        >
-          <option value="">
-            {catalog.isError ? 'Catálogo no disponible' : 'Elegir variable del catálogo…'}
-          </option>
-          {pickerRows.map((item) => (
-            <option key={display(item, 'definitionId')} value={display(item, 'definitionId')}>
-              {display(item, 'variableCode')} · {display(item, 'dataType')}
-            </option>
-          ))}
-        </select>
+          ariaLabel="Variable del catálogo para añadir como salida"
+          onChange={(value) => setCatalogId(value)}
+          placeholder="Elegir variable del catálogo…"
+          emptyLabel={catalog.isError ? 'Catálogo no disponible' : undefined}
+          options={pickerRows.map(catalogVariableOption)}
+        />
         <button
           className="button button-primary"
           type="button"

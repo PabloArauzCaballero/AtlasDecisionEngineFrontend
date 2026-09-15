@@ -1,7 +1,6 @@
 import { Pencil } from 'lucide-react';
 import { NodeDeleteButton } from './NodeDeleteButton';
 import { useEffect, useState } from 'react';
-import { InfoHint } from '../../components/InfoHint';
 import type { UnknownRecord } from '../../utils/records';
 import { asRecord, asRows, display } from '../../utils/records';
 import { CalculatedFieldCallsPanel } from './CalculatedFieldCallsPanel';
@@ -15,6 +14,7 @@ import { ExpressionNodeEditor } from './ExpressionNodeEditor';
 import { ManualReviewNodeEditor } from './ManualReviewNodeEditor';
 import { ResultNodeEditor } from './ResultNodeEditor';
 import { SwitchNodeEditor } from './SwitchNodeEditor';
+import { CheckField, Field } from '../../components/Field';
 
 interface NodePropertiesProps {
   node: UnknownRecord;
@@ -107,18 +107,22 @@ export function NodeProperties({
       <NodeTypeTutorial nodeType={display(node, 'type')} />
       <section>
         <h3>General</h3>
-        <label className="field">
-          <span>Clave del nodo</span>
+        <Field
+          label="Clave del nodo"
+          tooltip="Identificador interno del paso en el grafo; no se edita porque las conexiones lo usan."
+        >
           <input readOnly value={key} />
-        </label>
-        <label className="field">
-          <span>Nombre visible</span>
+        </Field>
+        <Field
+          label="Nombre visible"
+          tooltip="Cómo se llama el paso en el lienzo y en la traza. Ej.: «Verificar score de buró»."
+        >
           <input
             value={label}
             onChange={(event) => setLabel(event.target.value)}
             onBlur={() => onChange({ label })}
           />
-        </label>
+        </Field>
         {/* Con descripción escrita, un cuadro de texto vacío pidiendo "añade una
             descripción" contradice lo que el usuario ya hizo: se muestra lo
             escrito y se edita con el lápiz. */}
@@ -139,11 +143,10 @@ export function NodeProperties({
             </button>
           </div>
         ) : (
-          <label className="field">
-            <span>
-              Descripción del paso
-              <InfoHint text="Explica en palabras simples QUÉ hace este paso y POR QUÉ, para que cualquier persona lo entienda sin ser técnica." />
-            </span>
+          <Field
+            label="Descripción del paso"
+            tooltip="Explica en palabras simples QUÉ hace este paso y POR QUÉ, para que cualquier persona lo entienda sin ser técnica."
+          >
             <textarea
               rows={3}
               autoFocus={editingDescription}
@@ -155,12 +158,14 @@ export function NodeProperties({
                 onChange({ config: { ...asRecord(node.config), description } });
               }}
             />
-          </label>
+          </Field>
         )}
-        <label className="field">
-          <span>Tipo</span>
+        <Field
+          label="Tipo"
+          tooltip="Qué clase de paso es; decide qué configuración admite y no se cambia una vez creado."
+        >
           <input readOnly value={display(node, 'type')} />
-        </label>
+        </Field>
         <p className="node-io-hint">{dataFlowHint(display(node, 'type'))}</p>
       </section>
       {/* Vale para todos los tipos: antes había que leer el JSON de
@@ -244,8 +249,10 @@ export function NodeProperties({
       ].includes(display(node, 'type')) ? (
         <section>
           <h3>Configuración</h3>
-          <label className="field">
-            <span>Parámetros avanzados</span>
+          <Field
+            label="Parámetros avanzados"
+            tooltip="Configuración completa del paso en JSON, para ajustes que el formulario no expone."
+          >
             <textarea
               rows={8}
               className="code-input"
@@ -253,7 +260,7 @@ export function NodeProperties({
               onChange={(event) => setConfig(event.target.value)}
               onBlur={commitConfig}
             />
-          </label>
+          </Field>
           {configError ? <small className="field-error">{configError}</small> : null}
         </section>
       ) : null}
@@ -266,17 +273,17 @@ export function NodeProperties({
       />
       <section>
         <h3>Enrutamiento y salida</h3>
-        <label className="field">
-          <span>
-            <input
-              type="checkbox"
-              checked={display(node, 'type') === 'RESULT' || Boolean(node.terminal)}
-              disabled={display(node, 'type') === 'RESULT'}
-              onChange={(event) => onChange({ terminal: event.target.checked })}
-            />{' '}
-            Nodo terminal
-          </span>
-        </label>
+        <CheckField
+          label="Nodo terminal"
+          tooltip="Márcalo si la decisión termina en este paso; un paso de resultado siempre lo es."
+        >
+          <input
+            type="checkbox"
+            checked={display(node, 'type') === 'RESULT' || Boolean(node.terminal)}
+            disabled={display(node, 'type') === 'RESULT'}
+            onChange={(event) => onChange({ terminal: event.target.checked })}
+          />
+        </CheckField>
       </section>
       <section>
         <NodeDeleteButton label={display(node, 'label', 'key')} onDelete={onDelete} />

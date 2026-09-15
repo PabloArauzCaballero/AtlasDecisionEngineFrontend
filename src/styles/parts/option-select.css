@@ -148,6 +148,17 @@
 .field-label > span {
   min-width: 0;
 }
+/* Las hojas de formularios estilan `X label` como la CAJA del campo (rejilla,
+   flex, ancho). Desde que el campo es un `div.field` y la `<label>` sólo nombra,
+   esas reglas caerían sobre el rótulo: aquí se le devuelve su forma de texto. */
+.field .field-label > label {
+  display: inline;
+  flex: none;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
 /* Casilla de verificación: la etiqueta envuelve al control (ahí no hay nombre
    que contaminar) y el ⓘ va al lado, fuera de ella. */
 .field-checkbox-line {

@@ -5,6 +5,12 @@ import { useState } from 'react';
 import { Calculator, Trash2 } from 'lucide-react';
 import { apiRequest } from '../../api/http-client';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { OptionSelect } from '../../components/OptionSelect';
+import { CALL_INPUT_SOURCE_HELP, CALL_TARGET_HELP } from './graph-node-help';
+import { closedOptions, inputOption } from './graph-editor-help';
+import { parseLiteral, uniqueCallKey } from './calculated-call-values';
+import { Field } from '../../components/Field';
+import { FieldLabel } from '../../components/FieldLabel';
 
 interface Props {
   /** Llamadas ya declaradas por este nodo. */
@@ -121,18 +127,21 @@ export function CalculatedFieldCallsPanel({
       </div>
 
       <div className="output-contract-controls">
-        <select
-          aria-label="Campo calculado a invocar"
+        <OptionSelect
+          name="calculatedField"
           value={selectedVersionId}
-          onChange={(event) => setSelectedVersionId(event.target.value)}
-        >
-          <option value="">Elegir campo calculado…</option>
-          {fields.map((field) => (
-            <option key={display(field, 'id')} value={display(field, 'id')}>
-              {display(field, 'fieldCode')} · {display(field, 'name')}
-            </option>
-          ))}
-        </select>
+          ariaLabel="Campo calculado a invocar"
+          onChange={(value) => setSelectedVersionId(value)}
+          placeholder="Elegir campo calculado…"
+          options={fields.map((field) => ({
+            value: display(field, 'id'),
+            label: `${display(field, 'fieldCode')} · ${display(field, 'name')}`,
+            description:
+              display(field, 'description', 'businessPurpose') !== '—'
+                ? display(field, 'description', 'businessPurpose')
+                : undefined,
+          }))}
+        />
         <button
           type="button"
           className="button button-primary"
@@ -178,27 +187,32 @@ export function CalculatedFieldCallsPanel({
                   const entry = asRecord(mapping[inputId]);
                   const source = display(entry, 'source') || 'VARIABLE';
                   return (
-                    <label className="constraint-field" key={inputId}>
-                      <span>
-                        {inputId}
-                        {input.required ? ' *' : ''} · {display(input, 'dataType')}
-                      </span>
+                    <div className="constraint-field" key={inputId}>
+                      <FieldLabel
+                        label={`${inputId}${input.required ? ' *' : ''} · ${display(input, 'dataType')}`}
+                        tooltip={`Entrada «${inputId}» que pide el campo calculado: elige de dónde sale su valor en este algoritmo.`}
+                      />
                       <div className="calculated-call-source">
-                        <select
-                          aria-label={`Origen de ${inputId}`}
+                        <OptionSelect
+                          name="callInputSource"
                           value={source}
-                          onChange={(event) =>
+                          ariaLabel={`Origen de ${inputId}`}
+                          onChange={(value) =>
                             patchMapping(callKey, inputId, {
-                              source: event.target.value,
+                              source: value,
                               path: '',
                               value: undefined,
                             })
                           }
-                        >
-                          <option value="VARIABLE">Variable de entrada</option>
-                          <option value="INTERMEDIATE">Variable intermedia</option>
-                          <option value="LITERAL">Valor fijo</option>
-                        </select>
+                          options={closedOptions(
+                            [
+                              { value: 'VARIABLE', label: 'Variable de entrada' },
+                              { value: 'INTERMEDIATE', label: 'Variable intermedia' },
+                              { value: 'LITERAL', label: 'Valor fijo' },
+                            ],
+                            CALL_INPUT_SOURCE_HELP,
+                          )}
+                        />
                         {source === 'LITERAL' ? (
                           <input
                             aria-label={`Valor fijo de ${inputId}`}
@@ -210,54 +224,56 @@ export function CalculatedFieldCallsPanel({
                             }
                           />
                         ) : (
-                          <select
-                            aria-label={`Variable que alimenta ${inputId}`}
+                          <OptionSelect
+                            name="callInputPath"
                             value={display(entry, 'path')}
-                            onChange={(event) =>
-                              patchMapping(callKey, inputId, { path: event.target.value })
-                            }
-                          >
-                            <option value="">— elegir —</option>
-                            {(source === 'INTERMEDIATE' ? intermediates : inputs).map((option) => (
-                              <option key={display(option, 'code')} value={display(option, 'code')}>
-                                {display(option, 'code')}
-                              </option>
-                            ))}
-                          </select>
+                            ariaLabel={`Variable que alimenta ${inputId}`}
+                            onChange={(value) => patchMapping(callKey, inputId, { path: value })}
+                            placeholder="— elegir —"
+                            options={(source === 'INTERMEDIATE' ? intermediates : inputs).map(
+                              inputOption,
+                            )}
+                          />
                         )}
                       </div>
-                    </label>
+                    </div>
                   );
                 })}
 
-                <label className="constraint-field">
-                  <span>Guardar el resultado en</span>
-                  <select
+                <Field
+                  className="constraint-field"
+                  label="Guardar el resultado en"
+                  tooltip="Si el valor calculado queda para los pasos siguientes o sale en la respuesta del algoritmo."
+                >
+                  <OptionSelect
+                    name="callTargetKind"
                     value={display(call, 'targetKind')}
-                    onChange={(event) =>
-                      patch(callKey, { targetKind: event.target.value, targetCode: '' })
-                    }
-                  >
-                    <option value="INTERMEDIATE">Una variable intermedia</option>
-                    <option value="OUTPUT">Una salida del algoritmo</option>
-                  </select>
-                </label>
-                <label className="constraint-field">
-                  <span>Destino</span>
-                  <select
-                    value={display(call, 'targetCode')}
-                    onChange={(event) => patch(callKey, { targetCode: event.target.value })}
-                  >
-                    <option value="">— elegir —</option>
-                    {(display(call, 'targetKind') === 'OUTPUT' ? outputs : intermediates).map(
-                      (option) => (
-                        <option key={display(option, 'code')} value={display(option, 'code')}>
-                          {display(option, 'code')}
-                        </option>
-                      ),
+                    onChange={(value) => patch(callKey, { targetKind: value, targetCode: '' })}
+                    options={closedOptions(
+                      [
+                        { value: 'INTERMEDIATE', label: 'Una variable intermedia' },
+                        { value: 'OUTPUT', label: 'Una salida del algoritmo' },
+                      ],
+                      CALL_TARGET_HELP,
                     )}
-                  </select>
-                </label>
+                  />
+                </Field>
+                <Field
+                  className="constraint-field"
+                  label="Destino"
+                  tooltip="Variable intermedia o salida concreta donde se escribe el resultado del campo calculado."
+                >
+                  <OptionSelect
+                    name="callTargetCode"
+                    value={display(call, 'targetCode')}
+                    onChange={(value) => patch(callKey, { targetCode: value })}
+                    placeholder="— elegir —"
+                    options={(display(call, 'targetKind') === 'OUTPUT'
+                      ? outputs
+                      : intermediates
+                    ).map(inputOption)}
+                  />
+                </Field>
               </div>
             </li>
           );
@@ -270,24 +286,4 @@ export function CalculatedFieldCallsPanel({
       </ul>
     </section>
   );
-}
-
-/** Clave estable y única dentro del nodo, derivada del código del campo. */
-function uniqueCallKey(existing: UnknownRecord[], fieldCode: string): string {
-  const base = fieldCode.replace(/[^a-zA-Z0-9_]/g, '_') || 'llamada';
-  let candidate = base;
-  let index = 2;
-  while (existing.some((row) => display(row, 'callKey') === candidate)) {
-    candidate = `${base}_${index}`;
-    index += 1;
-  }
-  return candidate;
-}
-
-function parseLiteral(raw: string): unknown {
-  const trimmed = raw.trim();
-  if (trimmed === 'true') return true;
-  if (trimmed === 'false') return false;
-  if (trimmed !== '' && !Number.isNaN(Number(trimmed))) return Number(trimmed);
-  return raw;
 }

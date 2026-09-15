@@ -169,7 +169,8 @@
    desplegable con opciones de texto largo (el de artefacto) impone su ancho
    intrínseco y deja a los demás en unos pocos píxeles. La base de 160px les da
    un suelo común y `flex-wrap` los baja de línea antes de estrujarlos. */
-.filter-bar label {
+.filter-bar label,
+.filter-bar > .field {
   flex: 1 1 160px;
   min-width: 0;
 }

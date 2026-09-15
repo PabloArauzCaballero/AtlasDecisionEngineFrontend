@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { abrirOpciones } from '../../test/option-select';
 import { ActionForm } from './ActionForm';
 import { ActionNodeEditor } from './ActionNodeEditor';
 
@@ -12,18 +13,18 @@ import { ActionNodeEditor } from './ActionNodeEditor';
  * a ser competencia de los campos calculados; las acciones quedan para los
  * EFECTOS (emitir un motivo, abrir una revisión), que no son cálculos.
  */
-/** El desplegable de tipo, localizado por sus opciones y no por su etiqueta. */
-function typeOptions(container: HTMLElement): string[] {
-  const select = [...container.querySelectorAll('select')].find((candidate) =>
-    [...candidate.options].some((option) => option.value === 'CREATE_MANUAL_REVIEW'),
+/** Los valores que ofrece el desplegable de tipo, abriéndolo como lo haría una persona. */
+function typeOptions(): string[] {
+  const prefijo = 'select-actionType-option-';
+  return abrirOpciones(screen.getByTestId('select-actionType')).map((row) =>
+    (row.getAttribute('data-testid') ?? '').slice(prefijo.length),
   );
-  return select ? [...select.options].map((option) => option.value) : [];
 }
 
 describe('acciones y campos calculados', () => {
   it('al CREAR una acción ya no ofrece «calcular un campo»', () => {
-    const { container } = render(<ActionForm onCreate={vi.fn()} onCancel={vi.fn()} />);
-    const options = typeOptions(container);
+    render(<ActionForm onCreate={vi.fn()} onCancel={vi.fn()} />);
+    const options = typeOptions();
 
     expect(options).toContain('EMIT_REASON');
     expect(options).toContain('CREATE_MANUAL_REVIEW');
@@ -31,14 +32,14 @@ describe('acciones y campos calculados', () => {
   });
 
   it('al EDITAR una que ya calcula, sí la ofrece: hay que poder corregirla', () => {
-    const { container } = render(
+    render(
       <ActionForm
         onCreate={vi.fn()}
         onCancel={vi.fn()}
         initial={{ code: 'SET_SCORE', type: 'SET_FIELD', payload: {} }}
       />,
     );
-    expect(typeOptions(container)).toContain('SET_FIELD');
+    expect(typeOptions()).toContain('SET_FIELD');
   });
 
   it('un paso con acción de cálculo dirige al campo calculado', () => {

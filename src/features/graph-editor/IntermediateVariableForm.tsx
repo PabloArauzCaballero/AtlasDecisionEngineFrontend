@@ -1,16 +1,17 @@
 'use client';
 
 import { display, type UnknownRecord } from '../../utils/records';
-import {
-  DATA_TYPE_LABELS,
-  SENSITIVITY_CLASSES,
-  SENSITIVITY_LABELS,
-  TRACE_POLICIES,
-  TRACE_POLICY_LABELS,
-  normalizeDataType,
-  type DataType,
-} from '../../contracts/data-types';
+import { normalizeDataType, type DataType } from '../../contracts/data-types';
 import { ConstraintEditor } from './ConstraintEditor';
+import { OptionSelect } from '../../components/OptionSelect';
+import { UPDATE_POLICY_HELP, closedOptions, nodeKeyOptions } from './graph-editor-help';
+import {
+  dataTypeOptions,
+  sensitivityOptions,
+  tracePolicyOptions,
+} from '../../contracts/contract-help';
+import { CheckField, Field } from '../../components/Field';
+import { InfoHint } from '../../components/InfoHint';
 
 interface Props {
   intermediate: UnknownRecord;
@@ -55,102 +56,112 @@ export function IntermediateVariableForm({ intermediate, nodeKeys, dataTypes, on
   return (
     <div className="intermediate-form">
       <div className="constraint-grid">
-        <label className="constraint-field">
-          <span>Nombre visible</span>
+        <Field
+          className="constraint-field"
+          label="Nombre visible"
+          tooltip="Cómo se llama la variable en pantalla y en la traza. Ej.: «Ingreso disponible»."
+        >
           <input
             value={display(intermediate, 'name')}
             onChange={(event) => onPatch({ name: event.target.value })}
           />
-        </label>
-        <label className="constraint-field">
-          <span>Tipo de dato</span>
-          <select
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Tipo de dato"
+          tooltip="Qué clase de valor guarda; decide qué comparaciones y restricciones admite después."
+        >
+          <OptionSelect
+            name="dataType"
             value={normalizeDataType(intermediate.dataType)}
-            onChange={(event) => onPatch({ dataType: event.target.value })}
-          >
-            {dataTypes.map((type) => (
-              <option key={type} value={type}>
-                {DATA_TYPE_LABELS[type]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field constraint-wide">
-          <span>Descripción</span>
+            onChange={(value) => onPatch({ dataType: value })}
+            options={dataTypeOptions(dataTypes)}
+          />
+        </Field>
+        <Field
+          className="constraint-field constraint-wide"
+          label="Descripción"
+          tooltip="Qué representa y para qué la usa el algoritmo, para quien la lea sin haberla creado."
+        >
           <textarea
             rows={2}
             value={display(intermediate, 'description')}
             onChange={(event) => onPatch({ description: event.target.value })}
           />
-        </label>
+        </Field>
 
-        <label className="constraint-field">
-          <span>Nodo que la crea</span>
-          <select
+        <Field
+          className="constraint-field"
+          label="Nodo que la crea"
+          tooltip="Paso del grafo que escribe su valor; nadie más puede producirla."
+        >
+          <OptionSelect
+            name="producerNodeKey"
             value={producer}
-            onChange={(event) => onPatch({ producerNodeKey: event.target.value })}
-          >
-            <option value="">— elegir nodo —</option>
-            {nodeKeys.map((key) => (
-              <option key={key} value={key}>
-                {key}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>Estrategia de actualización</span>
-          <select
+            onChange={(value) => onPatch({ producerNodeKey: value })}
+            placeholder="— elegir nodo —"
+            options={nodeKeyOptions(nodeKeys)}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label="Estrategia de actualización"
+          tooltip="Si el valor queda fijo tras la primera escritura, se puede reescribir o acumula."
+        >
+          <OptionSelect
+            name="updatePolicy"
             value={display(intermediate, 'updatePolicy') || 'SINGLE_WRITE'}
-            onChange={(event) => onPatch({ updatePolicy: event.target.value })}
-          >
-            {UPDATE_POLICIES.map((policy) => (
-              <option key={policy.value} value={policy.value} title={policy.hint}>
-                {policy.label}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(value) => onPatch({ updatePolicy: value })}
+            options={closedOptions(UPDATE_POLICIES, UPDATE_POLICY_HELP)}
+          />
+        </Field>
 
-        <label className="constraint-field">
-          <span>Clasificación de sensibilidad</span>
-          <select
+        <Field
+          className="constraint-field"
+          label="Clasificación de sensibilidad"
+          tooltip="Cuánto protege el motor este valor al mostrarlo y registrarlo; un dato personal no puede ir como interno."
+        >
+          <OptionSelect
+            name="sensitivityClass"
             value={display(intermediate, 'sensitivityClass') || 'INTERNAL'}
-            onChange={(event) => onPatch({ sensitivityClass: event.target.value })}
-          >
-            {SENSITIVITY_CLASSES.map((value) => (
-              <option key={value} value={value}>
-                {SENSITIVITY_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="constraint-field">
-          <span>En la traza</span>
-          <select
+            onChange={(value) => onPatch({ sensitivityClass: value })}
+            options={sensitivityOptions()}
+          />
+        </Field>
+        <Field
+          className="constraint-field"
+          label="En la traza"
+          tooltip="Qué se guarda de este valor en la traza de cada ejecución que se audita."
+        >
+          <OptionSelect
+            name="tracePolicy"
             value={display(intermediate, 'tracePolicy') || 'FULL'}
-            onChange={(event) => onPatch({ tracePolicy: event.target.value })}
-          >
-            {TRACE_POLICIES.map((value) => (
-              <option key={value} value={value}>
-                {TRACE_POLICY_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(value) => onPatch({ tracePolicy: value })}
+            options={tracePolicyOptions()}
+          />
+        </Field>
 
-        <label className="constraint-field constraint-checkbox">
+        <CheckField
+          className="constraint-field constraint-checkbox"
+          label="Admite quedarse sin valor"
+          tooltip="Márcalo si la ejecución puede terminar sin que el productor la escriba, sin que eso sea un error."
+        >
           <input
             type="checkbox"
             checked={Boolean(intermediate.nullable)}
             onChange={(event) => onPatch({ nullable: event.target.checked })}
           />
-          <span>Admite quedarse sin valor</span>
-        </label>
+        </CheckField>
       </div>
 
       <fieldset className="intermediate-consumers">
-        <legend>Nodos autorizados a leerla</legend>
+        <legend>
+          Nodos autorizados a leerla
+          <InfoHint
+            text="Pasos del grafo que pueden leer esta variable; los demás reciben un error si lo intentan."
+            label="Ayuda: Nodos autorizados a leerla"
+          />
+        </legend>
         <small className="field-hint">
           Si no marcas ninguno, cualquier nodo posterior al productor puede leerla.
         </small>
@@ -158,6 +169,7 @@ export function IntermediateVariableForm({ intermediate, nodeKeys, dataTypes, on
           {nodeKeys
             .filter((key) => key !== producer)
             .map((key) => (
+              // sin-ayuda: cada chip es una opción del grupo; la ayuda va en la leyenda
               <label
                 key={key}
                 className={`consumer-chip${consumers.includes(key) ? ' is-on' : ''}`}

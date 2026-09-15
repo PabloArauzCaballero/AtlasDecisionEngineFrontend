@@ -1,5 +1,7 @@
-import { InfoHint } from '../../components/InfoHint';
-import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { asRecord, type UnknownRecord } from '../../utils/records';
+import { OptionSelect } from '../../components/OptionSelect';
+import { inputOption } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface SwitchNodeEditorProps {
   config: UnknownRecord;
@@ -19,23 +21,18 @@ export function SwitchNodeEditor({ config, inputs, branchCount, onChange }: Swit
   return (
     <section className="condition-node-editor">
       <h3>Switch (multi-caso)</h3>
-      <label className="field">
-        <span>
-          Variable a evaluar
-          <InfoHint text="El dato cuyo valor decide a qué rama ir. Cada caso compara esta variable con un valor y sigue un camino distinto." />
-        </span>
-        <select
+      <Field
+        label="Variable a evaluar"
+        tooltip="El dato cuyo valor decide a qué rama ir. Cada caso compara esta variable con un valor y sigue un camino distinto."
+      >
+        <OptionSelect
+          name="switchVariable"
           value={variable}
-          onChange={(event) => onChange({ ...config, variable: event.target.value })}
-        >
-          <option value="">Elegir variable…</option>
-          {inputs.map((input) => (
-            <option key={display(input, 'code')} value={display(input, 'code')}>
-              {display(input, 'code')} · {display(input, 'dataType')}
-            </option>
-          ))}
-        </select>
-      </label>
+          onChange={(value) => onChange({ ...config, variable: value })}
+          placeholder="Elegir variable…"
+          options={inputs.map(inputOption)}
+        />
+      </Field>
       <p className="field-hint">
         {branchCount === 0
           ? 'Conecta el switch a cada destino: la primera conexión es el caso por defecto (fail-closed) y las siguientes son casos con su propio valor.'

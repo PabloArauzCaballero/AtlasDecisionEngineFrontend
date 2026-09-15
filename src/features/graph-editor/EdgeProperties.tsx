@@ -1,14 +1,11 @@
 import { Trash2, X } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
-import { InfoHint } from '../../components/InfoHint';
-import {
-  defaultOperatorFor,
-  isOperatorValidFor,
-  OPERATOR_LABELS,
-  operatorsFor,
-} from './condition-operators';
+import { defaultOperatorFor, isOperatorValidFor, operatorsFor } from './condition-operators';
 import { CONDITION_ORIGIN } from './node-tutorials';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { OptionSelect } from '../../components/OptionSelect';
+import { EDGE_KIND_HELP, closedOptions, inputOption, operatorOptions } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 /** Fuera del JSX: el ejemplo lleva comillas y corchetes que allí habría que escapar. */
 const CASE_VALUE_HINT =
@@ -102,108 +99,92 @@ export function EdgeProperties({
       </div>
       <section>
         <h3>Ruta</h3>
-        <label className="field">
-          <span>
-            Desde
-            <InfoHint text="Paso del que SALE esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo." />
-          </span>
+        <Field
+          label="Desde"
+          tooltip="Paso del que SALE esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo."
+        >
           <input readOnly value={display(edge, 'from')} />
-        </label>
-        <label className="field">
-          <span>
-            Hacia
-            <InfoHint text="Paso al que LLEGA esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo." />
-          </span>
+        </Field>
+        <Field
+          label="Hacia"
+          tooltip="Paso al que LLEGA esta conexión. No se edita aquí: se cambia arrastrando la flecha en el lienzo."
+        >
           <input readOnly value={display(edge, 'to')} />
-        </label>
-        <label className="field">
-          <span>
-            Tipo de rama
-            <InfoHint text="«Cuando se cumple» recorre este camino sólo si su condición es cierta. «Default / caso contrario» es la salida de escape: la toma todo lo que no encajó en ninguna otra rama. Cada bifurcación necesita exactamente una por defecto, o un caso no contemplado dejaría la decisión sin camino." />
-          </span>
-          <select
+        </Field>
+        <Field
+          label="Tipo de rama"
+          tooltip="«Cuando se cumple» recorre este camino sólo si su condición es cierta. «Default / caso contrario» es la salida de escape: la toma todo lo que no encajó en ninguna otra rama. Cada bifurcación necesita exactamente una por defecto, o un caso no contemplado dejaría la decisión sin camino."
+        >
+          <OptionSelect
+            name="edgeKind"
             value={isDefault ? 'DEFAULT' : 'CONDITIONAL'}
-            onChange={(event) => setMode(event.target.value as 'DEFAULT' | 'CONDITIONAL')}
-          >
-            <option value="DEFAULT">Default / caso contrario</option>
-            <option value="CONDITIONAL">Cuando se cumple</option>
-          </select>
-        </label>
+            onChange={(value) => setMode(value as 'DEFAULT' | 'CONDITIONAL')}
+            options={closedOptions(
+              [
+                { value: 'DEFAULT', label: 'Default / caso contrario' },
+                { value: 'CONDITIONAL', label: 'Cuando se cumple' },
+              ],
+              EDGE_KIND_HELP,
+            )}
+          />
+        </Field>
         {!isDefault && !isSwitchBranch ? (
-          <label className="field">
-            <span>
-              Condición
-              <InfoHint text={CONDITION_ORIGIN} />
-            </span>
-            <select
+          <Field label="Condición" tooltip={CONDITION_ORIGIN}>
+            <OptionSelect
+              name="edgeCondition"
               value={selectedCondition}
-              onChange={(event) =>
+              onChange={(value) =>
                 onChange({
-                  conditions: event.target.value ? [{ code: event.target.value, order: 1 }] : [],
+                  conditions: value ? [{ code: value, order: 1 }] : [],
                 })
               }
-            >
-              <option value="">Elegir condición…</option>
-              {conditions.map((condition) => (
-                <option key={display(condition, 'code')} value={display(condition, 'code')}>
-                  {display(condition, 'name', 'code')}
-                </option>
-              ))}
-            </select>
-          </label>
+              placeholder="Elegir condición…"
+              options={conditions.map((condition) => ({
+                value: display(condition, 'code'),
+                label: display(condition, 'name', 'code'),
+                description: display(condition, 'code'),
+              }))}
+            />
+          </Field>
         ) : null}
         {!isDefault && isSwitchBranch && branchCondition && onEditCondition ? (
           <>
-            <label className="field">
-              <span>
-                Variable del caso
-                <InfoHint text="La variable que el Switch reparte. Sólo aparecen las declaradas en «Entradas · Variables a considerar»: si la que buscas no está, decláurala allí primero." />
-              </span>
-              <select
+            <Field
+              label="Variable del caso"
+              tooltip="La variable que el Switch reparte. Sólo aparecen las declaradas en «Entradas · Variables a considerar»: si la que buscas no está, decláurala allí primero."
+            >
+              <OptionSelect
+                name="caseVariable"
                 value={String(expression.variable ?? '')}
-                onChange={(event) => {
+                onChange={(value) => {
                   const nextType = display(
-                    inputs.find((input) => display(input, 'code') === event.target.value) ?? {},
+                    inputs.find((input) => display(input, 'code') === value) ?? {},
                     'dataType',
                   ).toUpperCase();
                   const current = String(expression.operator ?? '');
                   updateCaseExpression({
-                    variable: event.target.value,
+                    variable: value,
                     operator: isOperatorValidFor(nextType, current)
                       ? current
                       : defaultOperatorFor(nextType),
                   });
                 }}
-              >
-                <option value="">Elegir variable…</option>
-                {inputs.map((input) => (
-                  <option key={display(input, 'code')} value={display(input, 'code')}>
-                    {display(input, 'code')} · {display(input, 'dataType')}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>
-                Operador
-                <InfoHint text="Cómo se compara la variable con el valor del caso. Los de lista («Incluido en lista», «Contiene») esperan varios valores; el resto, uno solo." />
-              </span>
-              <select
+                placeholder="Elegir variable…"
+                options={inputs.map(inputOption)}
+              />
+            </Field>
+            <Field
+              label="Operador"
+              tooltip="Cómo se compara la variable con el valor del caso. Los de lista («Incluido en lista», «Contiene») esperan varios valores; el resto, uno solo."
+            >
+              <OptionSelect
+                name="caseOperator"
                 value={String(expression.operator ?? defaultOperatorFor(caseType))}
-                onChange={(event) => updateCaseExpression({ operator: event.target.value })}
-              >
-                {operatorsFor(caseType).map((value) => (
-                  <option key={value} value={value}>
-                    {OPERATOR_LABELS[value]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>
-                Valor del caso
-                <InfoHint text={CASE_VALUE_HINT} />
-              </span>
+                onChange={(value) => updateCaseExpression({ operator: value })}
+                options={operatorOptions(operatorsFor(caseType))}
+              />
+            </Field>
+            <Field label="Valor del caso" tooltip={CASE_VALUE_HINT}>
               <textarea
                 key={`${selectedCondition}-${JSON.stringify(expression.value)}`}
                 rows={2}
@@ -214,21 +195,20 @@ export function EdgeProperties({
                 }
                 onBlur={(event) => updateCaseValue(event.target.value)}
               />
-            </label>
+            </Field>
           </>
         ) : null}
-        <label className="field">
-          <span>
-            Prioridad
-            <InfoHint text="Orden en el que el motor prueba las salidas de un mismo paso: el número más BAJO se evalúa primero y gana la primera que se cumple. Dos ramas que puedan cumplirse a la vez con la misma prioridad harían la decisión no determinista." />
-          </span>
+        <Field
+          label="Prioridad"
+          tooltip="Orden en el que el motor prueba las salidas de un mismo paso: el número más BAJO se evalúa primero y gana la primera que se cumple. Dos ramas que puedan cumplirse a la vez con la misma prioridad harían la decisión no determinista."
+        >
           <input
             type="number"
             min={0}
             value={Number(edge.priority ?? 0)}
             onChange={(event) => onChange({ priority: Number(event.target.value) })}
           />
-        </label>
+        </Field>
       </section>
       <section>
         <ConfirmButton

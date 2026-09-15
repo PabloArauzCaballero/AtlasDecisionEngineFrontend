@@ -4,6 +4,10 @@ import { asRecord, asRows, display, type UnknownRecord } from '../../utils/recor
 import { CodeEditor } from './CodeEditor';
 import { ReferenceNodeEditor } from './ReferenceNodeEditor';
 import { lintScript } from './script-lint';
+import { OptionSelect } from '../../components/OptionSelect';
+import { ASSIGNMENT_SOURCE_HELP, RESULT_MODE_HELP } from './graph-node-help';
+import { SCRIPT_LANGUAGE_HELP, closedOptions, inputOption } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface Props {
   config: UnknownRecord;
@@ -68,17 +72,24 @@ export function ResultNodeEditor({
   return (
     <section className="result-node-editor">
       <h3>Resultado configurable</h3>
-      <label className="field">
-        <span>Modo</span>
-        <select
+      <Field
+        label="Modo"
+        tooltip="Cómo construye este paso el resultado final: asignando valores, con código o llamando a otro algoritmo."
+      >
+        <OptionSelect
+          name="resultMode"
           value={mode}
-          onChange={(event) => onChange({ ...config, mode: event.target.value })}
-        >
-          <option value="MAPPING">Visual / sin código</option>
-          <option value="SCRIPT">Código controlado</option>
-          <option value="REFERENCE">Referenciar otro algoritmo</option>
-        </select>
-      </label>
+          onChange={(value) => onChange({ ...config, mode: value })}
+          options={closedOptions(
+            [
+              { value: 'MAPPING', label: 'Visual / sin código' },
+              { value: 'SCRIPT', label: 'Código controlado' },
+              { value: 'REFERENCE', label: 'Referenciar otro algoritmo' },
+            ],
+            RESULT_MODE_HELP,
+          )}
+        />
+      </Field>
       {!outputs.length ? (
         <p className="field-hint">
           Añade primero una variable en el contrato global de resultados.
@@ -90,54 +101,55 @@ export function ResultNodeEditor({
             const source = String(assignment.source ?? 'LITERAL');
             return (
               <div className="result-assignment" key={display(assignment, 'outputCode')}>
-                <label className="field">
-                  <span>Variable de salida</span>
-                  <select
+                <Field
+                  label="Variable de salida"
+                  tooltip="Campo de la respuesta que se rellena con esta asignación."
+                >
+                  <OptionSelect
+                    name="outputCode"
                     value={display(assignment, 'outputCode')}
-                    onChange={(event) =>
-                      updateAssignment(index, { outputCode: event.target.value })
-                    }
-                  >
-                    {outputs.map((output) => (
-                      <option key={display(output, 'code')} value={display(output, 'code')}>
-                        {display(output, 'code')} · {display(output, 'dataType')}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="field">
-                  <span>Origen del valor</span>
-                  <select
+                    onChange={(value) => updateAssignment(index, { outputCode: value })}
+                    options={outputs.map(inputOption)}
+                  />
+                </Field>
+                <Field
+                  label="Origen del valor"
+                  tooltip="De dónde sale lo que se escribe en la salida: un literal, una variable, una expresión o una plantilla."
+                >
+                  <OptionSelect
+                    name="assignmentSource"
                     value={source}
-                    onChange={(event) => updateAssignment(index, { source: event.target.value })}
-                  >
-                    <option value="LITERAL">Literal</option>
-                    <option value="VARIABLE">Variable de entrada</option>
-                    <option value="EXPRESSION">Expresión visual (JSON AST)</option>
-                    <option value="TEMPLATE">Plantilla</option>
-                  </select>
-                </label>
+                    onChange={(value) => updateAssignment(index, { source: value })}
+                    options={closedOptions(
+                      [
+                        { value: 'LITERAL', label: 'Literal' },
+                        { value: 'VARIABLE', label: 'Variable de entrada' },
+                        { value: 'EXPRESSION', label: 'Expresión visual (JSON AST)' },
+                        { value: 'TEMPLATE', label: 'Plantilla' },
+                      ],
+                      ASSIGNMENT_SOURCE_HELP,
+                    )}
+                  />
+                </Field>
                 {source === 'VARIABLE' ? (
-                  <label className="field">
-                    <span>Variable</span>
-                    <select
+                  <Field
+                    label="Variable"
+                    tooltip="Variable de entrada cuyo valor se copia a la salida."
+                  >
+                    <OptionSelect
+                      name="variablePath"
                       value={display(assignment, 'variablePath')}
-                      onChange={(event) =>
-                        updateAssignment(index, { variablePath: event.target.value })
-                      }
-                    >
-                      <option value="">Elegir…</option>
-                      {inputs.map((input) => (
-                        <option key={display(input, 'code')} value={display(input, 'code')}>
-                          {display(input, 'code')}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                      onChange={(value) => updateAssignment(index, { variablePath: value })}
+                      placeholder="Elegir…"
+                      options={inputs.map(inputOption)}
+                    />
+                  </Field>
                 ) : null}
                 {source === 'LITERAL' || source === 'TEMPLATE' ? (
-                  <label className="field">
-                    <span>Valor</span>
+                  <Field
+                    label="Valor"
+                    tooltip="Valor fijo que sale en la respuesta. Ej.: APROBADO, 1500 o true."
+                  >
                     <textarea
                       rows={2}
                       defaultValue={
@@ -147,11 +159,13 @@ export function ResultNodeEditor({
                       }
                       onBlur={(event) => commitJson(index, 'value', event.target.value)}
                     />
-                  </label>
+                  </Field>
                 ) : null}
                 {source === 'EXPRESSION' ? (
-                  <label className="field">
-                    <span>Expresión</span>
+                  <Field
+                    label="Expresión"
+                    tooltip='Árbol JSON que calcula el valor. Ej.: {"op":"mul","left":{"var":"ingreso"},"right":{"value":0.3}}.'
+                  >
                     <textarea
                       className="code-input"
                       rows={5}
@@ -164,7 +178,7 @@ export function ResultNodeEditor({
                       )}
                       onBlur={(event) => commitJson(index, 'expression', event.target.value)}
                     />
-                  </label>
+                  </Field>
                 ) : null}
                 <ConfirmButton
                   className="button button-danger full-width"
@@ -213,18 +227,23 @@ export function ResultNodeEditor({
             Experimental: se ejecuta con límites estrictos y requiere habilitación explícita del
             backend.
           </div>
-          <label className="field">
-            <span>Lenguaje</span>
-            <select
+          <Field
+            label="Lenguaje"
+            tooltip="En qué lenguaje está escrito el código del resultado; el motor lo ejecuta en su entorno aislado."
+          >
+            <OptionSelect
+              name="language"
               value={String(script.language ?? 'JAVASCRIPT')}
-              onChange={(event) =>
-                onChange({ ...config, script: { ...script, language: event.target.value } })
-              }
-            >
-              <option>JAVASCRIPT</option>
-              <option>PYTHON</option>
-            </select>
-          </label>
+              onChange={(value) => onChange({ ...config, script: { ...script, language: value } })}
+              options={closedOptions(
+                [
+                  { value: 'JAVASCRIPT', label: 'JAVASCRIPT' },
+                  { value: 'PYTHON', label: 'PYTHON' },
+                ],
+                SCRIPT_LANGUAGE_HELP,
+              )}
+            />
+          </Field>
           <CodeEditor
             language={String(script.language ?? 'JAVASCRIPT')}
             inputs={inputs}

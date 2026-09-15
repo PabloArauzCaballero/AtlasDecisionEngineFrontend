@@ -1,7 +1,10 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { ConfirmButton } from '../../components/ConfirmButton';
 import { asRows, display, type UnknownRecord } from '../../utils/records';
-import { defaultOperatorFor, OPERATOR_LABELS, operatorsFor } from './condition-operators';
+import { defaultOperatorFor, operatorsFor } from './condition-operators';
+import { OptionSelect } from '../../components/OptionSelect';
+import { inputOption, operatorOptions } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface Props {
   config: UnknownRecord;
@@ -53,51 +56,51 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
       ) : null}
       {rules.map((rule, index) => (
         <div className="result-assignment" key={index}>
-          <label className="field">
-            <span>Regla {index + 1} · Variable</span>
-            <select
+          <Field
+            label={`Regla ${index + 1} · Variable`}
+            tooltip="Dato del caso que evalúa esta regla; las reglas se prueban en orden y gana la primera que se cumple."
+          >
+            <OptionSelect
+              name="ruleVariable"
               value={display(rule, 'variable')}
-              onChange={(event) => updateRule(index, { variable: event.target.value })}
-            >
-              <option value="">Elegir…</option>
-              {inputs.map((input) => (
-                <option key={display(input, 'code')} value={display(input, 'code')}>
-                  {display(input, 'code')} · {display(input, 'dataType')}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Operador</span>
-            <select
+              onChange={(value) => updateRule(index, { variable: value })}
+              placeholder="Elegir…"
+              options={inputs.map(inputOption)}
+            />
+          </Field>
+          <Field
+            label="Operador"
+            tooltip="Cómo se compara la variable con el valor de la regla; los de lista esperan varios valores."
+          >
+            <OptionSelect
+              name="ruleOperator"
               value={String(rule.operator ?? defaultOperatorFor(ruleType(rule)))}
-              onChange={(event) => updateRule(index, { operator: event.target.value })}
-            >
-              {operatorsFor(ruleType(rule)).map((value) => (
-                <option key={value} value={value}>
-                  {OPERATOR_LABELS[value]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>Valor a comparar</span>
+              onChange={(value) => updateRule(index, { operator: value })}
+              options={operatorOptions(operatorsFor(ruleType(rule)))}
+            />
+          </Field>
+          <Field
+            label="Valor a comparar"
+            tooltip="Contra qué se compara la variable en esta regla. Ej.: 700, o APROBADO,REVISION para listas."
+          >
             <input
               defaultValue={
                 typeof rule.value === 'string' ? rule.value : JSON.stringify(rule.value ?? '')
               }
               onBlur={(event) => commitJson(index, 'value', event.target.value)}
             />
-          </label>
-          <label className="field">
-            <span>Resultado de la regla</span>
+          </Field>
+          <Field
+            label="Resultado de la regla"
+            tooltip="Lo que devuelve la tabla cuando esta regla es la primera que se cumple. Ej.: APROBADO."
+          >
             <input
               defaultValue={
                 typeof rule.result === 'string' ? rule.result : JSON.stringify(rule.result ?? '')
               }
               onBlur={(event) => commitJson(index, 'result', event.target.value)}
             />
-          </label>
+          </Field>
           <ConfirmButton
             className="button button-danger full-width"
             title={`¿Quitar la regla ${index + 1} de la tabla?`}
@@ -133,8 +136,10 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
       >
         <Plus size={14} /> Añadir regla
       </button>
-      <label className="field">
-        <span>Resultado por defecto (sin coincidencias)</span>
+      <Field
+        label="Resultado por defecto (sin coincidencias)"
+        tooltip="Lo que devuelve la tabla si ninguna regla se cumple; evita dejar casos sin resultado."
+      >
         <input
           defaultValue={
             typeof config.defaultResult === 'string'
@@ -149,7 +154,7 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
             }
           }}
         />
-      </label>
+      </Field>
       <small className="field-hint">
         Las reglas se evalúan en orden y gana la primera coincidencia; sin coincidencias aplica el
         resultado por defecto (fail-closed si queda vacío).

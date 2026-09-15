@@ -16,6 +16,10 @@ import {
 } from './reference-authoring';
 import { ReferencePolicyFields } from './ReferencePolicyFields';
 import { createReference, deleteReference, listReferences } from './references.api';
+import { OptionSelect } from '../../components/OptionSelect';
+import { ON_ERROR_POLICY_HELP, REFERENCE_INPUT_SOURCE_HELP } from './graph-node-help';
+import { closedOptions, inputOption } from './graph-editor-help';
+import { Field } from '../../components/Field';
 
 interface Props {
   versionId: string;
@@ -116,16 +120,22 @@ export function ReferenceNodeEditor({
         outputs.map((output) => {
           const code = display(output, 'code');
           return (
-            <label className="field reference-output-row" key={code}>
-              <span>
-                {code} <small>{display(output, 'dataType')}</small>
-              </span>
+            <Field
+              className="reference-output-row"
+              key={code}
+              label={
+                <>
+                  {code} <small>{display(output, 'dataType')}</small>
+                </>
+              }
+              tooltip={`Código de la salida del algoritmo referenciado que se copia en «${code}». Ej.: decision.`}
+            >
               <input
                 value={form.outputMap[code] ?? ''}
                 placeholder="código de salida del hijo"
                 onChange={(event) => setOutput(code, event.target.value)}
               />
-            </label>
+            </Field>
           );
         })
       ) : (
@@ -160,27 +170,26 @@ export function ReferenceNodeEditor({
             placeholder="variable del hijo"
             onChange={(event) => setInput(index, { childVariableCode: event.target.value })}
           />
-          <select
+          <OptionSelect
+            name="referenceInputSource"
             value={entry.source}
-            onChange={(event) =>
-              setInput(index, { source: event.target.value as 'VARIABLE' | 'LITERAL' })
-            }
-          >
-            <option value="VARIABLE">Desde variable</option>
-            <option value="LITERAL">Valor fijo</option>
-          </select>
+            onChange={(value) => setInput(index, { source: value as 'VARIABLE' | 'LITERAL' })}
+            options={closedOptions(
+              [
+                { value: 'VARIABLE', label: 'Desde variable' },
+                { value: 'LITERAL', label: 'Valor fijo' },
+              ],
+              REFERENCE_INPUT_SOURCE_HELP,
+            )}
+          />
           {entry.source === 'VARIABLE' ? (
-            <select
+            <OptionSelect
+              name="referenceInputPath"
               value={entry.path ?? ''}
-              onChange={(event) => setInput(index, { path: event.target.value })}
-            >
-              <option value="">Elegir…</option>
-              {inputs.map((input) => (
-                <option key={display(input, 'code')} value={display(input, 'code')}>
-                  {display(input, 'code')}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setInput(index, { path: value })}
+              placeholder="Elegir…"
+              options={inputs.map(inputOption)}
+            />
           ) : (
             <input
               placeholder="valor"
@@ -208,19 +217,26 @@ export function ReferenceNodeEditor({
         </div>
       ))}
 
-      <label className="field">
-        <span>Si el algoritmo referenciado falla</span>
-        <select
+      <Field
+        label="Si el algoritmo referenciado falla"
+        tooltip="Qué hace esta decisión cuando la subdecisión da error o no responde a tiempo."
+      >
+        <OptionSelect
+          name="onErrorPolicy"
           value={form.onErrorPolicy}
-          onChange={(event) =>
-            patch({ onErrorPolicy: event.target.value as ReferenceFormState['onErrorPolicy'] })
+          onChange={(value) =>
+            patch({ onErrorPolicy: value as ReferenceFormState['onErrorPolicy'] })
           }
-        >
-          <option value="FAIL">Fallar la decisión (fail-closed)</option>
-          <option value="FALLBACK">Usar salida de reserva</option>
-          <option value="SKIP">Omitir la referencia</option>
-        </select>
-      </label>
+          options={closedOptions(
+            [
+              { value: 'FAIL', label: 'Fallar la decisión (fail-closed)' },
+              { value: 'FALLBACK', label: 'Usar salida de reserva' },
+              { value: 'SKIP', label: 'Omitir la referencia' },
+            ],
+            ON_ERROR_POLICY_HELP,
+          )}
+        />
+      </Field>
 
       <ReferencePolicyFields form={form} onPatch={patch} />
 
