@@ -74,6 +74,9 @@
 /* Después de action-icons e info-hint: reubica sus globos donde el anclaje al
    disparador ya no cabe (≤ 820 px). Gana por orden, no por especificidad. */
 @import './parts/hint-bubbles-narrow.css';
+/* Después de `controls.css` e `info-hint.css`: el desplegable propio hereda de
+   uno el aspecto del campo y del otro el globo de ayuda. */
+@import './parts/option-select.css';
 @import './parts/interactive-tutorial.css';
 @import './parts/tutorial-welcome.css';
 @import './parts/session-expiry.css';

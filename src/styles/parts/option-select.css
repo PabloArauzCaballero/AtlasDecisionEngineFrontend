@@ -1,0 +1,164 @@
+/*
+ * `OptionSelect`: el desplegable propio, el que sí puede explicar cada opción.
+ *
+ * El botón imita al `<select>` nativo que sustituye —mismo alto, mismo borde,
+ * mismo radio que `input, textarea, select` de `controls.css`—, así que un
+ * formulario mixto no se lee como dos aplicaciones. Lo que el nativo no tenía:
+ * la segunda línea gris de cada fila con qué significa la opción, y la
+ * repetición de esa línea bajo el campo una vez elegida.
+ */
+.option-select {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.option-select-button {
+  display: flex;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-normal);
+  text-align: left;
+  cursor: pointer;
+}
+.option-select-button:disabled {
+  background: var(--surface-sunken);
+  color: var(--faint);
+  cursor: not-allowed;
+}
+.option-select-button[aria-expanded='true'] {
+  border-color: var(--accent);
+}
+.option-select-button[data-placeholder] .option-select-value {
+  color: var(--faint);
+}
+.option-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* La descripción de la opción elegida, bajo el campo: lo que el nativo obligaba
+   a recordar de memoria una vez cerrado el desplegable. */
+.option-select-chosen {
+  color: var(--faint);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-normal);
+  line-height: 1.4;
+  text-transform: none;
+}
+
+/*
+ * La lista va en un portal sobre `document.body` con posición fija (la calcula
+ * `useOptionSelect`), por lo mismo que los globos de ayuda: dentro del campo,
+ * un ancestro con `overflow` la recorta y ningún `z-index` la saca del contexto
+ * de apilamiento donde nació. 111 la deja justo por encima de los globos (110)
+ * y por debajo del recorrido guiado (120).
+ */
+.option-select-popup {
+  z-index: 111;
+  min-width: 180px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+.option-select-search {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+.option-select-search input {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: var(--type-sm);
+}
+.option-select-list {
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+}
+.option-select-option {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+.option-select-option[data-active] {
+  background: var(--accent-wash);
+}
+.option-select-option[aria-selected='true'] .option-select-option-label {
+  color: var(--accent-strong);
+  font-weight: var(--weight-semibold);
+}
+.option-select-option[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.option-select-option-label {
+  color: var(--ink);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-normal);
+  line-height: 1.3;
+}
+/* Dos líneas y basta: una descripción larga no puede empujar la lista hasta
+   dejar fuera de la ventana las opciones siguientes. El texto entero sigue
+   disponible en el `title` de la fila. */
+.option-select-option-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--track-normal);
+  line-height: 1.35;
+}
+.option-select-none {
+  padding: var(--space-2) var(--space-3);
+  color: var(--faint);
+  font-size: var(--type-xs);
+}
+
+/*
+ * La fila de etiqueta (`FieldLabel`): el rótulo, el asterisco y el ⓘ, con el
+ * icono FUERA de la `<label>` para no contaminar el nombre accesible del campo.
+ */
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.field-label > label,
+.field-label > span {
+  min-width: 0;
+}
+.field-label-required {
+  margin-left: 2px;
+  color: var(--danger);
+}
+
+/* En pantalla estrecha la lista ocupa el ancho de la ventana menos los
+   márgenes: con el ancho del botón, las descripciones caen en columnas de dos
+   palabras. 560 px es el primer escalón de `breakpoints.ts`. */
+@media (max-width: 560px) {
+  .option-select-popup {
+    left: var(--gutter) !important;
+    width: calc(100vw - 2 * var(--gutter)) !important;
+  }
+}

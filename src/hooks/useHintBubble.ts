@@ -32,10 +32,19 @@ const NARROW_QUERY = '(max-width: 820px)';
 
 export type BubblePlacement = 'above' | 'below';
 
-export function useHintBubble() {
+/**
+ * `forceOpen` abre la burbuja desde fuera: el campo asociado tiene el foco. Quien
+ * tabula por un formulario nunca pasa por el icono ⓘ, así que sin esto la ayuda
+ * de un campo sólo existía para quien la busca con el ratón.
+ */
+export function useHintBubble(forceOpen?: boolean) {
   const wrapRef = useRef<HTMLSpanElement | null>(null);
   const bubbleRef = useRef<HTMLSpanElement | null>(null);
-  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  // Escape cierra sin mover el ratón (WCAG 1.4.13) incluso con el campo
+  // enfocado: `dismissed` se rearma en cuanto el foco sale del campo.
+  const open = hovered || (Boolean(forceOpen) && !dismissed);
   const [placement, setPlacement] = useState<BubblePlacement>('above');
 
   const position = useCallback(() => {
@@ -73,9 +82,18 @@ export function useHintBubble() {
   // debe estar en su sitio, no viajando desde la posición aparcada.
   const show = useCallback(() => {
     position();
-    setOpen(true);
+    setHovered(true);
+    setDismissed(false);
   }, [position]);
-  const hide = useCallback(() => setOpen(false), []);
+  const hide = useCallback(() => setHovered(false), []);
+
+  // Colocar también cuando la abre el foco del control, no el ratón.
+  useEffect(() => {
+    if (forceOpen) {
+      setDismissed(false);
+      position();
+    }
+  }, [forceOpen, position]);
 
   useEffect(() => {
     if (!open) return;
@@ -83,7 +101,9 @@ export function useHintBubble() {
     window.addEventListener('scroll', position, true);
     window.addEventListener('resize', position);
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key !== 'Escape') return;
+      setHovered(false);
+      setDismissed(true);
     };
     // Poder retirar el globo sin mover el puntero (WCAG 1.4.13).
     window.addEventListener('keydown', onKeyDown);
