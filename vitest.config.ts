@@ -56,18 +56,11 @@ export default defineConfig({
         'src/**/*.d.ts',
       ],
       /*
-       * Medido el 13/08/2026: líneas 43,84 · ramas 78,96 · funciones 61,39.
-       *
-       * El suelo va JUSTO por debajo de eso. La primera versión de este bloque puso 60/60/70/60
-       * a ojo, antes de medir, y la corrida se puso roja al instante — que es precisamente el
-       * error contra el que advierte el comentario de arriba: un umbral por encima de lo real
-       * deja la CI roja de forma permanente, y una CI roja permanente se ignora.
-       *
-       * Que las RAMAS (79 %) estén muy por encima de las líneas (44 %) no es una anomalía: lo
-       * que está sin cubrir son módulos enteros que ninguna prueba toca, no caminos olvidados
-       * dentro de lo que sí se prueba. Ahí es donde hay que mirar para subir el número.
+       * Medido el 23/09/2026 con las 1301 pruebas y v8: líneas y sentencias 47,87 %,
+       * ramas 81,81 %, funciones 70,51 %. El suelo queda apenas por debajo de lo
+       * medido para detectar retrocesos sin hacer fallar la CI desde el primer día.
        */
-      thresholds: { lines: 43, functions: 60, branches: 78, statements: 43 },
+      thresholds: { lines: 47, functions: 70, branches: 81, statements: 47 },
     },
   },
 });
