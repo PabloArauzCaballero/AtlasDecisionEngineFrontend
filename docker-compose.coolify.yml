@@ -24,9 +24,9 @@
 # La red externa `atlas_vps` ni `env_file`: Coolify añade `env_file: - .env` por su cuenta. Pega
 # ahí `atlas-vps-testing/env/engine-frontend.env`, EN BLOQUE.
 #
-# Ojo con `PDF_WORKER_URL=http://pdf-worker:3100` de ese archivo: el generador documental está
-# detrás de un perfil y no se despliega aquí (su imagen son ~4,7 GB). La descarga de informes dará
-# error hasta que lo montes; es lo esperado.
+# Si ese archivo aún trae `PDF_WORKER_URL` o `PDF_WORKER_SERVICE_KEY`, sobran: el portal ya no los
+# lee. Todo `/pdf/*` va al motor (`DECISION_ENGINE_URL`), que integra el generador documental y
+# comprueba la sesión y los roles de quien imprime.
 
 name: atlas-engine-frontend
 
