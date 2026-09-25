@@ -41,18 +41,24 @@ const isVendoredRuntime = (absolutePath) =>
     relative(root, absolutePath).split('\\').join('/').startsWith(carpeta),
   );
 /**
- * Los tres sitios donde `fetch()` directo es LEGÍTIMO, y por qué son tres y no más.
+ * Los sitios donde `fetch()` directo es LEGÍTIMO, y por qué son éstos y no más.
  *
  * La regla existe para que el navegador nunca hable con un backend saltándose la sesión, la
  * renovación de token y el manejo de errores de `http-client`. Los dos proxis no son el navegador:
  * corren en el servidor de Next y su trabajo ES reenviar la petición tal como llegó, credencial
  * incluida. Usar el cliente autorizado ahí sería absurdo —no hay sesión de navegador que
  * consultar— y además volvería a envolver un cuerpo que sólo tiene que atravesar.
+ *
+ * `src/server/upstream.ts` es la llamada común de esos dos proxis (plazos de cabeceras e
+ * inactividad, cancelación del cliente) y `print-authorization.ts` la pregunta al motor antes de
+ * imprimir por el worker: el mismo `fetch` de servidor, con el bearer de quien pide.
  */
 const authorizedFetchFiles = new Set([
   'src/api/http-client.ts',
   'src/server/decision-engine-proxy.ts',
   'src/server/atlas-backend-proxy.ts',
+  'src/server/upstream.ts',
+  'src/server/print-authorization.ts',
 ]);
 /**
  * Vistas cuya ausencia rompe la navegación del portal aunque nada falle al
