@@ -2,8 +2,8 @@
 #
 # ## Qué se hornea y qué no
 #
-# Este portal es el único de los tres cuya configuración importante NO se hornea: `DECISION_ENGINE_URL` y
-# `ATLAS_BACKEND_URL` son variables de SERVIDOR, las lee Next en tiempo de
+# Este portal es el único de los tres cuya configuración importante NO se hornea: `DECISION_ENGINE_URL`,
+# `ATLAS_BACKEND_URL` y `PDF_WORKER_SERVICE_KEY` son variables de SERVIDOR, las lee Next en tiempo de
 # ejecución y llegan por `env_file`. Cambiar de motor es reiniciar, no reconstruir.
 #
 # Lo que sí se hornea son las `NEXT_PUBLIC_*`, y la que gobierna todo es `NEXT_PUBLIC_API_BASE_URL=/`:

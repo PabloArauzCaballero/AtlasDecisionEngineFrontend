@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyPrintingAuthorization } from './print-authorization';
 import { buildUpstreamUrl, envMs, fetchUpstream } from './upstream';
 
 const requestHeadersToRemove = [
@@ -66,14 +67,34 @@ function idleTimeoutMs(): number {
 }
 
 /**
- * Rutas del generador documental que tardan más en responder.
+ * Rutas del generador documental que EXIGEN un navegador.
  *
- * Sólo cambian el PLAZO, no el destino: todo `/pdf/*` va al motor, que integra
- * el generador y comprueba la identidad y los roles de quien pide. El portal ya
- * no presta ninguna credencial de servicio: con ella, cualquier `Authorization`
- * —aunque fuera «x»— bastaba para imprimir con la identidad institucional.
+ * La imagen de la API del motor no lleva Chromium, así que imprimir contra ella
+ * falla; quien puede es el servicio `pdf-worker` (`PDF_WORKER_URL`). El resto de
+ * `/pdf/*` va siempre al motor, que tiene la base.
+ *
+ * El worker sólo comprueba la clave de SERVICIO, así que antes de prestarla el
+ * portal pide al motor que valide la sesión y el rol de quien imprime
+ * (`verifyPrintingAuthorization`). Sin `PDF_WORKER_URL`, estas rutas van al motor
+ * con el bearer del usuario y SIN la clave: el motor autentica por sí mismo y la
+ * clave no tiene nada que hacer allí (FND-DEF-01).
  */
 const RUTAS_QUE_IMPRIMEN: readonly string[] = ['pdf/generate', 'pdf/preview'];
+
+function pdfWorkerBaseUrl(): URL | undefined {
+  const raw = process.env.PDF_WORKER_URL;
+  if (!raw) return undefined;
+  const url = new URL(raw);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('PDF_WORKER_URL debe usar HTTP o HTTPS.');
+  }
+  return url;
+}
+
+function pdfServiceKey(): string | undefined {
+  const raw = process.env.PDF_WORKER_SERVICE_KEY?.trim();
+  return raw ? raw : undefined;
+}
 
 function decisionEngineBaseUrl(): URL {
   const raw = process.env.DECISION_ENGINE_URL ?? 'http://localhost:3000';
@@ -104,20 +125,22 @@ export async function proxyDecisionEngine(
   pathSegments: readonly string[],
 ): Promise<Response> {
   try {
+    const relativePath = pathSegments.join('/');
+    // La comparación es por prefijo de ruta COMPLETA, no por `includes`: un
+    // template llamado «generate» no debe desviar su consulta de catálogo.
+    const imprime = RUTAS_QUE_IMPRIMEN.some(
+      (ruta) => relativePath === ruta || relativePath.startsWith(`${ruta}/`),
+    );
+    const engineBaseUrl = decisionEngineBaseUrl();
+    const workerBaseUrl = imprime ? pdfWorkerBaseUrl() : undefined;
     const [prefix, ...rest] = pathSegments;
-    const target = prefix ? buildUpstreamUrl(decisionEngineBaseUrl(), prefix, rest) : null;
+    const target = prefix ? buildUpstreamUrl(workerBaseUrl ?? engineBaseUrl, prefix, rest) : null;
     if (!target) {
       return NextResponse.json(
         { code: 'INVALID_PATH', message: 'La ruta pedida no es válida.' },
         { status: 400 },
       );
     }
-    const relativePath = pathSegments.join('/');
-    // La comparación es por prefijo de ruta COMPLETA, no por `includes`: un
-    // template llamado «generate» no debe cambiar el plazo de su consulta.
-    const imprime = RUTAS_QUE_IMPRIMEN.some(
-      (ruta) => relativePath === ruta || relativePath.startsWith(`${ruta}/`),
-    );
     target.search = request.nextUrl.search;
 
     // La procedencia del cliente sólo se conserva si el despliegue declara que
@@ -134,15 +157,31 @@ export async function proxyDecisionEngine(
     headers.set('x-forwarded-proto', request.nextUrl.protocol.replace(':', ''));
     if (clientChain) headers.set('x-forwarded-for', clientChain);
 
-    // Sin sesión no se llama a nadie: el motor respondería lo mismo, pero así ni se le molesta.
-    if (imprime && !request.headers.get('authorization')) {
-      return NextResponse.json(
-        {
-          code: 'UNAUTHORIZED',
-          message: 'Generar un documento exige una sesión activa.',
-        },
-        { status: 401 },
-      );
+    if (imprime) {
+      // Sin sesión no se llama a nadie: ni al motor ni, sobre todo, al worker.
+      const authorization = request.headers.get('authorization');
+      if (!authorization) {
+        return NextResponse.json(
+          {
+            code: 'UNAUTHORIZED',
+            message: 'Generar un documento exige una sesión activa.',
+          },
+          { status: 401 },
+        );
+      }
+      if (workerBaseUrl) {
+        // La clave del worker sólo se presta cuando el MOTOR ha aceptado esta sesión con la
+        // política de impresión. Si dice que no —o no contesta— el worker no se toca.
+        const denied = await verifyPrintingAuthorization(
+          engineBaseUrl,
+          request,
+          authorization,
+          headers,
+        );
+        if (denied) return denied;
+        const serviceKey = pdfServiceKey();
+        if (serviceKey) headers.set('x-pdf-service-key', serviceKey);
+      }
     }
 
     const canHaveBody = request.method !== 'GET' && request.method !== 'HEAD';
@@ -162,6 +201,24 @@ export async function proxyDecisionEngine(
       },
       request.signal,
     );
+
+    /*
+     * Un 401/403 del WORKER no es un 401 de quien mira la pantalla: la sesión ya la aceptó el
+     * motor, así que es el portal el que no se acredita ante el worker (clave ausente o
+     * distinta). Reenviarlo haría que `authorizedFetch` cerrara la sesión de la persona.
+     */
+    if (workerBaseUrl && (upstream.status === 401 || upstream.status === 403)) {
+      await upstreamBody?.cancel().catch(() => undefined);
+      return NextResponse.json(
+        {
+          code: 'PDF_WORKER_UNAUTHORIZED',
+          message:
+            'El portal no pudo acreditarse ante el generador documental. Es un problema de ' +
+            'configuración del servidor (PDF_WORKER_SERVICE_KEY), no de tu sesión.',
+        },
+        { status: 502 },
+      );
+    }
 
     const responseHeaders = new Headers(upstream.headers);
     responseHeadersToRemove.forEach((header) => responseHeaders.delete(header));

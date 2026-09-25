@@ -50,13 +50,15 @@ const isVendoredRuntime = (absolutePath) =>
  * consultar— y además volvería a envolver un cuerpo que sólo tiene que atravesar.
  *
  * `src/server/upstream.ts` es la llamada común de esos dos proxis (plazos de cabeceras e
- * inactividad, cancelación del cliente): el mismo `fetch` de servidor, sacado a un sitio.
+ * inactividad, cancelación del cliente) y `print-authorization.ts` la pregunta al motor antes de
+ * imprimir por el worker: el mismo `fetch` de servidor, con el bearer de quien pide.
  */
 const authorizedFetchFiles = new Set([
   'src/api/http-client.ts',
   'src/server/decision-engine-proxy.ts',
   'src/server/atlas-backend-proxy.ts',
   'src/server/upstream.ts',
+  'src/server/print-authorization.ts',
 ]);
 /**
  * Vistas cuya ausencia rompe la navegación del portal aunque nada falle al

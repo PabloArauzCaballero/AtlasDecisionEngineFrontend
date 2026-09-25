@@ -177,14 +177,9 @@ describe('decision engine proxy', () => {
     expect(response.status).toBe(401);
   });
 
-  /*
-   * ATL-01 / FND-DEF-01. El portal desviaba `pdf/generate` y `pdf/preview` al worker suelto y le
-   * prestaba su clave de SERVICIO a cualquiera que trajera una cabecera `Authorization`, fuera la
-   * que fuera («x» bastaba: el worker sólo miraba la clave). Y sin `PDF_WORKER_URL` la clave viajaba
-   * igualmente al motor. Ahora todo `/pdf/*` va al motor con el bearer del usuario, que es quien
-   * comprueba identidad y roles, y la clave no existe en el portal.
-   */
-  describe('impresión: todo /pdf/* va al motor con la credencial del usuario', () => {
+  // FND-DEF-01: sin `PDF_WORKER_URL` imprimir va al motor sin la clave (antes viajaba igual).
+  // Los casos CON worker se prueban contra servidores reales en `print-authorization.test.ts`.
+  describe('impresión sin PDF_WORKER_URL', () => {
     const printing = (path: string, authorization: string) =>
       ({
         method: 'POST',
@@ -193,33 +188,29 @@ describe('decision engine proxy', () => {
         arrayBuffer: async () => new TextEncoder().encode('{"templateId":"x"}').buffer,
       }) as unknown as NextRequest;
 
-    for (const workerUrl of ['http://pdf-worker:3100', undefined]) {
-      for (const ruta of ['generate', 'preview']) {
-        it(`pdf/${ruta} con Authorization arbitrario ${
-          workerUrl ? 'y PDF_WORKER_URL definida' : 'sin PDF_WORKER_URL'
-        }: al motor y sin clave de servicio`, async () => {
-          process.env.DECISION_ENGINE_URL = 'http://engine:3000';
-          if (workerUrl) process.env.PDF_WORKER_URL = workerUrl;
-          process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
-          const upstream = vi
-            .spyOn(globalThis, 'fetch')
-            .mockResolvedValue(new Response('{"code":"UNAUTHORIZED"}', { status: 401 }));
+    for (const ruta of ['generate', 'preview']) {
+      it(`pdf/${ruta} va al motor con el bearer del usuario y sin clave de servicio`, async () => {
+        process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+        process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
+        const upstream = vi
+          .spyOn(globalThis, 'fetch')
+          .mockResolvedValue(new Response('{"code":"UNAUTHORIZED"}', { status: 401 }));
 
-          const response = await proxyDecisionEngine(printing(`pdf/${ruta}`, 'x'), ['pdf', ruta]);
+        const response = await proxyDecisionEngine(printing(`pdf/${ruta}`, 'x'), ['pdf', ruta]);
 
-          expect(upstream).toHaveBeenCalledTimes(1);
-          expect(String(upstream.mock.calls[0]?.[0])).toBe(`http://engine:3000/pdf/${ruta}`);
-          const sent = new Headers((upstream.mock.calls[0]?.[1] as RequestInit).headers);
-          expect(sent.get('x-pdf-service-key')).toBeNull();
-          expect(sent.get('authorization')).toBe('x');
-          // El 401 es del motor —la sesión no vale— y se reenvía tal cual.
-          expect(response.status).toBe(401);
-        });
-      }
+        expect(upstream).toHaveBeenCalledTimes(1);
+        expect(String(upstream.mock.calls[0]?.[0])).toBe(`http://engine:3000/pdf/${ruta}`);
+        const sent = new Headers((upstream.mock.calls[0]?.[1] as RequestInit).headers);
+        expect(sent.get('x-pdf-service-key')).toBeNull();
+        expect(sent.get('authorization')).toBe('x');
+        // El 401 es del motor —la sesión no vale— y se reenvía tal cual.
+        expect(response.status).toBe(401);
+      });
     }
 
     it('sin Authorization responde 401 y no llama a nadie', async () => {
       process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+      process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
       const upstream = vi.spyOn(globalThis, 'fetch');
 
       const anonima = {
@@ -233,6 +224,24 @@ describe('decision engine proxy', () => {
 
       expect(response.status).toBe(401);
       expect(upstream).not.toHaveBeenCalled();
+    });
+
+    it('al MOTOR nunca le llega la clave del worker en rutas que no imprimen', async () => {
+      process.env.DECISION_ENGINE_URL = 'http://engine:3000';
+      process.env.PDF_WORKER_URL = 'http://pdf-worker:3100';
+      process.env.PDF_WORKER_SERVICE_KEY = 'clave-de-servicio';
+      const upstream = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValue(new Response('{}', { status: 200 }));
+
+      await proxyDecisionEngine(request('https://portal.example/pdf/templates'), [
+        'pdf',
+        'templates',
+      ]);
+
+      expect(String(upstream.mock.calls[0]?.[0])).toBe('http://engine:3000/pdf/templates');
+      const sent = new Headers((upstream.mock.calls[0]?.[1] as RequestInit).headers);
+      expect(sent.get('x-pdf-service-key')).toBeNull();
     });
   });
 

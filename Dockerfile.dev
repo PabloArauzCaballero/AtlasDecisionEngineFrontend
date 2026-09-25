@@ -16,7 +16,7 @@
 #      imagen que sólo se podía construir en la máquina que ya tenía los intérpretes bajados, que es
 #      justo lo que un VPS nunca es.
 #
-# Lo que NO va aquí: `DECISION_ENGINE_URL` y `ATLAS_BACKEND_URL`. Son
+# Lo que NO va aquí: `DECISION_ENGINE_URL`, `ATLAS_BACKEND_URL` y `PDF_WORKER_SERVICE_KEY`. Son
 # variables de SERVIDOR, las lee Next en tiempo de ejecución y llegan por `env_file` desde el
 # compose. Hornearlas obligaría a reconstruir la imagen para cambiar de backend.
 #
