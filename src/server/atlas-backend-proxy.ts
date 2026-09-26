@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { buildUpstreamUrl, envMs, fetchUpstream } from './upstream';
 
 /**
  * Segundo destino del portal, y el motivo por el que no basta con el que ya había.
@@ -52,9 +53,14 @@ function atlasBackendBaseUrl(): URL {
   return url;
 }
 
+/** Plazo hasta las CABECERAS; el cuerpo lo gobierna el plazo de inactividad. */
 function upstreamTimeoutMs(): number {
-  const declared = Number(process.env.ATLAS_BACKEND_TIMEOUT_MS);
-  return Number.isFinite(declared) && declared > 0 ? declared : 20_000;
+  return envMs('ATLAS_BACKEND_TIMEOUT_MS', 20_000);
+}
+
+/** Silencio máximo entre dos fragmentos del cuerpo (flujos incluidos). */
+function idleTimeoutMs(): number {
+  return envMs('ATLAS_BACKEND_STREAM_IDLE_TIMEOUT_MS', 60_000);
 }
 
 function trustedClientChain(request: NextRequest): string | null {
@@ -69,12 +75,15 @@ export async function proxyAtlasBackend(
   pathSegments: readonly string[],
 ): Promise<Response> {
   try {
-    const encodedPath = pathSegments.map((segment) => encodeURIComponent(segment)).join('/');
-    const baseUrl = atlasBackendBaseUrl();
-    const target = new URL(
-      `${BACKEND_API_PREFIX}/${encodedPath}`,
-      `${baseUrl.toString().replace(/\/+$/, '')}/`,
-    );
+    // `..` o `%2E%2E` en un segmento sacarían la petición de `api/v1` (p. ej. hacia rutas
+    // internas del backend): se rechaza antes de construir la URL.
+    const target = buildUpstreamUrl(atlasBackendBaseUrl(), BACKEND_API_PREFIX, pathSegments);
+    if (!target) {
+      return NextResponse.json(
+        { code: 'INVALID_PATH', message: 'La ruta pedida no es válida.' },
+        { status: 400 },
+      );
+    }
     target.search = request.nextUrl.search;
 
     const clientChain = trustedClientChain(request);
@@ -90,19 +99,23 @@ export async function proxyAtlasBackend(
     const canHaveBody = request.method !== 'GET' && request.method !== 'HEAD';
     const body = canHaveBody ? await request.arrayBuffer() : undefined;
 
-    const upstream = await fetch(target, {
-      method: request.method,
-      headers,
-      body: body?.byteLength ? body : undefined,
-      redirect: 'manual',
-      cache: 'no-store',
-      signal: AbortSignal.timeout(upstreamTimeoutMs()),
-    });
+    const { response: upstream, body: upstreamBody } = await fetchUpstream(
+      target,
+      {
+        method: request.method,
+        headers,
+        body: body?.byteLength ? body : undefined,
+        redirect: 'manual',
+        cache: 'no-store',
+      },
+      { headersTimeoutMs: upstreamTimeoutMs(), idleTimeoutMs: idleTimeoutMs() },
+      request.signal,
+    );
 
     const responseHeaders = new Headers(upstream.headers);
     responseHeadersToRemove.forEach((header) => responseHeaders.delete(header));
 
-    return new Response(upstream.body, {
+    return new Response(upstreamBody, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,

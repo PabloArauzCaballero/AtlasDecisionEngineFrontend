@@ -40,6 +40,10 @@ services:
       # proxy lo traduce a 502 y la sesión no se toca, pero sin la clave imprimir sigue sin
       # funcionar — que es un fallo honesto, no una expulsión.
       #
+      # El portal sólo la presta después de que el MOTOR acepte la sesión de quien imprime con
+      # la política de impresión (`GET /pdf/templates` con su bearer): 401/403 si no, 503 si el
+      # motor no contesta, y el worker no se toca.
+      #
       # Debe coincidir con `PDF_SERVICE_API_KEY` del motor. Vacía sólo es válido si el worker
       # corre con `PDF_SERVICE_AUTH_ENABLED=false`.
       PDF_WORKER_SERVICE_KEY: ${PDF_WORKER_SERVICE_KEY:-}
