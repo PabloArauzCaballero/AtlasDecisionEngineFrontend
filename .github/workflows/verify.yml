@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies from lockfile
         run: yarn install --frozen-lockfile
 
+      - name: Test published smoke contract
+        run: node --test .github/tests/post-deploy-smoke.test.mjs
+
       - name: Verify formatting
         run: yarn format:check
 
