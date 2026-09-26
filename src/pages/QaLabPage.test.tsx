@@ -146,9 +146,110 @@ describe('QaLabPage', () => {
     });
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Ver / reproducir' }));
-    await waitFor(() => expect(screen.getByText('Contraejemplos')).toBeTruthy());
+    fireEvent.click(await screen.findByRole('button', { name: /Ver resultado/ }));
+    await waitFor(() => expect(screen.getByText(/^Contraejemplos/)).toBeTruthy());
     // Terminó hace días: avisar de su desenlace ahora sería un aviso falso.
     expect(notify).not.toHaveBeenCalled();
+  });
+
+  it('«Reproducir» devuelve al formulario la configuración archivada, no sólo la semilla', async () => {
+    mockedApiRequest.mockImplementation(async (path, options) => {
+      if (path.startsWith('/v1/qa-lab/runs?')) return HISTORIAL;
+      if (path.includes('/outcomes')) return { items: [] };
+      if (options?.method === 'POST') return EN_MARCHA;
+      if (path === '/v1/qa-lab/runs/900') {
+        return {
+          ...TERMINADA,
+          id: '900',
+          seed: 'k3f2m1a',
+          artifactVersionId: '4001',
+          config: {
+            caseCount: 37,
+            mix: { validPercent: 50, boundaryPercent: 30, invalidPercent: 20 },
+            concurrency: 3,
+            timeoutMs: 30_000,
+            checkDeterminism: true,
+            coverOutcomes: false,
+            distributions: { edad: { shape: 'LOW_TAIL' } },
+          },
+        };
+      }
+      return {};
+    });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /^Reproducir$/ }));
+    const lanzar = await screen.findByRole('button', { name: 'Generar 37 casos' });
+    expect(screen.getByLabelText(/concurrencia/)).toHaveValue(3);
+    expect(screen.getByLabelText(/Tiempo máximo/)).toHaveValue(30);
+    expect(screen.getByLabelText(/^Comprobar determinismo/)).toBeChecked();
+
+    fireEvent.click(lanzar);
+    await waitFor(() =>
+      expect(mockedApiRequest).toHaveBeenCalledWith(
+        '/v1/qa-lab/versions/4001/runs',
+        expect.objectContaining({
+          body: expect.objectContaining({
+            seed: 'k3f2m1a',
+            caseCount: 37,
+            validPercent: 50,
+            boundaryPercent: 30,
+            invalidPercent: 20,
+            concurrency: 3,
+            timeoutMs: 30_000,
+            checkDeterminism: true,
+            coverOutcomes: false,
+            distributions: [{ variableCode: 'edad', shape: 'LOW_TAIL' }],
+          }),
+        }),
+      ),
+    );
+    const body = mockedApiRequest.mock.calls.find(([, o]) => o?.method === 'POST')?.[1]?.body;
+    expect(body).not.toHaveProperty('environmentCode');
+  });
+
+  it('una corrida interrumpida dice por qué, en español', async () => {
+    mockedApiRequest.mockImplementation(async (path) => {
+      if (path.startsWith('/v1/qa-lab/runs?')) return HISTORIAL;
+      if (path === '/v1/qa-lab/runs/900') {
+        return {
+          ...TERMINADA,
+          id: '900',
+          status: 'FAILED',
+          summary: { failureCode: 'QA_RUN_UNEXPECTED_ERROR', failureMessage: 'sin conexión' },
+        };
+      }
+      return {};
+    });
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /Ver resultado/ }));
+    expect(await screen.findByText(/error inesperado mientras ejecutaba el lote/)).toBeTruthy();
+    expect(screen.getByText(/Detalle del motor: sin conexión/)).toBeTruthy();
+  });
+
+  it('una corrida cortada y sin fakers lo dice', async () => {
+    mockedApiRequest.mockImplementation(async (path) => {
+      if (path.startsWith('/v1/qa-lab/runs?')) return HISTORIAL;
+      if (path === '/v1/qa-lab/runs/900') {
+        return {
+          ...TERMINADA,
+          id: '900',
+          stoppedReason: 'FIRST_FAILURE',
+          executedCases: 3,
+          plannedCases: 200,
+          fakers: {
+            source: 'local-fallback',
+            reason: 'El servidor de fakers no respondió en 4000 ms.',
+            mappedVariables: { ci: 'persona.documentNumber' },
+          },
+        };
+      }
+      return {};
+    });
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /Ver resultado/ }));
+    expect(await screen.findByText(/Se detuvo en el primer caso con fallo/)).toBeTruthy();
+    expect(screen.getByText(/Ejecutó 3 de 200 casos/)).toBeTruthy();
+    expect(screen.getByText(/no respondió en 4000 ms/)).toBeTruthy();
   });
 });

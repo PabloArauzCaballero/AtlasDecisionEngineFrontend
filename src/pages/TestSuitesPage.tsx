@@ -60,7 +60,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
       notify({
         tone: 'success',
         title: `Suite ${suiteId} encolada`,
-        description: `Run ${queued.id} está listo para ser procesado por el worker.`,
+        description: `La ejecución ${queued.id} está en cola para el worker.`,
       });
       router.push(`/test-runs/${queued.id}`);
     } catch {
@@ -90,7 +90,10 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
           ? `${failures} suites no pudieron encolarse; revisa el error mostrado en la página.`
           : 'El worker las ejecutará con concurrencia controlada.',
         action: queuedIds[0]
-          ? { label: 'Ver primer run', onSelect: () => router.push(`/test-runs/${queuedIds[0]}`) }
+          ? {
+              label: 'Ver la primera ejecución',
+              onSelect: () => router.push(`/test-runs/${queuedIds[0]}`),
+            }
           : undefined,
       });
     } finally {
@@ -101,8 +104,8 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F3-01 · Quality"
-        title={`Test Suites${versionId ? ` for v${versionId}` : ''}`}
+        eyebrow="Calidad"
+        title={`Suites de prueba${versionId ? ` de la versión ${versionId}` : ''}`}
         description="Suites deterministas, cobertura y gates bloqueantes por versión de artefacto."
         hint="Una suite de prueba comprueba que una versión del algoritmo decide como esperas: defines entradas y el resultado esperado, y se ejecuta automáticamente. Una suite bloqueante frena el despliegue si falla."
         actions={
@@ -118,7 +121,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               ) : (
                 <Play size={16} />
               )}
-              Run All
+              Ejecutar todas
             </button>
             <button
               className="button button-primary"
@@ -127,7 +130,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               aria-expanded={showCreate}
               onClick={() => setShowCreate((visible) => !visible)}
             >
-              <Plus size={16} /> Create Suite
+              <Plus size={16} /> Crear suite
             </button>
           </>
         }
@@ -141,7 +144,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
       >
         <ArtifactVersionPicker versionId={draftId} onVersionChange={setDraftId} />
         <button className="button button-primary" type="submit">
-          Load suites
+          Cargar suites
         </button>
       </form>
       {showCreate && versionId ? (
@@ -176,7 +179,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
             illustration="graph"
             title="Elige una versión para ver sus pruebas"
             description="Las suites pertenecen a una versión concreta del algoritmo: así se sabe exactamente qué comportamiento se está verificando."
-            example="Selecciona arriba el artefacto y su versión, y pulsa «Load suites»."
+            example="Selecciona arriba el artefacto y su versión, y pulsa «Cargar suites»."
           />
         </div>
       ) : null}

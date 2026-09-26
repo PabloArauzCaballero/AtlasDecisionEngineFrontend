@@ -1,22 +1,22 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, CheckCircle2, FlaskConical, Timer } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
-import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { ProgressBar } from '../components/ProgressBar';
 import { Panel } from '../components/Panel';
 import { useAmbientState } from '../components/ambient/useAmbientState';
 import { asRecord, asRows, display, type UnknownRecord } from '../utils/records';
-import { QaCounterexampleList } from '../features/qa-lab/QaCounterexampleList';
 import { QaRunHistory } from '../features/qa-lab/QaRunHistory';
+import { QaRunResult } from '../features/qa-lab/QaRunResult';
 import { useQaRun } from '../features/qa-lab/useQaRun';
 import { usedSeedsOf } from '../features/qa-lab/seed-catalog';
+import { configFromArchive } from '../features/qa-lab/qa-run-archive';
+import { toRunBody } from '../features/qa-lab/qa-run-config';
 import {
   DEFAULT_QA_CONFIG,
   QaRunConfigForm,
@@ -25,16 +25,18 @@ import {
 
 /**
  * QA Lab (§10): genera y ejecuta cientos o miles de casos derivados del contrato del
- * artefacto, y archiva el contraejemplo mínimo de cada propiedad que falle.
+ * artefacto, y archiva el contraejemplo mínimo de cada comprobación que falle.
  *
- * Todo queda anclado a una semilla, así que una corrida completa puede repetirse
- * exactamente igual meses después — que es lo que convierte un hallazgo en algo que
- * alguien puede depurar.
+ * Una corrida se repite exactamente igual con su semilla, su configuración y la misma
+ * versión: «Reproducir» devuelve las tres al formulario.
  */
 export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string }) {
   const [draftId, setDraftId] = useState(initialVersionId);
   const [versionId, setVersionId] = useState(initialVersionId);
   const [config, setConfig] = useState<QaRunConfig>(DEFAULT_QA_CONFIG);
+  // Corrida cuya configuración hay que volver a poner en el formulario en cuanto llegue su
+  // detalle: el historial sólo trae la fila resumida, no la configuración archivada.
+  const [restoring, setRestoring] = useState('');
 
   const runs = useQuery({
     queryKey: ['qa-runs', versionId],
@@ -52,18 +54,33 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
   // ése responde en un instante y la corrida sigue otro par de minutos.
   useAmbientState(active || tracking.launching ? 'running' : 'idle');
 
+  useEffect(() => {
+    if (!restoring || String(run.id ?? '') !== restoring) return;
+    setRestoring('');
+    setConfig(configFromArchive(run.config, String(run.seed ?? '')));
+    const version = String(run.artifactVersionId ?? '');
+    if (version) {
+      setDraftId(version);
+      setVersionId(version);
+    }
+  }, [restoring, run]);
+
   const history = asRows(asRecord(runs.data).items);
   const usedSeeds = usedSeedsOf(history.map((entry) => ({ seed: display(entry, 'seed') })));
   const planned = Number(run.plannedCases ?? 0);
   const done = Number(run.totalCases ?? 0);
+  const reproduce = (runId: string) => {
+    setRestoring(runId);
+    tracking.inspect(runId);
+  };
 
   return (
     <>
       <PageHeader
         eyebrow="Calidad"
         title="QA Lab"
-        description="Genera datos sintéticos masivos a partir del contrato del algoritmo, ejecuta cada caso y guarda el contraejemplo mínimo de lo que falle."
-        hint="Sirve para descubrir los casos que nadie escribió a mano: bordes, tipos incorrectos y combinaciones raras que el contrato debería rechazar."
+        description="Inventa cientos de casos a partir de las reglas de entrada del algoritmo, los ejecuta en el motor y te guarda, reducido, cada caso que incumple una comprobación."
+        hint="Encuentra lo que nadie escribió a mano: bordes, datos del tipo equivocado y combinaciones raras que las reglas deberían rechazar. Comprueba el contrato y la ejecución, no si la decisión es buena para el negocio."
       />
 
       <Panel title="Algoritmo a poner a prueba">
@@ -72,6 +89,7 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
             versionId={draftId}
             onVersionChange={setDraftId}
             initialVersionId={initialVersionId}
+            requireCompiled
           />
         </div>
         <div className="panel-actions">
@@ -80,6 +98,7 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
             className="button"
             disabled={!draftId}
             onClick={() => setVersionId(draftId)}
+            data-tutorial-id="qa-lab-use-version"
           >
             Usar esta versión
           </button>
@@ -94,12 +113,11 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
               versionId={versionId}
               usedSeeds={usedSeeds}
               // Se bloquea mientras la corrida VIVE, no mientras dura el `POST`: lanzar una
-              // segunda encima de la primera duplica la carga contra el motor y deja en
-              // pantalla dos corridas peleándose por el mismo sitio.
+              // segunda encima de la primera duplica la carga contra el motor.
               pending={active || tracking.launching}
               disabled={!versionId}
               onChange={setConfig}
-              onRun={() => tracking.launch(toBody(config))}
+              onRun={() => tracking.launch(toRunBody(config))}
             />
           </div>
         </Panel>
@@ -123,74 +141,14 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
       ) : null}
 
       {run.id ? (
-        <>
-          <div className="metric-grid" data-tutorial-id="qa-lab-summary">
-            <MetricCard
-              label="Casos ejecutados"
-              value={String(run.totalCases ?? 0)}
-              hint="generados a partir del contrato"
-              icon={FlaskConical}
-            />
-            <MetricCard
-              label="Correctos"
-              value={String(run.passedCases ?? 0)}
-              hint="cumplen todas las propiedades"
-              icon={CheckCircle2}
-              tone="success"
-            />
-            <MetricCard
-              label="Con fallo"
-              value={String(run.failedCases ?? 0)}
-              hint="violan alguna propiedad"
-              icon={AlertTriangle}
-              tone={Number(run.failedCases) > 0 ? 'danger' : 'default'}
-            />
-            <MetricCard
-              label="Duración"
-              value={`${String(run.durationMs ?? 0)} ms`}
-              hint="tiempo total de la corrida"
-              icon={Timer}
-            />
-          </div>
-          <Panel
-            title="Contraejemplos"
-            meta={`semilla ${display(run, 'seed')} · generador ${display(run, 'generatorVersion')}`}
-          >
-            <div data-tutorial-id="qa-lab-counterexamples">
-              <QaCounterexampleList counterexamples={asRows(run.counterexamples)} />
-            </div>
-          </Panel>
-        </>
+        <QaRunResult run={run} active={active} onReproduce={() => reproduce(String(run.id))} />
       ) : null}
 
       <Panel title="Historial de corridas" meta={`${history.length} corridas`}>
-        <QaRunHistory
-          history={history}
-          onOpen={(runId, seed) => {
-            tracking.inspect(runId);
-            setConfig((current) => ({ ...current, seed }));
-          }}
-        />
+        <div data-tutorial-id="qa-lab-history">
+          <QaRunHistory history={history} onOpen={tracking.inspect} onReproduce={reproduce} />
+        </div>
       </Panel>
     </>
   );
-}
-
-function toBody(config: QaRunConfig): UnknownRecord {
-  return {
-    environmentCode: config.environmentCode,
-    caseCount: config.caseCount,
-    seed: config.seed.trim() || undefined,
-    validPercent: config.validPercent,
-    boundaryPercent: config.boundaryPercent,
-    invalidPercent: config.invalidPercent,
-    concurrency: config.concurrency,
-    timeoutMs: config.timeoutMs,
-    stopOnFirstFailure: config.stopOnFirstFailure,
-    checkDeterminism: config.checkDeterminism,
-    coverOutcomes: config.coverOutcomes,
-    // Vacío se OMITE: mandar {} haría que el motor entendiera «reparte» y rechazara la
-    // corrida por no llevar ningún peso mayor que cero.
-    outcomeWeights: Object.keys(config.outcomeWeights).length ? config.outcomeWeights : undefined,
-  };
 }

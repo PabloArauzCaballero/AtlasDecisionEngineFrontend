@@ -59,9 +59,12 @@ export function PickerSelect({
   const rows = Array.isArray(picker.data)
     ? asRows(picker.data)
     : asRows((picker.data as UnknownRecord | undefined)?.items);
+  // Las deshabilitadas van al final (orden estable): se ven y explican por qué no se
+  // pueden elegir, pero no tapan a las que sí.
   const options = rows
     .map(mapOption)
-    .filter((option): option is PickerOption => option !== null && option.value !== '');
+    .filter((option): option is PickerOption => option !== null && option.value !== '')
+    .sort((a, b) => Number(Boolean(a.disabled)) - Number(Boolean(b.disabled)));
   const field = name ?? queryKey;
 
   // Degrade to a free input when the catalog fails OR resolves empty (endpoint not

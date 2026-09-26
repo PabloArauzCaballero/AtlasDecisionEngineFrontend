@@ -26,6 +26,8 @@ import {
 } from './sample-batch';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import { SampleCaseChips } from './SampleCaseChips';
+import { SampleSeedField, UsedSeed } from './SampleSeedField';
 
 interface Props {
   artifactCode: string;
@@ -84,6 +86,8 @@ export function SimulatorSampleBar({
   // decide el algoritmo, no comprobar por enésima vez que su contrato valida.
   const [kind, setKind] = useState<SampleKind>('OUTCOMES');
   const [count, setCount] = useState(3);
+  const [seed, setSeed] = useState('');
+  const [usedSeed, setUsedSeed] = useState('');
   const [cases, setCases] = useState<ImportedCase[]>([]);
   const [active, setActive] = useState(0);
   const [notice, setNotice] = useState<{ tone: 'info' | 'warning' | 'error'; text: string } | null>(
@@ -105,10 +109,11 @@ export function SimulatorSampleBar({
     mutationFn: () =>
       apiRequest(`/v1/simulations/${encodeURIComponent(artifactCode.trim())}/sample-inputs`, {
         method: 'POST',
-        body: { environmentCode, kind, count },
+        body: { environmentCode, kind, count, seed: seed.trim() || undefined },
         responseSchema: sampleInputsSchema,
       }),
     onSuccess: (data) => {
+      setUsedSeed(data.seed);
       const reading = readBatch(kind, data);
       show(reading.cases, reading.text, reading.tone);
     },
@@ -234,6 +239,7 @@ export function SimulatorSampleBar({
             />
           </Field>
         )}
+        <SampleSeedField value={seed} onChange={setSeed} />
         <button
           type="button"
           className="button"
@@ -276,21 +282,8 @@ export function SimulatorSampleBar({
         <small className="field-hint">Elige un artefacto para generar o importar valores.</small>
       ) : null}
       {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
-      {cases.length > 1 ? (
-        <div className="sample-bar-cases" role="group" aria-label="Casos disponibles">
-          {cases.map((sample, index) => (
-            <button
-              key={sample.label}
-              type="button"
-              className="sample-case-chip"
-              aria-pressed={index === active}
-              onClick={() => pick(index)}
-            >
-              {sample.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <UsedSeed seed={usedSeed} onReuse={setSeed} />
+      <SampleCaseChips cases={cases} active={active} onPick={pick} />
     </div>
   );
 }

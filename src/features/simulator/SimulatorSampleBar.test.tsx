@@ -67,6 +67,45 @@ describe('SimulatorSampleBar', () => {
     expect(await screen.findByText(/semilla k3f2/)).toBeInTheDocument();
   });
 
+  it('manda la semilla escrita y deja fijar la que devolvió el motor', async () => {
+    mockedApiRequest.mockResolvedValue({
+      seed: 'k3f2',
+      kind: 'VALID',
+      cases: [{ index: 0, kind: 'VALID', input: { score: 700, country: 'PE' } }],
+    } as never);
+    renderBar();
+    elegirOpcion(campo('Valores de prueba'), 'VALID');
+
+    // Vacía: el motor inventa una y no se manda ninguna.
+    fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
+    await screen.findByText(/semilla k3f2/);
+    expect(mockedApiRequest.mock.calls[0][1]?.body).toMatchObject({ seed: undefined });
+
+    // «Fijar esta semilla» la escribe en el campo y la siguiente petición la lleva.
+    fireEvent.click(screen.getByRole('button', { name: /Fijar esta semilla/ }));
+    expect(screen.getByLabelText(/^Semilla/)).toHaveValue('k3f2');
+    fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
+    await waitFor(() => expect(mockedApiRequest).toHaveBeenCalledTimes(2));
+    expect(mockedApiRequest.mock.calls[1][1]?.body).toMatchObject({ seed: 'k3f2' });
+  });
+
+  it('avisa cuando los fakers no respondieron', async () => {
+    mockedApiRequest.mockResolvedValue({
+      seed: 'k3f2',
+      kind: 'VALID',
+      fakers: {
+        source: 'local-fallback',
+        reason: 'El servidor de fakers no respondió en 4000 ms.',
+        mappedVariables: { country: 'direccion.country' },
+      },
+      cases: [{ index: 0, kind: 'VALID', input: { score: 700, country: 'PE' } }],
+    } as never);
+    renderBar();
+    elegirOpcion(campo('Valores de prueba'), 'VALID');
+    fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
+    expect(await screen.findByText(/sin fakers \(El servidor de fakers no respondió/)).toBeTruthy();
+  });
+
   it('por omisión pide un caso por desenlace y rotula cada uno con el suyo', async () => {
     mockedApiRequest.mockResolvedValue({
       seed: 's',

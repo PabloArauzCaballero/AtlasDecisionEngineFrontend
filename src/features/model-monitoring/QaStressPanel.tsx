@@ -46,8 +46,10 @@ export function QaStressPanel({
         <span>
           Carga <b>sintética</b>: casos que el generador derivó del contrato, no decisiones de
           personas. <b>No entra en ninguna tasa de esta pantalla</b> —ni suma al denominador de la
-          cobertura— porque el QA Lab no persiste ejecuciones. Mide si el motor <i>aguanta</i>, no
-          si el modelo <i>acierta</i>.
+          cobertura— porque el QA Lab no persiste ejecuciones. El tiempo de cada corrida incluye
+          generar los casos, ejecutarlos dentro del proceso de la API del motor, reducir los que
+          fallan y guardarlos: es una referencia de cuánto le cuesta al motor ese trabajo, no una
+          prueba de carga contra un ambiente desplegado, y no dice si el modelo <i>acierta</i>.
         </span>
       </p>
 
@@ -116,9 +118,10 @@ export function QaStressPanel({
             </p>
           ) : degradation !== null && degradation.cohort < measured ? (
             <p className="monitoring-note">
-              El factor se midió sobre las {degradation.cohort} corridas que comparten
-              configuración, no sobre las {measured} de la tabla: las demás corrieron con otra carga
-              y meterlas en la misma cuenta mediría la configuración y no el motor.
+              El factor se midió sobre las {degradation.cohort} corridas lanzadas con la misma
+              configuración, no sobre las {measured} de la tabla: las demás corrieron con otra
+              concurrencia o sin la misma comprobación, y mezclarlas mediría la configuración y no
+              el motor.
             </p>
           ) : null}
 
@@ -127,11 +130,10 @@ export function QaStressPanel({
               <tr>
                 <th scope="col">Inicio</th>
                 <th scope="col">Estado</th>
-                <th scope="col">Ambiente</th>
                 <th scope="col">Casos</th>
-                <th scope="col">Concurrencia</th>
+                <th scope="col">Casos a la vez</th>
                 <th scope="col">ms / caso</th>
-                <th scope="col">Caudal</th>
+                <th scope="col">Casos por segundo</th>
                 <th scope="col">Violaciones</th>
               </tr>
             </thead>
@@ -140,7 +142,6 @@ export function QaStressPanel({
                 <tr key={run.id} className={run.failed > 0 ? 'row-flagged' : undefined}>
                   <td>{formatDateTime(run.startedAt)}</td>
                   <td>{runStatusLabel(run.status)}</td>
-                  <td>{run.environmentCode}</td>
                   <td>{run.cases.toLocaleString('es-BO')}</td>
                   <td>
                     {run.concurrency === null ? '—' : run.concurrency}

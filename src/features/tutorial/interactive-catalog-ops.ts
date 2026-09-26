@@ -39,8 +39,8 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="simulator-samples"]',
         title: 'No hace falta que teclees los datos',
         content:
-          '«Generar valores» le pide al motor un juego de entradas derivado del contrato del algoritmo desplegado: válidas, en el límite o inválidas a propósito. También puedes subir un JSON o un CSV con tus propios casos.',
-        tip: 'Cada generación muestra su semilla: repítela para volver a obtener exactamente los mismos valores.',
+          '«Generar valores» le pide al motor un juego de entradas derivado del contrato del algoritmo desplegado: válidas, en el límite, inválidas a propósito o una por cada resultado. Nombres, carnets, celulares e ingresos salen de los fakers del servidor de pruebas, así que parecen datos reales. También puedes subir un JSON o un CSV con tus propios casos.',
+        tip: 'Deja «Semilla» vacía para valores nuevos. Tras generar verás la semilla usada: «Fijar esta semilla» la escribe en el campo y, con la misma clase y cantidad, vuelve a dar exactamente los mismos valores.',
       },
       {
         id: 'inputs',

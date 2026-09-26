@@ -5,44 +5,15 @@ import { OutcomeWeightsField } from './OutcomeWeightsField';
 import { GENERATED_SEED, QA_SEED_CATALOG, describeSeed } from './seed-catalog';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import type { QaRunConfig } from './qa-run-config';
+
+export { DEFAULT_QA_CONFIG, type QaRunConfig } from './qa-run-config';
 
 /**
  * Cuántas semillas del historial se ofrecen. El desplegable es para ELEGIR entre lotes
  * conocidos; con las veinte últimas dentro vuelve a ser una lista en la que hay que buscar.
  */
 const MAX_USED_SEEDS = 8;
-
-export interface QaRunConfig {
-  environmentCode: string;
-  caseCount: number;
-  seed: string;
-  validPercent: number;
-  boundaryPercent: number;
-  invalidPercent: number;
-  concurrency: number;
-  timeoutMs: number;
-  stopOnFirstFailure: boolean;
-  checkDeterminism: boolean;
-  /** Un caso por cada desenlace del grafo, además de los de la mezcla. */
-  coverOutcomes: boolean;
-  /** Pesos relativos por desenlace para repartir la porción válida. Vacío = sin reparto. */
-  outcomeWeights: Record<string, number>;
-}
-
-export const DEFAULT_QA_CONFIG: QaRunConfig = {
-  environmentCode: 'DEV',
-  caseCount: 200,
-  seed: '',
-  validPercent: 60,
-  boundaryPercent: 15,
-  invalidPercent: 25,
-  concurrency: 8,
-  timeoutMs: 120_000,
-  stopOnFirstFailure: false,
-  checkDeterminism: false,
-  coverOutcomes: true,
-  outcomeWeights: {},
-};
 
 interface Props {
   config: QaRunConfig;
@@ -54,6 +25,30 @@ interface Props {
   disabled: boolean;
   onChange: (config: QaRunConfig) => void;
   onRun: () => void;
+}
+
+/** Un campo numérico del formulario, con su explicación. */
+function NumberField(props: {
+  label: string;
+  tooltip: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <Field className="constraint-field" label={props.label} tooltip={props.tooltip}>
+      <input
+        type="number"
+        min={props.min}
+        max={props.max}
+        step={props.step}
+        value={props.value}
+        onChange={(event) => props.onChange(Number(event.target.value))}
+      />
+    </Field>
+  );
 }
 
 /** Configuración de una corrida generativa (§10.4). */
@@ -77,38 +72,18 @@ export function QaRunConfigForm({
   return (
     <div className="qa-config">
       <div className="constraint-grid">
-        <Field
-          className="constraint-field"
-          label={'Ambiente'}
-          tooltip="Ambiente del motor contra el que se lanzan los casos de la corrida."
-        >
-          <OptionSelect
-            name="ambiente"
-            value={config.environmentCode}
-            onChange={(valor) => patch({ environmentCode: valor })}
-            options={['DEV', 'TEST', 'STAGING'].map((codigo) => ({
-              value: codigo, // sin-ayuda: códigos de ambiente del motor
-              label: codigo,
-            }))}
-          />
-        </Field>
-        <Field
-          className="constraint-field"
+        <NumberField
           label="Número de casos"
-          tooltip="Cuántos casos genera la corrida, hasta 5000."
-        >
-          <input
-            type="number"
-            min={1}
-            max={5000}
-            value={config.caseCount}
-            onChange={(event) => patch({ caseCount: Number(event.target.value) })}
-          />
-        </Field>
+          tooltip="Cuántos casos inventa y ejecuta la corrida, hasta 5000, además de los de cada resultado si los añades."
+          value={config.caseCount}
+          min={1}
+          max={5000}
+          onChange={(caseCount) => patch({ caseCount })}
+        />
         <Field
           className="constraint-field"
           label={'Semilla'}
-          tooltip="Semilla del generador: la misma semilla produce el mismo lote de casos."
+          tooltip="El nombre del lote de datos. Con la misma semilla, la misma configuración y la misma versión se generan exactamente los mismos casos."
         >
           <OptionSelect
             name="semilla"
@@ -119,14 +94,14 @@ export function QaRunConfigForm({
                 value: GENERATED_SEED,
                 label: 'Generar una nueva',
                 description:
-                  'El motor crea una semilla nueva y la devuelve para poder repetir el lote.',
+                  'El motor crea una semilla nueva y la archiva con la corrida para poder repetirla.',
               },
               ...QA_SEED_CATALOG.map((entry) => ({
                 value: entry.seed,
                 label: `Catálogo · ${entry.label}`,
                 description: entry.hint,
               })),
-              // Una semilla tecleada o heredada que no está en ninguna lista se conserva: sin ella el
+              // Una semilla heredada que no está en ninguna lista se conserva: sin ella el
               // desplegable la enseñaría vacía y parecería perdida.
               ...(loose ? [{ value: config.seed, label: config.seed }] : []), // sin-ayuda: semilla suelta, sin ficha
               ...used.map((seed) => ({
@@ -136,79 +111,53 @@ export function QaRunConfigForm({
             ]}
           />
         </Field>
-        <Field
-          className="constraint-field"
-          label="Concurrencia"
-          tooltip="Cuántos casos ejecuta el motor a la vez, hasta 32."
-        >
-          <input
-            type="number"
-            min={1}
-            max={32}
-            value={config.concurrency}
-            onChange={(event) => patch({ concurrency: Number(event.target.value) })}
-          />
-        </Field>
-        <Field
-          className="constraint-field"
+        <NumberField
+          label="Casos a la vez (concurrencia)"
+          tooltip="Cuántos casos ejecuta el motor al mismo tiempo, de 1 a 32. Más va más rápido pero carga más al motor; no cambia los resultados."
+          value={config.concurrency}
+          min={1}
+          max={32}
+          onChange={(concurrency) => patch({ concurrency })}
+        />
+        <NumberField
+          label="Tiempo máximo (segundos)"
+          tooltip="Si la corrida tarda más, se corta y lo dice: los casos que falten no se ejecutan. Entre 1 y 600 segundos."
+          value={Math.round(config.timeoutMs / 1000)}
+          min={1}
+          max={600}
+          onChange={(seconds) => patch({ timeoutMs: seconds * 1000 })}
+        />
+        <NumberField
           label="% casos válidos"
-          tooltip="Porcentaje de casos que cumplen el contrato."
-        >
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={config.validPercent}
-            onChange={(event) => patch({ validPercent: Number(event.target.value) })}
-          />
-        </Field>
-        <Field
-          className="constraint-field"
-          label="% casos de frontera"
-          tooltip="Porcentaje de casos en el límite de las restricciones."
-        >
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={config.boundaryPercent}
-            onChange={(event) => patch({ boundaryPercent: Number(event.target.value) })}
-          />
-        </Field>
-        <Field
-          className="constraint-field"
+          tooltip="Casos que cumplen todas las reglas del contrato: el motor debe aceptarlos y decidir."
+          value={config.validPercent}
+          min={0}
+          max={100}
+          onChange={(validPercent) => patch({ validPercent })}
+        />
+        <NumberField
+          label="% casos en el límite"
+          tooltip="Casos válidos pero pegados al borde de una regla (edad mínima exacta, monto máximo): ahí suelen esconderse los errores."
+          value={config.boundaryPercent}
+          min={0}
+          max={100}
+          onChange={(boundaryPercent) => patch({ boundaryPercent })}
+        />
+        <NumberField
           label="% casos inválidos"
-          tooltip="Porcentaje de casos que el contrato debe rechazar."
-        >
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={config.invalidPercent}
-            onChange={(event) => patch({ invalidPercent: Number(event.target.value) })}
-          />
-        </Field>
-        <Field
-          className="constraint-field"
-          label="Tiempo máximo (ms)"
-          tooltip="Tope de tiempo de la corrida, en milisegundos."
-        >
-          <input
-            type="number"
-            min={1000}
-            max={600000}
-            step={1000}
-            value={config.timeoutMs}
-            onChange={(event) => patch({ timeoutMs: Number(event.target.value) })}
-          />
-        </Field>
+          tooltip="Casos que rompen a propósito UNA regla del contrato: el motor debe rechazarlos."
+          value={config.invalidPercent}
+          min={0}
+          max={100}
+          onChange={(invalidPercent) => patch({ invalidPercent })}
+        />
         <label className="constraint-field constraint-checkbox">
           <input
             type="checkbox"
             checked={config.stopOnFirstFailure}
             onChange={(event) => patch({ stopOnFirstFailure: event.target.checked })}
           />
-          <span>Parar en el primer contraejemplo</span>
+          <span>Parar en el primer caso con fallo</span>
         </label>
         <label className="constraint-field constraint-checkbox">
           <input
@@ -216,7 +165,9 @@ export function QaRunConfigForm({
             checked={config.checkDeterminism}
             onChange={(event) => patch({ checkDeterminism: event.target.checked })}
           />
-          <span>Comprobar determinismo (ejecuta cada caso dos veces)</span>
+          <span>
+            Comprobar determinismo: ejecuta cada caso dos veces y exige el mismo resultado
+          </span>
         </label>
         <label className="constraint-field constraint-checkbox">
           <input
@@ -232,10 +183,8 @@ export function QaRunConfigForm({
 
       {config.coverOutcomes ? (
         <p className="field-hint">
-          Esos casos se SUMAN a los {config.caseCount} de la mezcla: cuántos hay lo decide el grafo,
-          no esta pantalla. Los porcentajes describen la ENTRADA —si respeta el contrato— y con
-          ellos una tanda de mil casos válidos puede recorrer siempre la misma rama; esto asegura
-          que cada decisión que el algoritmo sabe tomar se ejecuta al menos una vez.
+          Esos casos se suman a los {config.caseCount}: hay uno por cada resultado (aprobar,
+          rechazar, revisar…) para que ninguno quede sin probar.
         </p>
       ) : null}
 
@@ -245,15 +194,26 @@ export function QaRunConfigForm({
         onChange={(outcomeWeights) => patch({ outcomeWeights })}
       />
 
+      {config.distributions.length ? (
+        <p className="field-hint">
+          Esta configuración viene de una corrida archivada y lleva {config.distributions.length}{' '}
+          distribución(es) de valores ({config.distributions.map((d) => d.variableCode).join(', ')}
+          ). Se reenvían tal cual para que el lote sea el mismo.
+        </p>
+      ) : null}
+
       {mixTotal !== 100 ? (
         <p className="field-hint">
-          La mezcla suma {mixTotal} %. Se normalizará proporcionalmente al repartir los{' '}
+          Los porcentajes suman {mixTotal} %: se ajustarán en proporción al repartir los{' '}
           {config.caseCount} casos.
         </p>
       ) : null}
-      <p className="field-hint">
-        PROD no está disponible a propósito: una corrida generativa mete miles de ejecuciones
-        sintéticas y contaminaría los datos y las métricas reales.
+
+      <p className="field-hint" data-tutorial-id="qa-lab-fakers">
+        De dónde salen los datos: nombres, carnets, celulares, correos, ingresos y demás datos
+        reconocibles por el nombre de la variable salen de los <b>fakers</b> del servidor de
+        pruebas, con la misma semilla; lo demás, del contrato. Si ese servidor no responde, todo
+        sale del contrato y el resultado lo avisa.
       </p>
 
       <div className="panel-actions">
@@ -262,6 +222,7 @@ export function QaRunConfigForm({
           className="button button-primary"
           disabled={pending || disabled}
           onClick={onRun}
+          data-tutorial-id="qa-lab-launch"
         >
           {/* El rótulo cuenta también los casos por desenlace: decir «Generar 200 casos»
               cuando se van a ejecutar 200 más los finales del grafo hace que el informe

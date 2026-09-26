@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { apiRequest } from '../api/http-client';
+import { ARTIFACT_STATUS_LABEL, UNCOMPILED_STATUSES } from '../resources/artifact-status';
 import { asRecord, display, type UnknownRecord } from '../utils/records';
 import { PickerSelect } from './PickerSelect';
 
@@ -19,6 +20,26 @@ interface ArtifactVersionPickerProps {
    * artifact is resolved so both selects arrive pre-populated instead of empty.
    */
   initialVersionId?: string;
+  /**
+   * Sólo se pueden elegir versiones compiladas. Las demás se listan DESHABILITADAS y con el
+   * motivo, en vez de ocultarse: quien busca «la v3» tiene que ver por qué no está disponible.
+   */
+  requireCompiled?: boolean;
+}
+
+/** «v1.2.0 · Compilada» en vez de «v1.2.0 · COMPILED». */
+function versionOption(row: UnknownRecord, requireCompiled: boolean) {
+  const status = display(row, 'status');
+  const label = `v${display(row, 'semanticVersion')} · ${ARTIFACT_STATUS_LABEL[status] ?? status}`;
+  if (requireCompiled && UNCOMPILED_STATUSES.has(status)) {
+    return {
+      value: display(row, 'id'),
+      label,
+      description: 'Sin compilar: compílala en «Validar y compilar» antes de probarla aquí.',
+      disabled: true,
+    };
+  }
+  return { value: display(row, 'id'), label };
 }
 
 /**
@@ -35,6 +56,7 @@ export function ArtifactVersionPicker({
   required = false,
   onArtifactChange,
   initialVersionId,
+  requireCompiled = false,
 }: ArtifactVersionPickerProps) {
   const [artifactCode, setArtifactCode] = useState('');
   const [seeded, setSeeded] = useState('');
@@ -93,10 +115,7 @@ export function ArtifactVersionPicker({
         required={required}
         disabled={!artifactCode}
         placeholder={artifactCode ? 'Elegir versión…' : 'Elige primero un artefacto'}
-        mapOption={(row: UnknownRecord) => ({
-          value: display(row, 'id'),
-          label: `v${display(row, 'semanticVersion')} · ${display(row, 'status')}`,
-        })}
+        mapOption={(row: UnknownRecord) => versionOption(row, requireCompiled)}
       />
     </div>
   );
