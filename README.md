@@ -27,6 +27,14 @@ yarn verify
 
 El comando valida formato, ESLint, contratos de fuente, TypeScript, Vitest y el build de producción.
 
+## Verificación tras desplegar `dev`
+
+Tras `finished` de Coolify, el workflow consulta el portal publicado: portada, login,
+assets JS/CSS, proxy `/health/ready` y `/version` con el SHA servido. Después abre el
+login en Chromium y falla ante errores JavaScript. Coolify entrega `SOURCE_COMMIT` al
+proceso como `APP_COMMIT_SHA`; el SHA debe ser el mismo que pasó CI. Si no se informa un
+dominio en Coolify, configura `DEV_SMOKE_BASE_URL` en GitHub Variables.
+
 ## Producción
 
 ```bash

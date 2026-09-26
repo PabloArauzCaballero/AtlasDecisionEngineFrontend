@@ -32,6 +32,9 @@ name: atlas-engine-frontend
 
 services:
   frontend:
+    environment:
+      APP_COMMIT_SHA: '${SOURCE_COMMIT:-}'
+      APP_VERSION: '3.0.0'
     networks: ['default', 'coolify']
     restart: unless-stopped
     logging:
