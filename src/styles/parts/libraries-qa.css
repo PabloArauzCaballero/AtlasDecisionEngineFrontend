@@ -170,6 +170,21 @@
   color: var(--text-muted);
 }
 
+/* La entrada de un contraejemplo como tabla variable → valor; el JSON queda plegado debajo. */
+.qa-input-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-base);
+}
+
+.qa-input-table th,
+.qa-input-table td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
 /*
  * Integridad de la cadena de auditoría y preludios de las librerías.
  *

@@ -1,7 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
+import { Alert } from '../../components/Alert';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { Field } from '../../components/Field';
 
@@ -35,6 +37,16 @@ export function OutcomeWeightsField({ versionId, weights, onChange }: Props) {
   });
 
   const items = asRows(asRecord(outcomes.data).items);
+  // Un 409 (versión sin compilar) o cualquier otro fallo se DICE: antes el reparto
+  // desaparecía sin explicación y parecía que el algoritmo no tenía desenlaces.
+  if (outcomes.isError) {
+    return (
+      <Alert tone="warning">
+        No se pudieron leer los resultados posibles de esta versión, así que no se puede repartir
+        por resultado: {errorMessage(outcomes.error)}
+      </Alert>
+    );
+  }
   if (!versionId || !items.length) return null;
 
   const total = Object.values(weights).reduce((sum, weight) => sum + weight, 0);

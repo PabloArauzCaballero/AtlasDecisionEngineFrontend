@@ -64,8 +64,8 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="calculated-field-try"]',
         title: 'Probar antes de publicar',
         content:
-          'Ejecuta la versión con valores de ejemplo contra el mismo motor aislado que usa producción: lo que veas aquí es lo que pasará de verdad. «Generar ejemplo» rellena el formulario con valores que cumplen el contrato, «En el límite» con los del borde —donde aparecen casi todos los fallos— e «Inválido» con los que el contrato DEBE rechazar.',
-        tip: 'La semilla que aparece bajo el formulario reproduce exactamente el mismo lote: guárdala si encuentras un caso que falla.',
+          'Ejecuta la versión con valores de ejemplo contra el mismo motor aislado que usa producción: lo que veas aquí es lo que pasará de verdad. En «Datos de prueba» elige la clase —«Válidos», «En el límite del contrato», «Inválidos (deben rechazarse)» o «Uno por cada tipo de salida»—, cuántos casos y, si quieres, una semilla; luego pulsa «Generar».',
+        tip: 'Bajo el formulario aparece la semilla usada: escríbela en «Semilla» con la misma clase y el mismo número de casos para repetir exactamente el lote.',
         optional: true,
       },
     ],
@@ -107,45 +107,72 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
 
   'qa-lab': {
     id: 'qa-lab',
-    title: 'QA Lab: miles de casos que nadie escribió',
+    title: 'QA Lab: cientos de casos que nadie escribió',
     intro:
-      'Las pruebas escritas a mano comprueban lo que se te ocurrió. El QA Lab genera casos a partir del contrato del algoritmo —válidos, de frontera e inválidos—, los ejecuta todos y te devuelve el ejemplo más pequeño de lo que falla.',
-    version: 1,
+      'Las pruebas escritas a mano comprueban lo que se te ocurrió. El QA Lab inventa casos a partir de las reglas de entrada del algoritmo —válidos, en el límite e inválidos—, con datos realistas de los fakers, los ejecuta en el motor y te guarda, reducido, cada caso que incumple una comprobación técnica.',
+    version: 2,
     steps: [
       {
         id: 'version',
         route: '/qa-lab',
         target: '[data-tutorial-id="qa-lab-version"]',
-        title: 'Elige la versión a castigar',
+        title: '1. Elige el algoritmo y una versión compilada',
         content:
-          'Se prueba una versión compilada concreta, no «el algoritmo». De ella salen las entradas: el generador lee su contrato de variables —tipos, rangos, longitudes, enumeraciones— y construye los casos a partir de ahí, sin listas escritas a mano.',
-        tip: 'Como los casos salen del contrato, añadir mañana una restricción hace aparecer solos los casos que la ponen a prueba.',
+          'Primero el artefacto y luego la versión. Sólo se puede probar una versión COMPILADA: las que no lo están aparecen al final de la lista, deshabilitadas y con el motivo. De la versión salen las reglas de entrada que usará el generador.',
+        tip: 'Si la versión que buscas está deshabilitada, compílala en «Validar y compilar» y vuelve.',
       },
       {
-        id: 'mix',
-        target: '[data-tutorial-id="qa-lab-config"]',
-        title: 'La mezcla decide qué estás probando',
+        id: 'use-version',
+        target: '[data-tutorial-id="qa-lab-use-version"]',
+        title: '2. Pulsa «Usar esta versión»',
         content:
-          'Los válidos comprueban que la política decide bien; los de frontera atacan los bordes exactos de cada restricción, que es donde se concentran los fallos; los inválidos comprueban que el contrato rechaza lo que debe rechazar. Una corrida sólo de válidos no prueba las defensas.',
-        tip: 'Las distribuciones sesgan dónde caen los valores dentro del rango. Sirven para representar tu cartera real, no para relajar el contrato: nunca generan un valor prohibido.',
-        optional: true,
+          'Hasta que no la confirmas no aparece la configuración de la corrida. Pulsa el botón resaltado para seguir.',
+        requiredAction: 'click',
+      },
+      {
+        id: 'config',
+        target: '[data-tutorial-id="qa-lab-config"]',
+        title: '3. Decide cuántos casos y de qué clase',
+        content:
+          'Válidos: cumplen todas las reglas y el motor debe aceptarlos. En el límite: válidos pero pegados al borde de una regla (edad mínima exacta, monto máximo). Inválidos: rompen a propósito una regla y el motor debe rechazarlos. La semilla es el nombre del lote: con la misma semilla, la misma configuración y la misma versión se generan los mismos casos.',
+        tip: 'Deja marcado «un caso por cada resultado posible» para que ninguna decisión del algoritmo (aprobar, rechazar, revisar…) quede sin ejecutar.',
+      },
+      {
+        id: 'fakers',
+        target: '[data-tutorial-id="qa-lab-fakers"]',
+        title: '4. De dónde salen los datos',
+        content:
+          'Las variables cuyo nombre dice qué dato son —nombre, carnet, celular, correo, fecha de nacimiento, ingreso, banco, NIT…— se rellenan con datos realistas de los fakers del servidor de pruebas, con la misma semilla y ajustados a las reglas del contrato. Lo demás sale del propio contrato. Si ese servidor no responde, todo sale del contrato y el resultado te lo avisa.',
+      },
+      {
+        id: 'launch',
+        target: '[data-tutorial-id="qa-lab-launch"]',
+        title: '5. Lanza la corrida',
+        content:
+          'Pulsa el botón resaltado. La corrida se ejecuta en el motor, no en esta pestaña: verás el avance y puedes irte y volver.',
+        requiredAction: 'click',
       },
       {
         id: 'summary',
         target: '[data-tutorial-id="qa-lab-summary"]',
-        title: 'Leer el resultado',
+        title: '6. Lee el resumen',
         content:
-          '«Con fallo» son casos que violan alguna propiedad declarada; no son errores del motor, son decisiones que no cumplen lo que prometiste. La semilla que acompaña a la corrida la reproduce entera, valor por valor, y queda archivada junto a la versión del generador que la produjo.',
-        optional: true,
+          '«Con fallo» son casos que incumplen alguna comprobación técnica: que el contrato se imponga, que la salida esté completa y con sus tipos, que no se filtren cálculos internos ni datos sensibles y, si lo activas, que la misma entrada dé el mismo resultado. No juzga si la decisión es buena para el negocio: eso lo dicen las suites de prueba. Debajo verás si la corrida se cortó por tiempo o en el primer fallo, y de dónde salieron los datos.',
       },
       {
         id: 'counterexamples',
         target: '[data-tutorial-id="qa-lab-counterexamples"]',
-        title: 'El contraejemplo mínimo',
+        title: '7. Los contraejemplos, reducidos',
         content:
-          'De un caso que falla con veinte campos no se aprende nada. El laboratorio lo reduce: quita todo lo que no influye y simplifica los valores mientras el fallo siga apareciendo. Lo que queda es la explicación más corta posible de qué está mal.',
-        tip: 'Un contraejemplo reducido es un caso de prueba excelente: guárdalo en la suite del algoritmo para que el fallo no vuelva.',
-        optional: true,
+          'Cada caso que falla se recorta a lo mínimo que sigue fallando y se enseña como tabla de variable y valor. «Volver a ejecutar este caso» lo repite con su misma clase (válido, en el límite o inválido) para confirmar si el fallo sigue.',
+        tip: 'Para convertirlo en una prueba permanente, copia su JSON en un caso de una suite de prueba con el resultado que esperas.',
+      },
+      {
+        id: 'history',
+        target: '[data-tutorial-id="qa-lab-history"]',
+        title: '8. Repetir una corrida',
+        content:
+          '«Reproducir» vuelve a poner en el formulario la semilla, la versión y TODA la configuración de aquella corrida. Así puedes comparar una versión nueva contra el mismo lote.',
       },
     ],
   },

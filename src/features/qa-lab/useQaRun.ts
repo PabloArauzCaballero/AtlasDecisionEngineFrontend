@@ -93,7 +93,7 @@ export function useQaRun(versionId: string): QaRunTracking {
       notify({
         tone: 'error',
         title: 'La corrida no llegó a terminar',
-        description: `Quedó archivada como fallida. Abre su detalle para ver el motivo; la semilla ${seed} sirve para repetirla.`,
+        description: `Quedó archivada como interrumpida; el motivo aparece en el resultado, debajo de la configuración. «Reproducir» la vuelve a lanzar con la semilla ${seed} y la misma configuración.`,
       });
     } else {
       notify({
@@ -102,7 +102,7 @@ export function useQaRun(versionId: string): QaRunTracking {
         description:
           failed > 0
             ? `${failed} caso(s) violan alguna propiedad. Revisa los contraejemplos.`
-            : `Semilla ${seed} archivada para reproducir la corrida.`,
+            : `Semilla ${seed} y configuración archivadas: «Reproducir» la repite igual.`,
       });
     }
     void queryClient.invalidateQueries({ queryKey: ['qa-runs'] });

@@ -31,17 +31,28 @@ export const PROPIEDADES_DE_RESPALDO: Record<string, string> = {
   INPUT_CONTRACT_ENFORCED: 'El contrato de entrada se impone',
   OUTPUT_CONTRACT_RESPECTED: 'La salida cumple el contrato',
   OUTPUT_TYPES_MATCH_CONTRACT: 'Los tipos de salida coinciden',
-  NO_INTERMEDIATE_LEAK: 'Ninguna intermedia se filtra',
+  NO_INTERMEDIATE_LEAK: 'Ningún cálculo interno se filtra',
   NO_SENSITIVE_LEAK: 'Ningún dato sensible se filtra',
   DETERMINISM: 'La misma entrada da el mismo resultado',
 };
 
-/** Normaliza la respuesta del motor, que publica `{ items: [...] }` con forma abierta. */
+/**
+ * Normaliza la respuesta del motor, que publica `{ items: [...] }`.
+ *
+ * Acepta las dos formas que ha publicado: objetos `{ code, label, description }` y, en
+ * despliegues anteriores, códigos sueltos (`["DETERMINISM", …]`). Antes sólo se leían objetos,
+ * y como el motor mandaba cadenas, el catálogo remoto se descartaba ENTERO en silencio y la
+ * pantalla vivía siempre del respaldo local.
+ */
 export function leerPropiedades(payload: unknown): PropiedadQa[] {
   const items = asRecord(payload).items;
   if (!Array.isArray(items)) return [];
   const propiedades: PropiedadQa[] = [];
   for (const item of items) {
+    if (typeof item === 'string') {
+      if (item) propiedades.push({ code: item, label: PROPIEDADES_DE_RESPALDO[item] ?? item });
+      continue;
+    }
     const fila = asRecord(item);
     const code = String(fila.code ?? fila.property ?? fila.name ?? '');
     // Una fila sin código no se puede casar con nada: se descarta en silencio en vez de

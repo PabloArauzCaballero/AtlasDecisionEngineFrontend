@@ -9,21 +9,21 @@ export const labTutorials: TutorialRegistry = {
     steps: [
       {
         title: 'Cargar una versión',
-        body: 'Elige la versión del artefacto y pulsa «Load suites» para ver las suites asociadas.',
+        body: 'Elige el artefacto y su versión y pulsa «Cargar suites» para ver las suites asociadas.',
       },
       {
         title: 'Crear una suite',
-        body: '«Create Suite» crea una suite con un caso inicial: una entrada y su resultado esperado en JSON.',
+        body: '«Crear suite» crea una suite con un caso inicial: una entrada y su resultado esperado en JSON.',
       },
       {
         title: 'Compila antes de probar',
-        body: 'Una suite solo se ejecuta si la versión del artefacto está COMPILADA. Si al correr ves "No compiled artifact available", abre «Validar y compilar» de esa versión, compílala y vuelve a ejecutar la suite.',
+        body: 'Una suite solo se ejecuta si la versión del artefacto está compilada. Si no lo está, al ejecutarla aparece un aviso «Esta versión todavía no tiene un artefacto compilado»: abre «Validar y compilar» de esa versión, compílala y vuelve a ejecutar la suite.',
         tip: 'La app te muestra un aviso con un enlace directo a la pantalla de compilar cuando falta ese paso.',
       },
       {
         title: 'Ejecutar y bloquear',
-        body: '«Run» encola la suite; el worker la ejecuta y muestra resultado y cobertura. Una suite bloqueante frena el despliegue si falla.',
-        tip: 'Corre «Run All» para validar toda la versión antes de solicitar su aprobación.',
+        body: 'El botón ▶ («Ejecutar suite») de cada fila la encola; el worker la ejecuta y muestra resultado y cobertura. Una suite bloqueante frena el despliegue si falla.',
+        tip: 'Pulsa «Ejecutar todas» para validar toda la versión antes de solicitar su aprobación.',
       },
     ],
   },

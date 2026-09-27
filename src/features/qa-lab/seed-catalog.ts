@@ -2,8 +2,10 @@
  * Semillas con nombre, en vez de un campo de texto libre.
  *
  * Una semilla no es un ajuste: es el NOMBRE de un lote concreto de casos. La misma
- * semilla sobre la misma versión vuelve a generar exactamente las mismas entradas, y ahí
- * está todo su valor —comparar dos versiones con el mismo lote, o reproducir meses
+ * semilla, con la misma configuración (número de casos, mezcla, pesos, casos por
+ * desenlace) y sobre la misma versión, vuelve a generar exactamente las mismas entradas
+ * —siempre que los fakers del servidor de pruebas respondan igual que la vez anterior—, y
+ * ahí está todo su valor —comparar dos versiones con el mismo lote, o reproducir meses
  * después el caso que falló—. Tecleada a mano no sirve para nada de eso: cada persona
  * escribía una cadena distinta, así que dos corridas nunca eran comparables y nadie sabía
  * cuál repetir.
@@ -30,7 +32,7 @@ export const QA_SEED_CATALOG: readonly QaSeedEntry[] = [
   {
     seed: 'qa-base',
     label: 'Base',
-    hint: 'El lote de referencia. Úsalo para comparar dos versiones del mismo algoritmo: mismo lote, misma vara de medir.',
+    hint: 'El lote de referencia. Úsalo con la misma configuración para comparar dos versiones del mismo algoritmo.',
   },
   {
     seed: 'qa-regresion',
@@ -52,14 +54,14 @@ export const QA_SEED_CATALOG: readonly QaSeedEntry[] = [
 /** Explicación de la semilla elegida, para el pie del desplegable. */
 export function describeSeed(seed: string, used: readonly string[]): string {
   if (seed === GENERATED_SEED) {
-    return 'El motor genera una y la archiva con la corrida, así que esta tanda también se podrá repetir después.';
+    return 'El motor genera una y la archiva con la corrida. Para repetirla usa «Reproducir» en el historial: restaura la semilla y toda la configuración.';
   }
   const known = QA_SEED_CATALOG.find((entry) => entry.seed === seed);
   if (known) return known.hint;
   if (used.includes(seed)) {
-    return 'Semilla de una corrida anterior de esta versión: repite exactamente aquel lote de casos.';
+    return 'Semilla de una corrida anterior. Sólo repite aquel lote con la misma configuración y la misma versión: «Reproducir» en el historial restaura ambas.';
   }
-  return 'Semilla archivada. Repite el mismo lote de casos sobre esta versión.';
+  return 'Semilla archivada. Con la misma configuración y la misma versión repite el mismo lote.';
 }
 
 /**

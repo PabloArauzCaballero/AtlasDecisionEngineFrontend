@@ -63,7 +63,7 @@ export const viewExamples: Readonly<Record<string, string>> = {
   'live-execution':
     'Lanzas una decisión y ves el recorrido dibujándose paso a paso, con el valor de cada variable al pasar por cada nodo. Es depurar mirando, no leyendo registros.',
   'qa-lab':
-    'Pides doscientos casos generados del contrato y el laboratorio encuentra la combinación que rompe el algoritmo, reducida al mínimo que la reproduce.',
+    'Pides doscientos casos generados del contrato, con nombres y carnets de los fakers, y el laboratorio te devuelve, reducido al mínimo, cada caso que el motor acepta sin deber o rechaza sin motivo.',
   search:
     'Escribes «ingreso» y encuentras la variable, los algoritmos que la usan y las decisiones donde apareció.',
 };

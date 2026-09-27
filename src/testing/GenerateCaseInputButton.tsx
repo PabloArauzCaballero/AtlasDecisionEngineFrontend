@@ -10,9 +10,11 @@ import { Alert } from '../components/Alert';
 import type { SampleKind } from './suite-types';
 import { Field } from '../components/Field';
 import { OptionSelect } from '../components/OptionSelect';
+import { SampleSeedField, UsedSeed } from '../features/simulator/SampleSeedField';
 
 const sampleSchema = z.object({
   seed: z.string(),
+  fakers: z.object({ source: z.string(), reason: z.string().optional() }).optional(),
   totalOutcomes: z.number().optional(),
   cases: z
     .array(
@@ -57,7 +59,11 @@ export function GenerateCaseInputButton({
   onGenerated,
 }: Props) {
   const [kind, setKind] = useState<SampleKind>(defaultKind);
+  /** Lo escrito en «Semilla»; vacío = una nueva. */
+  const [requestedSeed, setRequestedSeed] = useState('');
+  /** La que devolvió el motor en la última generación. */
   const [seed, setSeed] = useState('');
+  const [fakerSource, setFakerSource] = useState('');
   /** Con `OUTCOMES` el motor devuelve una entrada por desenlace: se eligen aquí. */
   const [outcomes, setOutcomes] = useState<SampleCase[]>([]);
   const [chosen, setChosen] = useState(0);
@@ -71,11 +77,12 @@ export function GenerateCaseInputButton({
     mutationFn: () =>
       apiRequest(`/v1/qa-lab/versions/${encodeURIComponent(artifactVersionId)}/sample-inputs`, {
         method: 'POST',
-        body: { kind, count: 1 },
+        body: { kind, count: 1, seed: requestedSeed.trim() || undefined },
         responseSchema: sampleSchema,
       }),
     onSuccess: (data) => {
       setSeed(data.seed);
+      setFakerSource(data.fakers?.source ?? '');
       // Un caso de suite afirma UN resultado, así que se carga uno y se ofrecen los
       // demás: sin la lista, «un caso por desenlace» acabaría siendo siempre el primero.
       setOutcomes(kind === 'OUTCOMES' ? data.cases : []);
@@ -126,6 +133,7 @@ export function GenerateCaseInputButton({
             ]}
           />
         </Field>
+        <SampleSeedField value={requestedSeed} onChange={setRequestedSeed} />
         <button
           type="button"
           className="button"
@@ -154,10 +162,18 @@ export function GenerateCaseInputButton({
       ) : null}
       {generate.isError ? <Alert tone="error">{errorMessage(generate.error)}</Alert> : null}
       {seed && !generate.isError ? (
-        <small className="field-hint">
-          Entrada generada del contrato de la versión · semilla {seed}. El resultado esperado lo
-          decides tú: es lo que la prueba afirma.
-        </small>
+        <>
+          <small className="field-hint">
+            Entrada generada del contrato de la versión
+            {fakerSource === 'mock'
+              ? ', con datos realistas de los fakers donde el nombre de la variable lo permite'
+              : fakerSource === 'local-fallback'
+                ? ' (los fakers no respondieron: nombres y documentos no parecen reales)'
+                : ''}
+            . El resultado esperado lo decides tú: es lo que la prueba afirma.
+          </small>
+          <UsedSeed seed={seed} onReuse={setRequestedSeed} />
+        </>
       ) : null}
       {outcomes[chosen]?.unresolved?.length ? (
         <Alert tone="warning">

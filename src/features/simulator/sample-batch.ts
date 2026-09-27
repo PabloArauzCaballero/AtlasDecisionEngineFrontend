@@ -32,6 +32,14 @@ export const sampleInputsSchema = z.object({
   seed: z.string(),
   kind: z.string(),
   totalOutcomes: z.number().optional(),
+  /** De dónde salieron los valores con significado (nombre, carnet, celular…). */
+  fakers: z
+    .object({
+      source: z.string(),
+      reason: z.string().optional(),
+      mappedVariables: z.record(z.string()).optional(),
+    })
+    .optional(),
   cases: z.array(
     z.object({
       index: z.number(),
@@ -92,7 +100,16 @@ export function readBatch(kind: SampleKind, batch: SampleBatch): BatchReading {
     }
   }
 
-  parts.push(`semilla ${batch.seed}`);
+  const mapped = Object.keys(batch.fakers?.mappedVariables ?? {});
+  if (batch.fakers?.source === 'mock') {
+    parts.push(`datos realistas de los fakers en ${mapped.join(', ')}`);
+  } else if (batch.fakers?.source === 'local-fallback' && mapped.length) {
+    parts.push(
+      `sin fakers (${batch.fakers.reason ?? 'no respondieron'}): ${mapped.join(', ')} salieron del contrato y no parecen datos reales`,
+    );
+    tone = 'warning';
+  }
+  // La semilla no va aquí: la enseña `UsedSeed`, copiable y con el atajo para fijarla.
   return { cases, tone, text: parts.join(' · ') };
 }
 
