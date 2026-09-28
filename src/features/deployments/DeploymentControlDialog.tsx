@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { errorMessage } from '../../api/ApiError';
+import { ApiError, errorMessage } from '../../api/ApiError';
 import { Alert } from '../../components/Alert';
 import { ModalDialog } from '../../components/ModalDialog';
 import { useNotifications } from '../../notifications/useNotifications';
@@ -23,6 +23,7 @@ interface DeploymentControlDialogProps {
   descripcion: string;
   onClose: () => void;
   onDone: () => void;
+  onConflict: () => void;
 }
 
 const TEXTOS: Record<
@@ -72,6 +73,7 @@ export function DeploymentControlDialog({
   descripcion,
   onClose,
   onDone,
+  onConflict,
 }: DeploymentControlDialogProps) {
   const { notify } = useNotifications();
   const [reason, setReason] = useState('');
@@ -94,6 +96,9 @@ export function DeploymentControlDialog({
       });
       onDone();
       onClose();
+    },
+    onError: (error) => {
+      if (error instanceof ApiError && error.kind === 'conflict') onConflict();
     },
   });
 

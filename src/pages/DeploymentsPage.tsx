@@ -110,6 +110,9 @@ export function DeploymentsPage() {
           onDone={() =>
             void queryClient.invalidateQueries({ queryKey: ['resource', 'deployments'] })
           }
+          onConflict={() =>
+            void queryClient.invalidateQueries({ queryKey: ['resource', 'deployments'] })
+          }
         />
       ) : null}
     </>
