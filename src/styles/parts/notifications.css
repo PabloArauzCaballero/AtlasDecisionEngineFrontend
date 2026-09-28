@@ -9,10 +9,14 @@
  * banda y no había forma de pulsarlo. Con el reparto, el puntero atraviesa el
  * hueco y sólo la tarjeta —que sí tiene botones— lo recibe.
  */
+/*
+ * `bottom` deja libre la esquina del botón del asistente (`assist.css`: 52 px a
+ * 24 px del borde): los avisos se apilan justo encima de él, no sobre él.
+ */
 .toast-viewport {
   position: fixed;
   right: 24px;
-  bottom: 24px;
+  bottom: 88px;
   pointer-events: none;
   z-index: 90;
   display: flex;
@@ -262,7 +266,7 @@
   .toast-viewport {
     right: 12px;
     left: 12px;
-    bottom: 12px;
+    bottom: 68px;
     width: auto;
   }
 }

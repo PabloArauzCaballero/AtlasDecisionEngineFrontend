@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, type PropsWithChildren } from 'react';
 import { SessionSecurityNotice } from '../../auth/SessionSecurityNotice';
 import { AmbientProvider } from '../../components/ambient/AmbientProvider';
+import { AssistLauncher } from '../../features/assist/AssistLauncher';
 import { InteractiveTutorialProvider } from '../../features/tutorial/InteractiveTutorialProvider';
 import { TutorialProvider } from '../../features/tutorial/TutorialProvider';
 import { TutorialWelcomePrompt } from '../../features/tutorial/TutorialWelcomePrompt';
@@ -71,6 +72,10 @@ export function NextAppShell({ children }: PropsWithChildren) {
               </div>
             </AmbientProvider>
             <ToastViewport />
+            {/* Fuera de `.route-view` a propósito: su animación de entrada deja un
+                `transform` que convertiría el `position: fixed` en relativo a la
+                página, y además así el hilo no se pierde al cambiar de ruta. */}
+            <AssistLauncher />
           </div>
         </InteractiveTutorialProvider>
       </TutorialProvider>
