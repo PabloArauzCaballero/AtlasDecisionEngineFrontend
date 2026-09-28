@@ -1,0 +1,246 @@
+/* Asistente de Atlas: botón flotante y panel ------------------------------ */
+
+/*
+ * La esquina inferior derecha era de los avisos (`.toast-viewport`, z 90). El
+ * botón se queda en ella y los avisos suben por encima de él —ver
+ * `notifications.css`—: un aviso no puede tapar el acceso a la ayuda, ni el
+ * botón un aviso con acción. Por debajo de los avisos en el eje z (85), por si
+ * alguna vez coinciden, y muy por debajo de los recorridos guiados (1000).
+ */
+.assist-fab {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right, 0px));
+  bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  z-index: 85;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--navy);
+  border-radius: var(--radius-pill);
+  background: var(--navy);
+  color: var(--surface);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+.assist-fab:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.assist-fab:active {
+  transform: translateY(1px);
+}
+.assist-fab svg {
+  width: 24px;
+  height: 24px;
+}
+
+/*
+ * El final de cada página queda por encima del botón: sin este margen, la
+ * última fila de una tabla o el botón de guardar al pie de un formulario
+ * quedaban debajo del círculo al bajar del todo.
+ */
+.content {
+  padding-bottom: max(calc(var(--stack-gap) * 2), 96px);
+}
+
+/*
+ * Sin velo: quien pregunta suele estar mirando la pantalla sobre la que
+ * pregunta. El fondo sólo existe para cerrar al pulsar fuera.
+ */
+.assist-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.assist-panel {
+  position: absolute;
+  right: 24px;
+  bottom: 88px;
+  width: min(420px, calc(100vw - 48px));
+  height: min(640px, calc(var(--viewport-h) - 120px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  animation: fade-in var(--dur-base) var(--ease-standard) both;
+}
+
+.assist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+.assist-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--type-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--track-tight);
+}
+.assist-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: var(--type-xs);
+}
+
+.assist-log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.assist-state,
+.assist-empty > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-sm);
+  line-height: 1.55;
+}
+.assist-suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.assist-suggestion {
+  padding: 7px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--type-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.assist-suggestion:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.assist-bubble {
+  max-width: 88%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--type-sm);
+  line-height: 1.55;
+}
+.assist-bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.assist-bubble-person {
+  align-self: flex-end;
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+.assist-bubble-assistant {
+  align-self: flex-start;
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+.assist-thinking p {
+  color: var(--muted);
+}
+.assist-bubble .assist-meta {
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: var(--type-xs);
+}
+
+.assist-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 9px 12px;
+  border: 1px solid var(--danger-line);
+  border-radius: var(--radius-md);
+  background: var(--danger-wash);
+}
+.assist-error p {
+  margin: 0;
+  color: var(--danger-text);
+  font-size: var(--type-sm);
+}
+
+.assist-compose {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-top: 1px solid var(--line);
+}
+.assist-notice,
+.assist-counter {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-xs);
+}
+.assist-counter {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.assist-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+.assist-input-row textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 160px;
+  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--type-sm);
+  line-height: 1.5;
+}
+.assist-input-row textarea:disabled {
+  background: var(--surface-muted);
+  cursor: not-allowed;
+}
+.assist-send {
+  width: 40px;
+  padding: 0;
+}
+
+/* En un teléfono el panel ocupa casi toda la pantalla y tapa al botón. */
+@media (max-width: 560px) {
+  .assist-fab {
+    right: 12px;
+    bottom: 12px;
+    width: 48px;
+    height: 48px;
+  }
+  .assist-panel {
+    inset: 8px;
+    width: auto;
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assist-panel {
+    animation: none;
+  }
+}
