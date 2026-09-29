@@ -76,10 +76,10 @@ test.describe('pestaña Verificación de Identidad', () => {
     await expect(veredicto.getByText('Requiere revisión')).toBeVisible();
     await expect(veredicto.getByText(/Una persona tiene que mirarlo/)).toBeVisible();
 
-    // El motivo va en español Y con su código: la frase es de esta pantalla, el
-    // código es lo que se cita en un ticket.
+    // El motivo va en español y SIN el código interno: quien revisa no es de sistemas, y el
+    // código no le dice nada que la frase no diga ya.
     await expect(veredicto.getByText('El parecido queda entre los dos umbrales')).toBeVisible();
-    await expect(veredicto.locator('code', { hasText: 'AMBIGUOUS_MATCH' })).toBeVisible();
+    await expect(veredicto.getByText('AMBIGUOUS_MATCH')).toHaveCount(0);
 
     // Los datos leídos, con el número ENMASCARADO. Si esto enseñara el número
     // entero, el enmascarado del motor no estaría llegando a la pantalla.

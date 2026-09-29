@@ -67,7 +67,9 @@ test.describe('pestaña Procesamiento', () => {
     // ocurrida dos veces. Enumerarlas sueltas escondería que hay una sola cosa
     // que arreglar.
     await expect(panel.locator('.worker-incident')).toHaveCount(1);
-    await expect(panel.getByText('DOCUMENTO_ILEGIBLE')).toBeVisible();
+    // La incidencia se explica con su mensaje; el código interno ya no se enseña.
+    await expect(panel.getByText('El documento no tiene una capa de texto legible.')).toBeVisible();
+    await expect(panel.getByText('DOCUMENTO_ILEGIBLE')).toHaveCount(0);
     await expect(panel.getByText('2 veces')).toBeVisible();
 
     expect(problemas, problemas.join('\n')).toEqual([]);
