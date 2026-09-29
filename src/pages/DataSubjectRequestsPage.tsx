@@ -51,7 +51,7 @@ export function DataSubjectRequestsPage() {
         eyebrow="Auditoría"
         title="Derechos del titular"
         description="Registra y resuelve una solicitud de acceso, portabilidad, eliminación o revisión humana contra el historial de decisiones."
-        hint="La referencia del titular viaja siempre en el cuerpo de la petición, nunca en la dirección: un identificador en una URL queda escrito en el registro de acceso, en el proxy y en la traza."
+        hint="El identificador de la persona nunca aparece en la dirección de la página, para que no quede escrito en ningún registro."
       />
 
       <Panel title="Nueva solicitud">

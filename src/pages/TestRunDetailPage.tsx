@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Clock3, Route, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { apiRequest } from '../api/http-client';
+import { statusText } from '../contracts/status-labels';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
@@ -40,9 +41,9 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F3-06 · Test Run"
-        title="Execution Result"
-        description={`Run ${run?.id ?? runId} · ${run?.triggerType ?? '—'}`}
+        eyebrow="Calidad · Corrida de pruebas"
+        title="Resultado de la corrida"
+        description={`Corrida ${run?.id ?? runId}`}
         actions={
           <div className="inline-actions">
             <Link className="button" href={`/test-runs/${encodeURIComponent(runId)}/coverage`}>
@@ -68,28 +69,28 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
       ) : null}
       <div className="metric-grid">
         <MetricCard
-          label="Pass Rate"
+          label="Casos correctos"
           value={`${passRate}%`}
-          hint={`${passed}/${caseRuns.length} cases`}
+          hint={`${passed} de ${caseRuns.length} casos`}
           icon={CheckCircle2}
           tone="success"
         />
         <MetricCard
-          label="Duration"
+          label="Duración"
           value={String(run?.durationMs ?? 0)}
-          hint="milliseconds"
+          hint="milisegundos"
           icon={Clock3}
         />
         <MetricCard
-          label="Cobertura de nodos"
+          label="Pasos del algoritmo recorridos"
           value={`${nodeCoverage.toFixed(1)}%`}
-          hint="graph nodes"
+          hint="del diagrama"
           icon={Route}
         />
         <MetricCard
-          label="Status"
-          value={run?.status ?? 'LOADING'}
-          hint="execution state"
+          label="Estado"
+          value={run ? statusText(run.status) : 'Cargando…'}
+          hint="de la corrida"
           icon={ShieldCheck}
         />
       </div>
@@ -109,7 +110,7 @@ export function TestRunDetailPage({ runId }: TestRunDetailPageProps) {
             <div className="empty-state">Esta corrida no ejecutó ningún caso.</div>
           ) : null}
         </Panel>
-        <Panel title="Resumen de casos" meta="Trace">
+        <Panel title="Resumen de casos" meta="Recorrido">
           <Timeline
             items={caseRuns.slice(0, 8).map((item) => ({
               title: item.resultStatus,

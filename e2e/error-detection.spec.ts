@@ -258,8 +258,8 @@ test('create forms and the deployment dialog open without errors', async ({ page
   await mockBackend(page);
 
   await page.goto('/variables');
-  await page.getByRole('button', { name: /Add Variable/i }).click();
-  await expect(page.getByRole('button', { name: /Add Variable/i }).last()).toBeVisible();
+  await page.getByRole('button', { name: /Nueva variable/i }).click();
+  await expect(page.getByRole('button', { name: /Nueva variable/i }).last()).toBeVisible();
 
   where.route = '/deployments';
   await page.goto('/deployments');

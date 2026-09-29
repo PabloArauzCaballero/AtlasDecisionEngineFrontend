@@ -179,12 +179,12 @@ export function LiveExecutionPage() {
         <AlertTriangle /> Vista previa en vivo — sólo ambientes no productivos
       </div>
       <PageHeader
-        eyebrow="F8 · Live Execution"
+        eyebrow="Operación · En vivo"
         title="Ejecución en vivo"
         description="Observa, nodo por nodo y en tiempo real, cómo el motor recorre el grafo de decisión."
       />
       <div className="simulator-layout">
-        <Panel title="Configuración" meta="Live request">
+        <Panel title="Configuración" meta="Solicitud en vivo">
           <form className="simulator-form" onSubmit={start}>
             <ArtifactVersionPicker
               versionId={versionId}

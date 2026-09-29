@@ -107,7 +107,7 @@ export function CodeImportPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F5 · Code to Flow"
+        eyebrow="Diseño · Del código al diagrama"
         title="Importar código como árbol de decisión"
         description="Analiza JavaScript o Python con un contrato @atlas-contract declarado, revisa el grafo generado, y guárdalo como borrador o confírmalo."
       />
@@ -226,7 +226,7 @@ export function CodeImportPage() {
       </div>
 
       {analyze.isSuccess && !hasBlockingIssues ? (
-        <Panel title="Guardar en un artefacto" meta={`Import #${importId}`}>
+        <Panel title="Guardar en un algoritmo" meta={`Importación n.º ${importId}`}>
           <div className="code-import-form" data-tutorial-id="code-import-save">
             {/* Antes sólo se podía guardar en un borrador ya existente, así que
                 importar un algoritmo NUEVO obligaba a irse a otra pantalla,
@@ -238,8 +238,8 @@ export function CodeImportPage() {
               onLockVersionChange={setExpectedLockVersion}
             />
             <Field
-              label="Lock Version esperado"
-              tooltip="Versión de bloqueo del borrador; si otro lo cambió antes, el motor rechaza el guardado."
+              label="Versión del borrador"
+              tooltip="La versión del borrador que tienes abierta. Si otra persona lo cambió mientras tanto, el motor no guarda para no pisar su trabajo."
             >
               <input
                 type="number"

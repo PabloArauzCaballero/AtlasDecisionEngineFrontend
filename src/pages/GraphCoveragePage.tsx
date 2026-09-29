@@ -3,6 +3,7 @@ import { AlertTriangle, Download, GitBranch, ListChecks, Route } from 'lucide-re
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { statusText } from '../contracts/status-labels';
 import { Alert } from '../components/Alert';
 import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
@@ -82,9 +83,9 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
   return (
     <>
       <PageHeader
-        eyebrow="F3-07 · Quality"
-        title="Cobertura de Grafo"
-        description="Análisis de rutas críticas, nodos alcanzados y caminos sin terminación."
+        eyebrow="Calidad"
+        title="Cobertura del diagrama"
+        description="Qué pasos y caminos del algoritmo recorrieron las pruebas, y cuáles quedaron sin probar."
         actions={
           <button
             className="button"
@@ -104,15 +105,15 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         }}
       >
         <PickerSelect
-          label="Ejecución de pruebas"
+          label="Corrida de pruebas"
           value={draftId}
           onChange={setDraftId}
           endpoint="/v1/views/pickers/test-runs"
           queryKey="test-runs"
-          placeholder="Elegir run…"
+          placeholder="Elegir corrida…"
           mapOption={(row) => ({
             value: display(row, 'id'),
-            label: `Run ${display(row, 'id')} · ${display(row, 'suiteCode')} · ${display(row, 'status')}`,
+            label: `Corrida ${display(row, 'id')} · ${display(row, 'suiteCode')} · ${statusText(row.status)}`,
           })}
         />
         <button className="button button-primary" type="submit">
@@ -121,37 +122,37 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
       </form>
       {query.isError ? (
         <Alert tone="error">
-          No fue posible recuperar la cobertura de este run: {errorMessage(query.error)}
+          No fue posible recuperar la cobertura de esta corrida: {errorMessage(query.error)}
         </Alert>
       ) : null}
       {inProgress ? (
         <Alert tone="info">
-          El run está {run?.status === 'QUEUED' ? 'en cola' : 'en ejecución'}; la cobertura se
+          La corrida está {run?.status === 'QUEUED' ? 'en cola' : 'en ejecución'}; la cobertura se
           actualizará automáticamente al terminar.
         </Alert>
       ) : null}
       <div className="metric-grid">
         <MetricCard
-          label="Casos Ejecutados"
+          label="Casos corridos"
           value={String(caseRuns.length)}
           hint="total cases"
           icon={ListChecks}
         />
         <MetricCard
-          label="Cobertura de nodos"
+          label="Pasos recorridos"
           value={`${nodePct.toFixed(1)}%`}
           hint="nodes reached"
           icon={GitBranch}
           tone="success"
         />
         <MetricCard
-          label="Cobertura de aristas"
+          label="Conexiones recorridas"
           value={`${edgePct.toFixed(1)}%`}
           hint="edges traversed"
           icon={Route}
         />
         <MetricCard
-          label="Non-terminal Paths"
+          label="Caminos que no llegan a un final"
           value={String(nonTerminalRuns.length)}
           hint="requires attention"
           icon={AlertTriangle}
@@ -177,12 +178,12 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
             ))}
           </div>
         </Panel>
-        <Panel title="Cobertura por Tipo" meta="Percent">
+        <Panel title="Cobertura por tipo" meta="Porcentaje">
           <div className="coverage-bars">
             {[
-              ['Nodes', nodePct],
-              ['Edges', edgePct],
-              ['Terminals', terminalPct],
+              ['Pasos', nodePct],
+              ['Conexiones', edgePct],
+              ['Finales', terminalPct],
             ].map(([label, value]) => (
               <div key={String(label)}>
                 <span>
@@ -199,14 +200,14 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
           </div>
         </Panel>
       </div>
-      <Panel title="Rutas No Terminales Detectadas" meta="Trace inspection">
+      <Panel title="Caminos que no llegan a un final" meta="Revisión del recorrido">
         <ScrollRegion label="Cobertura por nodo">
           <table>
             <thead>
               <tr>
                 <th scope="col">Caso</th>
                 <th scope="col">Resultado</th>
-                <th scope="col">Terminal alcanzado</th>
+                <th scope="col">Final alcanzado</th>
                 <th scope="col">Error</th>
               </tr>
             </thead>
@@ -217,7 +218,7 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
                   <td>
                     <StatusBadge value={item.resultStatus} />
                   </td>
-                  <td>Sin terminal</td>
+                  <td>Sin final</td>
                   <td>{item.errorJson ? JSON.stringify(item.errorJson) : '—'}</td>
                 </tr>
               ))}

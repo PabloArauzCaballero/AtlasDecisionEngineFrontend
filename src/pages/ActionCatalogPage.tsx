@@ -94,7 +94,7 @@ export function ActionCatalogPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F2 · Banco"
+        eyebrow="Diseño"
         title="Acciones y transformaciones"
         description="El repertorio de lo que las decisiones saben hacer: calcular un campo, emitir un motivo o abrir una revisión. Se define una vez y se aplica a los algoritmos que lo necesiten."
         hint="El banco reúne las acciones de todos los algoritmos. Desde cada fila puedes aplicarla a otro algoritmo; asignarla a un paso concreto se hace después en el editor de grafo. Una acción se define igual para todos, pero el motor todavía la guarda dentro de un algoritmo, así que crear una obliga a elegir uno de partida (ver docs/banco-de-acciones.md)."

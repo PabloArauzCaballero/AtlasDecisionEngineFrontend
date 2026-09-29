@@ -53,7 +53,7 @@ export const navigationTail: readonly NavigationSection[] = [
          * estados internos de una pantalla. El riesgo original sigue cubierto —el grupo se
          * pliega y ocupa una línea— y las rutas de cada worker no cambian: ya existían.
          */
-        label: 'Workers',
+        label: 'Procesadores automáticos',
         path: '/workers',
         icon: Bot,
         roles: accessPolicies.workers,
@@ -86,7 +86,7 @@ export const navigationTail: readonly NavigationSection[] = [
         roles: accessPolicies.traceability,
       },
       {
-        label: 'Matriz de Cobertura',
+        label: 'Cobertura de objetivos',
         path: '/coverage-matrix',
         icon: ShieldCheck,
         roles: accessPolicies.traceability,

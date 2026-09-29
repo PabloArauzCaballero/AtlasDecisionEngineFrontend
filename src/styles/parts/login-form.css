@@ -190,11 +190,11 @@
 /* «Entrar en otra organización»: el número de organización, plegado porque casi nadie lo cambia. */
 .login-advanced > summary {
   cursor: pointer;
-  color: var(--text-muted, currentColor);
-  font-size: 0.875rem;
-  padding: 0.25rem 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  padding: var(--space-1, 0.25rem) 0;
 }
 
 .login-advanced[open] > summary {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2, 0.5rem);
 }

@@ -2,7 +2,7 @@
 
 import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
-import { ApiError, errorMessage, type ApiErrorKind } from '../api/ApiError';
+import { ApiError, errorMessage, plainMessage, type ApiErrorKind } from '../api/ApiError';
 import type { NotificationInput, NotificationTone } from '../notifications/notification.types';
 import { useNotifications } from '../notifications/useNotifications';
 import { errorTutorial } from '../features/tutorial/interactive-catalog';
@@ -15,10 +15,10 @@ const TITLE_BY_KIND: Record<ApiErrorKind, string> = {
   'not-found': 'Recurso no encontrado',
   conflict: 'Conflicto de estado',
   'rate-limit': 'Límite de peticiones alcanzado',
-  network: 'Sin conexión con el backend',
+  network: 'Sin conexión con el motor',
   timeout: 'La operación tardó demasiado',
   cancelled: 'Operación cancelada',
-  contract: 'Respuesta inesperada del backend',
+  contract: 'Respuesta inesperada del motor',
   unexpected: 'La operación no se completó',
 };
 
@@ -47,7 +47,7 @@ function toNotification(error: unknown): NotificationInput | null {
   // la usamos en vez del mensaje técnico crudo (p. ej. "Version in state
   // DEPLOYED_TO_PROD cannot be validated" → "Esta versión ya no se puede validar…").
   const link = error.code ? errorTutorial(error.code) : null;
-  const detail = link ? link.description : error.message;
+  const detail = link ? link.description : plainMessage(error);
   return {
     tone,
     title: link ? link.title : TITLE_BY_KIND[error.kind],

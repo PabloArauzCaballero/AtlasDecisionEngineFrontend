@@ -34,7 +34,7 @@ export function EnvironmentsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F4-06 · Control de Fase 4"
+        eyebrow="Gobierno"
         title="Gestión de Ambientes"
         description="Estado, tipo y despliegues por entorno operativo."
         hint="Cada tarjeta es un entorno (sandbox, test, producción). «Detalles» muestra qué versiones se han desplegado ahí y con qué resultado."
@@ -95,7 +95,7 @@ export function EnvironmentsPage() {
                   Detalles
                 </button>
                 <Link className="button" href={`/executions?filter=${encodeURIComponent(code)}`}>
-                  <Activity size={15} /> Ver Logs
+                  <Activity size={15} /> Ver decisiones
                 </Link>
               </footer>
             </article>

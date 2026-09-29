@@ -106,7 +106,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
       <PageHeader
         eyebrow="Calidad"
         title={`Suites de prueba${versionId ? ` de la versión ${versionId}` : ''}`}
-        description="Suites deterministas, cobertura y gates bloqueantes por versión de artefacto."
+        description="Las suites de prueba de cada versión, su cobertura y cuáles son obligatorias para aprobarla."
         hint="Una suite de prueba comprueba que una versión del algoritmo decide como esperas: defines entradas y el resultado esperado, y se ejecuta automáticamente. Una suite bloqueante frena el despliegue si falla."
         actions={
           <>

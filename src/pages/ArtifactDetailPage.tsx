@@ -52,36 +52,43 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F2-03 · Artifact Detail"
+        eyebrow="Diseño · Algoritmo"
         title={display(artifact, 'name', 'artifactCode')}
         description={display(artifact, 'description')}
         actions={
           <>
             {latestId !== '—' ? (
               <Link className="button" href={`/artifact-versions/${latestId}/graph`}>
-                <GitBranch size={16} /> View Graph
+                <GitBranch size={16} /> Ver diagrama
               </Link>
             ) : null}
             <Link className="button" href={`/artifacts/${artifactId}/dependency-graph`}>
-              <Workflow size={16} /> Dependency Graph
+              <Workflow size={16} /> Dependencias
             </Link>
             {latestId !== '—' ? (
               <Link
                 className="button button-primary"
                 href={`/graph-editor?versionId=${encodeURIComponent(latestId)}`}
               >
-                <Pencil size={16} /> Edit Draft
+                <Pencil size={16} /> Editar borrador
               </Link>
             ) : (
-              <button className="button button-primary" type="button" disabled>
-                <Pencil size={16} /> Edit Draft
+              <button
+                className="button button-primary"
+                type="button"
+                disabled
+                title="Este algoritmo todavía no tiene versiones. Crea una desde «Algoritmos y versiones»."
+              >
+                <Pencil size={16} /> Editar borrador
               </button>
             )}
           </>
         }
       />
       {query.isError ? (
-        <Alert tone="error">No fue posible cargar el artefacto solicitado.</Alert>
+        <Alert tone="error">
+          No fue posible cargar el algoritmo. Actualiza la página; si sigue, avisa a soporte.
+        </Alert>
       ) : null}
       <Tabs
         tabs={[
@@ -102,7 +109,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
             id: 'data',
             label: 'Datos',
             icon: CONCEPTS.variableCatalog.icon,
-            hint: 'La respuesta cruda del backend, para depurar.',
+            hint: 'Todos los datos guardados de este algoritmo, tal como los tiene el motor.',
           },
         ]}
         active={activeTab}
@@ -112,16 +119,16 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
         {(tab) =>
           tab === 'summary' ? (
             <div className="artifact-overview">
-              <Panel title="Metadata" meta={display(artifact, 'artifactCode')}>
+              <Panel title="Ficha" meta={display(artifact, 'artifactCode')}>
                 <DefinitionGrid
                   record={artifact}
                   items={[
-                    { label: 'Artifact Code', keys: ['artifactCode', 'code'], mono: true },
-                    { label: 'Type', keys: ['artifactType', 'type'] },
-                    { label: 'Owner Team', keys: ['ownerTeam'] },
-                    { label: 'Risk Domain', keys: ['riskDomain'] },
-                    { label: 'Created At', keys: ['createdAt'] },
-                    { label: 'Active', keys: ['isActive'] },
+                    { label: 'Código', keys: ['artifactCode', 'code'], mono: true },
+                    { label: 'Tipo', keys: ['artifactType', 'type'] },
+                    { label: 'Equipo responsable', keys: ['ownerTeam'] },
+                    { label: 'Dominio de riesgo', keys: ['riskDomain'] },
+                    { label: 'Creado', keys: ['createdAt'] },
+                    { label: 'Activo', keys: ['isActive'] },
                   ]}
                 />
               </Panel>
@@ -148,7 +155,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                       href={`/reviews?versionId=${encodeURIComponent(previousId)}`}
                       title="Enviar la versión anterior al flujo de aprobación"
                     >
-                      <History size={16} /> Rollback
+                      <History size={16} /> Volver a la versión anterior
                     </Link>
                   ) : (
                     <button
@@ -157,7 +164,7 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                       disabled
                       title="No hay una versión anterior a la cual volver"
                     >
-                      <History size={16} /> Rollback
+                      <History size={16} /> Volver a la versión anterior
                     </button>
                   )}
                   <Link
@@ -168,14 +175,14 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                         : '/executions'
                     }
                   >
-                    <TerminalSquare size={16} /> Execution Logs
+                    <TerminalSquare size={16} /> Ver sus decisiones
                   </Link>
                 </div>
               </Panel>
             </div>
           ) : tab === 'versions' ? (
             <>
-              <Panel title="Lineaje de versiones" meta={`${versions.length} versiones`}>
+              <Panel title="Historial de versiones" meta={`${versions.length} versiones`}>
                 <VersionHistoryGraph versions={versions.map(toVersionRow)} />
               </Panel>
               {/* Qué introdujo la última versión respecto de la anterior: el
@@ -195,8 +202,8 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
               ) : null}
             </>
           ) : (
-            <Panel title="Datos del artefacto" meta="atributo-valor · JSON">
-              <DataInspector data={artifact} idPrefix="artifact-data" label="Artefacto" />
+            <Panel title="Datos del algoritmo" meta="Tal como los guarda el motor">
+              <DataInspector data={artifact} idPrefix="artifact-data" label="Algoritmo" />
             </Panel>
           )
         }

@@ -57,7 +57,7 @@ export function ReviewsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Fase 4 · Gobierno"
+        eyebrow="Gobierno"
         title="Bandeja de revisiones"
         description="Envía versiones a aprobación y consulta el estado de cada solicitud gobernada."
       />

@@ -1,3 +1,5 @@
+import { statusText } from '../contracts/status-labels';
+
 const success = new Set([
   'RESOLVED_APPROVED',
   'ACTIVE',
@@ -40,14 +42,14 @@ interface Props {
   value: unknown;
   /**
    * Etiquetas legibles por valor crudo del backend (p. ej. `SENSITIVITY_LABELS`).
-   * Un valor sin entrada en el mapa se muestra tal cual: no es un error, solo
-   * algo que este catálogo todavía no traduce.
+   * Un valor sin entrada aquí cae en `STATUS_LABELS` y, si tampoco está, se
+   * enseña legible («Some new state») en vez de como constante.
    */
   labels?: Record<string, string>;
 }
 
 export function StatusBadge({ value, labels }: Props) {
   const text = String(value ?? '—').toUpperCase();
-  const label = labels?.[text] ?? text;
+  const label = value === null || value === undefined ? '—' : statusText(text, labels);
   return <span className={`status-badge status-${toneOf(text)}`}>{label}</span>;
 }

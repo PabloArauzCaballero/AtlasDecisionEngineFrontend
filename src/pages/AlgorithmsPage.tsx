@@ -66,7 +66,7 @@ export function AlgorithmsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F2 · Diseño"
+        eyebrow="Diseño"
         title="Algoritmos y Versiones"
         description="Todos los algoritmos de decisión y su historial de versiones, en una tabla desplegable."
         hint="Cada fila es un algoritmo (artefacto). Despliégala para ver sus versiones, en qué estado está cada una y saltar a su grafo, compilación o pruebas."

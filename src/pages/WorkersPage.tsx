@@ -45,7 +45,7 @@ export function WorkersPage({ initialWorker }: { initialWorker?: TabCode }) {
   return (
     <>
       <PageHeader
-        eyebrow="Procesamiento · Workers"
+        eyebrow="Procesamiento"
         title={current.label}
         description={descriptor?.description ?? current.fallbackDescription}
         hint={current.hint}

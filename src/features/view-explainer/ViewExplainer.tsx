@@ -77,7 +77,7 @@ export function ViewExplainer() {
           </article>
           <article className="ve-card ve-systems">
             <header>
-              <Cpu size={16} aria-hidden /> Explicación de sistemas
+              <Cpu size={16} aria-hidden /> Cómo funciona
             </header>
             <p>{explanation.systems}</p>
           </article>

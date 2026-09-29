@@ -84,10 +84,10 @@ export function PlatformStatusPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F0-03 · Panel de inicio"
+        eyebrow="Inicio"
         title="Estado de la plataforma"
         description="Salud de la infraestructura de decisión y volumen real de trabajo en curso."
-        hint="Todo lo que ves aquí se lee del backend en vivo. Un guion significa que ese dato no estuvo disponible al consultar."
+        hint="Todo lo que ves aquí se consulta al motor en el momento. Un guion significa que ese dato no estuvo disponible."
         actions={
           <button className="button" onClick={refresh} type="button">
             <RefreshCw
@@ -146,7 +146,7 @@ export function PlatformStatusPage() {
           hint="Ejecuciones de suites de prueba que ya terminaron."
           tone="accent"
           href="/test-suites"
-          actionLabel="Abrir QA LAB"
+          actionLabel="Abrir laboratorio de pruebas"
         />
         <DashboardCard
           concept="coverage"
@@ -182,7 +182,7 @@ export function PlatformStatusPage() {
       {dashboard.isError ? (
         <Alert tone="warning">
           No se pudieron cargar todas las métricas del panel. Las tarjetas con un guion no
-          recibieron respuesta del backend.
+          recibieron respuesta del motor.
         </Alert>
       ) : null}
 

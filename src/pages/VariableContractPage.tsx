@@ -78,7 +78,7 @@ export function VariableContractPage({ definitionId }: Props) {
         eyebrow="Contrato de variable"
         title={display(variable, 'canonicalName') || display(variable, 'variableCode')}
         description={display(variable, 'businessDescription')}
-        hint="Aquí se define qué valores acepta el motor para esta variable. El backend impone estas reglas en cada ejecución."
+        hint="Aquí se define qué valores acepta el motor para esta variable. El motor aplica estas reglas en cada decisión."
         actions={
           <button
             className="button button-primary"

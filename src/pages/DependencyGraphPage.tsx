@@ -46,7 +46,7 @@ export function DependencyGraphPage({ artifactId }: DependencyGraphPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F7 · Nested Decision Trees"
+        eyebrow="Diseño · Algoritmos anidados"
         title="Dependency graph"
         description="Árboles de decisión referenciados por este artefacto, y artefactos que lo referencian a él."
       />
