@@ -100,7 +100,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
     id: 'manual-review',
     title: 'Resolver un caso manual',
     intro: 'Qué mira un revisor y cómo cerrar el caso con una decisión trazable.',
-    version: 2,
+    version: 3,
     steps: [
       openRecordStep('/manual-reviews', 'un caso'),
       inRecord({
@@ -121,7 +121,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="review-resolution"]',
         title: 'Cierra con una decisión y un porqué',
         content:
-          'Elige aprobar, rechazar o escalar, y deja un comentario. El comentario es obligatorio: queda en la auditoría y explica en el futuro por qué se resolvió así.',
+          'Elige aprobar, rechazar o cancelar el caso (cancelar lo retira sin decidir y la solicitud queda como estaba), y deja un comentario. El comentario es obligatorio: queda en la auditoría y explica en el futuro por qué se resolvió así.',
         tip: 'Sin comentario el botón queda deshabilitado: la trazabilidad no es opcional.',
       },
     ],

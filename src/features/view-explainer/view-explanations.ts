@@ -172,7 +172,7 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
     business:
       'Casos que la automatización deriva a una persona (por riesgo o política). Asegura una decisión humana controlada, con SLA y prioridad.',
     systems:
-      '`manual-reviews` con prioridad, asignación, SLA y referencia enmascarada del sujeto de la decisión.',
+      '`manual-reviews` con prioridad, cola, estado, asignación, SLA y el request ID de la ejecución que originó el caso.',
   },
   simulator: {
     module: 'Simulador · Diseño',

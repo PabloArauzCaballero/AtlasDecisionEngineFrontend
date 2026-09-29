@@ -19,7 +19,14 @@ import { useNotifications } from '../notifications/useNotifications';
 import { asRecord, display, resolvePath } from '../utils/records';
 import { Field } from '../components/Field';
 import { OptionSelect } from '../components/OptionSelect';
-import { RESOLUTION_LABEL, RESOLUTION_OPTIONS } from '../features/manual-review/resolution-options';
+import {
+  CASE_STATUS_LABEL,
+  CLOSED_CASE_STATUSES,
+  RESOLUTION_LABEL,
+  RESOLUTION_OPTIONS,
+  RESOLUTION_OUTCOME_TEXT,
+  type ManualReviewDecision,
+} from '../features/manual-review/resolution-options';
 
 interface ManualReviewDetailPageProps {
   caseId: string;
@@ -39,7 +46,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
     desenlace. En una decision que afecta a la identidad de una persona, «parece que fue» no basta:
     se confirma explicitamente y hay que cerrarlo a mano.
   */
-  const [decisionRegistrada, setDecisionRegistrada] = useState<string | null>(null);
+  const [decisionRegistrada, setDecisionRegistrada] = useState<ManualReviewDecision | null>(null);
   const { notify } = useNotifications();
   const { startForError } = useInteractiveTutorial();
   const query = useDetailQuery<unknown>(
@@ -47,6 +54,19 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
     caseId ? `/v1/manual-reviews/${encodeURIComponent(caseId)}` : null,
   );
   const review = asRecord(query.data);
+  // El caso cerrado no admite resolución ni asignación: el motor contesta 409 `MANUAL_REVIEW_CLOSED`.
+  const status = String(review.status ?? '');
+  const cerrado = CLOSED_CASE_STATUSES.includes(status);
+  /*
+   * La ficha lee claves del CASO, pero el artefacto vive dentro de la ejecución
+   * (`execution.artifactVersion.artifact.artifactCode`) y el motor no guarda «referencia del cliente»
+   * ni `slaDueAt` (el plazo es `dueAt`): esas filas salían siempre «—».
+   */
+  const ficha = {
+    ...review,
+    artifactCode: resolvePath(review, 'execution.artifactVersion.artifact.artifactCode'),
+    requestId: resolvePath(review, 'execution.requestId'),
+  };
   const { user } = useAuth();
   // Ofrecer «asignármelo» sobre un caso que ya es mío no hace nada y sugiere que sí.
   const yaEsMio =
@@ -81,8 +101,8 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
     notify,
     startForError,
     refetch: () => void query.refetch(),
-    onResolved: (outcome) => {
-      setDecisionRegistrada(outcome);
+    onResolved: (decision) => {
+      setDecisionRegistrada(decision);
       setComments('');
     },
     resolutionLabel: RESOLUTION_LABEL,
@@ -93,17 +113,19 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
       <PageHeader
         eyebrow="F5-04 · Revisión manual"
         title={`Caso #REV-${display(review, 'id')}`}
-        description={`${display(review, 'queueCode')} · ${display(review, 'reason')}`}
+        description={`${display(review, 'queueCode')} · ${display(review, 'caseCode')}`}
         actions={
           <>
             <button
               className="button"
               type="button"
-              disabled={!user?.email || assign.isPending || yaEsMio}
+              disabled={!user?.email || assign.isPending || yaEsMio || cerrado}
               title={
-                yaEsMio
-                  ? 'Este caso ya está a tu nombre'
-                  : 'Tomar este caso: queda a tu nombre en el registro'
+                cerrado
+                  ? 'Este caso ya está cerrado'
+                  : yaEsMio
+                    ? 'Este caso ya está a tu nombre'
+                    : 'Tomar este caso: queda a tu nombre en el registro'
               }
               onClick={() => assign.mutate()}
             >
@@ -114,8 +136,8 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
       />
       {decisionRegistrada ? (
         <ModalDialog
-          title="Decisión registrada en el Decision Engine"
-          subtitle={`El caso #REV-${display(review, 'id')} se resolvió como ${decisionRegistrada} y salió de la cola.`}
+          title="Resolución registrada en el Decision Engine"
+          subtitle={`El caso #REV-${display(review, 'id')} ${RESOLUTION_OUTCOME_TEXT[decisionRegistrada]}`}
           icon={<CheckCircle2 size={20} />}
           actions={
             <button
@@ -129,9 +151,11 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
           onClose={() => setDecisionRegistrada(null)}
         >
           <p>
-            La decisión quedó anotada con tu nombre y con el comentario que escribiste. La auditoría
-            de la transacción es inmutable: quien la revise después verá quién decidió, cuándo y con
-            qué evidencia delante.
+            {RESOLUTION_LABEL[decisionRegistrada] === 'cancelado'
+              ? 'El motivo quedó anotado con tu nombre. '
+              : 'La decisión quedó anotada con tu nombre y con el comentario que escribiste. '}
+            La auditoría de la transacción es inmutable: quien la revise después verá quién decidió,
+            cuándo y con qué evidencia delante.
           </p>
         </ModalDialog>
       ) : null}
@@ -140,16 +164,19 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
       ) : null}
       <div className="review-detail-grid">
         <div>
-          <Panel title="Datos del caso" meta={display(review, 'status')}>
+          <Panel
+            title="Datos del caso"
+            meta={CASE_STATUS_LABEL[status] ?? display(review, 'status')}
+          >
             <DefinitionGrid
-              record={review}
+              record={ficha}
               items={[
                 { label: 'Prioridad', keys: ['priority'] },
                 { label: 'Cola', keys: ['queueCode'] },
                 { label: 'Artefacto', keys: ['artifactCode'] },
-                { label: 'Referencia del cliente', keys: ['subjectReference'], mono: true },
+                { label: 'Ejecución (request ID)', keys: ['requestId'], mono: true },
                 { label: 'Asignado a', keys: ['assignedTo'] },
-                { label: 'Vence (SLA)', keys: ['slaDueAt'] },
+                { label: 'Vence (SLA)', keys: ['dueAt'] },
               ]}
             />
           </Panel>
@@ -167,14 +194,23 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
               items={[
                 {
                   title: 'Decisión ejecutada',
-                  detail: display(review, 'reason'),
-                  meta: display(review, 'createdAt'),
+                  detail: display(asRecord(review.execution), 'businessOutcome'),
+                  meta: display(asRecord(review.execution), 'executedAt'),
                 },
                 {
                   title: 'Caso derivado a revisión manual',
                   detail: display(review, 'queueCode'),
-                  meta: display(review, 'updatedAt'),
+                  meta: display(review, 'createdAt'),
                 },
+                ...(cerrado
+                  ? [
+                      {
+                        title: `Caso ${CASE_STATUS_LABEL[status]?.toLowerCase() ?? status}`,
+                        detail: display(asRecord(review.resolutionJson), 'reason'),
+                        meta: display(review, 'resolvedAt'),
+                      },
+                    ]
+                  : []),
               ]}
             />
           </Panel>
@@ -187,7 +223,13 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
           <CaseFilePanel executionId={executionId} />
         </div>
         <div data-tutorial-id="review-resolution">
-          <Panel title="Resolver el caso" meta="obligatorio">
+          <Panel title="Resolver el caso" meta={cerrado ? 'cerrado' : 'obligatorio'}>
+            {cerrado ? (
+              <Alert tone="info">
+                Este caso ya está cerrado ({CASE_STATUS_LABEL[status]?.toLowerCase() ?? status}) y
+                no admite otra resolución.
+              </Alert>
+            ) : null}
             <Field label={'Decisión'} tooltip="Cómo se resuelve este caso de revisión manual.">
               <OptionSelect
                 name="resolucion"
@@ -209,7 +251,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             </Field>
             <button
               className="button button-primary full-width"
-              disabled={!resolution || !comments || !caseId || resolve.isPending}
+              disabled={!resolution || !comments || !caseId || resolve.isPending || cerrado}
               onClick={() => resolve.mutate()}
               type="button"
             >

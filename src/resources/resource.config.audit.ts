@@ -85,11 +85,11 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
     description: 'Cadena inmutable de eventos administrativos y operativos.',
     hint: 'Registro inalterable de todo lo que pasó en la plataforma (quién hizo qué y cuándo). Cada evento se encadena con un hash para probar que nadie lo modificó.',
     endpoint: '/v1/audit/events',
-    filterParam: 'eventType',
+    filterParam: 'search',
     filterLabel: 'Buscar evento',
     filterHelp:
-      'Texto que se busca en el tipo de evento y en el agregado afectado; basta una parte. Ej.: DEPLOY.',
-    filterPlaceholder: 'Evento, actor o IP',
+      'Texto que se busca en el tipo de evento, en el tipo e identificador del objeto afectado, en el actor y en el request ID; basta una parte y no distingue mayúsculas. Ej.: DEPLOY.',
+    filterPlaceholder: 'Evento, objeto, actor o request ID',
     filters: [
       {
         param: 'actorId',
@@ -105,13 +105,15 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
       },
     ],
     columns: [
-      { key: 'createdAt', label: 'Fecha / Hora' },
+      // Las claves son las que devuelve el motor (`DecisionAuditEvent`): `occurredAt` y `eventHash`.
+      // Se leían `createdAt`, `ipAddress` y `currentHash`, que no existen, y salían «—». La IP no se
+      // guarda en el registro, así que no hay columna que enseñar.
+      { key: 'occurredAt', label: 'Fecha / Hora' },
       { key: 'eventType', label: 'Evento', mono: true },
       { key: 'actorId', label: 'Actor', mono: true },
-      { key: 'ipAddress', label: 'IP Origen', mono: true },
       { key: 'previousHash', label: 'Hash Anterior', mono: true },
       {
-        key: 'currentHash',
+        key: 'eventHash',
         label: 'Hash Actual',
         mono: true,
         hint: 'Huella criptográfica de este evento; enlaza con la del anterior para formar una cadena a prueba de manipulación.',

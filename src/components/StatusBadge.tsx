@@ -1,4 +1,5 @@
 const success = new Set([
+  'RESOLVED_APPROVED',
   'ACTIVE',
   'APPROVED',
   'PASSED',
@@ -10,7 +11,15 @@ const success = new Set([
   // matriz caían en `neutral` y COMPLETO se veía igual que HUECO.
   'COMPLETE',
 ]);
-const danger = new Set(['FAILED', 'REJECTED', 'SUSPENDED', 'ERROR', 'CRITICAL', 'INVALID']);
+const danger = new Set([
+  'RESOLVED_DECLINED',
+  'FAILED',
+  'REJECTED',
+  'SUSPENDED',
+  'ERROR',
+  'CRITICAL',
+  'INVALID',
+]);
 const warning = new Set(['PENDING', 'DRAFT', 'REVIEW', 'RUNNING', 'QUEUED', 'WARNING', 'PARTIAL']);
 // Sentido de una variable: se pinta con los mismos colores que los distintivos
 // entrada/salida del editor, para que la diferencia se vea igual en todo el portal.

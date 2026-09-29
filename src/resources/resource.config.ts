@@ -8,6 +8,7 @@ import {
 } from './resource.create-fields';
 import type { ResourceConfig } from './resource.types';
 import { SENSITIVITY_LABELS } from '../contracts/data-types';
+import { CASE_STATUS_LABEL } from '../features/manual-review/resolution-options';
 import {
   artifactsFilters,
   deploymentsFilters,
@@ -79,8 +80,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filterParam: 'search',
     filterLabel: 'Buscar reason code',
     filterHelp:
-      'Texto que se busca en el código, el título y los mensajes del motivo; basta una parte. Ej.: FRAUDE.',
-    filterPlaceholder: 'Código, título o mensaje',
+      'Texto que se busca en el código y en el mensaje que se le muestra al cliente; basta una parte. Ej.: FRAUDE.',
+    filterPlaceholder: 'Código o mensaje',
     primaryAction: 'Add Reason Code',
     createFields: reasonCodesCreateFields,
     createRoles: CHANGE_PROPOSAL_ROLES,
@@ -185,7 +186,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
       {
         key: 'deploymentMode',
         label: 'Modo',
-        hint: 'Cómo se publicó: directo, canary (gradual) o sombra (shadow, sin afectar decisiones reales).',
+        hint: 'Modo con el que se registró el despliegue: directo (DIRECT), gradual (CANARY) o campeón contra retador (CHAMPION_CHALLENGER). Hoy es un dato de registro: el motor atiende con la versión activa del ambiente sin repartir tráfico por modo.',
       },
       { key: 'environmentCode', label: 'Ambiente', path: 'environment.code' },
       { key: 'deployedBy', label: 'Desplegado por' },
@@ -205,11 +206,11 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     description: 'Casos derivados por reglas que requieren una decisión humana controlada.',
     hint: 'Casos que el algoritmo no decidió automáticamente y derivó a una persona para resolverlos manualmente.',
     endpoint: '/v1/manual-reviews',
-    filterParam: 'queueCode',
+    filterParam: 'search',
     filterLabel: 'Buscar caso',
     filterHelp:
-      'Identificador del caso o la referencia con que llegó, para ir directo a uno concreto. Ej.: CASE-1042.',
-    filterPlaceholder: 'Case ID o referencia',
+      'Texto que se busca en el identificador del caso y en el request ID de la ejecución que lo originó; basta una parte. Ej.: MR-2026.',
+    filterPlaceholder: 'Case ID o request ID',
     filters: manualReviewsFilters,
     detailPath: (row) => `/manual-reviews/${String(row.id)}`,
     columns: [
@@ -220,13 +221,20 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
         hint: 'Qué tan urgente es el caso respecto de los demás de la cola.',
       },
       { key: 'queueCode', label: 'Cola', mono: true },
+      {
+        key: 'status',
+        label: 'Estado',
+        status: true,
+        labels: CASE_STATUS_LABEL,
+        hint: 'En qué punto está el caso: sin tomar, asignado a alguien o ya cerrado (aprobado, rechazado o cancelado).',
+      },
       { key: 'requestId', label: 'Ejecución', mono: true, path: 'execution.requestId' },
       {
         key: 'businessOutcome',
         label: 'Outcome',
         status: true,
         path: 'execution.businessOutcome',
-        hint: 'El resultado de negocio de la decisión original (p. ej. APROBADO, RECHAZADO, DERIVADO).',
+        hint: 'El resultado de negocio de la decisión original del motor (siempre «derivado a revisión» en esta cola); lo que decidió la persona está en «Estado».',
       },
       { key: 'assignedTo', label: 'Asignado a' },
       {
