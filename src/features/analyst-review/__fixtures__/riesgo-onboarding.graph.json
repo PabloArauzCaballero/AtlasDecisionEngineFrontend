@@ -1,0 +1,594 @@
+{
+  "nodes": [
+    {
+      "id": "11",
+      "calculatedFieldCalls": [],
+      "key": "START",
+      "type": "START",
+      "label": "Inicio",
+      "config": {},
+      "x": 0,
+      "y": 0,
+      "order": 0,
+      "terminal": false,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "12",
+      "calculatedFieldCalls": [],
+      "key": "CONTAR_FALTANTES",
+      "type": "EXPRESSION",
+      "label": "Contar evidencias faltantes",
+      "config": {
+        "intermediateAssignments": [
+          {
+            "code": "faltantes",
+            "source": "EXPRESSION",
+            "expression": {
+              "op": "add",
+              "args": [
+                {
+                  "op": "if",
+                  "else": {
+                    "value": 0
+                  },
+                  "then": {
+                    "value": 1
+                  },
+                  "condition": {
+                    "op": "not",
+                    "arg": {
+                      "var": "has_identity_document"
+                    }
+                  }
+                },
+                {
+                  "op": "if",
+                  "else": {
+                    "value": 0
+                  },
+                  "then": {
+                    "value": 1
+                  },
+                  "condition": {
+                    "op": "not",
+                    "arg": {
+                      "var": "has_granted_consent"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "x": 260,
+      "y": 0,
+      "order": 1,
+      "terminal": false,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "13",
+      "calculatedFieldCalls": [],
+      "key": "EVALUAR",
+      "type": "CONDITION",
+      "label": "Evaluar el expediente",
+      "config": {},
+      "x": 520,
+      "y": 0,
+      "order": 2,
+      "terminal": false,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "14",
+      "calculatedFieldCalls": [],
+      "key": "EMITIR_SIN_IDENTIDAD",
+      "type": "ACTION",
+      "label": "Anotar: falta identidad",
+      "config": {},
+      "x": 780,
+      "y": 0,
+      "order": 3,
+      "terminal": false,
+      "conditions": [],
+      "actions": [
+        {
+          "code": "EMITIR_SIN_IDENTIDAD",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "calculatedFieldCalls": [],
+      "key": "EMITIR_SIN_CONSENTIMIENTO",
+      "type": "ACTION",
+      "label": "Anotar: falta consentimiento",
+      "config": {},
+      "x": 0,
+      "y": 160,
+      "order": 4,
+      "terminal": false,
+      "conditions": [],
+      "actions": [
+        {
+          "code": "EMITIR_SIN_CONSENTIMIENTO",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "calculatedFieldCalls": [],
+      "key": "EMITIR_PUNTAJE_INSUFICIENTE",
+      "type": "ACTION",
+      "label": "Anotar: puntaje insuficiente",
+      "config": {},
+      "x": 260,
+      "y": 160,
+      "order": 5,
+      "terminal": false,
+      "conditions": [],
+      "actions": [
+        {
+          "code": "EMITIR_PUNTAJE_INSUFICIENTE",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "calculatedFieldCalls": [],
+      "key": "EMITIR_RIESGO_SUPERADO",
+      "type": "ACTION",
+      "label": "Anotar: riesgo mínimo superado",
+      "config": {},
+      "x": 520,
+      "y": 160,
+      "order": 6,
+      "terminal": false,
+      "conditions": [],
+      "actions": [
+        {
+          "code": "EMITIR_RIESGO_SUPERADO",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "18",
+      "calculatedFieldCalls": [],
+      "key": "REVISAR_SIN_IDENTIDAD",
+      "type": "MANUAL_REVIEW",
+      "label": "Revisión: sin documento de identidad",
+      "config": {
+        "mode": "MAPPING",
+        "evidence": {
+          "motivo": "MISSING_IDENTITY_DOCUMENT",
+          "umbral": 65,
+          "faltantes": "{{intermediate.faltantes}}",
+          "puntajeTotal": "{{total_score}}",
+          "puntajeFraude": "{{fraud_score}}",
+          "consentimiento": "{{has_granted_consent}}",
+          "tipoEvaluacion": "{{assessment_type}}",
+          "puntajeContacto": "{{contact_score}}",
+          "puntajeIdentidad": "{{identity_score}}",
+          "documentoIdentidad": "{{has_identity_document}}",
+          "contactosVerificados": "{{verified_contact_count}}"
+        },
+        "priority": 90,
+        "queueCode": "RIESGO_ONBOARDING",
+        "slaMinutes": 480,
+        "assignments": [
+          {
+            "value": "MANUAL_REVIEW",
+            "source": "LITERAL",
+            "outputCode": "riesgo_decision"
+          },
+          {
+            "value": "MISSING_IDENTITY_DOCUMENT",
+            "source": "LITERAL",
+            "outputCode": "riesgo_motivo"
+          },
+          {
+            "source": "EXPRESSION",
+            "expression": {
+              "var": "intermediate.faltantes"
+            },
+            "outputCode": "riesgo_faltantes"
+          }
+        ]
+      },
+      "x": 780,
+      "y": 160,
+      "order": 7,
+      "terminal": true,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "19",
+      "calculatedFieldCalls": [],
+      "key": "REVISAR_SIN_CONSENTIMIENTO",
+      "type": "MANUAL_REVIEW",
+      "label": "Revisión: sin consentimiento",
+      "config": {
+        "mode": "MAPPING",
+        "evidence": {
+          "motivo": "MISSING_CONSENT",
+          "umbral": 65,
+          "faltantes": "{{intermediate.faltantes}}",
+          "puntajeTotal": "{{total_score}}",
+          "puntajeFraude": "{{fraud_score}}",
+          "consentimiento": "{{has_granted_consent}}",
+          "tipoEvaluacion": "{{assessment_type}}",
+          "puntajeContacto": "{{contact_score}}",
+          "puntajeIdentidad": "{{identity_score}}",
+          "documentoIdentidad": "{{has_identity_document}}",
+          "contactosVerificados": "{{verified_contact_count}}"
+        },
+        "priority": 90,
+        "queueCode": "RIESGO_ONBOARDING",
+        "slaMinutes": 480,
+        "assignments": [
+          {
+            "value": "MANUAL_REVIEW",
+            "source": "LITERAL",
+            "outputCode": "riesgo_decision"
+          },
+          {
+            "value": "MISSING_CONSENT",
+            "source": "LITERAL",
+            "outputCode": "riesgo_motivo"
+          },
+          {
+            "source": "EXPRESSION",
+            "expression": {
+              "var": "intermediate.faltantes"
+            },
+            "outputCode": "riesgo_faltantes"
+          }
+        ]
+      },
+      "x": 0,
+      "y": 320,
+      "order": 8,
+      "terminal": true,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "20",
+      "calculatedFieldCalls": [],
+      "key": "REVISAR_PUNTAJE",
+      "type": "MANUAL_REVIEW",
+      "label": "Revisión: puntaje por debajo del umbral",
+      "config": {
+        "mode": "MAPPING",
+        "evidence": {
+          "motivo": "BELOW_MINIMUM_RISK_SCORE",
+          "umbral": 65,
+          "faltantes": "{{intermediate.faltantes}}",
+          "puntajeTotal": "{{total_score}}",
+          "puntajeFraude": "{{fraud_score}}",
+          "consentimiento": "{{has_granted_consent}}",
+          "tipoEvaluacion": "{{assessment_type}}",
+          "puntajeContacto": "{{contact_score}}",
+          "puntajeIdentidad": "{{identity_score}}",
+          "documentoIdentidad": "{{has_identity_document}}",
+          "contactosVerificados": "{{verified_contact_count}}"
+        },
+        "priority": 60,
+        "queueCode": "RIESGO_ONBOARDING",
+        "slaMinutes": 480,
+        "assignments": [
+          {
+            "value": "MANUAL_REVIEW",
+            "source": "LITERAL",
+            "outputCode": "riesgo_decision"
+          },
+          {
+            "value": "BELOW_MINIMUM_RISK_SCORE",
+            "source": "LITERAL",
+            "outputCode": "riesgo_motivo"
+          },
+          {
+            "source": "EXPRESSION",
+            "expression": {
+              "var": "intermediate.faltantes"
+            },
+            "outputCode": "riesgo_faltantes"
+          }
+        ]
+      },
+      "x": 260,
+      "y": 320,
+      "order": 9,
+      "terminal": true,
+      "conditions": [],
+      "actions": []
+    },
+    {
+      "id": "21",
+      "calculatedFieldCalls": [],
+      "key": "APROBAR",
+      "type": "RESULT",
+      "label": "Sigue adelante",
+      "config": {
+        "mode": "MAPPING",
+        "assignments": [
+          {
+            "value": "APPROVE",
+            "source": "LITERAL",
+            "outputCode": "riesgo_decision"
+          },
+          {
+            "value": "MINIMUM_ONBOARDING_RISK_PASSED",
+            "source": "LITERAL",
+            "outputCode": "riesgo_motivo"
+          },
+          {
+            "source": "EXPRESSION",
+            "expression": {
+              "var": "intermediate.faltantes"
+            },
+            "outputCode": "riesgo_faltantes"
+          }
+        ]
+      },
+      "x": 520,
+      "y": 320,
+      "order": 10,
+      "terminal": true,
+      "conditions": [],
+      "actions": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "19",
+      "key": "E_A_APROBAR",
+      "from": "EMITIR_RIESGO_SUPERADO",
+      "to": "APROBAR",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "17",
+      "key": "E_A_REVISAR_CONSENTIMIENTO",
+      "from": "EMITIR_SIN_CONSENTIMIENTO",
+      "to": "REVISAR_SIN_CONSENTIMIENTO",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "16",
+      "key": "E_A_REVISAR_IDENTIDAD",
+      "from": "EMITIR_SIN_IDENTIDAD",
+      "to": "REVISAR_SIN_IDENTIDAD",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "18",
+      "key": "E_A_REVISAR_PUNTAJE",
+      "from": "EMITIR_PUNTAJE_INSUFICIENTE",
+      "to": "REVISAR_PUNTAJE",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "11",
+      "key": "E_CONTADO",
+      "from": "CONTAR_FALTANTES",
+      "to": "EVALUAR",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "12",
+      "key": "E_SIN_IDENTIDAD",
+      "from": "EVALUAR",
+      "to": "EMITIR_SIN_IDENTIDAD",
+      "type": "CONDITIONAL",
+      "priority": 1,
+      "default": false,
+      "conditions": [
+        {
+          "code": "SIN_IDENTIDAD",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "10",
+      "key": "E_START",
+      "from": "START",
+      "to": "CONTAR_FALTANTES",
+      "type": "DEFAULT",
+      "priority": 1,
+      "default": true,
+      "conditions": []
+    },
+    {
+      "id": "13",
+      "key": "E_SIN_CONSENTIMIENTO",
+      "from": "EVALUAR",
+      "to": "EMITIR_SIN_CONSENTIMIENTO",
+      "type": "CONDITIONAL",
+      "priority": 2,
+      "default": false,
+      "conditions": [
+        {
+          "code": "SIN_CONSENTIMIENTO",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "key": "E_ALCANZA",
+      "from": "EVALUAR",
+      "to": "EMITIR_RIESGO_SUPERADO",
+      "type": "CONDITIONAL",
+      "priority": 3,
+      "default": false,
+      "conditions": [
+        {
+          "code": "ALCANZA_UMBRAL",
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "key": "E_NO_ALCANZA",
+      "from": "EVALUAR",
+      "to": "EMITIR_PUNTAJE_INSUFICIENTE",
+      "type": "DEFAULT",
+      "priority": 4,
+      "default": true,
+      "conditions": []
+    }
+  ],
+  "conditions": [
+    {
+      "id": "9",
+      "code": "ALCANZA_UMBRAL",
+      "name": "El puntaje total alcanza el umbral",
+      "expressionType": "JSON_AST",
+      "expression": {
+        "op": "gte",
+        "left": {
+          "var": "total_score"
+        },
+        "right": {
+          "value": 65
+        }
+      },
+      "severity": "BLOCKING",
+      "reusable": true
+    },
+    {
+      "id": "8",
+      "code": "SIN_CONSENTIMIENTO",
+      "name": "No hay consentimiento vigente",
+      "expressionType": "JSON_AST",
+      "expression": {
+        "op": "not",
+        "arg": {
+          "var": "has_granted_consent"
+        }
+      },
+      "severity": "BLOCKING",
+      "reusable": true
+    },
+    {
+      "id": "7",
+      "code": "SIN_IDENTIDAD",
+      "name": "No hay documento de identidad",
+      "expressionType": "JSON_AST",
+      "expression": {
+        "op": "not",
+        "arg": {
+          "var": "has_identity_document"
+        }
+      },
+      "severity": "BLOCKING",
+      "reusable": true
+    }
+  ],
+  "actions": [
+    {
+      "id": "3",
+      "code": "EMITIR_PUNTAJE_INSUFICIENTE",
+      "type": "EMIT_REASON",
+      "payload": {},
+      "terminal": false,
+      "reasonCodes": [
+        {
+          "id": "3",
+          "code": "BELOW_MINIMUM_RISK_SCORE",
+          "category": "ONBOARDING_RISK",
+          "publicMessage": "El perfil no alcanza el puntaje mínimo de riesgo.",
+          "internalMessage": "total_score por debajo del umbral de aprobación; el caso pasa a revisión humana.",
+          "severity": "MEDIUM",
+          "adverseAction": true,
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "code": "EMITIR_RIESGO_SUPERADO",
+      "type": "EMIT_REASON",
+      "payload": {},
+      "terminal": false,
+      "reasonCodes": [
+        {
+          "id": "4",
+          "code": "MINIMUM_ONBOARDING_RISK_PASSED",
+          "category": "ONBOARDING_RISK",
+          "publicMessage": "El perfil supera el riesgo mínimo de onboarding.",
+          "internalMessage": "Evidencias completas y total_score igual o superior al umbral.",
+          "severity": "LOW",
+          "adverseAction": false,
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "code": "EMITIR_SIN_CONSENTIMIENTO",
+      "type": "EMIT_REASON",
+      "payload": {},
+      "terminal": false,
+      "reasonCodes": [
+        {
+          "id": "2",
+          "code": "MISSING_CONSENT",
+          "category": "ONBOARDING_RISK",
+          "publicMessage": "Falta el consentimiento de tratamiento de datos.",
+          "internalMessage": "El cliente no otorgó (o revocó) el consentimiento; el caso pasa a revisión humana.",
+          "severity": "HIGH",
+          "adverseAction": false,
+          "priority": 1
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "code": "EMITIR_SIN_IDENTIDAD",
+      "type": "EMIT_REASON",
+      "payload": {},
+      "terminal": false,
+      "reasonCodes": [
+        {
+          "id": "1",
+          "code": "MISSING_IDENTITY_DOCUMENT",
+          "category": "ONBOARDING_RISK",
+          "publicMessage": "Falta el documento de identidad.",
+          "internalMessage": "El expediente no tiene documento de identidad registrado; el caso pasa a revisión humana.",
+          "severity": "HIGH",
+          "adverseAction": false,
+          "priority": 1
+        }
+      ]
+    }
+  ]
+}

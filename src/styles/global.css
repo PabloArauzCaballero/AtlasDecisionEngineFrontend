@@ -153,6 +153,7 @@
 @import './parts/workers-queue.css';
 @import './parts/workers-identity.css';
 @import './parts/workers-review.css';
+@import './parts/analyst-review.css';
 @import './parts/data-notebook.css';
 @import './parts/data-notebook-cells.css';
 @import './parts/data-notebook-lenguajes.css';

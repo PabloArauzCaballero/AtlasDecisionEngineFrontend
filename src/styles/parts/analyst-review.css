@@ -1,0 +1,87 @@
+/* Revisión del analista: el artefacto paso a paso y sus corridas. Sólo tokens del tema. */
+.analyst-intro {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--text);
+  font-size: var(--type-sm);
+}
+
+.analyst-steps,
+.analyst-suites {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analyst-step,
+.analyst-suite {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.analyst-step__head,
+.analyst-suite__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.analyst-step__number {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  font-size: var(--type-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.analyst-step__kind,
+.analyst-case-code {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.analyst-case-code {
+  display: block;
+}
+
+.analyst-step__why,
+.analyst-step__exits {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--type-sm);
+}
+
+.analyst-step__exits {
+  padding-left: 0;
+  list-style: none;
+}
+
+.analyst-step__exits li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.analyst-step__when {
+  color: var(--text-muted);
+}
+
+.analyst-step__end {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
