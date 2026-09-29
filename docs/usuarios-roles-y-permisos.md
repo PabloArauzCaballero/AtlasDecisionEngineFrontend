@@ -71,9 +71,6 @@ tocar. Lo que sí puede:
   el motivo; la ejecución entera se pide aparte a `/v1/audit/executions/{id}`, y
   si no está disponible la pantalla lo dice en vez de aparentar un expediente
   completo.
-- **Solicitar más información**: al backend central, al cliente o a un equipo
-  interno (`CaseInformationRequestDialog.tsx`). No cambia ninguna regla ni
-  resuelve el caso: deja constancia de qué dato falta y a quién se le pide.
 - Resolver el caso de revisión manual, que sigue siendo su función operativa
   documentada. Es una decisión sobre **un caso concreto**, no sobre la regla que
   lo derivó.
@@ -84,13 +81,6 @@ crea — un objetivo es la vara con la que se juzga si un algoritmo cumple, y es
 es gobierno. Decidir un expediente concreto y fijar el criterio con que se miden
 todos son cosas distintas; `business-rules.test.ts` fija las dos por separado
 para que un descuido no se lleve por delante la cola de revisión manual.
-
-> **Contrato pendiente del backend.** `POST /v1/manual-reviews/{id}/information-requests`
-> está acordado pero puede no estar desplegado. El portal distingue el 404 de
-> «el caso no existe» y explica que falta el endpoint
-> (`information-request.ts`), en vez de mostrar un «no encontrado» crudo.
-> La especificación completa —cuerpo, respuesta, errores y autorización— está en
-> [contrato-pendiente-peticion-de-informacion.md](contrato-pendiente-peticion-de-informacion.md).
 
 ## Qué rol necesita cada acción
 

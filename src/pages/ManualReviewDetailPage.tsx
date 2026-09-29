@@ -1,8 +1,7 @@
-import { CheckCircle2, HelpCircle, UserCheck } from 'lucide-react';
+import { CheckCircle2, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
-import { canRequestCaseInformation } from '../auth/business-rules';
-import { useAuth, useEffectiveRoles } from '../auth/useAuth';
+import { useAuth } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { ModalDialog } from '../components/ModalDialog';
 import { DefinitionGrid } from '../components/DefinitionGrid';
@@ -12,7 +11,6 @@ import { Timeline } from '../components/Timeline';
 import { CaseEvidencePanel } from '../features/manual-review/CaseEvidencePanel';
 import { CaseFilePanel } from '../features/manual-review/CaseFilePanel';
 import { CaseImagesPanel } from '../features/manual-review/CaseImagesPanel';
-import { CaseInformationRequestDialog } from '../features/manual-review/CaseInformationRequestDialog';
 import { OnboardingDossierPanel } from '../features/manual-review/OnboardingDossierPanel';
 import { useManualReviewActions } from '../features/manual-review/useManualReviewActions';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
@@ -33,7 +31,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   // sin leer— en una aprobación con nombre y apellidos en la auditoría.
   const [resolution, setResolution] = useState('');
   const [comments, setComments] = useState('');
-  const [askingInformation, setAskingInformation] = useState(false);
   /*
     La confirmacion de que la decision QUEDO REGISTRADA en el motor.
     
@@ -44,7 +41,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   */
   const [decisionRegistrada, setDecisionRegistrada] = useState<string | null>(null);
   const { notify } = useNotifications();
-  const roles = useEffectiveRoles();
   const { startForError } = useInteractiveTutorial();
   const query = useDetailQuery<unknown>(
     'manual-review',
@@ -55,7 +51,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
   // Ofrecer «asignármelo» sobre un caso que ya es mío no hace nada y sugiere que sí.
   const yaEsMio =
     Boolean(user?.email) && String(review.assignedTo ?? '') === String(user?.email ?? '');
-  const canAskInformation = canRequestCaseInformation(roles);
   // El caso puede traer la ejecución anidada o sólo su identificador plano.
   const executionId = String(
     resolvePath(review, 'execution.id') ?? review.executionId ?? review.decisionExecutionId ?? '',
@@ -104,19 +99,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             <button
               className="button"
               type="button"
-              disabled={!canAskInformation || !caseId}
-              title={
-                canAskInformation
-                  ? 'Pedir un dato que falta, al backend central, al cliente o a un equipo interno'
-                  : 'Requiere rol Risk Analyst, Fraud Analyst u Operations'
-              }
-              onClick={() => setAskingInformation(true)}
-            >
-              <HelpCircle size={16} /> Solicitar información
-            </button>
-            <button
-              className="button"
-              type="button"
               disabled={!user?.email || assign.isPending || yaEsMio}
               title={
                 yaEsMio
@@ -152,13 +134,6 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             qué evidencia delante.
           </p>
         </ModalDialog>
-      ) : null}
-      {askingInformation ? (
-        <CaseInformationRequestDialog
-          caseId={caseId}
-          onClose={() => setAskingInformation(false)}
-          onRequested={() => void query.refetch()}
-        />
       ) : null}
       {query.isError || resolve.isError ? (
         <Alert tone="error">{errorMessage(query.error ?? resolve.error)}</Alert>
