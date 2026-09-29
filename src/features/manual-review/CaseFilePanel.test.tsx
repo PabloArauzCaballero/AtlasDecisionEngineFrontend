@@ -124,6 +124,47 @@ describe('CaseFilePanel', () => {
     expect(screen.getByText('12000')).toBeInTheDocument();
   });
 
+  it('lee la forma REAL de la API: código y clasificación anidados, entrada en inputSnapshotJson', async () => {
+    currentUser = userWith(['RISK_ANALYST']);
+    mockedApiRequest.mockResolvedValue({
+      requestId: 'REQ-9',
+      businessOutcome: 'VERIFICADO',
+      artifactVersion: {
+        semanticVersion: '1.2.0',
+        artifact: { artifactCode: 'IDENTIDAD_CARNET_MOVIL' },
+      },
+      inputSnapshotJson: { CI_NUMBER: '5550001', canal: 'APP_MOVIL' },
+      variables: [
+        {
+          id: '1',
+          valueJson: '5550001',
+          sourceCode: 'REQUEST',
+          variableVersion: { definition: { variableCode: 'CI_NUMBER', sensitivityClass: 'PII' } },
+        },
+        {
+          id: '2',
+          valueJson: 3,
+          sourceCode: 'REQUEST',
+          variableVersion: { definition: { variableCode: 'MESES', sensitivityClass: 'INTERNAL' } },
+        },
+      ],
+      reasons: [
+        { renderedMessage: 'Revisión obligatoria', reasonCode: { reasonCode: 'ID_REVIEW' } },
+      ],
+    });
+    renderPanel();
+
+    expect(await screen.findByText('MESES')).toBeInTheDocument();
+    expect(screen.getAllByText(/CI_NUMBER/).length).toBeGreaterThan(0);
+    expect(screen.getByText('IDENTIDAD_CARNET_MOVIL')).toBeInTheDocument();
+    expect(screen.getByText('ID_REVIEW')).toBeInTheDocument();
+    expect(screen.getByText('Revisión obligatoria')).toBeInTheDocument();
+    // La clasificación anidada enmascara, en la tabla y en la entrada original.
+    expect(screen.queryByText(/5550001/)).not.toBeInTheDocument();
+    // La entrada original ya no sale vacía.
+    expect(screen.getAllByText(/APP_MOVIL/).length).toBeGreaterThan(0);
+  });
+
   it('dice que no hay motivos en vez de esconder el panel', async () => {
     currentUser = userWith(['RISK_ANALYST']);
     mockedApiRequest.mockResolvedValue({ ...EXECUTION, reasonCodes: [] });

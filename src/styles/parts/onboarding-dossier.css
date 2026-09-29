@@ -1,0 +1,83 @@
+/* Expediente del alta en el caso de revisión manual: bloques con sus datos, lo
+   que no vino dicho como «No disponible», y las señales de fraude marcadas con
+   texto además de color (quien no distingue el rojo también tiene que verlas). */
+
+.dossier-blocks {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.dossier-block {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dossier-block__title {
+  margin: 0;
+  color: var(--ink);
+  font-size: var(--type-base);
+  font-weight: var(--weight-semibold);
+}
+
+.dossier-missing {
+  margin: 0;
+  color: var(--muted);
+  font-style: italic;
+  font-weight: var(--weight-regular);
+}
+
+.dossier-fact--riesgo {
+  background: var(--danger-wash);
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.dossier-fact--aviso {
+  background: var(--warning-wash);
+  box-shadow: inset 3px 0 0 var(--warning);
+}
+
+.dossier-flag {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  vertical-align: middle;
+}
+
+.dossier-flag--riesgo {
+  color: var(--danger-strong);
+  border: 1px solid var(--danger-line);
+}
+
+.dossier-flag--aviso {
+  color: var(--warning-strong);
+  border: 1px solid var(--warning-line);
+}
+
+.dossier-table {
+  width: 100%;
+  font-size: var(--type-sm);
+}
+
+.dossier-table caption {
+  text-align: left;
+  color: var(--muted);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  padding-bottom: var(--space-1);
+}
+
+.dossier-list,
+.dossier-signals {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+}
+
+@media (max-width: 820px) {
+  .dossier-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
