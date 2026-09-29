@@ -241,7 +241,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
                   <tr>
                     <th scope="col">Nombre de la variable</th>
                     <th scope="col">Valor final</th>
-                    <th scope="col">Origen (resolutor)</th>
+                    <th scope="col">De dónde salió</th>
                   </tr>
                 </thead>
                 <tbody>

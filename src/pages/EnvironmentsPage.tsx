@@ -46,7 +46,8 @@ export function EnvironmentsPage() {
       />
       {query.isError ? (
         <Alert tone="error">
-          No fue posible consultar los ambientes. Requiere rol Platform Admin, Risk, QA o Auditor.
+          No fue posible consultar los ambientes. Hace falta el rol de administrador, riesgo,
+          calidad o auditoría.
         </Alert>
       ) : null}
       {!query.isPending && !rows.length ? (

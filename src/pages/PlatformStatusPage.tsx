@@ -146,7 +146,7 @@ export function PlatformStatusPage() {
           hint="Ejecuciones de suites de prueba que ya terminaron."
           tone="accent"
           href="/test-suites"
-          actionLabel="Abrir laboratorio de pruebas"
+          actionLabel="Ver suites de prueba"
         />
         <DashboardCard
           concept="coverage"

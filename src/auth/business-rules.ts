@@ -131,8 +131,8 @@ export function promotionDenialReason(
 ): string | null {
   if (canPromoteToEnvironment(roles, target)) return null;
   return isProductionEnvironment(target)
-    ? 'Promover a producción requiere rol Platform Admin.'
-    : 'Promover una versión requiere rol QA Analyst o Fraud Analyst.';
+    ? 'Promover a producción requiere el rol de administrador de la plataforma.'
+    : 'Promover una versión requiere el rol de analista de calidad o de analista de fraude.';
 }
 
 /** Ver el expediente completo del caso: datos del cliente, ejecución y decisión. */

@@ -11,9 +11,9 @@ interface GeneratedGraphPreviewProps {
 const TYPE_LABEL: Record<string, string> = {
   START: 'Inicio',
   CONDITION: 'Condición',
-  SWITCH: 'Switch',
+  SWITCH: 'Selector',
   EXPRESSION: 'Expresión',
-  SCORE: 'Score',
+  SCORE: 'Puntaje',
   RESULT: 'Resultado',
   MANUAL_REVIEW: 'Revisión',
   END: 'Fin',

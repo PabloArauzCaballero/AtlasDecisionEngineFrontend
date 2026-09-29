@@ -83,8 +83,8 @@ describe('promoción de una versión («merge»)', () => {
   it('explica el motivo del bloqueo, distinguiendo producción del resto', () => {
     expect(promotionDenialReason(['PLATFORM_ADMIN'], PROD)).toBeNull();
     expect(promotionDenialReason(['QA_ANALYST'], DEV)).toBeNull();
-    expect(promotionDenialReason(['QA_ANALYST'], PROD)).toMatch(/Platform Admin/);
-    expect(promotionDenialReason(['RISK_ANALYST'], DEV)).toMatch(/QA Analyst/);
+    expect(promotionDenialReason(['QA_ANALYST'], PROD)).toMatch(/administrador de la plataforma/);
+    expect(promotionDenialReason(['RISK_ANALYST'], DEV)).toMatch(/analista de calidad/);
   });
 });
 
