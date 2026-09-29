@@ -57,7 +57,7 @@ export function ReviewsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Fase 4 · Gobierno"
+        eyebrow="Gobierno"
         title="Bandeja de revisiones"
         description="Envía versiones a aprobación y consulta el estado de cada solicitud gobernada."
       />
@@ -73,8 +73,9 @@ export function ReviewsPage() {
           <h2>Enviar a revisión</h2>
           {canPropose ? null : (
             <Alert tone="info">
-              Proponer un cambio requiere rol QA Analyst, Fraud Analyst o Platform Admin. Desde aquí
-              puedes consultar el estado de cualquier solicitud.
+              Proponer un cambio requiere el rol de analista de calidad, analista de fraude o
+              administrador de la plataforma. Desde aquí puedes consultar el estado de cualquier
+              solicitud.
             </Alert>
           )}
           <ArtifactVersionPicker

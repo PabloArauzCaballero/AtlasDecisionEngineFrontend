@@ -58,8 +58,8 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
       tone: 'success',
       title: 'Borrador guardado',
       description: versionId
-        ? `El wizard reabrirá con la versión ${versionId} preseleccionada.`
-        : 'El borrador quedó vacío; el wizard abrirá sin versión.',
+        ? `El asistente se abrirá con la versión ${versionId} ya elegida.`
+        : 'El borrador quedó vacío; el asistente se abrirá sin versión.',
     });
   };
 
@@ -87,7 +87,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F2-13 · Wizard"
+        eyebrow="Diseño · Asistente"
         title="Validar y Compilar Modelo"
         description="Proceso controlado de pre-validación, pruebas estructurales y compilación determinista."
         hint="El asistente sólo ofrece lo que el estado de la versión admite: el motor sólo compila lo que está validado, y una versión ya compilada se aprueba, no se vuelve a compilar."

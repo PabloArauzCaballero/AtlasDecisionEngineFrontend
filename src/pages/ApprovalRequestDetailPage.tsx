@@ -4,6 +4,7 @@ import { GitCompare, Printer, Share2, ShieldAlert, ThumbsDown, ThumbsUp } from '
 import Link from 'next/link';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
+import { statusText } from '../contracts/status-labels';
 import { Alert } from '../components/Alert';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
@@ -106,7 +107,7 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
   return (
     <>
       <PageHeader
-        eyebrow="F4-03 · Governance Request"
+        eyebrow="Gobierno · Solicitud de aprobación"
         title={`${requestLabel}: ${display(artifact, 'name')}`}
         description={`${display(artifact, 'artifactCode')} · v${versionLabel}`}
         actions={
@@ -132,27 +133,27 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
       ) : null}
       <div className="governance-detail">
         <div>
-          <Panel title="Metadatos de Versión" meta={display(request, 'status')}>
+          <Panel title="Ficha de la versión" meta={statusText(request.status)}>
             <DefinitionGrid
               record={{ ...request, ...version }}
               items={[
-                { label: 'Workflow', keys: ['workflowCode'] },
-                { label: 'Requested By', keys: ['requestedBy'] },
-                { label: 'Due At', keys: ['dueAt'] },
-                { label: 'Version Status', keys: ['status'] },
-                { label: 'Checksum', keys: ['checksum'], mono: true },
-                { label: 'Created At', keys: ['createdAt'] },
+                { label: 'Flujo de aprobación', keys: ['workflowCode'] },
+                { label: 'Solicitado por', keys: ['requestedBy'] },
+                { label: 'Vence', keys: ['dueAt'] },
+                { label: 'Estado de la versión', keys: ['status'] },
+                { label: 'Huella de la versión', keys: ['checksum'], mono: true },
+                { label: 'Creada', keys: ['createdAt'] },
               ]}
             />
           </Panel>
           <Panel
-            title="Resultados de Pruebas (Gates)"
+            title="Resultados de las pruebas obligatorias"
             meta={
               gatesLoading
                 ? 'Leyendo evidencia…'
                 : gates.reported
                   ? `${gates.rows.length} reportados`
-                  : 'Sin datos del backend'
+                  : 'Sin resultados todavía'
             }
           >
             {gates.reported ? (
@@ -199,7 +200,10 @@ export function ApprovalRequestDetailPage({ requestId }: ApprovalRequestDetailPa
           ) : null}
         </div>
         <div>
-          <Panel title="Decisión de Aprobación" meta={gate.requiredRole ?? 'Sin rol declarado'}>
+          <Panel
+            title="Decisión de aprobación"
+            meta={gate.requiredRole ? `Firma: ${gate.requiredRole}` : 'Sin rol indicado'}
+          >
             <div className="approval-steps">
               {steps.map((step) => (
                 <div key={display(step, 'id')}>

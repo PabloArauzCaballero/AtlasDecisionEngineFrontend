@@ -40,9 +40,9 @@ export function SearchResultsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Portal · Búsqueda"
+        eyebrow="Búsqueda"
         title="Resultados de búsqueda"
-        description="Coincidencias en artefactos, versiones, variables, reason codes, objetivos, revisiones y auditoría."
+        description="Coincidencias en algoritmos, versiones, variables, motivos, objetivos, revisiones y auditoría."
       />
       <form
         className="filter-bar"

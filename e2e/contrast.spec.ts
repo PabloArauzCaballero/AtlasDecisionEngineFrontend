@@ -118,7 +118,8 @@ const STATES: {
       // Se localizan por tipo de campo: los rótulos casan de más —«Correo»
       // también con la casilla de recordar, «Contraseña» con el botón de
       // mostrarla— y el modo estricto de Playwright lo rechaza con razón.
-      await page.getByLabel(/Tenant/i).fill('1');
+      await page.getByText('Entrar en otra organización').click();
+      await page.getByLabel(/Número de organización/i).fill('1');
       await page.locator('input[type="email"]').fill('quien@atlas.bo');
       await page.locator('input[type="password"]').fill('no-es-la-buena');
       await page

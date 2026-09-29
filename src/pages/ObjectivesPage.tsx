@@ -19,7 +19,9 @@ export function ObjectivesPage() {
         onPrimaryAction={() => setCreating(true)}
         primaryActionDisabled={!canCreate}
         primaryActionTitle={
-          canCreate ? 'Crear un objetivo de negocio' : 'Requiere rol Compliance o Platform Admin'
+          canCreate
+            ? 'Crear un objetivo de negocio'
+            : 'Requiere el rol de cumplimiento o de administrador de la plataforma'
         }
       />
       {creating ? <ObjectiveCreateDialog onClose={() => setCreating(false)} /> : null}

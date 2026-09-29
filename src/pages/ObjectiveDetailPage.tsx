@@ -11,6 +11,7 @@ import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
+import { statusText } from '../contracts/status-labels';
 import { PolicyEvidenceDialog } from '../features/objectives/PolicyEvidenceDialog';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
@@ -18,6 +19,13 @@ import { ScrollRegion } from '../components/ScrollRegion';
 
 interface ObjectiveDetailPageProps {
   objectiveId: string;
+}
+
+/** El porcentaje declarado, o `null` si no hay uno medible (nunca un valor de relleno). */
+function percentOf(raw: unknown): number | null {
+  if (raw === null || raw === undefined || raw === '') return null;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : null;
 }
 
 export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
@@ -28,6 +36,7 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
   const objective = asRecord(query.data);
   const policies = asRows(objective.policyRequirements);
   const target = asRecord(objective.targetJson);
+  const objectiveStatus = statusText(objective.status);
   const roles = useEffectiveRoles();
   const canLinkArtifact = hasAnyRole(roles, POLICY_ARTIFACT_LINK_ROLES);
   const canLinkTest = hasAnyRole(roles, POLICY_TEST_LINK_ROLES);
@@ -36,40 +45,50 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F7-03 · Business Traceability"
+        eyebrow="Trazabilidad"
         title={display(objective, 'name')}
         description={display(objective, 'objectiveCode')}
       />
       {query.isError ? <Alert tone="error">No fue posible cargar el objetivo.</Alert> : null}
       <div className="objective-layout">
-        <Panel title="Metadata del Objetivo" meta={display(objective, 'status')}>
+        <Panel title="Ficha del objetivo" meta={objectiveStatus}>
           <DefinitionGrid
             record={objective}
             items={[
               { label: 'Código', keys: ['objectiveCode'], mono: true },
               { label: 'Métrica', keys: ['metric'] },
-              { label: 'Owner Team', keys: ['ownerTeam'] },
+              { label: 'Equipo responsable', keys: ['ownerTeam'] },
               { label: 'Creado', keys: ['createdAt'] },
             ]}
           />
         </Panel>
-        <Panel title="Métricas Clave (Actual vs Target)" meta="Live">
+        {/* Antes, sin dato, las barras marcaban 42 % y 78 %: cifras inventadas que parecían
+            medidas. Sin porcentaje real no se dibuja barra; se dice que falta. */}
+        <Panel title="Métricas clave (actual y meta)">
           <div className="target-metrics">
             <div>
               <span>Actual</span>
               <strong>{display(target, 'current', 'actual')}</strong>
-              <ProgressBar value={Number(target.currentPct ?? 42)} label="Valor actual" />
+              {percentOf(target.currentPct) === null ? (
+                <small>Todavía no hay una medición registrada.</small>
+              ) : (
+                <ProgressBar value={percentOf(target.currentPct) ?? 0} label="Valor actual" />
+              )}
             </div>
             <div>
-              <span>Target</span>
+              <span>Meta</span>
               <strong>{display(target, 'target', 'value')}</strong>
-              <ProgressBar value={Number(target.targetPct ?? 78)} label="Objetivo" tone="warning" />
+              {percentOf(target.targetPct) === null ? (
+                <small>La meta no tiene un porcentaje declarado.</small>
+              ) : (
+                <ProgressBar value={percentOf(target.targetPct) ?? 0} label="Meta" tone="warning" />
+              )}
             </div>
           </div>
         </Panel>
       </div>
       <div className="objective-layout">
-        <Panel title="Políticas Regulatorias Asociadas" meta={`${policies.length} policies`}>
+        <Panel title="Políticas regulatorias asociadas" meta={`${policies.length} políticas`}>
           <div className="policy-list">
             {policies.map((policy) => (
               <article key={display(policy, 'id')}>
@@ -82,13 +101,13 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
             ))}
           </div>
         </Panel>
-        <Panel title="Matriz de Implementación" meta="Evidence links">
+        <Panel title="Matriz de implementación" meta="Con enlaces a la evidencia">
           <ScrollRegion label="Cobertura del objetivo" data-tutorial-id="objective-matrix">
             <table>
               <thead>
                 <tr>
                   <th scope="col">Política</th>
-                  <th scope="col">Artefactos</th>
+                  <th scope="col">Algoritmos</th>
                   <th scope="col">Suites</th>
                   <th scope="col">Estado</th>
                   <th scope="col">Evidencia</th>

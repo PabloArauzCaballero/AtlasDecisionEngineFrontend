@@ -74,7 +74,7 @@ export function CalculatedFieldsPage() {
             title={
               canCreate
                 ? undefined
-                : 'Crear un campo calculado requiere rol QA Analyst, Fraud Analyst o Platform Admin'
+                : 'Crear un campo calculado requiere el rol de analista de calidad, analista de fraude o administrador de la plataforma'
             }
             onClick={() => setShowCreate((open) => !open)}
           >
@@ -152,7 +152,7 @@ export function CalculatedFieldsPage() {
             illustration="empty"
             title="Todavía no hay campos calculados"
             description="Un campo calculado es una fórmula pequeña y reutilizable: una relación, una edad, un porcentaje. Crea uno cuando la misma cuenta empiece a repetirse en varios algoritmos."
-            example="debt_to_income = deuda mensual ÷ ingreso mensual"
+            example="deuda_sobre_ingreso = deuda mensual ÷ ingreso mensual"
           />
         )}
       </Panel>

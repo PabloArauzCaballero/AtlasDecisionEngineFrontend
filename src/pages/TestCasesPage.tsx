@@ -80,7 +80,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
     onSuccess: (queued) => {
       notify({
         tone: 'success',
-        title: `Run ${queued.id} encolado`,
+        title: `Corrida ${queued.id} en cola`,
         description: 'La vista de resultados se actualizará mientras el worker ejecuta los casos.',
       });
       router.push(`/test-runs/${queued.id}`);
@@ -152,9 +152,9 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
       </div>
       <div className="test-cases-main">
         <PageHeader
-          eyebrow="F3-03 · Quality"
+          eyebrow="Calidad"
           title={suiteId ? `Casos de la suite ${suiteId}` : 'Casos de prueba'}
-          description="Casos deterministas, payloads y resultados esperados de la suite seleccionada."
+          description="Los casos de la suite elegida: los datos de entrada y el resultado que se espera de cada uno."
           actions={
             <>
               <input
@@ -245,8 +245,8 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
                 <tr>
                   <th scope="col">ID Caso</th>
                   <th scope="col">Nombre del Escenario</th>
-                  <th scope="col">Tags</th>
-                  <th scope="col">Entrada (Payload)</th>
+                  <th scope="col">Etiquetas</th>
+                  <th scope="col">Datos de entrada</th>
                   <th scope="col">Resultado Esperado</th>
                   <th scope="col">Estado</th>
                 </tr>

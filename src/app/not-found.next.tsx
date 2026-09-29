@@ -7,7 +7,7 @@ export default function NotFoundPage() {
       <h1>La vista solicitada no existe</h1>
       <p>Verifica la dirección o regresa al estado general de la plataforma.</p>
       <Link className="button button-primary" href="/platform-health">
-        Ir a Platform Health
+        Ir al inicio
       </Link>
     </main>
   );

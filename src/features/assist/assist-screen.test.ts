@@ -3,15 +3,17 @@ import { assistScreenFor, sanitizeScreen } from './assist-screen';
 describe('assistScreenFor', () => {
   it('nombra la sección con el rótulo del menú', () => {
     expect(assistScreenFor('/deployments')).toBe('Gobierno › Despliegues');
-    expect(assistScreenFor('/model-monitoring')).toBe('Auditoría › Monitoreo del Modelo');
+    expect(assistScreenFor('/model-monitoring')).toBe('Auditoría › Monitoreo del modelo');
   });
 
   it('una ruta de detalle hereda la entrada del menú que la abre', () => {
-    expect(assistScreenFor('/calculated-fields/42')).toBe('Diseño › Campos Calculados');
+    expect(assistScreenFor('/calculated-fields/42')).toBe('Diseño › Campos calculados');
   });
 
-  it('gana la entrada más honda: un worker no es «Workers» a secas', () => {
-    expect(assistScreenFor('/workers/audio-tts')).toBe('Procesamiento › Workers › Locución');
+  it('gana la entrada más honda: un procesador no es «Procesadores automáticos» a secas', () => {
+    expect(assistScreenFor('/workers/audio-tts')).toBe(
+      'Procesamiento › Procesadores automáticos › Locución',
+    );
   });
 
   it('las vistas sin entrada propia se nombran por la sección que las abre', () => {

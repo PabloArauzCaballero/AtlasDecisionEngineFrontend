@@ -59,8 +59,10 @@ function paramsDe(key: string): string[] {
 describe('la cola de revisión manual', () => {
   it('«Buscar caso» manda `search`, que el motor busca en el código y en el request ID', () => {
     expect(resources['manual-reviews']?.filterParam).toBe('search');
-    expect(resources['manual-reviews']?.filterHelp).toMatch(/identificador del caso/);
-    expect(resources['manual-reviews']?.filterHelp).toMatch(/request ID/);
+    // Los dos campos que recorre el motor, dichos en palabras y no con el nombre del campo.
+    expect(resources['manual-reviews']?.filterHelp).toMatch(/número del caso/);
+    expect(resources['manual-reviews']?.filterHelp).toMatch(/identificador de la decisión/);
+    expect(resources['manual-reviews']?.filterHelp).not.toMatch(/request ID/);
   });
 
   it('sólo manda parámetros que el motor declara', () => {
@@ -110,10 +112,10 @@ describe('la bitácora de auditoría', () => {
 
   it('el buscador dice por qué campos busca, y son los que el motor recorre', () => {
     expect(bitacora?.filterParam).toBe('search');
-    expect(bitacora?.filterPlaceholder).toBe('Evento, objeto, actor o request ID');
+    expect(bitacora?.filterPlaceholder).toBe('Evento, objeto, persona o solicitud');
     expect(bitacora?.filterHelp).toMatch(/tipo de evento/);
-    expect(bitacora?.filterHelp).toMatch(/actor/);
-    expect(bitacora?.filterHelp).toMatch(/request ID/);
+    expect(bitacora?.filterHelp).toMatch(/quién actuó/);
+    expect(bitacora?.filterHelp).toMatch(/identificador de la solicitud/);
   });
 });
 
@@ -127,8 +129,14 @@ describe('otras ayudas de los listados del motor', () => {
   it('despliegues: la columna Modo nombra los modos reales, no «sombra»', () => {
     const modo = resources.deployments?.columns.find((columna) => columna.key === 'deploymentMode');
     expect(modo?.hint).not.toMatch(/sombra|shadow/i);
-    for (const real of ['DIRECT', 'CANARY', 'CHAMPION_CHALLENGER']) {
+    // DIRECT, CANARY y CHAMPION_CHALLENGER, dichos en palabras y sin el código.
+    for (const real of [
+      'completo',
+      'gradual',
+      'comparando la versión actual con una alternativa',
+    ]) {
       expect(modo?.hint).toContain(real);
     }
+    expect(modo?.hint).not.toMatch(/DIRECT|CANARY|CHAMPION/);
   });
 });

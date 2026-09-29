@@ -76,7 +76,7 @@ test.describe('consola de consultas SQL', () => {
     // Workers sigue en «Procesamiento», pero como GRUPO que se despliega en sus cinco workers
     // (`NavGroup`): es un botón con `aria-expanded`, no un enlace. Buscarlo como enlace no
     // podía encontrarlo nunca. Su nombre accesible lleva además el número de workers.
-    const workers = cajon.getByRole('button', { name: /^Workers/ });
+    const workers = cajon.getByRole('button', { name: /^Procesadores automáticos/ });
     await expect(workers).toBeVisible();
     await expect(workers).toHaveAttribute('aria-expanded', /true|false/);
   });

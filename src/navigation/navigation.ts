@@ -37,7 +37,7 @@ export const navigation: readonly NavigationSection[] = [
     label: 'Plataforma',
     items: [
       {
-        label: 'Platform Health',
+        label: 'Estado de la plataforma',
         path: '/platform-health',
         icon: Activity,
         roles: accessPolicies.platformHealth,
@@ -54,7 +54,7 @@ export const navigation: readonly NavigationSection[] = [
          * Aquí no se duplica una vista, se le da el único acceso que tenía y que
          * desaparecía al estrechar la pantalla.
          */
-        label: 'Búsqueda Global',
+        label: 'Búsqueda',
         path: '/search',
         // El mismo icono que ya usa la caja de la barra superior
         // (`GlobalSearchBox`): son la misma cosa vista desde dos sitios.
@@ -62,7 +62,7 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.globalSearch,
       },
       {
-        label: 'Centro de Tutoriales',
+        label: 'Tutoriales',
         path: '/tutorials',
         icon: GraduationCap,
         roles: accessPolicies.tutorials,
@@ -79,37 +79,37 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.catalogRead,
       },
       {
-        label: 'Campos Calculados',
+        label: 'Campos calculados',
         path: '/calculated-fields',
         icon: Calculator,
         roles: accessPolicies.calculatedFields,
       },
       {
-        label: 'Librerías Autorizadas',
+        label: 'Librerías autorizadas',
         path: '/libraries',
         icon: Library,
         roles: accessPolicies.libraryRegistry,
       },
       {
-        label: 'Reason Codes',
+        label: 'Motivos',
         path: '/reason-codes',
         icon: Braces,
         roles: accessPolicies.catalogRead,
       },
       {
-        label: 'Artefactos',
+        label: 'Inventario de algoritmos',
         path: '/artifacts',
         icon: Boxes,
         roles: accessPolicies.artifacts,
       },
       {
-        label: 'Algoritmos y Versiones',
+        label: 'Algoritmos y versiones',
         path: '/algorithms',
         icon: Layers,
         roles: accessPolicies.artifacts,
       },
       {
-        label: 'Editor de Grafo',
+        label: 'Editor del diagrama',
         path: '/graph-editor',
         icon: GitBranch,
         roles: accessPolicies.graphAuthoring,
@@ -121,7 +121,7 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.graphAuthoring,
       },
       {
-        label: 'Importar Código',
+        label: 'Importar código',
         path: '/code-import',
         icon: FileCode2,
         roles: accessPolicies.codeImport,
@@ -132,25 +132,25 @@ export const navigation: readonly NavigationSection[] = [
     label: 'Calidad',
     items: [
       {
-        label: 'Suites de Prueba',
+        label: 'Suites de prueba',
         path: '/test-suites',
         icon: FlaskConical,
         roles: accessPolicies.qualityAuthoring,
       },
       {
-        label: 'Casos de Prueba',
+        label: 'Casos de prueba',
         path: '/test-cases',
         icon: ListChecks,
         roles: accessPolicies.qualityAuthoring,
       },
       {
-        label: 'QA Lab',
+        label: 'Laboratorio de pruebas',
         path: '/qa-lab',
         icon: ScanSearch,
         roles: accessPolicies.qaLab,
       },
       {
-        label: 'Cobertura',
+        label: 'Cobertura del diagrama',
         path: '/graph-coverage',
         icon: ShieldCheck,
         roles: accessPolicies.coverageRead,
@@ -178,6 +178,14 @@ export const navigation: readonly NavigationSection[] = [
         icon: History,
         roles: accessPolicies.environments,
       },
+      {
+        // En «Gobierno» y no en «Auditoría»: no mide lo que pasó, fija las condiciones de lo
+        // que puede pasar. Auditar es mirar hacia atrás; esto es poner el marco.
+        label: 'Gobierno del riesgo',
+        path: '/risk-governance',
+        icon: Scale,
+        roles: accessPolicies.riskGovernance,
+      },
     ],
   },
   {
@@ -190,13 +198,13 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.simulator,
       },
       {
-        label: 'Ejecución en Vivo',
+        label: 'Ejecución en vivo',
         path: '/live-execution',
         icon: Radio,
         roles: accessPolicies.simulator,
       },
       {
-        label: 'Revisión Manual',
+        label: 'Revisión manual',
         path: '/manual-reviews',
         icon: ScanSearch,
         roles: accessPolicies.manualReview,
@@ -225,7 +233,7 @@ export const navigation: readonly NavigationSection[] = [
          * podía verla. Va en «Auditoría» y no en «Operación» porque no actúa sobre ninguna
          * decisión en curso — mide las que ya se tomaron.
          */
-        label: 'Monitoreo del Modelo',
+        label: 'Monitoreo del modelo',
         path: '/model-monitoring',
         icon: Activity,
         roles: accessPolicies.modelMonitoring,
@@ -234,21 +242,13 @@ export const navigation: readonly NavigationSection[] = [
         // Debajo del monitoreo y no dentro: aquél mide si el modelo se degrada, ésta si hay
         // datos con los que medirlo. Un tablero verde sobre un sistema de observación apagado
         // es la lectura peligrosa que esta entrada existe para impedir.
-        label: 'Calidad de la Decisión',
+        label: 'Calidad de la decisión',
         path: '/decision-quality',
         icon: Gauge,
         roles: accessPolicies.decisionQuality,
       },
       {
-        // En «Gobierno» y no en «Auditoría»: no mide lo que pasó, fija las condiciones de lo
-        // que puede pasar. Auditar es mirar hacia atrás; esto es poner el marco.
-        label: 'Gobierno del Riesgo',
-        path: '/risk-governance',
-        icon: Scale,
-        roles: accessPolicies.riskGovernance,
-      },
-      {
-        label: 'Derechos del Titular',
+        label: 'Derechos del titular',
         path: '/data-subject-requests',
         icon: UserSearch,
         roles: accessPolicies.dataSubjectRights,

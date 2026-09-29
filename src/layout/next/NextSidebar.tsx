@@ -71,7 +71,7 @@ function QuickActionMenu({ roles, onNavigate }: { roles: string[]; onNavigate: (
         aria-haspopup="menu"
         onClick={() => setOpen((visible) => !visible)}
       >
-        <Plus size={17} /> Quick Action
+        <Plus size={17} /> Acción rápida
       </button>
       {open ? (
         <div className="quick-action-menu" role="menu" aria-label="Acciones rápidas">

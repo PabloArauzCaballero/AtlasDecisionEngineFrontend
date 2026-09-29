@@ -11,7 +11,10 @@
 # `motor` era un alias de la red compartida `atlas_vps` y en Coolify no resuelve.
 #
 # Lo que SÍ se hornea al construir es `NEXT_PUBLIC_ENVIRONMENT` —la etiqueta del entorno que se
-# ve en pantalla— y `SETUP_INTERPRETES`.
+# ve en pantalla— y `SETUP_INTERPRETES`. La etiqueta horneada es sólo el ÚLTIMO recurso: DEV y TEST
+# construyen con este mismo archivo, y TEST decía «Ambiente DEV». El servidor la resuelve en cada
+# petición (`src/config/environment-label.ts`): primero `ENVIRONMENT_LABEL` del `.env` de Coolify
+# (se cambia sin reconstruir), después el dominio (un host con `.test.` es TEST) y sólo al final esto.
 #
 # ## `SETUP_INTERPRETES=false`, y lo que eso significa
 #

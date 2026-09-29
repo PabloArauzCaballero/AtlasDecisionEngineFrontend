@@ -84,7 +84,7 @@ export function DecisionConfirmDialog({
         </div>
         <div>
           <dt>Firmas como</dt>
-          <dd>{subject.requiredRole ?? 'Rol no declarado por el backend'}</dd>
+          <dd>{subject.requiredRole ?? 'Rol no indicado'}</dd>
         </div>
         <div>
           <dt>Consecuencia</dt>
@@ -100,8 +100,9 @@ export function DecisionConfirmDialog({
         <h3>Evidencia</h3>
         {!gates.reported ? (
           <p className="decision-warning">
-            El backend no envió resultados de gates para esta solicitud. Nadie ha comprobado aquí
-            que la compilación, las suites o la cobertura hayan pasado: verifícalo antes de firmar.
+            El motor no envió resultados de las pruebas obligatorias para esta solicitud. Nadie ha
+            comprobado aquí que la compilación, las suites o la cobertura hayan pasado: verifícalo
+            antes de firmar.
           </p>
         ) : (
           <ul className="gate-list">
@@ -115,7 +116,9 @@ export function DecisionConfirmDialog({
         )}
         {gates.reported && gates.failing.length ? (
           <p className="decision-warning">
-            {gates.failing.length} gate(s) no están en estado aprobado.
+            {gates.failing.length === 1
+              ? '1 prueba obligatoria no está aprobada.'
+              : `${gates.failing.length} pruebas obligatorias no están aprobadas.`}
           </p>
         ) : null}
         {approving && missingEvidence ? (

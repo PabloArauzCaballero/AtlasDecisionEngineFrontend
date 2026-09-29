@@ -11,7 +11,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-import { env } from '../../../config/env';
+import { useEnvironmentLabel } from '../../../config/EnvironmentLabelProvider';
 import type { LoginProblem } from './login-errors';
 import { Field } from '../../../components/Field';
 import { FieldRow } from '../../../components/FieldRow';
@@ -43,6 +43,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * `aria-describedby` para que un lector de pantalla los lea al entrar al campo.
  */
 export function LoginForm({ initial, submitting, problem, notice, onSubmit }: LoginFormProps) {
+  const environmentLabel = useEnvironmentLabel();
   const [tenantId, setTenantId] = useState(initial.tenantId);
   const [email, setEmail] = useState(initial.email);
   const [password, setPassword] = useState('');
@@ -68,9 +69,9 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
         <p className="eyebrow">Acceso corporativo</p>
         <h1 id="login-title">Bienvenido nuevamente</h1>
         <p>Ingresa tus credenciales para acceder a Atlas Decision Engine.</p>
-        {env.environmentLabel && env.environmentLabel !== 'PRODUCTION' ? (
+        {environmentLabel && environmentLabel !== 'PRODUCTION' ? (
           <p className="login-environment">
-            Ambiente <strong>{env.environmentLabel}</strong> — no es el entorno de producción.
+            Ambiente <strong>{environmentLabel}</strong> — no es el entorno de producción.
           </p>
         ) : null}
       </header>
@@ -93,21 +94,6 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
       ) : null}
 
       <form onSubmit={submit} className="login-form" noValidate>
-        <Field
-          className="login-field"
-          label="Tenant"
-          tooltip="Identificador de la organización a la que pertenece tu cuenta; normalmente es 1."
-        >
-          <input
-            inputMode="numeric"
-            pattern="[1-9][0-9]*"
-            required
-            value={tenantId}
-            onChange={(event) => setTenantId(event.target.value)}
-          />
-          <small className="login-help">Identificador de tu organización. Normalmente es 1.</small>
-        </Field>
-
         <FieldRow
           className="login-field"
           label="Correo electrónico"
@@ -202,6 +188,30 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
           )}
         </FieldRow>
 
+        {/*
+          El número de organización casi nunca cambia (hay una sola), así que no se le pide a
+          nadie en la entrada: se guarda plegado para quien opere más de una.
+        */}
+        <details className="login-advanced" open={tenantId !== '1' ? true : undefined}>
+          <summary>Entrar en otra organización</summary>
+          <Field
+            className="login-field"
+            label="Número de organización"
+            tooltip="Sólo cambia si tu empresa opera varias organizaciones en Atlas y te dieron otro número."
+          >
+            <input
+              inputMode="numeric"
+              pattern="[1-9][0-9]*"
+              required
+              value={tenantId}
+              onChange={(event) => setTenantId(event.target.value)}
+            />
+            <small className="login-help">
+              Déjalo en 1 salvo que te hayan indicado otro número.
+            </small>
+          </Field>
+        </details>
+
         <div className="login-row">
           <label className="login-remember">
             <input
@@ -233,8 +243,7 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
       <p className="login-security">
         <ShieldCheck size={15} aria-hidden="true" />
         <span>
-          El token de refresco viaja en una cookie HttpOnly y el token de acceso nunca se guarda en
-          el navegador. Todas las acciones quedan auditadas.
+          Tu sesión está protegida y todo lo que hagas en el portal queda registrado con tu nombre.
         </span>
       </p>
     </section>

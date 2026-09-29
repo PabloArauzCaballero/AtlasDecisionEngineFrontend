@@ -67,7 +67,7 @@ export function CoverageMatrixPage() {
   return (
     <>
       <PageHeader
-        eyebrow="F7-07 · Business Traceability"
+        eyebrow="Trazabilidad"
         title="Matriz de Cobertura"
         description="Estado de cumplimiento entre objetivos, políticas, artefactos y pruebas."
         actions={

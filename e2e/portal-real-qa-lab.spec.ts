@@ -44,7 +44,9 @@ test('una corrida larga sobrevive al techo de 15 s de la petición', async ({ pa
 
   await entrar(page);
   await page.goto('/qa-lab', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: 'QA Lab', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Laboratorio de pruebas', exact: true }),
+  ).toBeVisible();
 
   /*
    * Elegir artefacto y versión, en ese orden: el selector de versión está desactivado

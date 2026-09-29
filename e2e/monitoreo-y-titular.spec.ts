@@ -68,7 +68,7 @@ test('la estabilidad marca una población que ya es otra, y qué banda lo explic
 
   const panel = page.locator('.panel').filter({ hasText: 'Estabilidad poblacional' });
   await expect(panel).toContainText('0.312');
-  await expect(panel).toContainText('UNSTABLE');
+  await expect(panel).toContainText('Inestable');
   // Las bandas van ordenadas por aportación: la primera es la que explica el desplazamiento.
   await expect(panel.locator('tbody tr').first()).toContainText('n:9');
 });

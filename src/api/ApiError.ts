@@ -41,6 +41,41 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Qué decirle a la persona cuando el motor no dio un mensaje que se pueda enseñar tal cual.
+ *
+ * El motor responde unos errores en español pensados para la pantalla («No hay ningún caso de
+ * revisión con ese identificador.») y otros en inglés escritos para quien programa («Artifact
+ * version not found», «variables must be a JSON object»). Estos últimos se pintaban tal cual en
+ * los avisos (medido en TEST el 2026-09-29). Por tipo de fallo se dice qué pasó y qué hacer.
+ */
+const PLAIN_BY_KIND: Record<ApiErrorKind, string> = {
+  validation: 'Algún dato no es válido. Revisa lo que escribiste e inténtalo de nuevo.',
+  unauthorized: 'Tu sesión terminó. Vuelve a iniciar sesión.',
+  forbidden: 'Tu usuario no tiene permiso para hacer esto. Pídeselo a un administrador.',
+  'not-found': 'Lo que buscas ya no existe o fue movido. Actualiza la página.',
+  conflict: 'Esto ya cambió mientras lo tenías abierto. Actualiza la página y vuelve a intentarlo.',
+  'rate-limit': 'Se hicieron demasiados intentos seguidos. Espera un minuto y vuelve a intentarlo.',
+  network: 'No hay conexión con el motor. Revisa tu conexión y vuelve a intentarlo.',
+  timeout: 'El motor tardó demasiado en responder. Vuelve a intentarlo en unos minutos.',
+  cancelled: 'La operación se canceló.',
+  contract: 'El motor respondió algo que esta pantalla no entiende. Avisa a soporte.',
+  unexpected:
+    'No se pudo completar la operación. Vuelve a intentarlo; si se repite, avisa a soporte.',
+};
+
+const SPANISH_HINT =
+  /[áéíóúñ¿¡]|\b(el|la|los|las|de|del|que|no|un|una|para|es|con|hay|se|por|sin|ya|esta|este)\b/i;
+const TECHNICAL_HINT = /`|\b[A-Z]{2,}(?:_[A-Z0-9]+)+\b|\{|\}|\/v\d\//;
+
+/** El mensaje del motor si es español llano; si no, la explicación por tipo de fallo. */
+export function plainMessage(error: ApiError): string {
+  const message = error.message.trim();
+  if (message && SPANISH_HINT.test(message) && !TECHNICAL_HINT.test(message)) return message;
+  return PLAIN_BY_KIND[error.kind];
+}
+
 export function errorMessage(error: unknown): string {
+  if (error instanceof ApiError) return plainMessage(error);
   return error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
 }

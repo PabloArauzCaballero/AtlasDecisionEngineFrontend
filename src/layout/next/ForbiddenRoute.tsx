@@ -19,7 +19,7 @@ export function ForbiddenRoute({ routeRegistered }: ForbiddenRouteProps) {
           : 'La política de seguridad denegó esta ruta porque no tiene una regla de acceso explícita.'}
       </p>
       <Link className="button button-primary" href="/platform-health">
-        Volver a Platform Health
+        Volver al inicio
       </Link>
     </section>
   );

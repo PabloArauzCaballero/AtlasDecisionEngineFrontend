@@ -78,7 +78,7 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
     <>
       <PageHeader
         eyebrow="Calidad"
-        title="QA Lab"
+        title="Laboratorio de pruebas"
         description="Inventa cientos de casos a partir de las reglas de entrada del algoritmo, los ejecuta en el motor y te guarda, reducido, cada caso que incumple una comprobación."
         hint="Encuentra lo que nadie escribió a mano: bordes, datos del tipo equivocado y combinaciones raras que las reglas deberían rechazar. Comprueba el contrato y la ejecución, no si la decisión es buena para el negocio."
       />

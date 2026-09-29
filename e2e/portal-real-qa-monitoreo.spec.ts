@@ -121,7 +121,9 @@ test('una serie de estrés del QA Lab se lee en el monitoreo del modelo', async 
 /** Elige artefacto y versión en el QA Lab, y devuelve el identificador de versión elegido. */
 async function prepararQaLab(page: Page): Promise<string> {
   await page.goto('/qa-lab', { waitUntil: 'domcontentloaded' });
-  await expect(page.getByRole('heading', { name: 'QA Lab', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Laboratorio de pruebas', exact: true }),
+  ).toBeVisible();
 
   // La versión se descubre navegando: contra la base real un identificador escrito a mano casi
   // nunca existe, y la prueba acabaría midiendo una pantalla de «no encontrado».

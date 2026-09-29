@@ -124,7 +124,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F6-02 · Auditoría"
+        eyebrow="Auditoría"
         title="Ejecución de la transacción"
         description={`${display(execution, 'requestId')} · ${display(execution, 'artifactCode')}`}
         actions={
@@ -210,7 +210,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
             { label: 'Artefacto', keys: ['artifactCode'], mono: true },
             { label: 'Versión', keys: ['versionNumber', 'semanticVersion'] },
             { label: 'Ambiente', keys: ['environmentCode'] },
-            { label: 'Principal', keys: ['principalId'], mono: true },
+            { label: 'Solicitado por', keys: ['principalId'], mono: true },
             { label: 'Ejecutada', keys: ['createdAt'] },
           ]}
         />
@@ -241,7 +241,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
                   <tr>
                     <th scope="col">Nombre de la variable</th>
                     <th scope="col">Valor final</th>
-                    <th scope="col">Origen (resolutor)</th>
+                    <th scope="col">De dónde salió</th>
                   </tr>
                 </thead>
                 <tbody>

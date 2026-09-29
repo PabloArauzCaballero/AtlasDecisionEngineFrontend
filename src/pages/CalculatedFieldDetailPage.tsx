@@ -96,7 +96,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
             title={
               canAuthor
                 ? undefined
-                : 'Crear una versión requiere rol QA Analyst, Fraud Analyst o Platform Admin'
+                : 'Crear una versión requiere el rol de analista de calidad, analista de fraude o administrador de la plataforma'
             }
             onClick={() => setShowForm((open) => !open)}
           >

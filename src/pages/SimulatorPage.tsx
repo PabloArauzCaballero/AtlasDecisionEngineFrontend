@@ -151,19 +151,19 @@ export function SimulatorPage() {
   return (
     <>
       <div className="sandbox-banner">
-        <AlertTriangle /> Dry-run seguro · {environmentCode} · no persistente
+        <AlertTriangle /> Prueba segura · {environmentCode} · no se guarda
       </div>
       <PageHeader
-        eyebrow="F5-01 · Operations"
+        eyebrow="Operación"
         title="Simulador de Decisión"
-        description="Ejecuta una evaluación controlada sin crear una decisión productiva ni evidencia runtime."
+        description="Prueba una decisión con los datos que escribas, sin afectar a ningún cliente y sin dejar registro."
         hint="Prueba cómo decidiría un algoritmo con las entradas que tú escribas, sin afectar producción ni guardar nada. Ideal para entender por qué el motor toma una ruta."
       />
       {environments.isError ? (
         <Alert tone="error">No fue posible cargar los ambientes seguros de simulación.</Alert>
       ) : null}
       <div className="simulator-layout">
-        <Panel title="Configuración" meta="Dry-run no persistente">
+        <Panel title="Configuración" meta="Prueba · no se guarda">
           <form className="simulator-form" onSubmit={submit} data-tutorial-id="simulator-form">
             <div className="form-row" data-tutorial-id="simulator-artifact">
               <PickerSelect
@@ -278,9 +278,9 @@ export function SimulatorPage() {
             </div>
           </Panel>
         ) : (
-          <Panel title="Traza dry-run" meta="sin recorrido por nodo">
+          <Panel title="Recorrido de la prueba" meta="sin detalle por paso">
             <TraceActions trace={result.trace} name={result.requestId} />
-            <JsonPanel label="Traza dry-run" value={result.trace} />
+            <JsonPanel label="Recorrido de la prueba" value={result.trace} />
           </Panel>
         )
       ) : null}

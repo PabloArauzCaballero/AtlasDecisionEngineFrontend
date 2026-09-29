@@ -182,7 +182,8 @@ test('real-backend portal sweep (opt-in via PW_EMAIL / PW_PASSWORD)', async ({ p
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
   // Target the inputs by autocomplete: the visible labels also cover the
   // "Mostrar contraseña" toggle button, which makes getByLabel ambiguous.
-  await page.getByLabel('Tenant').fill(process.env.PW_TENANT ?? '1');
+  await page.getByText('Entrar en otra organización').click();
+  await page.getByLabel('Número de organización').fill(process.env.PW_TENANT ?? '1');
   await page.locator('input[autocomplete="username"]').fill(email as string);
   await page.locator('input[autocomplete="current-password"]').fill(password as string);
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
@@ -257,8 +258,8 @@ test('create forms and the deployment dialog open without errors', async ({ page
   await mockBackend(page);
 
   await page.goto('/variables');
-  await page.getByRole('button', { name: /Add Variable/i }).click();
-  await expect(page.getByRole('button', { name: /Add Variable/i }).last()).toBeVisible();
+  await page.getByRole('button', { name: /Nueva variable/i }).click();
+  await expect(page.getByRole('button', { name: /Nueva variable/i }).last()).toBeVisible();
 
   where.route = '/deployments';
   await page.goto('/deployments');

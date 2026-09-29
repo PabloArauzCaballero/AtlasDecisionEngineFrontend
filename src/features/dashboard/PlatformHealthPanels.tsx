@@ -59,8 +59,8 @@ export function PlatformHealthPanels({
                 Servicio de decisiones
                 <small>
                   {operational
-                    ? 'El backend respondió a las sondas de vida y de disponibilidad.'
-                    : 'Sin respuesta del backend: no es posible confirmar el estado.'}
+                    ? 'El motor responde con normalidad.'
+                    : 'El motor no responde: no se puede confirmar su estado.'}
                 </small>
               </span>
               <code>{operational ? 'OK' : '—'}</code>
@@ -69,7 +69,7 @@ export function PlatformHealthPanels({
         )}
       </Panel>
 
-      <Panel title="Contexto de despliegue" meta="Datos del backend">
+      <Panel title="Contexto de despliegue" meta="Datos del motor">
         <div className={`alert-card ${operational ? '' : 'alert-card-danger'}`}>
           {operational ? <CheckCircle2 /> : <TriangleAlert />}
           <div>
