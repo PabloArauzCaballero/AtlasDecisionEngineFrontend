@@ -94,7 +94,6 @@ export function WorkerNotes({ notas, ayuda }: WorkerNotesProps) {
              * que es la pregunta que se hace primero al leer la frase.
              */}
             {nota.origen ? <span className="worker-note-origin">{nota.origen}</span> : null}
-            {nota.codigo ? <code className="worker-note-code">{nota.codigo}</code> : null}
           </li>
         ))}
       </ul>

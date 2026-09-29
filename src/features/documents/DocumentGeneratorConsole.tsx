@@ -108,7 +108,7 @@ export function DocumentGeneratorConsole() {
       notify({
         tone: 'success',
         title: 'Vista previa lista',
-        description: 'Generada con los datos de ejemplo que publica el propio template.',
+        description: 'Generada con los datos de ejemplo que trae la propia plantilla.',
       });
     },
   });
@@ -124,7 +124,7 @@ export function DocumentGeneratorConsole() {
       >
         {templates.isLoading ? <p>Cargando el catálogo de documentos…</p> : null}
         {templates.data?.length === 0 ? (
-          <p>El motor no publica ningún documento en este despliegue.</p>
+          <p>El motor no publica ningún documento en este entorno.</p>
         ) : null}
 
         <div className="doc-picker">

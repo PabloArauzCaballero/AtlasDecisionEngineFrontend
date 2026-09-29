@@ -1,7 +1,12 @@
 'use client';
 
 import { AlertTriangle, Ban, Check, X } from 'lucide-react';
-import type { OutcomeReport } from './calculated-field-preview';
+import {
+  KIND_LABELS,
+  outcomeLabel,
+  type OutcomeReport,
+  type SampleKind,
+} from './calculated-field-preview';
 
 interface Props {
   report: OutcomeReport;
@@ -39,7 +44,7 @@ export function CalculatedFieldOutcomeReport({ report }: Props) {
               )}
             </span>
             <div>
-              <b>{outcome.label}</b> <code>{outcome.code}</code>
+              <b>{outcome.label}</b>
               <small>{outcome.reason}</small>
               {outcome.unreachable ? (
                 <small className="outcome-unreachable">
@@ -62,7 +67,7 @@ export function CalculatedFieldOutcomeReport({ report }: Props) {
           Además ocurrieron desenlaces que el contrato de retorno no declara —casi siempre entradas
           rechazadas, que es lo que los casos inválidos buscan—:{' '}
           {report.undeclared.map((code) => (
-            <code key={code}>{code}</code>
+            <code key={code}>{outcomeLabel(code)}</code>
           ))}
         </p>
       ) : null}
@@ -72,9 +77,9 @@ export function CalculatedFieldOutcomeReport({ report }: Props) {
         <ul>
           {report.cases.map((sample) => (
             <li key={sample.index}>
-              <code>{sample.outcome}</code>
+              <code>{outcomeLabel(sample.outcome)}</code>
               <small>
-                {sample.kind}
+                {KIND_LABELS[sample.kind as SampleKind] ?? sample.kind}
                 {sample.mutation ? ` · ${sample.mutation}` : ''} · {JSON.stringify(sample.input)}
               </small>
               <small>

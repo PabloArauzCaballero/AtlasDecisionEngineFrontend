@@ -16,7 +16,7 @@ import type { CatalogDataset, CatalogOrigin, CatalogTable } from './sql-console.
 const ORIGENES: ReadonlyArray<{ id: CatalogOrigin; titulo: string; resumen: string }> = [
   {
     id: 'ATLAS_BACKEND',
-    titulo: 'AtlasBackend',
+    titulo: 'Datos operativos de Atlas',
     resumen: 'Sobre QUIEN se decidio: clientes, creditos, casos, consentimientos y bitacora.',
   },
   {

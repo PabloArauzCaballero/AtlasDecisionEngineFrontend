@@ -143,7 +143,7 @@ export const CONSTRAINT_FIELD_HELP: Readonly<Record<string, string>> = {
 export const ACTION_TYPE_HELP: OptionDescriptions = {
   SET_FIELD:
     'Escribe un valor que otros pasos podrán leer (tipo heredado: hoy se usa un campo calculado).',
-  EMIT_REASON: 'Añade un reason code explicable al resultado de la decisión.',
+  EMIT_REASON: 'Añade un motivo explicable al resultado de la decisión.',
   CREATE_MANUAL_REVIEW: 'Deriva el caso a una persona en lugar de resolverlo automáticamente.',
 };
 

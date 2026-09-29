@@ -90,7 +90,7 @@ export function OutputReasonCodesField({ selected, onChange }: Props) {
           value={search}
           disabled={catalog.isLoading}
           placeholder={catalog.isLoading ? 'Cargando catálogo…' : 'Buscar un motivo por código…'}
-          aria-label="Buscar un reason code para añadirlo"
+          aria-label="Buscar un motivo para añadirlo"
           onChange={(event) => setSearch(event.target.value)}
         />
       </div>

@@ -4,7 +4,7 @@ import { FieldLabel } from '../../components/FieldLabel';
 import { useFieldHelp } from '../../hooks/useFieldHelp';
 import type { TemplateFieldDescriptor } from './document-types';
 import { Control } from './SchemaDrivenControl';
-import { ayudaDeCampo } from './template-field-help';
+import { ayudaDeCampo, nombreDeTipo } from './template-field-help';
 
 /**
  * Construye el formulario a partir del contrato que publica el motor.
@@ -42,7 +42,7 @@ export function SchemaDrivenForm({
 }: SchemaDrivenFormProps) {
   const entries = Object.entries(fields);
   if (entries.length === 0) {
-    return <p className="doc-form__empty">Este template no declara ningún campo.</p>;
+    return <p className="doc-form__empty">Esta plantilla no declara ningún campo.</p>;
   }
 
   const set = (name: string, value: unknown) => onChange({ ...values, [name]: value });
@@ -120,7 +120,8 @@ function FieldControl({ name, descriptor, value, problem, disabled, onChange }: 
 }
 
 function typeLabel(descriptor: TemplateFieldDescriptor): string {
-  if (descriptor.type === 'enum') return `enum (${(descriptor.values ?? []).join(' · ')})`;
-  if (descriptor.type === 'array' && descriptor.items) return `lista de ${descriptor.items.type}`;
-  return descriptor.type;
+  if (descriptor.type === 'enum') return `Una de: ${(descriptor.values ?? []).join(' · ')}`;
+  if (descriptor.type === 'array' && descriptor.items)
+    return `lista de ${nombreDeTipo(descriptor.items.type)}`;
+  return nombreDeTipo(descriptor.type);
 }

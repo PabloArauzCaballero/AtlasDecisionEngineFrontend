@@ -68,7 +68,9 @@ test('una serie de estrés del QA Lab se lee en el monitoreo del modelo', async 
   await expect(version).toBeEnabled({ timeout: 30_000 });
   await elegirOpcion(version, versionId);
 
-  const carril = page.locator('.panel').filter({ hasText: 'Sincronización con QA Lab' });
+  const carril = page
+    .locator('.panel')
+    .filter({ hasText: 'Sincronización con el Laboratorio de pruebas' });
   await expect(carril).toBeVisible({ timeout: 30_000 });
 
   /*

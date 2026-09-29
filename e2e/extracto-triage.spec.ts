@@ -107,7 +107,7 @@ test('un documento razonablemente parecido a un extracto va a revisión, con su 
   await expect(cola).not.toContainText('extracto-marzo.pdf');
 });
 
-test('el vencimiento por reloj deja de hacer esperar y cae en la categoría Timeout', async ({
+test('el vencimiento por reloj deja de hacer esperar y cae en la categoría Tiempo agotado', async ({
   page,
 }) => {
   await conEscenario(page, 'timeout');
@@ -121,7 +121,7 @@ test('el vencimiento por reloj deja de hacer esperar y cae en la categoría Time
   ).toBeVisible();
 
   await page.getByRole('tab', { name: 'Pendientes de revisión' }).click();
-  await page.getByRole('tab', { name: /Timeout/ }).click();
+  await page.getByRole('tab', { name: /Tiempo agotado/ }).click();
   const caso = page.locator('.revision-caso').first();
   await expect(caso).toContainText('extracto-marzo.pdf');
   // Prioridad alta: hay alguien esperando al otro lado.
@@ -155,7 +155,7 @@ test('la cola publica sus categorías con contadores del total, no de la página
    * dedujera de lo cargado diría 2, y nadie sabría que hay un tercero.
    */
   await expect(pestañas.getByRole('tab', { name: /Todos/ })).toContainText('3');
-  await expect(pestañas.getByRole('tab', { name: /Timeout/ })).toContainText('2');
+  await expect(pestañas.getByRole('tab', { name: /Tiempo agotado/ })).toContainText('2');
   await expect(page.locator('.revision-caso')).toHaveCount(2);
 });
 

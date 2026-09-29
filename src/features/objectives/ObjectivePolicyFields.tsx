@@ -98,11 +98,11 @@ export function ObjectivePolicyFields({
               </Field>
               <Field
                 label="Responsable"
-                tooltip="Área que vela por el cumplimiento de la política. Ej.: Compliance."
+                tooltip="Área que vela por el cumplimiento de la política. Ej.: Cumplimiento."
               >
                 <input
                   required
-                  placeholder="Compliance"
+                  placeholder="Cumplimiento"
                   value={policy.owner}
                   onChange={(event) => onUpdate(index, { owner: event.target.value })}
                 />

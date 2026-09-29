@@ -184,8 +184,8 @@ function JsonControl({
       />
       <p className="doc-form__hint">
         {descriptor.type === 'array'
-          ? 'Lista en JSON. Se edita como texto porque un editor de filas fingido admitiría menos de lo que el contrato admite.'
-          : 'Objeto en JSON, con las claves que declara el contrato.'}
+          ? 'Lista escrita como texto, entre corchetes: así admite todo lo que acepta el documento.'
+          : 'Grupo de datos escrito como texto, entre llaves, con los nombres que pide el documento.'}
       </p>
     </>
   );

@@ -95,17 +95,17 @@ export function readBatch(kind: SampleKind, batch: SampleBatch): BatchReading {
       return {
         cases,
         tone: 'warning',
-        text: 'Este artefacto no expone desenlaces recorribles desde su grafo desplegado. Genera valores válidos y revisa el resultado a mano.',
+        text: 'Este algoritmo no tiene desenlaces que se puedan recorrer en su versión desplegada. Genera valores válidos y revisa el resultado a mano.',
       };
     }
   }
 
   const mapped = Object.keys(batch.fakers?.mappedVariables ?? {});
   if (batch.fakers?.source === 'mock') {
-    parts.push(`datos realistas de los fakers en ${mapped.join(', ')}`);
+    parts.push(`datos realistas en ${mapped.join(', ')}`);
   } else if (batch.fakers?.source === 'local-fallback' && mapped.length) {
     parts.push(
-      `sin fakers (${batch.fakers.reason ?? 'no respondieron'}): ${mapped.join(', ')} salieron del contrato y no parecen datos reales`,
+      `sin datos realistas (el generador no respondió): ${mapped.join(', ')} salieron del contrato y no parecen datos reales`,
     );
     tone = 'warning';
   }

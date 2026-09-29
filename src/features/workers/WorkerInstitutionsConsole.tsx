@@ -63,8 +63,7 @@ export function WorkerInstitutionsConsole() {
       notify({
         tone: 'success',
         title: `Entidad ${entidad.code} guardada`,
-        description:
-          'El motor la usará para atribuir documentos en cuanto caduque su instantánea del padrón (≤ 1 min).',
+        description: 'El motor empezará a usarla para reconocer documentos en menos de un minuto.',
       });
       setEditando(null);
       await refrescar();
@@ -99,7 +98,7 @@ export function WorkerInstitutionsConsole() {
       if (!resultado.dryRun) {
         notify({
           tone: 'success',
-          title: `Sembradas ${String(resultado.created.length)} entidades`,
+          title: `Se cargaron ${String(resultado.created.length)} entidades`,
           description: `El padrón de ASFI trae ${String(resultado.total)}; las que ya estaban no se tocaron.`,
         });
         await refrescar();
@@ -215,7 +214,7 @@ export function WorkerInstitutionsConsole() {
             disabled={sembrar.isPending}
             onClick={() => sembrar.mutate(true)}
           >
-            <DownloadCloud size={15} aria-hidden="true" /> Ver qué sembraría
+            <DownloadCloud size={15} aria-hidden="true" /> Ver qué se cargaría
           </button>
           <button
             type="button"
@@ -223,7 +222,7 @@ export function WorkerInstitutionsConsole() {
             disabled={sembrar.isPending || faltantes.length === 0}
             onClick={() => sembrar.mutate(false)}
           >
-            Sembrar la nómina de ASFI
+            Cargar la nómina de ASFI
           </button>
           <button
             type="button"
@@ -249,7 +248,7 @@ export function WorkerInstitutionsConsole() {
         {ensayo?.dryRun === true ? (
           <p className="entidad-ensayo">
             {ensayo.created.length === 0
-              ? 'No falta ninguna entidad: sembrar no escribiría nada.'
+              ? 'No falta ninguna entidad: cargar la nómina no añadiría nada.'
               : `Se crearían ${String(ensayo.created.length)} entidades: ${ensayo.created.join(', ')}. Ninguna existente se tocaría.`}
           </p>
         ) : null}

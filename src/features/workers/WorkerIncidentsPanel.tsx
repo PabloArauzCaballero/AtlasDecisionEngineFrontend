@@ -31,7 +31,6 @@ export function WorkerIncidentsPanel({ incidents, window }: WorkerIncidentsPanel
       {incidents.map((incident) => (
         <li key={incident.code} className="worker-incident">
           <div className="worker-incident-head">
-            <code className="worker-incident-code">{incident.code}</code>
             <span className="worker-incident-count">
               {incident.count === 1 ? '1 vez' : `${incident.count} veces`}
             </span>
@@ -43,7 +42,7 @@ export function WorkerIncidentsPanel({ incidents, window }: WorkerIncidentsPanel
             {incident.message ?? 'El motor no adjuntó ningún mensaje.'}
           </p>
           <dl className="worker-incident-trace">
-            <dt>Correlación</dt>
+            <dt>Referencia para soporte</dt>
             <dd>
               <code>{incident.lastCorrelationId}</code>
             </dd>

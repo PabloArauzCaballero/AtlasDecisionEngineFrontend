@@ -64,9 +64,6 @@ function Bloque({
               <p className="subida-mensaje">{fallo.mensaje}</p>
               <p className="subida-arreglo">{fallo.arreglo}</p>
             </div>
-            {/* El código va a la vista, no escondido en la consola: es lo que se
-                pega en un mensaje para pedir ayuda sin transcribir el texto. */}
-            <code className="subida-codigo">{fallo.codigo}</code>
           </li>
         ))}
       </ul>

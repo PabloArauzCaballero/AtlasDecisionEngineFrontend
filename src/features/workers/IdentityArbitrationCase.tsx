@@ -101,10 +101,12 @@ export function CasoDeArbitraje({ item }: { item: IdentityReviewItem }) {
         <p className="field-help">{item.errorMessage ?? 'Sin detalle del motor.'}</p>
         <p className="field-help">
           Solicitud <code>{item.requestId}</code> · pedida por <code>{item.requestedBy}</code> ·
-          país <code>{item.documentCountry}</code> · tipo reconocido{' '}
-          <code>{item.documentType ?? 'ninguno'}</code> · arbitraje{' '}
-          <code>{item.arbitrationMode ?? 'HUMAN'}</code> · en cola desde{' '}
-          {item.reviewOpenedAt ? formatDateTime(item.reviewOpenedAt) : '—'}
+          país <code>{item.documentCountry}</code> · tipo reconocido:{' '}
+          {item.documentType === null
+            ? 'ninguno'
+            : (IDENTITY_TYPE_LABEL[item.documentType as IdentityConfirmableType] ??
+              'otro documento')}{' '}
+          · en cola desde {item.reviewOpenedAt ? formatDateTime(item.reviewOpenedAt) : '—'}
         </p>
 
         {!mio ? (

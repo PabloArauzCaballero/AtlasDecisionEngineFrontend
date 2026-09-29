@@ -18,7 +18,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         id: 'intro',
         title: 'Qué es esta pantalla',
         content:
-          'Un artefacto es una política de decisión: el conjunto de reglas que decide, por ejemplo, si se aprueba un crédito. Acá ves su información y todas sus versiones.',
+          'Un artefacto es una política de decisión: el conjunto de reglas que decide, por ejemplo, si se aprueba un crédito. Aquí ves su información y todas sus versiones.',
       }),
       {
         id: 'summary-tab',
@@ -45,7 +45,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '.version-graph',
         title: 'El árbol de versiones',
         content:
-          'Se dibuja como un grafo de git: cada punto es una versión y las líneas muestran de cuál nació. Sirve para entender cómo evolucionó la decisión y comparar.',
+          'Se dibuja como un árbol genealógico: cada punto es una versión y las líneas muestran de cuál nació. Sirve para entender cómo evolucionó la decisión y comparar.',
         optional: true,
       },
     ],
@@ -68,22 +68,22 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '.execution-summary',
         title: 'El resultado de un vistazo',
         content:
-          'Acá ves el estado, el resultado final (aprobado, rechazado o a revisión) y cuánto tardó. Es la conclusión; abajo está el detalle que la respalda.',
+          'Aquí ves el estado, el resultado final (aprobado, rechazado o a revisión) y cuánto tardó. Es la conclusión; abajo está el detalle que la respalda.',
       },
       {
         id: 'input',
         target: '[data-tutorial-id="execution-input"]',
         title: 'Qué datos entraron',
         content:
-          'La petición original. Cambiá entre Tabla (atributo→valor, legible) y JSON (crudo) con las pestañas del panel: la misma información, dos formas de leerla.',
-        tip: 'Con la vista Gráfico, una traza se dibuja como fases; los datos normales se muestran como árbol.',
+          'La solicitud original. Cambia entre Tabla (campo → valor, fácil de leer) y el texto original con las pestañas del panel: la misma información, dos formas de leerla.',
+        tip: 'Con la vista Gráfico, un recorrido se dibuja por fases; los datos normales se muestran como árbol.',
       },
       {
         id: 'output',
         target: '[data-tutorial-id="execution-output"]',
         title: 'Qué decidió el sistema',
         content:
-          'La respuesta que devolvió el motor. Comparala con lo que entró para entender qué reglas se activaron.',
+          'La respuesta que devolvió el motor. Compárala con lo que entró para entender qué reglas se activaron.',
         optional: true,
       },
       {
@@ -105,7 +105,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       openRecordStep('/manual-reviews', 'un caso'),
       inRecord({
         id: 'intro',
-        title: 'Por qué llega un caso acá',
+        title: 'Por qué llega un caso aquí',
         content:
           'Cuando la decisión automática no alcanza (monto alto, señal de riesgo, regla que exige ojo humano), el caso entra a esta cola para que una persona resuelva.',
       }),
@@ -114,7 +114,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="case-input"]',
         title: 'La evidencia del caso',
         content:
-          'Es la foto de los datos con los que se ejecutó la decisión. Revisala en Tabla o JSON antes de resolver: tu decisión debe apoyarse en esto.',
+          'Es la foto de los datos con los que se ejecutó la decisión. Revísala en la Tabla o en el texto original antes de resolver: tu decisión debe apoyarse en esto.',
       },
       {
         id: 'resolve',
@@ -144,7 +144,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '.target-metrics',
         title: 'Actual vs objetivo',
         content:
-          'Compara el valor de hoy con la meta. Es el pulso del objetivo: de un vistazo sabés si vas bien o hay que actuar.',
+          'Compara el valor de hoy con la meta. Es el pulso del objetivo: de un vistazo sabes si vas bien o hay que actuar.',
       },
       {
         id: 'policies',
@@ -158,7 +158,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="objective-matrix"]',
         title: 'La evidencia de implementación',
         content:
-          'Muestra qué políticas ya están cubiertas por artefactos y pruebas, y dónde hay huecos (GAP). Es la prueba de que el objetivo está realmente implementado, no solo declarado.',
+          'Muestra qué políticas ya están cubiertas por artefactos y pruebas, y dónde hay huecos. Es la prueba de que el objetivo está realmente implementado, no solo declarado.',
         optional: true,
       },
     ],

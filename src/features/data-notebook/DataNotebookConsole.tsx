@@ -117,8 +117,8 @@ export function DataNotebookConsole({ documento }: { documento: NotebookDocument
   if (catalogo.isError || !catalogo.data) {
     return (
       <p className="notebook-error" role="alert">
-        No fue posible leer el catálogo de datasets de AtlasBackend. Comprueba que el servicio
-        responde y que tu sesión sigue activa.
+        No fue posible leer el catálogo de los datos operativos de Atlas. Comprueba que tu sesión
+        sigue activa o avisa a soporte.
       </p>
     );
   }
@@ -139,7 +139,7 @@ export function DataNotebookConsole({ documento }: { documento: NotebookDocument
         }}
         page={datos.data ?? null}
         loading={datos.isFetching}
-        error={datos.isError ? 'No se pudo cargar esta página del dataset.' : null}
+        error={datos.isError ? 'No se pudo cargar esta página de datos.' : null}
         onPage={setPage}
         onReload={() => void datos.refetch()}
       />

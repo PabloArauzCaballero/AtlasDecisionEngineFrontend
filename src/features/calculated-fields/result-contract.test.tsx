@@ -64,6 +64,6 @@ describe('contrato de salida de un campo calculado', () => {
     );
 
     expect(screen.getByText(/Sin rango declarado/)).toBeInTheDocument();
-    expect(screen.getByText(/debe tratar el nulo/)).toBeInTheDocument();
+    expect(screen.getByText(/debe contemplar el vacío/)).toBeInTheDocument();
   });
 });

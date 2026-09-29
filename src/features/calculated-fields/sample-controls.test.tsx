@@ -48,7 +48,9 @@ describe('generación de datos de prueba', () => {
 
     elegirOpcion(campo('Datos de prueba'), 'BOUNDARY');
     fireEvent.change(screen.getByLabelText('Casos'), { target: { value: '7' } });
-    fireEvent.change(screen.getByLabelText('Semilla'), { target: { value: 'mi-semilla' } });
+    fireEvent.change(screen.getByLabelText('Semilla'), {
+      target: { value: 'mi-semilla' },
+    });
     fireEvent.click(screen.getByRole('button', { name: /Generar/ }));
 
     await waitFor(() => expect(mockedApiRequest).toHaveBeenCalled());

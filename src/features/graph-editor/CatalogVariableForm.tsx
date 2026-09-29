@@ -66,7 +66,7 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
     >
       <Field
         label="Código"
-        tooltip="Identificador técnico único de la variable en el catálogo. Ej.: score_riesgo. No cambia entre versiones."
+        tooltip="Identificador técnico único de la variable en el catálogo. Ej.: puntaje_riesgo. No cambia entre versiones."
       >
         <input
           required
@@ -78,12 +78,12 @@ export function CatalogVariableForm({ pending, error, onSubmit }: Props) {
       </Field>
       <Field
         label="Nombre"
-        tooltip="Nombre legible que verán las personas en pantallas y trazas. Ej.: «Score de riesgo»."
+        tooltip="Nombre legible que verán las personas en pantallas y trazas. Ej.: «Puntaje de riesgo»."
       >
         <input
           required
           value={draft.canonicalName}
-          placeholder="Score de riesgo"
+          placeholder="Puntaje de riesgo"
           onChange={(event) => patch({ canonicalName: event.target.value })}
         />
       </Field>

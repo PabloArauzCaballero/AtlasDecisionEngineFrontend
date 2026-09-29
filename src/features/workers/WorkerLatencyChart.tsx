@@ -69,7 +69,7 @@ export function WorkerLatencyChart({ timings, p50Ms, p95Ms }: WorkerLatencyChart
       <div
         className="worker-chart-plot"
         role="img"
-        aria-label={`Latencia de las últimas ${measured.length} ejecuciones terminadas, de ${durationLabel(
+        aria-label={`Tiempo de proceso de las últimas ${measured.length} ejecuciones terminadas, de ${durationLabel(
           Math.min(...durations),
         )} a ${durationLabel(max)}. Escala logarítmica.`}
       >

@@ -30,7 +30,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="simulator-artifact"]',
         title: 'Elige el algoritmo y dónde probarlo',
         content:
-          'Al elegir el artefacto, el formulario se rellena solo con las variables que ESE algoritmo declara. El ambiente debe ser seguro (sandbox o test): producción no se puede simular.',
+          'Al elegir el artefacto, el formulario se rellena solo con las variables que ESE algoritmo declara. El ambiente debe ser uno de prueba: producción no se puede simular.',
         tip: 'Si un artefacto no aparece, es que no está desplegado en ningún ambiente seguro.',
         requiredAction: 'input',
       },
@@ -39,7 +39,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="simulator-samples"]',
         title: 'No hace falta que teclees los datos',
         content:
-          '«Generar valores» le pide al motor un juego de entradas derivado del contrato del algoritmo desplegado: válidas, en el límite, inválidas a propósito o una por cada resultado. Nombres, carnets, celulares e ingresos salen de los fakers del servidor de pruebas, así que parecen datos reales. También puedes subir un JSON o un CSV con tus propios casos.',
+          '«Generar valores» le pide al motor un juego de entradas derivado del contrato del algoritmo desplegado: válidas, en el límite, inválidas a propósito o una por cada resultado. Nombres, carnets, celulares e ingresos salen del generador de datos realistas, así que parecen datos reales. También puedes subir un archivo con tus propios casos.',
         tip: 'Deja «Semilla» vacía para valores nuevos. Tras generar verás la semilla usada: «Fijar esta semilla» la escribe en el campo y, con la misma clase y cantidad, vuelve a dar exactamente los mismos valores.',
       },
       {
@@ -47,8 +47,8 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="simulator-form"]',
         title: 'Rellena las entradas',
         content:
-          'Las variables de ENTRADA son los datos que hay que aportar. Si alguna obligatoria queda vacía, un aviso te dice cuál: sin ella el motor no puede decidir y devolvería NO_DECISION.',
-        tip: 'Tres vistas del mismo dato: Formulario (guiado), Atributo-valor (rápido) y JSON (para pegar un caso real).',
+          'Las variables de ENTRADA son los datos que hay que aportar. Si alguna obligatoria queda vacía, un aviso te dice cuál: sin ella el motor no puede decidir y no devolvería ninguna decisión.',
+        tip: 'Tres vistas del mismo dato: Formulario (guiado), Atributo-valor (rápido) y el texto original (para pegar un caso real).',
       },
       {
         id: 'outputs',
@@ -76,21 +76,21 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   'code-import': t(
     'code-import',
     'Importar código como árbol de decisión',
-    'Convertir un script en un algoritmo revisable, probable y explicable.',
+    'Convertir un programa escrito en código en un algoritmo revisable, que se puede probar y explicar.',
     [
       {
         id: 'what',
         title: '¿Qué hace esta pantalla?',
         content:
-          'Lee un script de Python o JavaScript y lo convierte en un ÁRBOL DE DECISIÓN: cada if/elif pasa a ser una condición del motor y cada rama, un resultado. Así deja de ser una caja negra.',
+          'Lee un programa escrito en código y lo convierte en un ÁRBOL DE DECISIÓN: cada pregunta «si… entonces» pasa a ser una condición del motor y cada rama, un resultado. Así deja de ser una caja negra.',
       },
       {
         id: 'contract',
         target: '[data-tutorial-id="code-import-form"]',
         title: 'El contrato manda',
         content:
-          'La cabecera @atlas-contract declara qué ENTRADAS lee el código y qué SALIDAS devuelve. Sin ese contrato no se puede saber qué pedirle al algoritmo ni qué esperar de él.',
-        tip: 'El código sólo puede leer datos a través de `variables`: no hay accesos al sistema ni a la red.',
+          'Una cabecera especial al inicio del código, el contrato, declara qué ENTRADAS lee el código y qué SALIDAS devuelve. Sin ese contrato no se puede saber qué pedirle al algoritmo ni qué esperar de él.',
+        tip: 'El código sólo puede leer las variables del contrato: no puede acceder al sistema ni a internet.',
       },
       {
         id: 'analyze',
@@ -105,7 +105,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="code-import-preview"]',
         title: 'Revisa el árbol generado',
         content:
-          'El dibujo baja por el camino “no” de cada condición y muestra a la derecha el resultado de su “sí”. Si el código usa algo que no se puede traducir, se avisa con el motivo y se importa como un único nodo de script: nunca se traduce una regla a medias.',
+          'El dibujo baja por el camino “no” de cada condición y muestra a la derecha el resultado de su “sí”. Si el código usa algo que no se puede traducir, se avisa con el motivo y se importa como un único nodo de código: nunca se traduce una regla a medias.',
       },
       {
         id: 'save',
@@ -122,7 +122,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       id: 'what',
       title: '¿Qué muestra?',
       content:
-        'Ejecuta una decisión y te muestra, nodo por nodo, el camino que recorre el motor. Sólo en ambientes seguros (sandbox o test).',
+        'Ejecuta una decisión y te muestra, nodo por nodo, el camino que recorre el motor. Sólo en ambientes de prueba.',
     },
     {
       id: 'steps',
@@ -136,7 +136,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       id: 'what',
       title: '¿Qué es un despliegue?',
       content:
-        'Publicar una versión aprobada en un ambiente (sandbox, test o producción) para que empiece a resolver decisiones allí. Aquí queda el registro auditable de quién publicó qué y cuándo.',
+        'Publicar una versión aprobada en un ambiente (de prueba o de producción) para que empiece a resolver decisiones allí. Aquí queda el registro auditable de quién publicó qué y cuándo.',
     },
     {
       id: 'requirements',
@@ -153,12 +153,12 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         'Cada despliegue recuerda cuál era el anterior, así que revertir es publicar de nuevo la versión previa: nada se pierde ni se sobrescribe.',
     },
   ]),
-  environments: t('environments', 'Gestión de Ambientes', 'Dónde corren tus decisiones.', [
+  environments: t('environments', 'Gestión de Ambientes', 'Dónde se ejecutan tus decisiones.', [
     {
       id: 'what',
       title: '¿Qué es un ambiente?',
       content:
-        'El lugar donde vive una versión: sandbox y test para probar sin consecuencias, producción para las decisiones reales de clientes.',
+        'El lugar donde vive una versión: los de prueba para probar sin consecuencias, producción para las decisiones reales de clientes.',
     },
     {
       id: 'detail',

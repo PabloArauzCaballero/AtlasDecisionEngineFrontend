@@ -20,8 +20,8 @@ const STOPPED_LABEL: Readonly<Record<string, string>> = {
 };
 
 const FAKER_LABEL: Readonly<Record<string, string>> = {
-  mock: 'Fakers',
-  'local-fallback': 'Generador local (sin fakers)',
+  mock: 'Datos realistas',
+  'local-fallback': 'Del contrato (sin datos realistas)',
   none: 'Del contrato',
 };
 

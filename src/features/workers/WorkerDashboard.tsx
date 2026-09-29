@@ -51,7 +51,7 @@ export function WorkerDashboard({
     <div className="worker-dashboard">
       {health.isError ? (
         <Alert tone="error">
-          No se pudo leer la salud del worker: {errorMessage(health.error)}
+          No se pudo consultar el estado del procesador automático: {errorMessage(health.error)}
         </Alert>
       ) : null}
 
@@ -64,7 +64,7 @@ export function WorkerDashboard({
 
       <div className="worker-dashboard-grid">
         <Panel
-          title="Latencia"
+          title="Tiempo de proceso"
           meta={timings.length ? `últimas ${timings.length} ejecuciones` : ventana}
           className="worker-panel-latency"
         >
@@ -99,9 +99,9 @@ export function WorkerDashboard({
             {metrics
               ? `Las cifras salen de ${metrics.latency.samples} ejecuciones terminadas en ${dias} días; el gráfico dibuja sólo las últimas. `
               : ''}
-            Se mide el proceso (de que un worker la toma a que termina) aparte de la espera: si lo
-            que crece es la espera, sobra cola; si lo que crece es el proceso, el trabajo se está
-            volviendo más caro.
+            El proceso (desde que un procesador automático la toma hasta que termina) se mide aparte
+            de la espera: si crece la espera, se está acumulando trabajo; si crece el proceso, cada
+            trabajo está tardando más.
           </p>
         </Panel>
 
@@ -134,14 +134,14 @@ export function WorkerDashboard({
             </>
           ) : (
             <p className="worker-chart-empty">
-              Este worker no ha procesado nada en los últimos {dias} días.
+              Este procesador automático no ha trabajado en los últimos {dias} días.
             </p>
           )}
         </Panel>
       </div>
 
       <Panel
-        title="Procesos encolados"
+        title="Trabajos en espera"
         meta={
           loading || !metrics
             ? 'consultando…'
@@ -150,7 +150,7 @@ export function WorkerDashboard({
         className="worker-panel-queue"
       >
         {loading || !metrics ? (
-          <p className="worker-chart-empty">Consultando la cola del worker…</p>
+          <p className="worker-chart-empty">Consultando los trabajos en espera…</p>
         ) : (
           <WorkerQueuePanel queue={metrics.queue} />
         )}

@@ -84,10 +84,10 @@ export function DatasetPanel({
             className="notebook-dataset__label"
             label={
               <>
-                <Database aria-hidden="true" size={14} /> Dataset
+                <Database aria-hidden="true" size={14} /> Datos
               </>
             }
-            tooltip="Vista de datos que se carga en el cuaderno; cada una viene de AtlasBackend o del motor."
+            tooltip="Vista de datos que se carga en el cuaderno; viene de los datos operativos de Atlas o del motor."
           />
           <OptionSelect
             id="notebook-dataset"
@@ -99,7 +99,7 @@ export function DatasetPanel({
               ...deAtlasBackend.map((candidato) => ({
                 value: candidato.code,
                 label: candidato.label,
-                description: `AtlasBackend · ${candidato.description}`,
+                description: `Datos operativos de Atlas · ${candidato.description}`,
               })),
               ...delMotor.map((candidato) => ({
                 value: candidato.code,
@@ -126,7 +126,7 @@ export function DatasetPanel({
         <p className="notebook-dataset__aviso-motor" role="status">
           <ShieldAlert aria-hidden="true" size={14} /> No se pudieron listar las vistas del motor de
           decisión (decisiones, riesgo, catálogo, desenlaces y auditoría). Se sigue trabajando con
-          las de AtlasBackend; comprueba tu permiso de consola SQL o si el motor responde.
+          los datos operativos de Atlas. Revisa tu permiso de consola SQL o avisa a soporte.
         </p>
       ) : null}
 
@@ -184,7 +184,7 @@ export function DatasetPanel({
         </p>
       ) : null}
 
-      {loading && !page ? <p className="notebook-dataset__loading">Cargando el dataset…</p> : null}
+      {loading && !page ? <p className="notebook-dataset__loading">Cargando los datos…</p> : null}
 
       {page ? (
         <>

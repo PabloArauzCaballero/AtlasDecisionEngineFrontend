@@ -136,8 +136,8 @@ export function InstitutionForm({
             pattern="[A-Z0-9_]+"
           />
           <small className="field-help">
-            La que usa ASFI en su nómina: BNB, BME, CJN. Es la que queda en la traza de cada
-            documento atribuido, así que se cruza con cualquier reporte del regulador.
+            La que usa ASFI en su nómina: BNB, BME, CJN. Es la que queda registrada en cada
+            documento reconocido, así que se cruza con cualquier reporte del regulador.
           </small>
         </Field>
 

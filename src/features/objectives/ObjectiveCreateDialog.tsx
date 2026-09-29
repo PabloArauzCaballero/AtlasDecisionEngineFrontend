@@ -99,7 +99,7 @@ export function ObjectiveCreateDialog({ onClose }: ObjectiveCreateDialogProps) {
             <Target size={20} />
           </span>
           <div>
-            <p>Business Traceability</p>
+            <p>Trazabilidad de negocio</p>
             <h2 id="objective-create-title">Crear objetivo de negocio</h2>
             <span>Define la meta que después conectarás con políticas, artefactos y pruebas.</span>
           </div>

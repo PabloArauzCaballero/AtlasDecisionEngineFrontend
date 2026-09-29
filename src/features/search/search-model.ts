@@ -18,7 +18,7 @@ const ENTITY_LABELS: Record<string, string> = {
   ARTIFACT: 'Artefactos',
   ARTIFACT_VERSION: 'Versiones',
   VARIABLE: 'Variables',
-  REASON_CODE: 'Reason codes',
+  REASON_CODE: 'Motivos',
   OBJECTIVE: 'Objetivos',
   MANUAL_REVIEW: 'Revisiones manuales',
   EXECUTION: 'Ejecuciones',

@@ -30,7 +30,7 @@ export const IDENTITY_REASON_LABEL: Record<IdentityReviewReason, string> = {
   UNRECOGNIZED_DOCUMENT_TYPE: 'Tipo sin reconocer',
   AMBIGUOUS_FACE_MATCH: 'Parecido ambiguo',
   LOW_IMAGE_QUALITY: 'Captura pobre',
-  TIMEOUT: 'Timeout',
+  TIMEOUT: 'Tiempo agotado',
   MANUAL_REQUEST: 'Revisión manual',
 };
 
@@ -45,7 +45,7 @@ export const IDENTITY_REASON_HELP: Record<IdentityReviewReason, string> = {
   LOW_IMAGE_QUALITY:
     'La captura tiene defectos que no impidieron leer, pero sí decidir. Si el documento se distingue, confírmalo.',
   TIMEOUT:
-    'El proceso superó su presupuesto de tiempo. El documento sigue siendo válido: lo habitual es confirmarlo y dejar que se reanude.',
+    'El proceso superó el tiempo máximo previsto. El documento sigue siendo válido: lo habitual es confirmarlo y dejar que se reanude.',
   MANUAL_REQUEST: 'Alguien lo mandó a arbitrar a mano.',
 };
 

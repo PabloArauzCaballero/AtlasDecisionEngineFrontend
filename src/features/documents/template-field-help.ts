@@ -37,7 +37,7 @@ const CAMPOS: Readonly<Record<string, string>> = {
   score: 'Puntaje que el modelo produjo, tal cual; se imprime junto al veredicto.',
   decision: 'Veredicto que el documento declara; es lo que lee quien lo reciba.',
   revisado: 'Márcalo si una persona ya revisó el contenido antes de emitirlo.',
-  sections: 'Bloques del cuerpo, en JSON: cada uno con su título y su contenido.',
+  sections: 'Bloques del cuerpo del documento: cada uno con su título y su contenido.',
 };
 
 /**
@@ -45,12 +45,28 @@ const CAMPOS: Readonly<Record<string, string>> = {
  * mapa local; y si tampoco, se dice lo que de verdad se sabe —el tipo y si es
  * obligatorio—, que es honesto y sigue siendo más de lo que había.
  */
+const TIPOS: Readonly<Record<string, string>> = {
+  string: 'texto',
+  number: 'número',
+  integer: 'número entero',
+  boolean: 'sí / no',
+  date: 'fecha',
+  enum: 'lista cerrada',
+  array: 'lista',
+  object: 'grupo de datos',
+};
+
+/** El tipo de un campo dicho en palabras, no con el nombre técnico del contrato. */
+export function nombreDeTipo(type: string): string {
+  return TIPOS[type] ?? type;
+}
+
 export function ayudaDeCampo(name: string, descriptor: TemplateFieldDescriptor): string {
   if (descriptor.description) return descriptor.description;
   const local = CAMPOS[name];
   if (local) return local;
   const obligatorio = descriptor.required ? 'obligatorio' : 'opcional';
-  return `Campo ${obligatorio} de tipo ${descriptor.type} que exige el contrato de esta plantilla.`;
+  return `Campo ${obligatorio} de tipo ${nombreDeTipo(descriptor.type)} que exige el contrato de esta plantilla.`;
 }
 
 /** Las opciones de un enum de plantilla, con su descripción cuando se conoce. */

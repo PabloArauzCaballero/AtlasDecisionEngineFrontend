@@ -211,9 +211,9 @@ export function QaRunConfigForm({
 
       <p className="field-hint" data-tutorial-id="qa-lab-fakers">
         De dónde salen los datos: nombres, carnets, celulares, correos, ingresos y demás datos
-        reconocibles por el nombre de la variable salen de los <b>fakers</b> del servidor de
-        pruebas, con la misma semilla; lo demás, del contrato. Si ese servidor no responde, todo
-        sale del contrato y el resultado lo avisa.
+        reconocibles por el nombre de la variable salen del <b>generador de datos realistas</b>, con
+        la misma semilla; lo demás, del contrato. Si el generador no responde, todo sale del
+        contrato y el resultado lo avisa.
       </p>
 
       <div className="panel-actions">

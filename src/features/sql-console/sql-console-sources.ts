@@ -180,7 +180,7 @@ export function unirCatalogos(
         })),
         ...(backend?.omitted ?? []).map((entry) => ({
           ...entry,
-          name: `AtlasBackend · ${entry.name}`,
+          name: `Datos operativos de Atlas · ${entry.name}`,
         })),
       ],
       limits: motor?.limits ??

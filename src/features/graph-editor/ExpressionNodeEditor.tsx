@@ -33,7 +33,7 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
 
   return (
     <section className="result-node-editor">
-      <h3>{nodeType === 'SCORE' ? 'Cálculo de score' : 'Expresión calculada'}</h3>
+      <h3>{nodeType === 'SCORE' ? 'Cálculo de puntaje' : 'Expresión calculada'}</h3>
       <Field
         label="Variable destino"
         tooltip="Dónde se guarda el resultado del cálculo. Puede ser una salida o una variable intermedia que otros nodos usen."
@@ -59,8 +59,8 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
           onChange={(value) => onChange({ ...config, script: { ...script, language: value } })}
           options={closedOptions(
             [
-              { value: 'JAVASCRIPT', label: 'JAVASCRIPT' },
-              { value: 'PYTHON', label: 'PYTHON' },
+              { value: 'JAVASCRIPT', label: 'JavaScript' },
+              { value: 'PYTHON', label: 'Python' },
             ],
             SCRIPT_LANGUAGE_HELP,
           )}
@@ -83,8 +83,8 @@ export function ExpressionNodeEditor({ nodeType, config, inputs, onChange }: Pro
         </ul>
       ) : null}
       <small className="field-hint">
-        JS debe retornar el valor calculado. Python debe asignarlo a <code>result</code>. Los chips
-        insertan la referencia correcta de cada variable de entrada.
+        JavaScript debe retornar el valor calculado. Python debe asignarlo a <code>result</code>.
+        Los chips insertan la referencia correcta de cada variable de entrada.
       </small>
     </section>
   );

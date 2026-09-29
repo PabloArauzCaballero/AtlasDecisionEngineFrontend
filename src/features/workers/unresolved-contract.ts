@@ -122,13 +122,17 @@ function filasDeJson(texto: string): unknown[] {
   try {
     dato = JSON.parse(texto);
   } catch {
-    throw new RespuestaInvalida('Eso no es JSON válido. Pega el array tal cual lo devolvió.');
+    throw new RespuestaInvalida(
+      'Eso no tiene un formato JSON válido. Pega la respuesta tal cual la recibiste.',
+    );
   }
 
   if (Array.isArray(dato)) return dato;
   const envuelto = (dato as { asignaciones?: unknown }).asignaciones;
   if (Array.isArray(envuelto)) return envuelto;
-  throw new RespuestaInvalida('Se esperaba un array de { id, categoryCode }.');
+  throw new RespuestaInvalida(
+    'Se esperaba una lista de pares con «id» y «categoryCode» (código de categoría).',
+  );
 }
 
 /**
@@ -153,8 +157,8 @@ function filasDeCsv(texto: string): { filas: unknown[]; avisos: string[] } {
   const columnaCodigo = cabecera.indexOf('categorycode');
   if (columnaId === -1 || columnaCodigo === -1) {
     throw new RespuestaInvalida(
-      'Eso no es un array JSON ni un CSV con las columnas «id» y «categoryCode». ' +
-        'Descarga la bandeja en CSV, rellena la columna «categoryCode» y vuelve a subirla.',
+      'Eso no es una lista JSON ni un CSV con las columnas «id» y «categoryCode». ' +
+        'Descarga la bandeja en CSV, rellena la columna «categoryCode» (código de categoría) y vuelve a subirla.',
     );
   }
 
@@ -176,7 +180,7 @@ function filasDeCsv(texto: string): { filas: unknown[]; avisos: string[] } {
     filas,
     avisos:
       sinDecidir > 0
-        ? [`${String(sinDecidir)} fila(s) sin «categoryCode»: siguen pendientes.`]
+        ? [`${String(sinDecidir)} fila(s) sin código de categoría: siguen pendientes.`]
         : [],
   };
 }
@@ -228,7 +232,7 @@ export function leerAsignaciones(
     const id = String(registro.id ?? '');
     const categoryCode = String(registro.categoryCode ?? '');
     if (id === '' || categoryCode === '') {
-      descartadas.push('Una entrada sin «id» o sin «categoryCode».');
+      descartadas.push('Una entrada sin «id» o sin código de categoría.');
       continue;
     }
     if (!conocidos.has(id)) {

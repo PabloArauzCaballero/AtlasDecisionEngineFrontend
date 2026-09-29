@@ -20,7 +20,7 @@ export function ModelProbeResults({ resultado }: { resultado: ModelProbe }) {
               <th scope="col">Nivel</th>
               <th scope="col">Pedido</th>
               <th scope="col">Respondió</th>
-              <th scope="col">Latencia</th>
+              <th scope="col">Tiempo</th>
               <th scope="col">Coste</th>
               <th scope="col">Veredicto</th>
             </tr>
@@ -70,9 +70,10 @@ function FilaNivel({ nivel }: { nivel: ModelProbeTier }) {
  * decimales toda prueba diría «$0.00», que es lo contrario de informar.
  */
 function formatearCoste(coste: number | undefined, tokens: number | undefined): string {
-  if (coste === undefined) return tokens === undefined ? '—' : `${String(tokens)} tokens`;
+  if (coste === undefined)
+    return tokens === undefined ? '—' : `${String(tokens)} unidades de texto`;
   const usd = `$${coste.toFixed(6)}`;
-  return tokens === undefined ? usd : `${usd} · ${String(tokens)} tokens`;
+  return tokens === undefined ? usd : `${usd} · ${String(tokens)} unidades de texto`;
 }
 
 function formatearConfianza(valor: number | undefined): string {

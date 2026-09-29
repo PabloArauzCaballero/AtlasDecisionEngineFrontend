@@ -86,7 +86,7 @@ export function UnresolvedConsole() {
         description:
           variables.resolutionType === 'DISCARD'
             ? 'Se descartó sin enseñar nada al catálogo.'
-            : 'El motor aprendió el alias: este valor ya no volverá a preguntarse.',
+            : 'El motor lo recordará: este valor ya no volverá a preguntarse.',
       });
       await cliente.invalidateQueries({ queryKey: ['unresolved'] });
     },
@@ -132,8 +132,8 @@ export function UnresolvedConsole() {
       >
         <p className="field-help">
           Valores que el motor recibió y no pudo asignar con confianza suficiente. No se inventa
-          ninguna categoría y no se pierde el dato: aquí se decide, y la decisión queda aprendida
-          como alias para que el mismo valor no vuelva a preguntarse.
+          ninguna categoría y no se pierde el dato: aquí se decide, y el motor recuerda la decisión
+          para que el mismo valor no vuelva a preguntarse.
         </p>
 
         <form
@@ -190,7 +190,7 @@ export function UnresolvedConsole() {
             notify({
               tone: 'success',
               title: `${String(hechas)} pendientes resueltos`,
-              description: 'El motor aprendió un alias por cada uno: no volverán a preguntarse.',
+              description: 'El motor recordará cada decisión: no volverán a preguntarse.',
             });
             await cliente.invalidateQueries({ queryKey: ['unresolved'] });
           }}

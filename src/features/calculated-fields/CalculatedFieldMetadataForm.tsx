@@ -50,7 +50,7 @@ export function CalculatedFieldMetadataForm({ onCancel, onNext }: Props) {
       <Field
         className="constraint-field"
         label="Código técnico"
-        tooltip="Identificador único del campo en minúsculas, números y guion bajo. Ej.: debt_to_income."
+        tooltip="Identificador único del campo en minúsculas, números y guion bajo. Ej.: relacion_deuda_ingreso."
       >
         <input
           required

@@ -93,7 +93,7 @@ export function InputVariableManager({ variables, onChange }: Props) {
             Variables a considerar
           </strong>
           <small>
-            Datos que ENTRAN a la decisión. El algoritmo los evalúa en condiciones y scripts.
+            Datos que ENTRAN a la decisión. El algoritmo los evalúa en condiciones y cálculos.
           </small>
         </div>
       </div>
@@ -157,7 +157,7 @@ export function InputVariableManager({ variables, onChange }: Props) {
           })}
           {!inputs.length ? (
             <small className="field-hint">
-              Sin variables de entrada: los selects de condiciones quedarán vacíos.
+              Sin variables de entrada: las listas de las condiciones quedarán vacías.
             </small>
           ) : null}
         </div>

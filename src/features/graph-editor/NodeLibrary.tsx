@@ -5,15 +5,15 @@ const groups = [
     title: 'Estructura del flujo',
     items: [
       [CircleDot, 'Inicio', 'Punto único de entrada', 'START'],
-      [GitBranch, 'Condición', 'Divide el flujo en dos rutas (if / else)', 'CONDITION'],
-      [Split, 'Switch', 'Enruta en múltiples casos según una variable', 'SWITCH'],
+      [GitBranch, 'Condición', 'Divide el flujo en dos rutas (sí / no)', 'CONDITION'],
+      [Split, 'Selector', 'Enruta en múltiples casos según una variable', 'SWITCH'],
     ] as const,
   },
   {
     title: 'Cálculo con código',
     items: [
-      [Braces, 'Expresión', 'Calcula un valor con código JS o Python', 'EXPRESSION'],
-      [Calculator, 'Score', 'Calcula un puntaje con código JS o Python', 'SCORE'],
+      [Braces, 'Expresión', 'Calcula un valor con código JavaScript o Python', 'EXPRESSION'],
+      [Calculator, 'Puntaje', 'Calcula un puntaje con código JavaScript o Python', 'SCORE'],
     ] as const,
   },
   {

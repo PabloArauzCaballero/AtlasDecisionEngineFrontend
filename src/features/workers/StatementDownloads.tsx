@@ -23,7 +23,7 @@ import type { StatementFormat } from './workers.api';
 const DEL_MOTOR: ReadonlyArray<{ format: StatementFormat; label: string }> = [
   { format: 'csv', label: 'CSV' },
   { format: 'json', label: 'Movimientos (JSON)' },
-  { format: 'normalized', label: 'Contrato completo' },
+  { format: 'normalized', label: 'Extracto completo (JSON)' },
 ];
 
 export interface StatementDownloadsProps {

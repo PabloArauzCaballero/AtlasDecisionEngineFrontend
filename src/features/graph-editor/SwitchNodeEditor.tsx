@@ -20,7 +20,7 @@ export function SwitchNodeEditor({ config, inputs, branchCount, onChange }: Swit
 
   return (
     <section className="condition-node-editor">
-      <h3>Switch (multi-caso)</h3>
+      <h3>Selector (varios casos)</h3>
       <Field
         label="Variable a evaluar"
         tooltip="El dato cuyo valor decide a qué rama ir. Cada caso compara esta variable con un valor y sigue un camino distinto."
@@ -35,12 +35,12 @@ export function SwitchNodeEditor({ config, inputs, branchCount, onChange }: Swit
       </Field>
       <p className="field-hint">
         {branchCount === 0
-          ? 'Conecta el switch a cada destino: la primera conexión es el caso por defecto (fail-closed) y las siguientes son casos con su propio valor.'
+          ? 'Conecta el selector a cada destino: la primera conexión es el caso por defecto, para lo que no encaje en ningún caso, y las siguientes son casos con su propio valor.'
           : `${branchCount} rama(s). Haz clic en cada conexión para definir el valor del caso.`}
       </p>
       {!inputs.length ? (
         <p className="field-error">
-          Sin variables a considerar: agrégalas arriba para poder enrutar el switch.
+          Sin variables a considerar: agrégalas arriba para poder repartir los casos del selector.
         </p>
       ) : null}
     </section>

@@ -29,7 +29,7 @@ export interface NodeTutorial {
 
 /** De dónde sale cada pieza que piden los nodos y las conexiones. */
 export const CONDITION_ORIGIN =
-  'Las condiciones NO son un catálogo global: pertenecen a este algoritmo. Se crean desde un nodo Condición o Switch (al elegir la variable que evalúan) y a partir de ahí se pueden reutilizar en cualquier conexión de este mismo grafo. La variable que comparan tiene que estar declarada arriba, en «Entradas · Variables a considerar».';
+  'Las condiciones NO son un catálogo global: pertenecen a este algoritmo. Se crean desde un nodo Condición o Selector (al elegir la variable que evalúan) y a partir de ahí se pueden reutilizar en cualquier conexión de este mismo grafo. La variable que comparan tiene que estar declarada arriba, en «Entradas · Variables a considerar».';
 
 export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
   START: {
@@ -47,12 +47,12 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
     steps: [
       'Elige la variable de entrada que quieres comparar.',
       'Define el operador y el valor: eso crea la condición de este algoritmo.',
-      'Conecta DOS salidas: una «Cuando se cumple» y otra «Default / caso contrario».',
+      'Conecta DOS salidas: una «Cuando se cumple» y otra «Por defecto / caso contrario».',
     ],
     example:
       '«¿El puntaje de buró es menor que 550?» → si se cumple va al resultado de rechazo; el caso contrario sigue evaluando el resto de la política.',
     check:
-      'Del nodo salen dos conexiones y una de ellas está marcada como Default. Con una sola, la validación lo rechaza.',
+      'Del nodo salen dos conexiones y una de ellas está marcada como «Por defecto». Con una sola, la validación lo rechaza.',
     pitfall:
       'Sin la rama por defecto, un caso que no cumpla la condición se queda sin camino y la decisión falla.',
   },
@@ -83,14 +83,14 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
   EXPRESSION: {
     steps: [
       'Escribe el cálculo en JavaScript o Python (máximo 3 líneas ejecutables).',
-      'Lee los datos desde `variables.<código>`, no desde `inputs`.',
+      'Lee los datos escribiendo «variables.» seguido del código del dato.',
       'Guarda el resultado en una variable intermedia o de salida.',
       'Si usas una función de librería, selecciónala: sin eso el guardado se rechaza.',
     ],
     example:
-      '`variables.deuda_mensual / variables.ingreso_mensual` guardado en la intermedia `relacion_deuda_ingreso`, que después compara un nodo Condición.',
+      '«variables.deuda_mensual / variables.ingreso_mensual» guardado en la intermedia «relacion_deuda_ingreso», que después compara un nodo Condición.',
     check:
-      'Cada nombre que aparece tras `variables.` existe en las entradas o en las intermedias declaradas, y el resultado se guarda en algún sitio.',
+      'Cada nombre que aparece tras «variables.» existe en las entradas o en las intermedias declaradas, y el resultado se guarda en algún sitio.',
     pitfall:
       'Usar un nombre de variable que no está declarado como entrada: se detecta al validar, no al escribir.',
   },
@@ -137,7 +137,7 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
       'Conecta una única salida: una acción no bifurca el flujo.',
     ],
     example:
-      'Llamar al campo calculado `relacion_deuda_ingreso` con el ingreso y la deuda del solicitante, y dejar el resultado disponible para los pasos siguientes.',
+      'Llamar al campo calculado «relacion_deuda_ingreso» con el ingreso y la deuda del solicitante, y dejar el resultado disponible para los pasos siguientes.',
     check: 'Sale exactamente una conexión y las variables que consume están todas declaradas.',
     pitfall:
       'Si la acción usa una variable que el árbol no declara, la validación lo bloquea antes de publicar.',
@@ -145,7 +145,7 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
   RESULT: {
     steps: [
       'Elige el valor de la decisión final.',
-      'Adjunta los reason codes que la expliquen.',
+      'Adjunta los motivos que la expliquen.',
       'Comprueba que cada campo del contrato de salida tenga origen declarado.',
     ],
     example:
@@ -162,7 +162,7 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
     example:
       'El proveedor de buró no responde: en vez de dejar la ejecución a medias, el camino termina en Error con el motivo «buró no disponible», y operaciones sabe por qué reintentar.',
     check: 'Tiene motivo escrito y se llega a él desde el camino de fallo, no desde el normal.',
-    pitfall: 'Un error sin motivo obliga a reconstruir qué pasó desde los logs.',
+    pitfall: 'Un error sin motivo obliga a reconstruir qué pasó desde los registros.',
   },
   END: {
     steps: [
@@ -170,7 +170,7 @@ export const NODE_TUTORIALS: Readonly<Record<string, NodeTutorial>> = {
       'Todo camino del árbol debe terminar en un Fin o en un Resultado.',
     ],
     example:
-      'Una rama que sólo registra telemetría y no decide nada sobre el cliente termina en Fin, no en Resultado: no hay decisión que comunicar.',
+      'Una rama que sólo deja registro y no decide nada sobre el cliente termina en Fin, no en Resultado: no hay decisión que comunicar.',
     check: 'No sale ninguna conexión de él y ningún camino del grafo queda sin cerrar.',
     pitfall: 'Un camino sin final deja la decisión sin cerrar y la validación lo rechaza.',
   },

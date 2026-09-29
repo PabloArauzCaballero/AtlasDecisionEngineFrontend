@@ -39,7 +39,7 @@ export function VintageMatrix({ artifactVersionId }: { artifactVersionId: string
           illustration="empty"
           title="Todavía no hay cosechas que comparar"
           description="La matriz necesita créditos dados de alta y al menos una ventana de observación cerrada."
-          example="Da de alta los créditos concedidos con POST /v1/outcomes/facilities y carga sus desenlaces; la primera cosecha aparece en cuanto vence su ventana de 30 días."
+          example="Da de alta los créditos concedidos en «Alta de crédito concedido» y carga sus desenlaces; la primera cosecha aparece en cuanto vence su ventana de 30 días."
         />
       </Panel>
     );

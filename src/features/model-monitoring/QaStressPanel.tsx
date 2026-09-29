@@ -37,7 +37,7 @@ export function QaStressPanel({
 
   return (
     <Panel
-      title="Sincronización con QA Lab"
+      title="Sincronización con el Laboratorio de pruebas"
       meta={`versión ${versionId} · ${runs.length} corridas archivadas`}
       tutorialId="monitoring-qa-stress"
     >
@@ -46,10 +46,10 @@ export function QaStressPanel({
         <span>
           Carga <b>sintética</b>: casos que el generador derivó del contrato, no decisiones de
           personas. <b>No entra en ninguna tasa de esta pantalla</b> —ni suma al denominador de la
-          cobertura— porque el QA Lab no persiste ejecuciones. El tiempo de cada corrida incluye
-          generar los casos, ejecutarlos dentro del proceso de la API del motor, reducir los que
-          fallan y guardarlos: es una referencia de cuánto le cuesta al motor ese trabajo, no una
-          prueba de carga contra un ambiente desplegado, y no dice si el modelo <i>acierta</i>.
+          cobertura— porque el Laboratorio de pruebas no guarda esas ejecuciones. El tiempo de cada
+          corrida incluye generar los casos, ejecutarlos dentro del motor, reducir los que fallan y
+          guardarlos: es una referencia de cuánto le cuesta al motor ese trabajo, no una prueba de
+          carga contra un ambiente desplegado, y no dice si el modelo <i>acierta</i>.
         </span>
       </p>
 
@@ -57,8 +57,9 @@ export function QaStressPanel({
         <p className="monitoring-note monitoring-note-warning">
           <AlertTriangle size={14} aria-hidden />
           <span>
-            No se pudieron leer las corridas de QA de esta versión. Lo que falta es el historial, no
-            las corridas: lo que se haya ejecutado sigue archivado en el QA Lab.
+            No se pudieron leer las corridas de prueba de esta versión. Lo que falta es el
+            historial, no las corridas: lo que se haya ejecutado sigue archivado en el Laboratorio
+            de pruebas.
           </span>
         </p>
       ) : null}
@@ -67,7 +68,7 @@ export function QaStressPanel({
         <EmptyState
           illustration="tests"
           title="Esta versión no se ha sometido a estrés"
-          description="Ninguna corrida del QA Lab apunta a esta versión. Sin una serie de carga no hay nada que decir sobre cuánto aguanta: lanza dos o tres corridas de tamaño creciente, con la MISMA concurrencia, y vuelve aquí."
+          description="Ninguna corrida del Laboratorio de pruebas apunta a esta versión. Sin una serie de carga no hay nada que decir sobre cuánto aguanta: lanza dos o tres corridas de tamaño creciente, con la MISMA concurrencia, y vuelve aquí."
           example="300 · 1500 · 4000 casos, concurrencia 1"
         />
       ) : (

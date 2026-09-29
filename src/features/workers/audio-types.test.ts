@@ -83,7 +83,9 @@ describe('cifras del audio', () => {
 
 describe('qué costó la locución', () => {
   it('de caché no cuesta nada', () => {
-    expect(costLabel({ cacheHit: true, generated: false } as AudioRunResult)).toMatch(/caché/);
+    expect(costLabel({ cacheHit: true, generated: false } as AudioRunResult)).toMatch(
+      /ya estaba generado/,
+    );
   });
 
   it('generada en esta ejecución sí', () => {

@@ -43,7 +43,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-more-filters"]',
         title: 'Los filtros que resuelven un caso',
         content:
-          'Detrás de este icono están el resultado (aprobado, rechazado, derivado a revisión), el rango de fechas y el Request ID. Con el Request ID se llega a UNA decisión exacta, que es como llega casi siempre un reclamo.',
+          'Detrás de este icono están el resultado (aprobado, rechazado, derivado a revisión), el rango de fechas y el identificador de la solicitud. Con ese identificador se llega a UNA decisión exacta, que es como llega casi siempre un reclamo.',
         tip: 'El número sobre el icono dice cuántos filtros tienes puestos: una lista corta puede ser un filtro olvidado, no la realidad.',
         optional: true,
       },
@@ -52,14 +52,14 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-table"]',
         title: 'Leer la tabla',
         content:
-          'La cabecera dice cuántas decisiones cumplen el filtro. «Outcome» es el resultado de negocio y «Duración» lo que tardó el motor; el ambiente distingue una decisión de producción de una de pruebas.',
+          'La cabecera dice cuántas decisiones cumplen el filtro. «Resultado» es la decisión de negocio y «Duración» lo que tardó el motor; el ambiente distingue una decisión de producción de una de pruebas.',
       },
       {
         id: 'open',
         target: '[data-tutorial-id="resource-table"]',
         title: 'Abre una para ver el porqué',
         content:
-          'El icono «Ver detalle» —el ojo, al final de la fila— abre la ficha con las entradas, las salidas y la traza nodo a nodo. Ahí se ve qué condición decidió el resultado, que es lo que hay que enseñar cuando alguien reclama.',
+          'El icono «Ver detalle» —el ojo, al final de la fila— abre la ficha con las entradas, las salidas y el recorrido nodo a nodo. Ahí se ve qué condición decidió el resultado, que es lo que hay que enseñar cuando alguien reclama.',
         tip: 'Ese detalle tiene su propio recorrido: «Detalle de una ejecución», en el Centro de Tutoriales.',
         requiredAction: 'click',
         optional: true,
@@ -86,9 +86,9 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       {
         id: 'chain',
         target: '[data-tutorial-id="resource-table"]',
-        title: 'Las dos columnas de hash',
+        title: 'Las dos columnas de sello',
         content:
-          'Cada evento guarda su propia huella y la del anterior, así que los eventos forman una cadena. Alterar uno cambia su huella y rompe el enlace con todos los siguientes: por eso se puede afirmar que el registro no se ha tocado, en vez de pedir que se confíe.',
+          'Cada evento guarda su propio sello y el del anterior, así que los eventos forman una cadena. Alterar uno cambia su sello y rompe el enlace con todos los siguientes: por eso se puede afirmar que el registro no se ha tocado, en vez de pedir que se confíe.',
         tip: 'Si un evento no enlaza con el anterior, «Integridad del registro» lo señala: es lo que hay que investigar.',
       },
       {
@@ -96,7 +96,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-filters"]',
         title: 'Buscar por evento, objeto o actor',
         content:
-          'La búsqueda principal cubre el tipo de evento, el objeto afectado, quién lo hizo y el request ID. Es el camino para responder «¿quién aprobó esta versión?» sin recorrer la cadena entera.',
+          'La búsqueda principal cubre el tipo de evento, el objeto afectado, quién lo hizo y el identificador de la solicitud. Es el camino para responder «¿quién aprobó esta versión?» sin recorrer la cadena entera.',
         optional: true,
       },
       {
@@ -104,7 +104,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-more-filters"]',
         title: 'Seguir un objeto concreto',
         content:
-          'Con «Actor» y «Tipo de agregado» se sigue la vida de una cosa: todos los eventos sobre artefactos, o todo lo que hizo una persona. Así se reconstruye una secuencia completa en vez de leer sucesos sueltos.',
+          'Con «Actor» y el filtro por tipo de objeto se sigue la vida de una cosa: todos los eventos sobre artefactos, o todo lo que hizo una persona. Así se reconstruye una secuencia completa en vez de leer sucesos sueltos.',
         optional: true,
       },
       {
@@ -132,7 +132,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: 'La referencia del titular',
         content:
           'Es el mismo identificador con el que se ejecutaron las decisiones. Si no coincide, la respuesta saldrá vacía y parecerá que no hay nada, cuando lo que pasa es que se preguntó por otra persona.',
-        tip: 'Esta referencia nunca viaja en la dirección del navegador, ni siquiera para consultar el historial: un identificador en una URL acaba escrito en el registro de acceso, en el proxy y en la traza.',
+        tip: 'Esta referencia nunca aparece en la dirección de la página, ni siquiera para consultar el historial: lo que va en la dirección acaba guardado en registros técnicos que no se controlan.',
         requiredAction: 'input',
         optional: true,
       },
@@ -148,7 +148,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="dsr-submit"]',
         title: 'Registrar ES atender',
         content:
-          'No hay guardar borrador: al pulsar, el motor abre el expediente y lo resuelve contra el historial en la misma llamada. Queda constancia de que alguien consultó todas las decisiones sobre esa persona, porque esa consulta es en sí misma un acceso a sus datos.',
+          'No hay guardar borrador: al pulsar, el motor abre el expediente y lo resuelve contra el historial en ese mismo momento. Queda constancia de que alguien consultó todas las decisiones sobre esa persona, porque esa consulta es en sí misma un acceso a sus datos.',
         requiredAction: 'click',
         optional: true,
       },

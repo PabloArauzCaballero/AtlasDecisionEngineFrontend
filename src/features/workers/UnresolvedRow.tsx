@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Ban, Repeat } from 'lucide-react';
 import { textoDePendiente } from './unresolved-contract';
+import { WORKER_MENU } from './worker-menu';
 import type { ResolutionType, UnresolvedItem } from './unresolved.api';
 import { OptionSelect } from '../../components/OptionSelect';
 
@@ -55,7 +56,9 @@ export function FilaPendiente({
       </div>
 
       <div className="pendiente-datos">
-        <span className="pendiente-origen">{item.source}</span>
+        <span className="pendiente-origen">
+          {WORKER_MENU.find((entrada) => entrada.code === item.source)?.short ?? item.source}
+        </span>
         {item.suggestedCategoryCode !== null ? (
           <span className="pendiente-sugerida">
             recomienda <code>{item.suggestedCategoryCode}</code>

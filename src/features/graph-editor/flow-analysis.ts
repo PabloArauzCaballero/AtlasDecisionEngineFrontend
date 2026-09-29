@@ -151,7 +151,7 @@ export function analyzeFlow({
     issues.push({
       code: 'NO_START',
       severity: 'error',
-      message: 'El flujo no tiene un nodo de inicio (START). Añade uno para poder ejecutarlo.',
+      message: 'El flujo no tiene un nodo de inicio. Añade uno para poder ejecutarlo.',
     });
   }
 

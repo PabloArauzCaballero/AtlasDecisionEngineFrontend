@@ -25,7 +25,7 @@ async function elegirVersion(page: Page) {
 }
 
 function carril(page: Page) {
-  return page.locator('.panel').filter({ hasText: 'Sincronización con QA Lab' });
+  return page.locator('.panel').filter({ hasText: 'Sincronización con el Laboratorio de pruebas' });
 }
 
 test('la serie de estrés aparece al elegir la versión, sin medir nada', async ({ page }) => {

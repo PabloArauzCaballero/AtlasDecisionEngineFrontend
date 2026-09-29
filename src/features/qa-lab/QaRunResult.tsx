@@ -98,7 +98,7 @@ export function QaRunResult({ run, active, onReproduce }: Props) {
           <p className="field-hint">
             Corrida {display(run, 'id')} · versión {display(run, 'artifactVersionId')} · generador{' '}
             {display(run, 'generatorVersion')}
-            {tooling.fakers ? ` · ${String(tooling.fakers)}` : ''}
+            {tooling.fakers ? ` · generador de datos realistas ${String(tooling.fakers)}` : ''}
           </p>
         </details>
       </Panel>

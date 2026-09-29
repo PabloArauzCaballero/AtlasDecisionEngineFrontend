@@ -160,7 +160,7 @@ test.describe('extractos bancarios contra el motor real', () => {
     for (const [nombre, contiene] of [
       ['Descargar CSV', 'QA07010001'],
       ['Movimientos (JSON)', 'QA07010001'],
-      ['Contrato completo', '4821'],
+      ['Extracto completo (JSON)', '4821'],
     ] as const) {
       const boton = page.getByRole('button', { name: nombre });
       await expect(boton).toBeVisible();

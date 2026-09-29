@@ -39,7 +39,7 @@ const TYPES: readonly ActionTypeOption[] = [
   {
     value: 'EMIT_REASON',
     label: 'Emitir un motivo',
-    hint: 'Añade un reason code explicable al resultado.',
+    hint: 'Añade un motivo explicable al resultado.',
   },
   {
     value: 'CREATE_MANUAL_REVIEW',
@@ -114,7 +114,7 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
       return;
     }
     if (mode === 'expression' && parsedExpression() === null) {
-      setError('La expresión no es JSON válido, así que no se puede guardar.');
+      setError('La fórmula no tiene un formato válido, así que no se puede guardar.');
       return;
     }
     const valueExpression = mode === 'guided' ? guidedExpression() : parsedExpression();
@@ -190,7 +190,7 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
           label={type === 'SET_FIELD' ? 'Campo que escribe' : 'Cola de revisión'}
           tooltip={
             type === 'SET_FIELD'
-              ? 'Código de la variable donde se guarda el valor, para que otros pasos lo lean. Ej.: score_riesgo.'
+              ? 'Código de la variable donde se guarda el valor, para que otros pasos lo lean. Ej.: puntaje_riesgo.'
               : 'Bandeja de revisión manual a la que se deriva el caso. Ej.: FRAUDE_N2.'
           }
         >
@@ -230,8 +230,8 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
 
       {type === 'SET_FIELD' && mode === 'expression' ? (
         <Field
-          label="Expresión (JSON)"
-          tooltip="El árbol que evalúa el motor: {op, left, right}, {var}, {value}. La vista previa de abajo lo traduce a lenguaje natural."
+          label="Fórmula"
+          tooltip="La fórmula que evalúa el motor. La vista previa de abajo la traduce a lenguaje natural."
         >
           <textarea
             className="code-input"
@@ -244,7 +244,7 @@ export function ActionForm({ onCreate, onCancel, initial }: Props) {
 
       {type === 'EMIT_REASON' ? (
         <Field
-          label="Reason code que emite"
+          label="Motivo que emite"
           tooltip="Código del motivo del catálogo que se añade al resultado. Ej.: FRAUDE_ALTO; tiene que existir ya."
         >
           <input

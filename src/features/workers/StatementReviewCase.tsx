@@ -99,10 +99,8 @@ export function StatementReviewCase({ item }: { item: StatementReviewItem }) {
         <section className="revision-caso-problema">
           <h4>Qué no se pudo resolver</h4>
           <p>{item.errorMessage ?? REVIEW_REASON_LABEL[item.reviewReason]}</p>
-          {item.errorCode ? (
-            <p className="field-help">
-              Motivo <code>{item.reviewReason}</code> · código técnico <code>{item.errorCode}</code>
-            </p>
+          {item.errorMessage ? (
+            <p className="field-help">Motivo: {REVIEW_REASON_LABEL[item.reviewReason]}</p>
           ) : null}
         </section>
 
@@ -140,7 +138,7 @@ export function StatementReviewCase({ item }: { item: StatementReviewItem }) {
             <StatementReviewActions detalle={detalle.data} />
 
             <p className="field-help">
-              Solicitud <code>{item.requestId}</code> · correlación{' '}
+              Solicitud <code>{item.requestId}</code> · referencia para soporte{' '}
               <code>{detalle.data.correlationId}</code>
             </p>
           </>

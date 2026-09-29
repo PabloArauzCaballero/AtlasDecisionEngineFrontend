@@ -85,7 +85,7 @@ export function registerSqlCompletions(monaco: Monaco, datasets: CatalogDataset[
           label: dataset.name,
           kind: Kind.Module,
           insertText: dataset.name,
-          detail: 'dataset',
+          detail: 'conjunto de datos',
           documentation: dataset.description,
           range,
         });

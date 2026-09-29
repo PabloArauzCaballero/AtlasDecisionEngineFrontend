@@ -128,7 +128,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         title: 'Quién eres para el portal',
         content:
           'Tu nombre y tu área. De tu rol depende todo lo que ves: si una pantalla no aparece en el menú o un botón está deshabilitado, casi siempre es el permiso, no un fallo.',
-        tip: 'Si necesitas acceso a algo, pídelo por rol —analista de riesgo, QA, cumplimiento—, no por pantalla.',
+        tip: 'Si necesitas acceso a algo, pídelo por rol —analista de riesgo, pruebas, cumplimiento—, no por pantalla.',
       },
       {
         id: 'environment',

@@ -34,15 +34,15 @@ export function WorkerHeaderFacts({
   if (loading) {
     return (
       <p className="worker-facts is-loading" aria-live="polite">
-        Consultando la disponibilidad del worker…
+        Consultando la disponibilidad del procesador automático…
       </p>
     );
   }
   if (!descriptor) {
     return (
       <p className="worker-facts is-error" role="alert">
-        No se pudo consultar el catálogo de workers. Vuelve a intentarlo o revisa la conexión con el
-        motor.
+        No se pudo consultar la lista de procesadores automáticos. Vuelve a intentarlo o revisa la
+        conexión con el motor.
       </p>
     );
   }
@@ -172,7 +172,7 @@ function formatLimit(key: string, value: number | string): string {
 function limitNote(key: string, value: number | string): string | null {
   if (key !== 'thresholdProfile' || typeof value !== 'string') return null;
   if (value.startsWith('sintetico')) {
-    return 'El perfil de umbrales se calibró sobre rostros sintéticos: no predice la tasa de error sobre personas reales.';
+    return 'El perfil de umbrales se calibró sobre rostros generados por computadora: no predice la tasa de error sobre personas reales.';
   }
   if (value === 'unconfigured') {
     return 'Sin umbrales calibrados, toda verificación termina en revisión manual.';

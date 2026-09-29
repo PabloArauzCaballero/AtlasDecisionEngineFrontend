@@ -172,7 +172,7 @@ export function ImportTargetPicker({ versionId, onVersionChange, onLockVersionCh
           >
             <input
               value={name}
-              placeholder="Scoring de consumo"
+              placeholder="Puntaje de consumo"
               onChange={(event) => setName(event.target.value)}
             />
           </Field>

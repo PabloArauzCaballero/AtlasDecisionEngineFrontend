@@ -169,7 +169,7 @@ describe('OutputContractPanel', () => {
     });
     // El catálogo real ronda el centenar de códigos, así que se buscan en vez de
     // listarse. Cada salida tiene su propio buscador; el primero es el de `decision`.
-    const [search] = await screen.findAllByLabelText('Buscar un reason code para añadirlo');
+    const [search] = await screen.findAllByLabelText('Buscar un motivo para añadirlo');
     fireEvent.change(search!, { target: { value: 'dti' } });
 
     fireEvent.click(await screen.findByRole('button', { name: 'DTI_TOO_HIGH' }));
@@ -185,7 +185,7 @@ describe('OutputContractPanel', () => {
     });
     // La primera versión pintaba los ~96 códigos como casillas y se solapaban
     // dentro de la fila del contrato.
-    await screen.findAllByLabelText('Buscar un reason code para añadirlo');
+    await screen.findAllByLabelText('Buscar un motivo para añadirlo');
     expect(screen.queryByRole('button', { name: 'DTI_TOO_HIGH' })).not.toBeInTheDocument();
   });
 });

@@ -52,7 +52,7 @@ export function InstitutionsTable({
     return (
       <p className="entidad-vacio">
         El padrón está vacío. Sin entidades, el motor no puede atribuir ningún extracto y los
-        rechaza todos como «emisor no reconocido»: siembra la nómina de ASFI antes de procesar nada.
+        rechaza todos como «emisor no reconocido»: carga la nómina de ASFI antes de procesar nada.
       </p>
     );
   }

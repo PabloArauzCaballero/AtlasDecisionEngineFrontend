@@ -27,7 +27,7 @@ describe('script lint for code nodes', () => {
       'JavaScript debe retornar un objeto con las claves de salida.',
     );
     expect(lintScript('x = 1', 'PYTHON', [])).toContain(
-      'Python debe asignar el objeto de salida a la variable `result`.',
+      'Python debe asignar el objeto de salida a la variable «result».',
     );
   });
 
@@ -36,7 +36,7 @@ describe('script lint for code nodes', () => {
     // not require the script to mention any output code.
     expect(lintScript('return 1;', 'JAVASCRIPT', [])).toEqual([]);
     expect(lintScript('return 1;', 'JAVASCRIPT', ['score'])).toContain(
-      'El script no referencia ninguna variable de salida declarada.',
+      'El código no usa ninguna variable de salida declarada.',
     );
   });
 });

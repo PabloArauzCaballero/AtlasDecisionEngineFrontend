@@ -113,7 +113,7 @@ export function EdgeProperties({
         </Field>
         <Field
           label="Tipo de rama"
-          tooltip="«Cuando se cumple» recorre este camino sólo si su condición es cierta. «Default / caso contrario» es la salida de escape: la toma todo lo que no encajó en ninguna otra rama. Cada bifurcación necesita exactamente una por defecto, o un caso no contemplado dejaría la decisión sin camino."
+          tooltip="«Cuando se cumple» recorre este camino sólo si su condición es cierta. «Por defecto / caso contrario» es la salida de escape: la toma todo lo que no encajó en ninguna otra rama. Cada bifurcación necesita exactamente una por defecto, o un caso no contemplado dejaría la decisión sin camino."
         >
           <OptionSelect
             name="edgeKind"
@@ -121,7 +121,7 @@ export function EdgeProperties({
             onChange={(value) => setMode(value as 'DEFAULT' | 'CONDITIONAL')}
             options={closedOptions(
               [
-                { value: 'DEFAULT', label: 'Default / caso contrario' },
+                { value: 'DEFAULT', label: 'Por defecto / caso contrario' },
                 { value: 'CONDITIONAL', label: 'Cuando se cumple' },
               ],
               EDGE_KIND_HELP,
@@ -151,7 +151,7 @@ export function EdgeProperties({
           <>
             <Field
               label="Variable del caso"
-              tooltip="La variable que el Switch reparte. Sólo aparecen las declaradas en «Entradas · Variables a considerar»: si la que buscas no está, decláurala allí primero."
+              tooltip="La variable que el Selector reparte. Sólo aparecen las declaradas en «Entradas · Variables a considerar»: si la que buscas no está, declárala allí primero."
             >
               <OptionSelect
                 name="caseVariable"

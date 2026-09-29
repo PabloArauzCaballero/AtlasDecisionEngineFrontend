@@ -93,7 +93,7 @@ export function NotebookIndex() {
               <tr>
                 <th scope="col">Cuaderno</th>
                 <th scope="col">Celdas</th>
-                <th scope="col">Dataset</th>
+                <th scope="col">Datos</th>
                 <th scope="col">Última vez</th>
                 <th scope="col">
                   <span className="sr-only">Acciones</span>
@@ -135,7 +135,7 @@ export function NotebookIndex() {
       {!lista.isLoading && !lista.data?.length ? (
         <p className="notebook-index__vacio">
           Todavía no tienes ninguno. Pon un nombre y pulsa «Nuevo cuaderno»: dentro eliges el
-          dataset y escribes las celdas.
+          conjunto de datos y escribes las celdas.
         </p>
       ) : null}
     </section>

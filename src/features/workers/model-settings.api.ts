@@ -15,7 +15,7 @@ import { apiRequest } from '../../api/http-client';
 export type ModelGateway = 'litellm' | 'openrouter';
 
 export const GATEWAY_LABELS: Record<ModelGateway, string> = {
-  litellm: 'LiteLLM (gateway propio)',
+  litellm: 'Proveedor propio',
   openrouter: 'OpenRouter',
 };
 

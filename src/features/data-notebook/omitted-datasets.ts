@@ -24,7 +24,7 @@ export function unirDescartadas(
 ): OmittedRelation[] {
   return [
     ...(backend?.omitted ?? []).map((entrada) => ({
-      name: `AtlasBackend · ${entrada.view}`,
+      name: `Datos operativos de Atlas · ${entrada.view}`,
       reason: entrada.reason,
     })),
     ...(motor?.omitted ?? []).map((entrada) => ({

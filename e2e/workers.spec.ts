@@ -67,7 +67,9 @@ test.describe('pestaña Procesamiento', () => {
     // ocurrida dos veces. Enumerarlas sueltas escondería que hay una sola cosa
     // que arreglar.
     await expect(panel.locator('.worker-incident')).toHaveCount(1);
-    await expect(panel.getByText('DOCUMENTO_ILEGIBLE')).toBeVisible();
+    // La incidencia se explica con su mensaje; el código interno ya no se enseña.
+    await expect(panel.getByText('El documento no tiene una capa de texto legible.')).toBeVisible();
+    await expect(panel.getByText('DOCUMENTO_ILEGIBLE')).toHaveCount(0);
     await expect(panel.getByText('2 veces')).toBeVisible();
 
     expect(problemas, problemas.join('\n')).toEqual([]);
@@ -149,7 +151,7 @@ test.describe('pestaña Procesamiento', () => {
     // MOTOR de las que arma el navegador con las categorías. El primero pasó de
     // «Descargar CSV» a «CSV» al agruparlos bajo ese rótulo, y esta prueba se
     // quedó con el nombre viejo.
-    for (const nombre of [/^CSV$/, /Movimientos \(JSON\)/i, /Contrato completo/i]) {
+    for (const nombre of [/^CSV$/, /Movimientos \(JSON\)/i, /Extracto completo \(JSON\)/i]) {
       await expect(consola.getByRole('button', { name: nombre })).toBeVisible();
     }
   });

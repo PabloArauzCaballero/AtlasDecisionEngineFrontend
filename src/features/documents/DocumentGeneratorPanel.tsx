@@ -57,7 +57,7 @@ export function DocumentGeneratorPanel({ active }: { active: boolean }) {
         meta="Motor de impresión, catálogo, recursos, tipografía y almacenamiento."
       >
         {health.isLoading ? <p>Consultando el generador…</p> : null}
-        {health.isError ? <p>El generador documental no respondió a la sonda.</p> : null}
+        {health.isError ? <p>El generador documental no respondió a la comprobación.</p> : null}
 
         {health.data ? (
           <>
@@ -93,7 +93,7 @@ export function DocumentGeneratorPanel({ active }: { active: boolean }) {
       >
         {templates.isLoading ? <p>Cargando el catálogo…</p> : null}
         {templates.data?.length === 0 ? (
-          <p>El motor no publica ningún documento en este despliegue.</p>
+          <p>El motor no publica ningún documento en este entorno.</p>
         ) : null}
 
         <ul className="doc-catalog">
@@ -124,15 +124,15 @@ export function DocumentGeneratorPanel({ active }: { active: boolean }) {
 
       <Panel
         title="Publicar un documento nuevo"
-        meta="El motor acepta plantillas por API. Aquí se descarga el formato que espera."
+        meta="El motor acepta plantillas desde otros sistemas. Aquí se descarga el formato que espera."
       >
         <p className="doc-format__note">
           El paquete de ejemplo es funcional: se puede publicar tal cual y genera un PDF. Trae un
           documento completo con todos los tipos de campo, para usarlo de punto de partida.
         </p>
         <p className="doc-format__note">
-          La publicación exige credencial de administración y va contra el motor, no por esta
-          pantalla: sube plantillas al despliegue y no es una acción de uso diario.
+          La publicación exige permisos de administración y se hace directamente en el motor, no
+          desde esta pantalla: no es una acción de uso diario.
         </p>
         <button
           type="button"

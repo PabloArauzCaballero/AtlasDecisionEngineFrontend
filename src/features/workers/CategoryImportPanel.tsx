@@ -108,7 +108,7 @@ export function CategoryImportPanel({
     <div className="categoria-import">
       <div className="categoria-import-cabecera">
         <h3 className="worker-section-title">
-          <FileJson size={16} aria-hidden="true" /> Subir un árbol (JSON o CSV)
+          <FileJson size={16} aria-hidden="true" /> Subir categorías desde un archivo (JSON o CSV)
         </h3>
         <div className="categoria-import-formatos">
           <button
@@ -148,12 +148,14 @@ export function CategoryImportPanel({
       />
 
       <p className="field-help">
-        En CSV, la cabecera es <code>{COLUMNAS_CSV.join(', ')}</code> y los ejemplos van separados
-        por <code>|</code>. En JSON se admiten tanto un array plano como el documento anidado que
-        descarga esta pantalla. La forma más segura de empezar es bajar el catálogo actual desde{' '}
+        En CSV, la primera fila lleva estos nombres de columna, escritos tal cual:{' '}
+        <code>{COLUMNAS_CSV.join(', ')}</code> (código, nombre, descripción, categoría padre, umbral
+        de aceptación, ejemplos que sí y ejemplos que no). Los ejemplos van separados por{' '}
+        <code>|</code>. En JSON se admite una lista de categorías o, tal cual, el archivo que
+        descarga esta pantalla. Lo más seguro es bajar el catálogo actual con{' '}
         <strong>Descargar JSON</strong> o <strong>Descargar CSV</strong>, en la barra del árbol,
-        editarlo y volver a subirlo aquí. El orden de las filas no importa: el motor escribe de
-        padre a hijo en una sola transacción.
+        editarlo y volver a subirlo aquí. El orden de las filas no importa: el motor guarda primero
+        las categorías padre y todo el archivo de una sola vez.
       </p>
 
       <textarea
@@ -166,7 +168,7 @@ export function CategoryImportPanel({
         }}
         rows={12}
         spellCheck={false}
-        aria-label="Árbol de categorías en JSON o CSV"
+        aria-label="Categorías en formato JSON o CSV"
         placeholder={PLANTILLA}
       />
 
@@ -174,7 +176,7 @@ export function CategoryImportPanel({
 
       {leidas !== null && problemas.length === 0 ? (
         <p className="field-help" role="status">
-          {leidas.length} categoría(s) leídas sin problemas. Prueba en seco para ver qué se crea y
+          {leidas.length} categoría(s) leídas sin problemas. Simula la carga para ver qué se crea y
           qué se reemplaza.
         </p>
       ) : null}
@@ -189,7 +191,7 @@ export function CategoryImportPanel({
             if (categorias !== null) onProbar(categorias);
           }}
         >
-          <FlaskConical size={15} aria-hidden="true" /> Probar en seco
+          <FlaskConical size={15} aria-hidden="true" /> Simular carga
         </button>
         <button
           type="button"
@@ -202,17 +204,17 @@ export function CategoryImportPanel({
             if (categorias !== null) onInyectar(categorias);
           }}
         >
-          <Upload size={15} aria-hidden="true" /> Inyectar
+          <Upload size={15} aria-hidden="true" /> Cargar
         </button>
         {!enSeco ? (
-          <span className="field-help">Prueba en seco primero para habilitar la inyección.</span>
+          <span className="field-help">Simula la carga primero para poder cargar.</span>
         ) : null}
       </div>
 
       {resumen !== null ? (
         <div className="categoria-import-resumen" role="status">
           <strong>
-            {resumen.dryRun ? 'Prueba en seco' : 'Inyectado'}: {resumen.total} categoría(s)
+            {resumen.dryRun ? 'Simulación' : 'Cargado'}: {resumen.total} categoría(s)
           </strong>
           <div className="categoria-import-listas">
             <div>

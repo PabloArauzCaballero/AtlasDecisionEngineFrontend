@@ -89,14 +89,14 @@ export function AuditIntegrityPanel() {
 
           {tono === 'neutral' ? (
             <p className="field-help">
-              Este tenant aún no ha registrado ningún evento. La cadena está íntegra por vacía, que
+              Tu empresa aún no ha registrado ningún evento. La cadena está íntegra por vacía, que
               no es lo mismo que verificada.
             </p>
           ) : null}
 
           {datos.headHash ? (
             <p className="field-help">
-              Último eslabón: <code className="mono">{datos.headHash.slice(0, 16)}…</code>
+              Sello del último eslabón: <code className="mono">{datos.headHash.slice(0, 16)}…</code>
             </p>
           ) : null}
 
@@ -106,9 +106,12 @@ export function AuditIntegrityPanel() {
                 const motivo = MOTIVOS[evento.reason];
                 return (
                   <li key={evento.id}>
-                    <strong>{motivo?.titulo ?? evento.reason}</strong>{' '}
+                    <strong>{motivo?.titulo ?? 'Evento fuera de la cadena'}</strong>{' '}
                     <span className="mono">#{evento.id}</span>
-                    <p className="field-help">{motivo?.explicacion ?? evento.reason}</p>
+                    <p className="field-help">
+                      {motivo?.explicacion ??
+                        'Este evento no encaja en la cadena de sellos. Avisa a soporte.'}
+                    </p>
                   </li>
                 );
               })}

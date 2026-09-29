@@ -183,21 +183,14 @@ export function leerJson(texto: string): Lectura {
   let dato: unknown;
   try {
     dato = JSON.parse(texto);
-  } catch (error) {
-    return {
-      categorias: [],
-      problemas: [
-        problemasDeFormato.jsonInvalido(
-          error instanceof Error ? error.message : 'error de sintaxis',
-        ),
-      ],
-    };
+  } catch {
+    return { categorias: [], problemas: [problemasDeFormato.jsonInvalido()] };
   }
   const filas = aplanarExportacion(dato) ?? dato;
   if (!Array.isArray(filas)) {
     return {
       categorias: [],
-      problemas: [problemasDeFormato.jsonNoEsArray(dato === null ? 'null' : typeof dato)],
+      problemas: [problemasDeFormato.jsonNoEsArray()],
     };
   }
 

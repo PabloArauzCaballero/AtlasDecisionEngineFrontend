@@ -56,7 +56,7 @@ export function CategoryTree({
   const { cerradas, alternar } = control ?? propio;
 
   if (raices.length === 0) {
-    return <p className="categoria-vacio">Este tenant todavía no tiene categorías sembradas.</p>;
+    return <p className="categoria-vacio">Tu empresa todavía no tiene categorías cargadas.</p>;
   }
   return (
     <ul className="categoria-arbol" aria-label="Árbol de categorías">
@@ -184,7 +184,7 @@ function Rama({
             onClick={() => onDesactivar(categoria)}
             disabled={!categoria.isActive}
             aria-label={`Desactivar ${categoria.code}`}
-            title="Desactivar: sale del catálogo pero la traza que la cita sigue siendo legible"
+            title="Desactivar: deja de usarse, pero los resultados anteriores que la citan se siguen leyendo"
           >
             <CircleSlash size={14} aria-hidden="true" />
           </button>

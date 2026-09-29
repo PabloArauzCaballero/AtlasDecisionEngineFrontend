@@ -78,7 +78,7 @@ export function WorkerInputChoice({
                  * por su etiqueta encontraba los dos controles.
                  */
                 <small className="field-help">
-                  Casos sintéticos del motor, sin datos personales.
+                  Casos de ejemplo del motor, sin datos personales.
                 </small>
               )}
             </span>
@@ -103,7 +103,7 @@ export function WorkerInputChoice({
         <div className="worker-fixtures">
           <Field
             label={'Escenario'}
-            tooltip="Caso sintético del motor con el que se ejecuta el worker, sin datos personales."
+            tooltip="Caso de ejemplo del motor para probar el procesador automático, sin datos personales."
           >
             <OptionSelect
               name="escenario"

@@ -36,7 +36,7 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         id: 'kind',
         title: 'La modalidad dice cuánto hay que revisar',
         content:
-          'La columna «Modalidad» distingue las construidas con el catálogo cerrado de operaciones de las escritas en código. Las primeras no pueden hacer nada que el catálogo no permita; las segundas corren en el entorno aislado y pasan por el guardián de código, con su tope de tres líneas ejecutables.',
+          'La columna «Modalidad» distingue las construidas con el catálogo cerrado de operaciones de las escritas en código. Las primeras no pueden hacer nada que el catálogo no permita; las segundas se ejecutan en el entorno seguro de ejecución y pasan por una revisión automática del código, con su tope de tres líneas ejecutables.',
         tip: 'Empieza siempre por el catálogo de operaciones. El código es la salida cuando la operación que necesitas no existe, no el atajo por defecto.',
         optional: true,
       },
@@ -64,7 +64,7 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="calculated-field-try"]',
         title: 'Probar antes de publicar',
         content:
-          'Ejecuta la versión con valores de ejemplo contra el mismo motor aislado que usa producción: lo que veas aquí es lo que pasará de verdad. En «Datos de prueba» elige la clase —«Válidos», «En el límite del contrato», «Inválidos (deben rechazarse)» o «Uno por cada tipo de salida»—, cuántos casos y, si quieres, una semilla; luego pulsa «Generar».',
+          'Ejecuta la versión con valores de ejemplo en el mismo entorno seguro que usa producción: lo que veas aquí es lo que pasará de verdad. En «Datos de prueba» elige la clase —«Válidos», «En el límite del contrato», «Inválidos (deben rechazarse)» o «Uno por cada tipo de salida»—, cuántos casos y, si quieres, una semilla; luego pulsa «Generar».',
         tip: 'Bajo el formulario aparece la semilla usada: escríbela en «Semilla» con la misma clase y el mismo número de casos para repetir exactamente el lote.',
         optional: true,
       },
@@ -84,14 +84,14 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="library-table"]',
         title: 'Por qué es una lista cerrada',
         content:
-          'Ese código corre dentro de decisiones reales sobre clientes. Una dependencia que nadie revisó puede leer datos que no le tocan, salir a la red o cambiar de comportamiento entre versiones sin avisar. Por eso la lista se aprueba una vez, con versión fija, y no se amplía desde el editor.',
+          'Ese código se ejecuta dentro de decisiones reales sobre clientes. Una librería que nadie revisó puede leer datos que no le tocan, conectarse a otros sistemas o cambiar de comportamiento entre versiones sin avisar. Por eso la lista se aprueba una vez, con versión fija, y no se amplía desde el editor.',
       },
       {
         id: 'not-import',
         title: 'Habilitar no es importar',
         content:
-          'Seleccionar una librería en un campo calculado NO añade un paquete: sólo habilita funciones que ya estaban presentes y revisadas en el entorno aislado. Si la que necesitas no está en esta lista, la respuesta no es escribirla en el código —se rechaza al guardar—, es pedir que se revise y se apruebe.',
-        tip: 'La columna «Funciones permitidas» es la lista real: una librería aprobada no habilita todo su paquete.',
+          'Seleccionar una librería en un campo calculado NO instala nada nuevo: sólo habilita funciones que ya estaban presentes y revisadas en el entorno seguro de ejecución. Si la que necesitas no está en esta lista, la respuesta no es escribirla en el código —se rechaza al guardar—, es pedir que se revise y se apruebe.',
+        tip: 'La columna «Funciones permitidas» es la lista real: una librería aprobada no habilita todas sus funciones.',
         optional: true,
       },
       {
@@ -107,9 +107,9 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
 
   'qa-lab': {
     id: 'qa-lab',
-    title: 'QA Lab: cientos de casos que nadie escribió',
+    title: 'Laboratorio de pruebas: cientos de casos que nadie escribió',
     intro:
-      'Las pruebas escritas a mano comprueban lo que se te ocurrió. El QA Lab inventa casos a partir de las reglas de entrada del algoritmo —válidos, en el límite e inválidos—, con datos realistas de los fakers, los ejecuta en el motor y te guarda, reducido, cada caso que incumple una comprobación técnica.',
+      'Las pruebas escritas a mano comprueban lo que se te ocurrió. El Laboratorio de pruebas inventa casos a partir de las reglas de entrada del algoritmo —válidos, en el límite e inválidos—, con datos realistas del generador de datos, los ejecuta en el motor y te guarda, reducido, cada caso que incumple una comprobación técnica.',
     version: 2,
     steps: [
       {
@@ -142,7 +142,7 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="qa-lab-fakers"]',
         title: '4. De dónde salen los datos',
         content:
-          'Las variables cuyo nombre dice qué dato son —nombre, carnet, celular, correo, fecha de nacimiento, ingreso, banco, NIT…— se rellenan con datos realistas de los fakers del servidor de pruebas, con la misma semilla y ajustados a las reglas del contrato. Lo demás sale del propio contrato. Si ese servidor no responde, todo sale del contrato y el resultado te lo avisa.',
+          'Las variables cuyo nombre dice qué dato son —nombre, carnet, celular, correo, fecha de nacimiento, ingreso, banco, NIT…— se rellenan con el generador de datos realistas, con la misma semilla y ajustados a las reglas del contrato. Lo demás sale del propio contrato. Si el generador no responde, todo sale del contrato y el resultado te lo avisa.',
       },
       {
         id: 'launch',
@@ -165,7 +165,7 @@ export const LAB_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: '7. Los contraejemplos, reducidos',
         content:
           'Cada caso que falla se recorta a lo mínimo que sigue fallando y se enseña como tabla de variable y valor. «Volver a ejecutar este caso» lo repite con su misma clase (válido, en el límite o inválido) para confirmar si el fallo sigue.',
-        tip: 'Para convertirlo en una prueba permanente, copia su JSON en un caso de una suite de prueba con el resultado que esperas.',
+        tip: 'Para convertirlo en una prueba permanente, copia sus valores en un caso de una suite de prueba con el resultado que esperas.',
       },
       {
         id: 'history',

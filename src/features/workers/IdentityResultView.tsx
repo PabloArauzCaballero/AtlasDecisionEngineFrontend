@@ -56,7 +56,6 @@ export function IdentityResultView({ result }: { result: unknown }) {
             {reasons.map((code) => (
               <li key={code}>
                 <span>{REASON_LABEL[code] ?? code}</span>
-                <code>{code}</code>
               </li>
             ))}
           </ul>
