@@ -9,9 +9,11 @@ import { DefinitionGrid } from '../components/DefinitionGrid';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { Timeline } from '../components/Timeline';
+import { CaseEvidencePanel } from '../features/manual-review/CaseEvidencePanel';
 import { CaseFilePanel } from '../features/manual-review/CaseFilePanel';
 import { CaseImagesPanel } from '../features/manual-review/CaseImagesPanel';
 import { CaseInformationRequestDialog } from '../features/manual-review/CaseInformationRequestDialog';
+import { OnboardingDossierPanel } from '../features/manual-review/OnboardingDossierPanel';
 import { useManualReviewActions } from '../features/manual-review/useManualReviewActions';
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useDetailQuery } from '../hooks/useDetailQuery';
@@ -177,45 +179,14 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             />
           </Panel>
           {/*
-            La evidencia con la que llegó el caso, que es lo que hay que MIRAR para decidir.
-            
-            Estaba en la fila desde el principio —`evidenceJson`, con el parecido medido, qué
-            documento se reconoció y qué dijo la prueba de vida— y la pantalla no la pintaba: el
-            analista veía «Artefacto —» y «Referencia del cliente —» y tenía que decidir sobre una
-            identidad sin un solo dato de la identidad. Pedir una decisión humana sin enseñar la
-            evidencia es pedir una firma, no un criterio.
+            La evidencia con la que llegó el caso, que es lo que hay que MIRAR para decidir: TODAS
+            sus claves (las de comportamiento incluidas), y aparte el expediente del alta que
+            adjunta AtlasBackend —cronómetro, teléfono, ubicación, agenda, lo declarado frente al
+            carnet—. Pedir una decisión humana sin enseñar la evidencia es pedir una firma, no un
+            criterio.
           */}
-          {evidencia ? (
-            <Panel title="Evidencia del caso" meta="lo que midió el motor">
-              <DefinitionGrid
-                record={evidencia}
-                /*
-                  Las cinco de siempre, más las cuatro que decide el artefacto 1.2.0.
-
-                  Un caso de identidad ya no llega por una sola razón. Puede llegar porque el
-                  parecido raspa el umbral, porque el documento no supera la plantilla del SEGIP,
-                  porque el registro estatal no confirmó, o porque la agenda del teléfono no se
-                  parece a la de alguien que vive con él. Enseñar sólo las biométricas obligaba al
-                  analista a abrir el expediente crudo para descubrir por cuál de las cuatro llegó
-                  — y a decidir, mientras tanto, sobre la que la pantalla le sugería.
-
-                  Las claves que el caso no traiga sencillamente no se pintan: `DefinitionGrid` las
-                  omite, así que un caso de una versión anterior del artefacto sigue leyéndose igual.
-                */
-                items={[
-                  { label: 'Motivo', keys: ['motivo'] },
-                  { label: 'Parecido con el documento', keys: ['parecido'] },
-                  { label: 'Tipo de documento', keys: ['tipoDocumento'] },
-                  { label: 'Prueba de vida', keys: ['pruebaDeVida'] },
-                  { label: 'Veredicto del worker', keys: ['decisionDelWorker'] },
-                  { label: 'Autenticidad del documento', keys: ['veredictoDeFraude'] },
-                  { label: 'Riesgo de fraude documental', keys: ['riesgoDeFraude'] },
-                  { label: 'Registro estatal (SEGIP)', keys: ['registroEstatal'] },
-                  { label: 'Riesgo de la agenda (0-100)', keys: ['riesgoDeAgenda'] },
-                ]}
-              />
-            </Panel>
-          ) : null}
+          <CaseEvidencePanel evidence={evidencia} />
+          <OnboardingDossierPanel evidence={evidencia} />
           <Panel title="Auditoría de la transacción" meta="inmutable">
             <Timeline
               items={[

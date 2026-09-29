@@ -10,8 +10,14 @@ import { JsonPanel } from '../../components/JsonPanel';
 import { Panel } from '../../components/Panel';
 import { StatusBadge } from '../../components/StatusBadge';
 import { useDetailQuery } from '../../hooks/useDetailQuery';
-import { asRecord, asRows, display } from '../../utils/records';
-import { maskValue, sensitiveCodesOfExecution } from '../../utils/sensitivity';
+import { asRecord, display } from '../../utils/records';
+import { maskValue, sensitiveCodesOf } from '../../utils/sensitivity';
+import {
+  caseFileInput,
+  caseFileReasons,
+  caseFileSummary,
+  caseFileVariables,
+} from './case-file-shape';
 import { ScrollRegion } from '../../components/ScrollRegion';
 
 interface CaseFilePanelProps {
@@ -52,9 +58,11 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
     allowed && executionId ? `/v1/audit/executions/${encodeURIComponent(executionId)}` : null,
   );
   const execution = asRecord(query.data);
-  const variables = asRows(execution.variables);
-  const reasons = asRows(execution.reasonCodes ?? execution.reasons);
-  const sensitiveCodes = sensitiveCodesOfExecution(execution);
+  // La API anida lo que el panel necesita; `case-file-shape` lo aplana (ver allí por qué).
+  const variables = caseFileVariables(execution);
+  const reasons = caseFileReasons(execution);
+  const summary = caseFileSummary(execution);
+  const sensitiveCodes = sensitiveCodesOf(variables);
 
   if (!allowed) {
     return (
@@ -97,15 +105,15 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
         meta={query.isPending ? 'Consultando…' : display(execution, 'requestId')}
       >
         <DefinitionGrid
-          record={execution}
+          record={summary}
           items={[
-            { label: 'Sujeto', keys: ['subjectReference', 'principalId'], mono: true },
+            { label: 'Sujeto', keys: ['subject'], mono: true },
             { label: 'Request ID', keys: ['requestId'], mono: true },
             { label: 'Artefacto', keys: ['artifactCode'], mono: true },
-            { label: 'Versión', keys: ['versionNumber', 'semanticVersion'] },
-            { label: 'Ambiente', keys: ['environmentCode'] },
-            { label: 'Resultado', keys: ['outcome', 'businessOutcome'] },
-            { label: 'Ejecutada', keys: ['createdAt'] },
+            { label: 'Versión', keys: ['version'] },
+            { label: 'Ambiente', keys: ['environment'] },
+            { label: 'Resultado', keys: ['outcome'] },
+            { label: 'Ejecutada', keys: ['executedAt'] },
           ]}
         />
         <div className="stack-actions">
@@ -130,10 +138,10 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
       >
         {reasons.length ? (
           <ul className="case-reason-list">
-            {reasons.map((reason) => (
-              <li key={display(reason, 'reasonCode', 'code')}>
-                <code>{display(reason, 'reasonCode', 'code')}</code>
-                <span>{display(reason, 'publicMessage', 'message', 'description')}</span>
+            {reasons.map((reason, index) => (
+              <li key={`${reason.code}-${index}`}>
+                <code>{reason.code}</code>
+                <span>{reason.message}</span>
               </li>
             ))}
           </ul>
@@ -160,10 +168,12 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
             <tbody>
               {variables.map((item) => (
                 <tr key={display(item, 'id', 'variableCode')}>
-                  <td className="mono">{display(item, 'variableCode', 'name')}</td>
-                  <td>{maskValue(item.valueJson ?? item.value, item.sensitivityClass)}</td>
+                  <td className="mono">{display(item, 'variableCode')}</td>
                   <td>
-                    <StatusBadge value={item.sourceType ?? item.source} />
+                    {maskValue(item.valueJson, item.sensitive ? 'PII' : item.sensitivityClass)}
+                  </td>
+                  <td>
+                    <StatusBadge value={item.source} />
                   </td>
                 </tr>
               ))}
@@ -179,7 +189,7 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
       <JsonPanel
         label="Entrada original"
         tutorialId="case-input"
-        value={execution.inputJson ?? execution.inputSnapshot ?? {}}
+        value={caseFileInput(execution)}
         sensitiveCodes={sensitiveCodes}
       />
     </>

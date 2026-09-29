@@ -51,6 +51,7 @@
 @import './parts/generated-graph.css';
 @import './parts/operations-governance.css';
 @import './parts/manual-review-case.css';
+@import './parts/onboarding-dossier.css';
 /* Carga después de operations-governance: reescribe `.gate-list` para el estado
    real de cada gate, en vez del icono verde fijo que traía. */
 @import './parts/governance-decision.css';

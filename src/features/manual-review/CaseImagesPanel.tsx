@@ -28,8 +28,34 @@ import { env } from '../../config/env';
 const ETIQUETA: Record<string, string> = {
   identity_front: 'Anverso del carnet',
   identity_back: 'Reverso del carnet',
-  selfie: 'Selfie',
+  selfie: 'Selfie de frente',
+  selfie_left: 'Selfie perfil izquierdo',
+  selfie_right: 'Selfie perfil derecho',
 };
+
+/**
+ * El orden en que se miran: el carnet por las dos caras y después la cara en sus tres poses. El
+ * backend las devuelve en orden de subida, y comparar la selfie con el anverso exige tenerlos
+ * juntos, no donde cayeron. Lo que no está en la lista va al final, en el orden en que llegó.
+ */
+const ORDEN = ['identity_front', 'identity_back', 'selfie', 'selfie_left', 'selfie_right'];
+
+export function ordenarDocumentos<T extends { documentType: string }>(
+  documentos: readonly T[],
+): T[] {
+  const posicion = (tipo: string) => {
+    const index = ORDEN.indexOf(tipo);
+    return index === -1 ? ORDEN.length : index;
+  };
+  return documentos
+    .map((documento, index) => ({ documento, index }))
+    .sort(
+      (a, b) =>
+        posicion(a.documento.documentType) - posicion(b.documento.documentType) ||
+        a.index - b.index,
+    )
+    .map(({ documento }) => documento);
+}
 
 interface EvidenceResponse {
   customerId: string;
@@ -107,7 +133,7 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
       {query.data?.documents.length ? (
         <CarruselDeDocumentos
           etiquetaDelGrupo="Documentos del solicitante"
-          documentos={query.data.documents.map((documento) => ({
+          documentos={ordenarDocumentos(query.data.documents).map((documento) => ({
             id: documento.documentId,
             etiqueta: ETIQUETA[documento.documentType] ?? documento.documentType,
             objectUrl: documento.objectUrl,
@@ -120,7 +146,7 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
       ) : null}
 
       {/*
-        Estas tres imágenes son las que el Motor evaluó, no todo lo que la persona entregó: los
+        Estas imágenes son las que el Motor evaluó, no todo lo que la persona entregó: los
         extractos, lo que subió después y lo que añadió un operador viven en su expediente. Quien
         revisa a mano necesita saber que existe ese resto; decidir creyendo que se vio todo es
         peor que saber que falta por mirar.
