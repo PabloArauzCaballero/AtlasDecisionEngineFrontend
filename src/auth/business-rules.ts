@@ -37,6 +37,17 @@ export const ARTIFACT_CREATE_ROLES = ['PLATFORM_ADMIN'] as const;
  */
 export const CHANGE_PROPOSAL_ROLES = ['QA_ANALYST', 'FRAUD_ANALYST'] as const;
 
+/**
+ * Publicar una versión de campo calculado (DRAFT → ACTIVE → RETIRED). Además de quien la
+ * escribe, `COMPLIANCE`: es el mismo reparto que el motor exige en
+ * `POST /v1/calculated-fields/versions/:id/promote`.
+ */
+export const CALCULATED_FIELD_PROMOTE_ROLES = [
+  'QA_ANALYST',
+  'FRAUD_ANALYST',
+  'COMPLIANCE',
+] as const;
+
 /** Promover a producción («main»). */
 export const PRODUCTION_PROMOTION_ROLES = ['PLATFORM_ADMIN'] as const;
 
@@ -75,6 +86,11 @@ export function canCreateArtifact(roles: readonly string[]): boolean {
 /** Crear una versión, editarla, compilarla y enviarla a revisión. */
 export function canProposeArtifactChange(roles: readonly string[]): boolean {
   return hasAnyRole(roles, CHANGE_PROPOSAL_ROLES);
+}
+
+/** Cambiar el estado de una versión de campo calculado. */
+export function canPromoteCalculatedField(roles: readonly string[]): boolean {
+  return hasAnyRole(roles, CALCULATED_FIELD_PROMOTE_ROLES);
 }
 
 /**

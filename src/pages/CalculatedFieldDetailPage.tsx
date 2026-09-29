@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
+import { canPromoteCalculatedField, canProposeArtifactChange } from '../auth/business-rules';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
@@ -30,6 +32,9 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
   const [draft, setDraft] = useState<CalculatedFieldDraft>(emptyDraft());
   const [showForm, setShowForm] = useState(false);
   const [issues, setIssues] = useState<UnknownRecord[]>([]);
+  const roles = useEffectiveRoles();
+  // Crear o probar una versión es autoría (QA/FRAUD); el motor responde 403 a los demás.
+  const canAuthor = canProposeArtifactChange(roles);
 
   const query = useQuery({
     queryKey: ['calculated-field', fieldId],
@@ -87,6 +92,12 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
             className="button button-primary"
             type="button"
             data-tutorial-id="calculated-field-new-version"
+            disabled={!canAuthor}
+            title={
+              canAuthor
+                ? undefined
+                : 'Crear una versión requiere rol QA Analyst, Fraud Analyst o Platform Admin'
+            }
             onClick={() => setShowForm((open) => !open)}
           >
             {showForm ? 'Cancelar' : 'Nueva versión'}
@@ -118,7 +129,7 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
         </Alert>
       ) : null}
 
-      {showForm ? (
+      {showForm && canAuthor ? (
         <Panel title="Nueva versión">
           <CalculatedFieldVersionForm draft={draft} onChange={setDraft} />
           <div className="panel-actions">
@@ -139,6 +150,8 @@ export function CalculatedFieldDetailPage({ fieldId }: Props) {
           <CalculatedFieldVersionList
             versions={versions}
             onPromote={(versionId, status) => promote.mutate({ versionId, status })}
+            canPromote={canPromoteCalculatedField(roles)}
+            canTry={canAuthor}
           />
         </div>
       </Panel>

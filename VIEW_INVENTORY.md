@@ -29,3 +29,7 @@
 | F7-07     | Matriz de Cobertura          | `/coverage-matrix`                          | `GET /v1/traceability/coverage-matrix`             |
 
 Las vistas F3-03, F4-01, F7-03 y F7-07 requieren los endpoints de lectura incluidos en el ZIP independiente `atlas-decision-backend-patch.zip`.
+
+> Roles por vista y por acción: `docs/usuarios-roles-y-permisos.md`. En «Gobierno del riesgo ▸
+> Consentimientos» (`/risk-governance`) la lista es de sólo lectura: los consentimientos se
+> registran y revocan en Atlas Core.

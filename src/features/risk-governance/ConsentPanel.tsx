@@ -3,32 +3,8 @@
 import { useState } from 'react';
 import { Panel } from '../../components/Panel';
 import { StatusBadge } from '../../components/StatusBadge';
-import { useNotifications } from '../../notifications/useNotifications';
-import {
-  consentTone,
-  useConsentLookup,
-  useRecordConsent,
-  useRevokeConsent,
-} from './risk-governance.api';
+import { consentTone, useConsentLookup } from './risk-governance.api';
 import { Field } from '../../components/Field';
-import { OptionSelect } from '../../components/OptionSelect';
-
-const BASES = [
-  { code: 'CONSENT', label: 'Consentimiento del titular' },
-  { code: 'CONTRACT', label: 'Ejecución de un contrato' },
-  { code: 'LEGAL_OBLIGATION', label: 'Obligación legal' },
-  { code: 'CREDIT_PROTECTION', label: 'Protección del crédito' },
-  { code: 'LEGITIMATE_INTEREST', label: 'Interés legítimo' },
-] as const;
-
-/** Qué significa cada fundamento, para elegirlo sin conocer la ley de memoria. */
-const BASE_AYUDA: Record<string, string> = {
-  CONSENT: 'El titular autorizó expresamente este tratamiento.',
-  CONTRACT: 'Hace falta para ejecutar un contrato firmado con el titular.',
-  LEGAL_OBLIGATION: 'Lo exige una norma que obliga a la entidad.',
-  CREDIT_PROTECTION: 'Sirve para evaluar y proteger el crédito otorgado.',
-  LEGITIMATE_INTEREST: 'Interés legítimo de la entidad, ponderado con los derechos del titular.',
-};
 
 const REASON_LABELS: Record<string, string> = {
   VALID: 'Vigente',
@@ -38,61 +14,32 @@ const REASON_LABELS: Record<string, string> = {
   NOT_YET_GRANTED: 'Aún no vigente',
 };
 
+/** Dónde se registra y se revoca de verdad. Una sola frase, la misma en pantalla y en pruebas. */
+export const CONSENT_SOURCE_NOTICE =
+  'Los consentimientos se registran y revocan en Atlas Core (Portal admin ▸ Proveedores ' +
+  'externos ▸ Datos del cliente); aquí sólo se consultan.';
+
 /**
- * La licitud de tratar los datos de UNA persona, hoy.
+ * La licitud de tratar los datos de UNA persona, hoy — en SÓLO LECTURA.
  *
- * Es distinta de la base legal por versión de artefacto, que ya existía: aquélla dice con qué
- * amparo se DISEÑÓ la decisión, ésta si hoy se puede leer el extracto de esta persona. Decidir con
- * un dato cuyo permiso venció es una infracción aunque el dato siga en la caché, y esa distinción
- * no la podía hacer nadie desde el portal.
+ * Es distinta de la base legal por versión de artefacto: aquélla dice con qué amparo se DISEÑÓ la
+ * decisión, ésta si hoy se puede leer el extracto de esta persona.
  *
- * Los cuatro motivos de invalidez se enseñan por separado y no como un «no»: quien atiende
- * necesita saber si lo renueva (caducó), si tiene que pedirlo (no hay constancia) o si ya no puede
- * volver a pedirlo igual (lo revocaron).
+ * Antes se podía registrar y revocar a mano desde aquí. Era un segundo lugar donde cambiaba la
+ * licitud, que Atlas Core —que es quien recoge el consentimiento del titular y lo replica al motor—
+ * no conocía y que su réplica siguiente podía contradecir. El motor ahora rechaza esas escrituras
+ * de una sesión de persona (`403 CONSENT_WRITE_MACHINE_ONLY`) y esta pantalla ya no las ofrece.
+ *
+ * Los cuatro motivos de invalidez se enseñan por separado: quien atiende necesita saber si caducó,
+ * si no hay constancia o si lo revocaron.
  */
 export function ConsentPanel() {
   const [reference, setReference] = useState('');
   const lookup = useConsentLookup();
-  const record = useRecordConsent();
-  const revoke = useRevokeConsent();
-  const { notify } = useNotifications();
-  const [form, setForm] = useState({
-    purpose: 'BANK_STATEMENT_ANALYSIS',
-    basis: 'CONSENT',
-    expiresAt: '',
-  });
 
   const consult = () => {
     const value = reference.trim();
     if (value) lookup.mutate(value);
-  };
-
-  const grant = async () => {
-    const value = reference.trim();
-    await record.mutateAsync({
-      subjectReference: value,
-      purpose: form.purpose.trim(),
-      basis: form.basis,
-      grantedAt: new Date().toISOString(),
-      expiresAt: form.expiresAt ? `${form.expiresAt}T00:00:00.000Z` : undefined,
-    });
-    notify({
-      tone: 'success',
-      title: 'Permiso registrado',
-      description: 'Queda con su vigencia declarada.',
-    });
-    lookup.mutate(value);
-  };
-
-  const cancel = async (purpose: string) => {
-    const value = reference.trim();
-    await revoke.mutateAsync({ subjectReference: value, purpose });
-    notify({
-      tone: 'success',
-      title: 'Permiso revocado',
-      description: `Ya no se puede tratar «${purpose}».`,
-    });
-    lookup.mutate(value);
   };
 
   return (
@@ -102,6 +49,9 @@ export function ConsentPanel() {
         meta="la referencia no viaja en la URL"
         tutorialId="risk-consent"
       >
+        <p className="quality-muted" data-testid="consent-source-notice">
+          {CONSENT_SOURCE_NOTICE}
+        </p>
         <div className="quality-form-grid">
           <Field
             label="Referencia del titular"
@@ -125,6 +75,12 @@ export function ConsentPanel() {
           </button>
         </div>
 
+        {lookup.isError && (
+          <p className="quality-muted" role="alert">
+            No se pudo consultar los permisos de este titular. Vuelve a intentarlo.
+          </p>
+        )}
+
         {lookup.data && (
           <table className="data-table">
             <thead>
@@ -133,7 +89,6 @@ export function ConsentPanel() {
                 <th scope="col">Base legal</th>
                 <th scope="col">Estado</th>
                 <th scope="col">Caduca</th>
-                <th scope="col" />
               </tr>
             </thead>
             <tbody>
@@ -158,22 +113,11 @@ export function ConsentPanel() {
                       <span className="quality-muted">sin caducidad declarada</span>
                     )}
                   </td>
-                  <td>
-                    {consent.valid && (
-                      <button
-                        type="button"
-                        className="button"
-                        onClick={() => cancel(consent.purpose)}
-                      >
-                        Revocar
-                      </button>
-                    )}
-                  </td>
                 </tr>
               ))}
               {!lookup.data.items.length && (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={4}>
                     <span className="quality-muted">
                       Este titular no tiene ningún permiso registrado. La ausencia de constancia no
                       es una autorización.
@@ -184,57 +128,6 @@ export function ConsentPanel() {
             </tbody>
           </table>
         )}
-      </Panel>
-
-      <Panel
-        title="Registrar un permiso"
-        meta="vacío en «caduca» = sin caducidad declarada, que es una decisión"
-      >
-        <div className="quality-form-grid">
-          <Field label="Finalidad" tooltip="Para qué se trata el dato con este consentimiento.">
-            <input
-              value={form.purpose}
-              onChange={(event) => setForm({ ...form, purpose: event.target.value })}
-            />
-          </Field>
-          <Field
-            label={'Base legal'}
-            tooltip="Fundamento legal que permite tratar el dato del titular para esta finalidad."
-          >
-            <OptionSelect
-              name="base-legal"
-              value={form.basis}
-              onChange={(valor) => setForm({ ...form, basis: valor })}
-              options={BASES.map((basis) => ({
-                value: basis.code,
-                label: basis.label,
-                description: BASE_AYUDA[basis.code],
-              }))}
-            />
-          </Field>
-          <Field label="Caduca" tooltip="Fecha en que el consentimiento deja de valer.">
-            <input
-              type="date"
-              value={form.expiresAt}
-              onChange={(event) => setForm({ ...form, expiresAt: event.target.value })}
-            />
-          </Field>
-        </div>
-        <div className="quality-inline-actions">
-          <button
-            type="button"
-            className="button primary"
-            disabled={!reference.trim() || !form.purpose.trim() || record.isPending}
-            onClick={grant}
-          >
-            {record.isPending ? 'Registrando…' : 'Registrar permiso'}
-          </button>
-          {!reference.trim() && (
-            <span className="quality-muted">
-              Escribe primero la referencia del titular, arriba.
-            </span>
-          )}
-        </div>
       </Panel>
     </div>
   );

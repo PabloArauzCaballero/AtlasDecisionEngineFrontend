@@ -111,30 +111,6 @@ export function useConsentLookup() {
   });
 }
 
-export function useRecordConsent() {
-  return useMutation({
-    mutationFn: (input: {
-      subjectReference: string;
-      purpose: string;
-      basis: string;
-      grantedAt: string;
-      expiresAt?: string;
-      evidenceRef?: string;
-    }) =>
-      apiRequest<{ id: string }>('/v1/risk-governance/consents', { method: 'POST', body: input }),
-  });
-}
-
-export function useRevokeConsent() {
-  return useMutation({
-    mutationFn: (input: { subjectReference: string; purpose: string }) =>
-      apiRequest<{ id: string }>('/v1/risk-governance/consents/revoke', {
-        method: 'POST',
-        body: input,
-      }),
-  });
-}
-
 export function useReidentifications() {
   return useQuery({
     queryKey: ['reidentifications'],
