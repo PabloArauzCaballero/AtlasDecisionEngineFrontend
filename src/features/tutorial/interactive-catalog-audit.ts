@@ -89,14 +89,14 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: 'Las dos columnas de hash',
         content:
           'Cada evento guarda su propia huella y la del anterior, así que los eventos forman una cadena. Alterar uno cambia su huella y rompe el enlace con todos los siguientes: por eso se puede afirmar que el registro no se ha tocado, en vez de pedir que se confíe.',
-        tip: 'Un hueco en la cadena no es un evento que falta: es un registro que alguien manipuló.',
+        tip: 'Si un evento no enlaza con el anterior, «Integridad del registro» lo señala: es lo que hay que investigar.',
       },
       {
         id: 'search',
         target: '[data-tutorial-id="resource-filters"]',
-        title: 'Buscar por evento, actor o IP',
+        title: 'Buscar por evento, objeto o actor',
         content:
-          'La búsqueda principal cubre el tipo de evento, quién lo hizo y desde dónde. Es el camino para responder «¿quién aprobó esta versión?» sin recorrer la cadena entera.',
+          'La búsqueda principal cubre el tipo de evento, el objeto afectado, quién lo hizo y el request ID. Es el camino para responder «¿quién aprobó esta versión?» sin recorrer la cadena entera.',
         optional: true,
       },
       {

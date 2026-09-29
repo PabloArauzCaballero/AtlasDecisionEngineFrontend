@@ -43,7 +43,8 @@ export const MANUAL_REVIEW_STATUS_HELP: OptionDescriptions = {
   ASSIGNED: 'Alguien lo reclamó y es quien puede resolverlo.',
   RESOLVED_APPROVED: 'Una persona lo revisó y aprobó la solicitud.',
   RESOLVED_DECLINED: 'Una persona lo revisó y rechazó la solicitud.',
-  CANCELLED: 'Se cerró sin decidir: el caso dejó de tener sentido.',
+  CANCELLED:
+    'Se retiró de la cola sin decidir: la solicitud queda como estaba y habrá que revisarla otra vez.',
 };
 
 /** Desenlace de una ejecución del motor, tal como lo registra la auditoría. */

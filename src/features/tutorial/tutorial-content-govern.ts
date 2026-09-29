@@ -85,7 +85,7 @@ export const governTutorials: TutorialRegistry = {
     steps: [
       {
         title: 'Cadena de eventos',
-        body: 'Cada evento registra actor, tipo, IP de origen y un hash encadenado con el evento anterior.',
+        body: 'Cada evento registra actor, tipo, objeto afectado y un hash encadenado con el evento anterior.',
       },
       {
         title: 'Verificar integridad',

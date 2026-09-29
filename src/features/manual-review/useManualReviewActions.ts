@@ -4,6 +4,16 @@ import { notifyApiError } from '../tutorial/error-tutorial';
 import { display } from '../../utils/records';
 import type { useNotifications } from '../../notifications/useNotifications';
 import type { useInteractiveTutorial } from '../tutorial/useInteractiveTutorial';
+import {
+  RESOLUTION_OPTIONS,
+  RESOLUTION_OUTCOME_TEXT,
+  type ManualReviewDecision,
+} from './resolution-options';
+
+/** `true` sólo para los valores que el motor acepta; cualquier otro moriría en un 400. */
+function isManualReviewDecision(value: string): value is ManualReviewDecision {
+  return RESOLUTION_OPTIONS.some((option) => option.value === value);
+}
 
 /**
  * Las dos escrituras de la revisión manual: tomar el caso y resolverlo.
@@ -33,7 +43,7 @@ interface AccionesInput {
   notify: ReturnType<typeof useNotifications>['notify'];
   startForError: ReturnType<typeof useInteractiveTutorial>['startForError'];
   refetch: () => void;
-  onResolved: (outcome: string) => void;
+  onResolved: (decision: ManualReviewDecision) => void;
   resolutionLabel: Record<string, string>;
 }
 
@@ -87,8 +97,13 @@ export function useManualReviewActions({
     // Esta vista muestra el fallo ella misma, con acceso al tutorial que enseña a
     // corregirlo: sin `handled` el aviso global de QueryProvider lo repetiría.
     meta: { handled: true },
-    mutationFn: () =>
-      apiRequest(`/v1/manual-reviews/${encodeURIComponent(caseId)}/resolve`, {
+    mutationFn: () => {
+      // Nunca se manda al motor un valor que no acepta: falla aquí, con un mensaje que se entiende,
+      // y no como un 400 genérico.
+      if (!isManualReviewDecision(resolution)) {
+        return Promise.reject(new Error('Elige una decisión válida para resolver el caso.'));
+      }
+      return apiRequest(`/v1/manual-reviews/${encodeURIComponent(caseId)}/resolve`, {
         method: 'POST',
         /*
          * El contrato del motor es `{ decision, reason }`, no `{ resolution, comments }`.
@@ -101,19 +116,28 @@ export function useManualReviewActions({
          *
          * Los nombres de la UI se quedan como estan —`resolution` y `comments` describen mejor lo
          * que el analista ve— y la traduccion al contrato ocurre en el borde, que es su sitio.
+         *
+         * Los VALORES de `resolution` ya son los del contrato (`APPROVE | DECLINE | CANCEL`, ver
+         * `resolution-options.ts`): antes la lista ofrecia `REJECT` y `ESCALATE`, que el motor
+         * rechaza con un 400.
          */
         body: { decision: resolution, reason: comments },
-      }),
+      });
+    },
     onSuccess: () => {
       // Capture the resolution before clearing, so the toast reports what was
       // actually sent rather than whatever the form holds afterwards.
       const outcome = resolutionLabel[resolution] ?? resolution;
-      onResolved(outcome);
+      if (isManualReviewDecision(resolution)) onResolved(resolution);
       refetch();
       notify({
         tone: resolution === 'APPROVE' ? 'success' : 'info',
         title: `Caso ${outcome}`,
-        description: `REV-${display(review, 'id')} se resolvió y salió de la cola.`,
+        description: `REV-${display(review, 'id')} ${
+          isManualReviewDecision(resolution)
+            ? RESOLUTION_OUTCOME_TEXT[resolution]
+            : 'se resolvió y salió de la cola.'
+        }`,
       });
     },
     onError: (error) => notifyApiError(error, notify, startForError),
