@@ -28,7 +28,7 @@ test.describe('grupo Workers del cajón', () => {
 
     // El grupo se abre solo al entrar por la ruta de un worker: si no, el raíl
     // no marcaría en qué página estás.
-    const grupo = cajon.getByRole('button', { name: /Workers/i });
+    const grupo = cajon.getByRole('button', { name: /Procesadores automáticos/i });
     await expect(grupo).toHaveAttribute('aria-expanded', 'true');
 
     // Los cinco cuelgan de él como destinos, no como estados de una pantalla.
@@ -57,7 +57,7 @@ test.describe('grupo Workers del cajón', () => {
     await page.goto(SEMANTICO, { waitUntil: 'domcontentloaded', timeout: 60_000 });
 
     const cajon = page.locator('.sidebar');
-    const grupo = cajon.getByRole('button', { name: /Workers/i });
+    const grupo = cajon.getByRole('button', { name: /Procesadores automáticos/i });
     await grupo.click();
 
     await expect(grupo).toHaveAttribute('aria-expanded', 'false');

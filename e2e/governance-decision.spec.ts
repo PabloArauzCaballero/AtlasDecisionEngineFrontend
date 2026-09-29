@@ -71,7 +71,9 @@ test.describe('detalle de aprobación', () => {
     await expect(dialog).toContainText('SCORING_CREDITO_CONSUMO');
     await expect(dialog).toContainText('No podrás deshacerlo desde el portal');
     // La evidencia incompleta se advierte ANTES de firmar, no después.
-    await expect(dialog).toContainText(/no están en estado aprobado/);
+    await expect(dialog).toContainText(
+      /prueba obligatoria no está aprobada|pruebas obligatorias no están aprobadas/,
+    );
 
     const offenders = await lowContrastNodes(page, AA_FLOOR);
     expect(
