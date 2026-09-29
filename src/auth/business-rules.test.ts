@@ -3,7 +3,6 @@ import {
   canCreateArtifact,
   canPromoteToEnvironment,
   canProposeArtifactChange,
-  canRequestCaseInformation,
   isProductionEnvironment,
   OBJECTIVE_AUTHORING_ROLES,
   promotionDenialReason,
@@ -95,11 +94,6 @@ describe('expediente del caso', () => {
     expect(canConsultCaseFile(['FRAUD_ANALYST'])).toBe(true);
     expect(canConsultCaseFile(['OPERATIONS'])).toBe(true);
     expect(canConsultCaseFile(['AUDITOR'])).toBe(false);
-  });
-
-  it('deja al analista de riesgo pedir más información aunque no toque ninguna regla', () => {
-    expect(canRequestCaseInformation(['RISK_ANALYST'])).toBe(true);
-    expect(canRequestCaseInformation(['QA_ANALYST'])).toBe(false);
   });
 });
 

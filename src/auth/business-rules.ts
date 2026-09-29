@@ -40,7 +40,7 @@ export const CHANGE_PROPOSAL_ROLES = ['QA_ANALYST', 'FRAUD_ANALYST'] as const;
 /** Promover a producción («main»). */
 export const PRODUCTION_PROMOTION_ROLES = ['PLATFORM_ADMIN'] as const;
 
-/** Consultar el expediente completo de un caso y pedir más información. */
+/** Consultar el expediente completo de un caso de revisión manual. */
 export const CASE_CONSULT_ROLES = ['RISK_ANALYST', 'FRAUD_ANALYST', 'OPERATIONS'] as const;
 
 /**
@@ -121,14 +121,5 @@ export function promotionDenialReason(
 
 /** Ver el expediente completo del caso: datos del cliente, ejecución y decisión. */
 export function canConsultCaseFile(roles: readonly string[]): boolean {
-  return hasAnyRole(roles, CASE_CONSULT_ROLES);
-}
-
-/**
- * Pedir información adicional sobre un caso, incluida la que sólo tiene el
- * backend central. Es la única escritura que el analista de riesgo conserva
- * sobre un artefacto: no cambia ninguna regla, pide datos.
- */
-export function canRequestCaseInformation(roles: readonly string[]): boolean {
   return hasAnyRole(roles, CASE_CONSULT_ROLES);
 }
