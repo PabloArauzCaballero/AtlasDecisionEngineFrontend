@@ -92,7 +92,7 @@ export function NodeProperties({
       setConfigError(null);
       onChange({ config: parsed });
     } catch {
-      setConfigError('JSON inválido, no se guardó el cambio.');
+      setConfigError('La configuración no tiene un formato válido; no se guardó el cambio.');
     }
   }
 
@@ -115,7 +115,7 @@ export function NodeProperties({
         </Field>
         <Field
           label="Nombre visible"
-          tooltip="Cómo se llama el paso en el lienzo y en la traza. Ej.: «Verificar score de buró»."
+          tooltip="Cómo se llama el paso en el lienzo y en la traza. Ej.: «Verificar puntaje de buró»."
         >
           <input
             value={label}
@@ -151,7 +151,7 @@ export function NodeProperties({
               rows={3}
               autoFocus={editingDescription}
               value={description}
-              placeholder="Ej.: Comprueba que el cliente pasó KYC y dio su consentimiento antes de evaluar el riesgo."
+              placeholder="Ej.: Comprueba que el cliente verificó su identidad y dio su consentimiento antes de evaluar el riesgo."
               onChange={(event) => setDescription(event.target.value)}
               onBlur={() => {
                 setEditingDescription(false);
@@ -250,8 +250,8 @@ export function NodeProperties({
         <section>
           <h3>Configuración</h3>
           <Field
-            label="Parámetros avanzados"
-            tooltip="Configuración completa del paso en JSON, para ajustes que el formulario no expone."
+            label="Configuración avanzada"
+            tooltip="Todos los ajustes del paso escritos como texto, para lo que el formulario no ofrece."
           >
             <textarea
               rows={8}

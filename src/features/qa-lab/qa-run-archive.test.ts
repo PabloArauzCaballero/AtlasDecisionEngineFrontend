@@ -35,7 +35,9 @@ describe('lo que una corrida archivada dice de sí misma', () => {
   });
 
   it('dice de dónde salieron los datos', () => {
-    expect(fakerNoteOf({ source: 'mock', mappedVariables: { ci: 'x' } })?.text).toMatch(/fakers/);
+    expect(fakerNoteOf({ source: 'mock', mappedVariables: { ci: 'x' } })?.text).toMatch(
+      /generador de datos realistas/,
+    );
     expect(fakerNoteOf({ source: 'local-fallback', reason: 'caído.' })?.tone).toBe('warning');
     expect(fakerNoteOf(null)).toBeNull();
   });

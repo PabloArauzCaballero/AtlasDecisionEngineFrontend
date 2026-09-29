@@ -77,7 +77,7 @@ export const WORKER_MENU: readonly WorkerMenuEntry[] = [
     path: '/workers/audio-tts',
     icon: AudioLines,
     fallbackDescription:
-      'Convierte en voz una plantilla del catálogo, rellenando sus variables. Una frase ya locutada con la misma voz se sirve de caché.',
+      'Convierte en voz una plantilla del catálogo, rellenando sus datos. Una frase ya locutada con la misma voz se reutiliza sin volver a generarla.',
     hint: 'Elige qué debe decirse y con qué valores: obtienes el audio, la voz con la que se dijo y si costó generarlo o ya estaba. El texto locutado se guarda cifrado y no se publica.',
   },
   {
@@ -87,8 +87,8 @@ export const WORKER_MENU: readonly WorkerMenuEntry[] = [
     path: '/workers/pdf-generator',
     icon: FileText,
     fallbackDescription:
-      'Genera un PDF maquetado a partir de una plantilla del catálogo y los datos que declara su contrato.',
-    hint: 'Entregas datos estructurados y recibes el documento con el membrete, el pie y la numeración puestos. Los campos que pide cada documento los publica el propio motor: esta pantalla no los conoce de antemano.',
+      'Genera un PDF maquetado a partir de una plantilla del catálogo y los datos que esa plantilla pide.',
+    hint: 'Entregas los datos del documento y recibes el documento con el membrete, el pie y la numeración puestos. Los campos que pide cada documento los publica el propio motor: esta pantalla no los conoce de antemano.',
   },
 ];
 

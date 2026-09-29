@@ -22,6 +22,8 @@ interface Props {
  * Todo esto ya venía en la respuesta (`actualResultJson`, con su `trace`); sólo
  * que no se pintaba.
  */
+const RESULT_LABELS: Record<string, string> = { PASS: 'Pasó', FAIL: 'Falló', ERROR: 'Error' };
+
 export function TestCaseRunDetail({ caseRun }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -45,7 +47,7 @@ export function TestCaseRunDetail({ caseRun }: Props) {
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <StatusBadge value={display(caseRun, 'resultStatus')} />
+        <StatusBadge value={display(caseRun, 'resultStatus')} labels={RESULT_LABELS} />
         <span className="case-run-code mono">
           {display(testCase, 'caseCode') || display(caseRun, 'testCaseId')}
         </span>

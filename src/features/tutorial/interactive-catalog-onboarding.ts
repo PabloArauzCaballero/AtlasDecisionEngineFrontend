@@ -75,7 +75,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         target: '[data-tutorial-id="quick-action"]',
         title: 'Atajos a lo más frecuente',
         content:
-          '"Quick Action" lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
+          '«Acción rápida» lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
         optional: true,
       },
       {
@@ -128,7 +128,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         title: 'Quién eres para el portal',
         content:
           'Tu nombre y tu área. De tu rol depende todo lo que ves: si una pantalla no aparece en el menú o un botón está deshabilitado, casi siempre es el permiso, no un fallo.',
-        tip: 'Si necesitas acceso a algo, pídelo por rol —analista de riesgo, QA, cumplimiento—, no por pantalla.',
+        tip: 'Si necesitas acceso a algo, pídelo por rol —analista de riesgo, pruebas, cumplimiento—, no por pantalla.',
       },
       {
         id: 'environment',

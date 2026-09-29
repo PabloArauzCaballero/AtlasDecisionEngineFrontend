@@ -28,7 +28,7 @@ const listSteps = (what: string, createHint: string): InteractiveTutorial['steps
     target: '[data-tutorial-id="resource-table"]',
     title: 'Leer la tabla',
     content:
-      'Cada fila es un registro y el encabezado dice cuántos hay en total. Las columnas con ⓘ explican qué significa ese dato; haz clic en una fila para abrir su ficha completa.',
+      'Cada fila es un registro y el encabezado dice cuántos hay en total. Las columnas con ⓘ explican qué significa ese dato; el icono del ojo, al final de cada fila, abre su ficha completa.',
   },
   {
     id: 'create',
@@ -51,7 +51,7 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         id: 'what',
         title: '¿Qué veo aquí?',
         content:
-          'El catálogo de todos los DATOS que una decisión puede usar: edad, ingreso, score de buró… Cada variable tiene un código estable, un tipo y una versión. Es el vocabulario del sistema.',
+          'El catálogo de todos los DATOS que una decisión puede usar: edad, ingreso, puntaje de buró… Cada variable tiene un código estable, un tipo y una versión. Es el vocabulario del sistema.',
       },
       {
         id: 'usage',
@@ -63,35 +63,35 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       },
       ...listSteps(
         'una variable',
-        'Con “Add Variable” defines un dato nuevo: código en MAYÚSCULAS (no cambia nunca), nombre legible, tipo y si es sensible. Pruébalo.',
+        'Con «Nueva variable» defines un dato nuevo: código en MAYÚSCULAS (no cambia nunca), nombre legible, tipo y si es sensible. Pruébalo.',
       ),
     ],
   ),
   'reason-codes': t(
     'reason-codes',
-    'Catálogo de Reason Codes',
+    'Catálogo de motivos',
     'Los motivos explicables que acompañan cada decisión.',
     [
       {
         id: 'what',
         title: '¿Para qué existe?',
         content:
-          'Un reason code es el MOTIVO que acompaña una decisión (por qué se aprobó o rechazó). Es la base de la transparencia y de los avisos legales al cliente.',
+          'Un motivo es la razón que acompaña una decisión (por qué se aprobó o rechazó). Es la base de la transparencia y de los avisos legales al cliente.',
       },
       {
         id: 'msgs',
         target: '[data-tutorial-id="resource-table"]',
         title: 'Mensaje público vs interno',
         content:
-          'El mensaje público lo ve el cliente (claro, sin tecnicismos); el interno lo ve el analista y puede ser técnico. La categoría agrupa por dominio (KYC, fraude, riesgo…).',
+          'El mensaje público lo ve el cliente (claro, sin tecnicismos); el interno lo ve el analista y puede ser técnico. La categoría agrupa por dominio (identidad, fraude, riesgo…).',
       },
       {
         id: 'adverse',
         title: 'Decisión adversa',
         content:
-          'Si un motivo está marcado como “adverse action”, la ley obliga a notificarlo al cliente cuando se rechaza. El motor lo adjunta automáticamente a la decisión.',
+          'Si un motivo está marcado como «decisión adversa», la ley obliga a notificarlo al cliente cuando se rechaza. El motor lo adjunta automáticamente a la decisión.',
       },
-      ...listSteps('un motivo', 'Con “Add Reason Code” creas un motivo nuevo. Pruébalo.'),
+      ...listSteps('un motivo', 'Con «Nuevo motivo» creas un motivo nuevo. Pruébalo.'),
     ],
   ),
   artifacts: t(
@@ -110,11 +110,11 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-table"]',
         title: 'Abre uno para gobernarlo',
         content:
-          'Haz clic en una fila: entras a su ficha, con el resumen, el árbol de versiones y los accesos al editor de grafo, las pruebas y las aprobaciones.',
+          'Pulsa el icono del ojo al final de una fila: entras a su ficha, con el resumen, el árbol de versiones y los accesos al editor de grafo, las pruebas y las aprobaciones.',
       },
       ...listSteps(
         'un artefacto',
-        'Con “Add Artifact” creas el algoritmo (aún vacío); después se le diseña el grafo en el editor.',
+        'Con «Nuevo algoritmo» creas el algoritmo (aún vacío); después se le diseña el grafo en el editor.',
       ),
     ],
   ),
@@ -160,12 +160,12 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="resource-table"]',
         title: 'Ejecutar y leer el resultado',
         content:
-          'Al correrla, cada caso pasa (verde) o falla (rojo) comparando el resultado real con el esperado. La corrida guarda además la cobertura: qué nodos y caminos del grafo se llegaron a probar.',
-        tip: 'Un caso que falla te dice la ruta exacta (p. ej. $.reasonCodes), lo esperado y lo obtenido.',
+          'Al ejecutarla, cada caso pasa (verde) o falla (rojo) comparando el resultado real con el esperado. La corrida guarda además la cobertura: qué nodos y caminos del grafo se llegaron a probar.',
+        tip: 'Un caso que falla te dice qué dato no coincidió (p. ej. los motivos), lo esperado y lo obtenido.',
       },
       ...listSteps(
         'una suite',
-        'Con “Add Test Suite” creas una suite para una versión concreta; luego le añades casos.',
+        'Con «Nueva suite de pruebas» creas una suite para una versión concreta; luego le añades casos.',
       ),
     ],
   ),
@@ -174,23 +174,23 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       id: 'what',
       title: '¿Qué es un caso?',
       content:
-        'Un ejemplo concreto: unas entradas (ingreso 4000, sin deuda, KYC verificado) y el resultado que debería dar (aprobado, con cierto motivo).',
+        'Un ejemplo concreto: unas entradas (ingreso 4000, sin deuda, identidad verificada) y el resultado que debería dar (aprobado, con cierto motivo).',
     },
     {
       id: 'assert',
       target: '[data-tutorial-id="resource-table"]',
       title: 'Qué se compara',
       content:
-        'El resultado esperado se compara campo a campo: el desenlace (outcome), los motivos (reasonCodes) y cualquier salida declarada. Sólo se comprueban los campos que declares.',
+        'El resultado esperado se compara campo a campo: el desenlace, los motivos y cualquier salida declarada. Sólo se comprueban los campos que declares.',
     },
     {
       id: 'generar',
       title: 'La entrada no hay que teclearla',
       content:
-        'Al añadir un caso, «Generar entrada» pide al motor unos valores derivados del contrato de la versión que prueba esta suite: válidos, en el límite o inválidos a propósito. También puedes importar un CSV con muchos casos de golpe.',
+        'Al añadir un caso, «Generar entrada» pide al motor unos valores derivados del contrato de la versión que prueba esta suite: válidos, en el límite o inválidos a propósito. También puedes importar una hoja de cálculo (CSV) con muchos casos de golpe.',
       tip: 'El resultado esperado NO se genera: es justo lo que la prueba afirma, y deducirlo ejecutando el algoritmo haría que el caso pasara siempre.',
     },
-    ...listSteps('un caso', 'Con “Add Test Case” añades un ejemplo nuevo a una suite.'),
+    ...listSteps('un caso', 'Con «Nuevo caso de prueba» añades un ejemplo nuevo a una suite.'),
   ]),
   coverage: t('coverage', 'Cobertura', 'Qué partes del algoritmo llegaron a probarse.', [
     {

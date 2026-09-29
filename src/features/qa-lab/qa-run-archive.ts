@@ -89,7 +89,9 @@ export function runFailureOf(run: UnknownRecord): RunFailure | null {
   }
   return {
     title: RUN_FAILURE_TEXT[code] ?? 'La corrida se interrumpió antes de terminar.',
-    detail: message ? `Detalle del motor: ${message}` : `Código: ${code}`,
+    detail: message
+      ? `Detalle del motor: ${message}`
+      : 'El motor no dio más detalle. Si se repite, avisa a soporte.',
   };
 }
 
@@ -118,13 +120,13 @@ export function fakerNoteOf(fakers: unknown): FakerNote | null {
   if (source === 'mock') {
     return {
       tone: 'info',
-      text: `Datos realistas de los fakers del servidor de pruebas (misma semilla) en ${mapped.length} variable(s): ${mapped.join(', ')}. El resto salió del contrato.`,
+      text: `Datos del generador de datos realistas (misma semilla) en ${mapped.length} variable(s): ${mapped.join(', ')}. El resto salió del contrato.`,
     };
   }
   if (source === 'local-fallback') {
     return {
       tone: 'warning',
-      text: `El servidor de fakers no estaba disponible, así que TODOS los valores salieron del generador del contrato: son válidos, pero nombres y documentos no parecen reales. ${String(report.reason ?? '')} Repetir esta corrida con los fakers disponibles dará otro lote.`,
+      text: `El generador de datos realistas no estaba disponible, así que TODOS los valores salieron del generador del contrato: son válidos, pero nombres y documentos no parecen reales. ${String(report.reason ?? '')} Repetir esta corrida con el generador disponible dará otro lote.`,
     };
   }
   if (source === 'none') {

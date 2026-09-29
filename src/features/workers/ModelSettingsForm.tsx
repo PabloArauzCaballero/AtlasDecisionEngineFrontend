@@ -52,8 +52,8 @@ export function ModelSettingsForm({
 
   return (
     <fieldset className="modelo-form" disabled={disabled}>
-      <legend className="field-label">Gateway del escalón remoto</legend>
-      <div className="modelo-gateways" role="radiogroup" aria-label="Gateway">
+      <legend className="field-label">Proveedor del modelo</legend>
+      <div className="modelo-gateways" role="radiogroup" aria-label="Proveedor del modelo">
         {(['litellm', 'openrouter'] as const).map((gateway) => (
           <TarjetaGateway
             key={gateway}
@@ -89,8 +89,8 @@ export function ModelSettingsForm({
       ) : (
         <div className="modelo-campos">
           <Field
-            label="Alias del nivel rápido"
-            tooltip="Alias del modelo rápido tal como lo define el gateway LiteLLM."
+            label="Nombre del modelo rápido"
+            tooltip="Cómo llama el proveedor propio al modelo que atiende la mayoría de las glosas."
           >
             <input
               className="mono"
@@ -98,12 +98,12 @@ export function ModelSettingsForm({
               onChange={(evento) => onChange({ ...valor, fastModel: evento.target.value })}
             />
             <span className="field-help">
-              Un alias del <code>model_list</code> del gateway, nunca un modelo físico.
+              El nombre que tiene registrado el proveedor propio, no el nombre comercial del modelo.
             </span>
           </Field>
           <Field
-            label="Alias del nivel profundo"
-            tooltip="Alias del modelo profundo tal como lo define el gateway LiteLLM."
+            label="Nombre del modelo profundo"
+            tooltip="Cómo llama el proveedor propio al modelo que revisa las glosas dudosas."
           >
             <input
               className="mono"
@@ -128,7 +128,6 @@ function TarjetaGateway({
   activo: boolean;
   onElegir: () => void;
 }) {
-  const variable = gateway === 'openrouter' ? 'OPENROUTER_API_KEY' : 'LITELLM_API_KEY';
   return (
     <label
       className={`modelo-gateway${activo ? ' is-active' : ''}${entorno.available ? '' : ' is-disabled'}`}
@@ -145,12 +144,12 @@ function TarjetaGateway({
       <span className="modelo-gateway-nota">
         {entorno.available ? (
           <>
-            Por entorno: <code>{entorno.fastModel}</code> / <code>{entorno.deepModel}</code>
+            Predeterminados: <code>{entorno.fastModel}</code> / <code>{entorno.deepModel}</code>
           </>
         ) : (
           <>
-            Sin credencial en el motor: falta <code>{variable}</code>. La credencial no se configura
-            desde el portal.
+            Sin clave de acceso en el motor: falta configurar la clave de este proveedor. La
+            configura el equipo técnico, no se carga desde el portal.
           </>
         )}
       </span>
@@ -237,8 +236,10 @@ function describir(
   modelo: OpenRouterModel | { id: string; name: string; sinCatalogo: true },
 ): string {
   if ('sinCatalogo' in modelo) return `${modelo.id} (fuera del catálogo)`;
-  const precio = `$${modelo.promptUsdPerMillion.toFixed(2)} / $${modelo.completionUsdPerMillion.toFixed(2)} por M`;
+  const precio = `$${modelo.promptUsdPerMillion.toFixed(2)} / $${modelo.completionUsdPerMillion.toFixed(2)} por millón de unidades de texto (entrada / salida)`;
   const contexto =
-    modelo.contextLength > 0 ? ` · ${String(Math.round(modelo.contextLength / 1000))}k ctx` : '';
+    modelo.contextLength > 0
+      ? ` · admite ${String(Math.round(modelo.contextLength / 1000))} mil unidades de texto`
+      : '';
   return `${modelo.id} — ${precio}${contexto}${modelo.recommended ? ' · recomendado' : ''}`;
 }

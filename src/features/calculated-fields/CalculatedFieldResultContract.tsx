@@ -56,7 +56,7 @@ export function CalculatedFieldResultContract({ version }: Props) {
         )}
         <p className="constraint-note">
           El redondeo se aplica ANTES de comprobar el rango, así que un valor límite puede entrar
-          por redondeo. Un resultado que cumple todo se devuelve como <code>VALID</code>.
+          por redondeo. Un resultado que cumple todo se devuelve como valor válido.
         </p>
       </section>
 
@@ -76,7 +76,7 @@ export function CalculatedFieldResultContract({ version }: Props) {
           errorCode={errorCode}
           nullable={nullable}
           hasDefault={hasDefault}
-          note="Sólo cubre datos ausentes o inconvertibles. Una avería (sandbox caído, tiempo agotado, librería no autorizada) se propaga siempre como error."
+          note="Sólo cubre datos ausentes o inconvertibles. Una avería (entorno de cálculo caído, tiempo agotado, librería no autorizada) se propaga siempre como error."
         />
         <PolicyCard
           title="División entre cero"
@@ -145,18 +145,21 @@ function policyOutcome(
 ): { text: string; broken: boolean } {
   if (policy === 'RETURN_NULL' && !nullable) {
     return {
-      text: 'La versión pide devolver vacío pero el contrato NO admite nulos: el motor propaga el error.',
+      text: 'La versión pide devolver vacío pero el contrato NO admite vacíos: el motor devuelve el error.',
       broken: true,
     };
   }
   if (policy === 'RETURN_DEFAULT' && !hasDefault) {
     return {
-      text: 'La versión pide devolver el valor por defecto y NO declara ninguno: el motor propaga el error.',
+      text: 'La versión pide devolver el valor por defecto y NO declara ninguno: el motor devuelve el error.',
       broken: true,
     };
   }
   if (policy === 'RETURN_NULL') {
-    return { text: 'El campo entrega vacío; quien lo consuma debe tratar el nulo.', broken: false };
+    return {
+      text: 'El campo entrega vacío; quien lo use debe contemplar el vacío.',
+      broken: false,
+    };
   }
   if (policy === 'RETURN_DEFAULT') {
     return { text: 'El campo entrega el valor por defecto de esta versión.', broken: false };

@@ -18,7 +18,7 @@ const JS_BANNED = [
 
 const PY_BANNED = [
   ['import ', 'no se permiten imports'],
-  ['__', 'no se permiten atributos dunder'],
+  ['__', 'no se permiten atributos internos (con doble guion bajo)'],
   ['open(', 'no se permite acceso a archivos'],
   ['exec(', 'no se permite exec()'],
   ['eval(', 'no se permite eval()'],
@@ -41,14 +41,14 @@ export function lintScript(source: string, language: string, outputCodes: string
 
   if (isPython) {
     if (!/\bresult\b/.test(source)) {
-      issues.push('Python debe asignar el objeto de salida a la variable `result`.');
+      issues.push('Python debe asignar el objeto de salida a la variable «result».');
     }
   } else if (!/\breturn\b/.test(source)) {
     issues.push('JavaScript debe retornar un objeto con las claves de salida.');
   }
 
   if (outputCodes.length && !outputCodes.some((code) => source.includes(code))) {
-    issues.push('El script no referencia ninguna variable de salida declarada.');
+    issues.push('El código no usa ninguna variable de salida declarada.');
   }
 
   return issues;

@@ -132,7 +132,7 @@ test('un extracto de tres meses publica su capacidad de pago con el desglose', a
 
   // Y el contenedor, comprobado y limpio: un panel que sólo aparece cuando algo va mal no permite
   // distinguir «se comprobó» de «esta versión no lo comprueba».
-  await expect(sesion.locator('.autenticidad')).toContainText('Contenedor sin indicios');
+  await expect(sesion.locator('.autenticidad')).toContainText('Archivo sin indicios');
 
   await capacidad.scrollIntoViewIfNeeded();
   await sesion.screenshot({ path: `${OUT}/31-capacidad-de-pago-tres-meses.png`, fullPage: false });

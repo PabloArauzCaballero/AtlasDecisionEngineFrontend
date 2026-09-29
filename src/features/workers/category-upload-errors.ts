@@ -66,19 +66,19 @@ export const problemasDeFormato = {
       'No hay nada que subir: el archivo está vacío.',
       'Comprueba que guardaste el archivo y que no subiste una carpeta o un acceso directo.',
     ),
-  jsonInvalido: (detalle: string): ProblemaSubida =>
+  jsonInvalido: (): ProblemaSubida =>
     problema(
       'JSON_INVALIDO',
       'el archivo',
-      `No es JSON válido: ${detalle}`,
+      'El texto no tiene un formato JSON válido.',
       'Suele ser una coma de más antes de un corchete o una comilla sin cerrar. Pega el texto en un validador de JSON para ver la posición exacta.',
     ),
-  jsonNoEsArray: (tipo: string): ProblemaSubida =>
+  jsonNoEsArray: (): ProblemaSubida =>
     problema(
       'JSON_NO_ES_ARRAY',
       'el archivo',
-      `Se esperaba un array de categorías y llegó ${tipo}.`,
-      'Envuelve las categorías en corchetes: [ { … }, { … } ]. Una sola categoría también va dentro de un array. También se admite el documento anidado que descarga esta pantalla, con la lista bajo la clave «categories».',
+      'Se esperaba una lista de categorías y el archivo tiene otra forma.',
+      'Pon las categorías entre corchetes: [ { … }, { … } ]. Una sola categoría también va entre corchetes. También se admite, tal cual, el archivo que descarga esta pantalla.',
     ),
   csvSinCabecera: (): ProblemaSubida =>
     problema(
@@ -92,7 +92,7 @@ export const problemasDeFormato = {
       'CSV_COLUMNA_FALTA',
       'línea 1',
       `Falta la columna «${columnas.join('», «')}».`,
-      `La cabecera debe incluir al menos «code» y «name». El juego completo es: ${esperadas.join(', ')}.`,
+      `La primera fila debe incluir al menos «code» (código) y «name» (nombre). Todas las columnas son: ${esperadas.join(', ')}.`,
     ),
   csvColumnasDescuadradas: (linea: number, hay: number, esperadas: number): ProblemaSubida =>
     problema(
@@ -105,8 +105,8 @@ export const problemasDeFormato = {
     problema(
       'FILA_NO_ES_OBJETO',
       donde,
-      'Esta entrada no es un objeto de categoría.',
-      'Cada elemento del array debe ser un objeto con al menos «code» y «name».',
+      'Esta entrada no es una categoría válida.',
+      'Cada elemento de la lista debe ser una categoría con al menos «code» (código) y «name» (nombre).',
     ),
 } as const;
 
@@ -205,7 +205,7 @@ export function revisarCategorias(
             'PADRE_CICLICO',
             donde,
             'La categoría se declara padre de sí misma.',
-            'Deja «parentCode» vacío si es una raíz, o apunta a la categoría de la que cuelga.',
+            'Deja vacía la categoría padre («parentCode») si es una categoría principal, o indica la categoría de la que cuelga.',
           ),
         );
       }

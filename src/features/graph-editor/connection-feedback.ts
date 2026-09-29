@@ -12,7 +12,7 @@ const messages: Record<EdgeCreationError, string> = {
   TERMINAL_SOURCE: 'Un nodo terminal no puede tener conexiones de salida.',
   TOO_MANY_BRANCHES: 'Una condición admite como máximo dos rutas de salida.',
   SOURCE_IS_NOT_CONDITIONAL: 'Este tipo de nodo sólo admite una conexión de salida.',
-  PROHIBITED_CYCLE: 'La conexión crearía un ciclo y el motor requiere un flujo acíclico.',
+  PROHIBITED_CYCLE: 'La conexión crearía un ciclo: el flujo no puede volver a un paso anterior.',
 };
 
 export function connectionErrorNotice(error: EdgeCreationError): ConnectionNotice {

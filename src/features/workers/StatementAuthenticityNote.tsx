@@ -24,19 +24,19 @@ import { asRecord, asStrings } from '../../utils/records';
  */
 const VEREDICTOS: Record<string, { rotulo: string; tono: string; detalle: string }> = {
   AUTHENTIC: {
-    rotulo: 'Contenedor sin indicios',
+    rotulo: 'Archivo sin indicios',
     tono: 'ok',
     detalle:
       'Ni herramienta de composición, ni contenido superpuesto, ni reescrituras posteriores a la emisión.',
   },
   SUSPECT: {
-    rotulo: 'Contenedor con indicios',
+    rotulo: 'Archivo con indicios',
     tono: 'warn',
     detalle:
       'El archivo muestra señales de haberse tocado después de emitirse, y ninguna es concluyente.',
   },
   TAMPERED: {
-    rotulo: 'Contenedor manipulado',
+    rotulo: 'Archivo manipulado',
     tono: 'bad',
     detalle: 'Hay evidencia positiva de composición o edición: no es el PDF que emitió el banco.',
   },

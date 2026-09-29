@@ -53,7 +53,7 @@ export function WorkerVitals({
             value: descriptor?.available ? 'Encendido' : 'Apagado',
             hint: descriptor?.available
               ? 'El motor acepta ejecuciones nuevas.'
-              : 'Apagado en este despliegue: se consulta el historial, no se encola.',
+              : 'Apagado en este entorno: se puede consultar el historial, pero no admite trabajos nuevos.',
             tone: descriptor?.available ? 'success' : 'danger',
           }),
     },
@@ -78,14 +78,14 @@ export function WorkerVitals({
           }),
     },
     {
-      label: 'Latencia típica',
+      label: 'Tiempo típico',
       ...(sinMetricas
         ? ASKING
         : {
             value: durationLabel(metrics.latency.p50Ms),
             hint:
               metrics.latency.p95Ms === null
-                ? 'Se mide desde que un worker la toma hasta que termina.'
+                ? 'Se mide desde que un procesador automático la toma hasta que termina.'
                 : `Mediana. El 95 % terminó en menos de ${durationLabel(metrics.latency.p95Ms)}.`,
             tone: 'neutral',
           }),
@@ -98,7 +98,7 @@ export function WorkerVitals({
             value: String(pending),
             hint: pending
               ? `${metrics.queue.running} procesándose y ${metrics.queue.queued} esperando turno.`
-              : 'Nada esperando: el worker está al día.',
+              : 'Nada esperando: el procesador automático está al día.',
             tone: pending > 5 ? 'warning' : pending ? 'info' : 'success',
           }),
     },

@@ -105,7 +105,9 @@ export function PolicyEvidenceDialog({
             </button>
           </>
         ) : (
-          <Alert tone="info">Vincular un artefacto requiere el rol Compliance o Riesgo.</Alert>
+          <Alert tone="info">
+            Vincular un artefacto requiere el rol de Cumplimiento o de Riesgo.
+          </Alert>
         )}
       </section>
       <section className="policy-evidence-step">
@@ -134,7 +136,9 @@ export function PolicyEvidenceDialog({
             </button>
           </>
         ) : (
-          <Alert tone="info">Vincular una suite requiere el rol Compliance, Riesgo o QA.</Alert>
+          <Alert tone="info">
+            Vincular una suite requiere el rol de Cumplimiento, de Riesgo o de Pruebas.
+          </Alert>
         )}
       </section>
     </ModalDialog>

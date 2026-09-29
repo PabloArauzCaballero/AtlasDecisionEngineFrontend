@@ -52,7 +52,7 @@ export function WorkerCategoriesConsole() {
       notify({
         tone: 'success',
         title: `Categoría ${categoria.code} guardada`,
-        description: 'El clasificador la usará en cuanto caduque su caché de catálogo (≤ 1 min).',
+        description: 'El clasificador empezará a usarla en menos de un minuto.',
       });
       setEditando(null);
       await refrescar();
@@ -75,7 +75,7 @@ export function WorkerCategoriesConsole() {
       if (!resultado.dryRun) {
         notify({
           tone: 'success',
-          title: `Inyectadas ${String(resultado.total)} categorías`,
+          title: `Se cargaron ${String(resultado.total)} categorías`,
           description: `${String(resultado.created.length)} nuevas y ${String(resultado.updated.length)} reemplazadas.`,
         });
         await refrescar();
@@ -97,8 +97,8 @@ export function WorkerCategoriesConsole() {
         meta={lista.length > 0 ? `${String(lista.length)} categorías` : undefined}
       >
         <p className="field-help">
-          Es el catálogo contra el que clasifica el worker. La clasificación recae en las{' '}
-          <strong>hojas</strong>: una rama agrupa y por eso lleva umbral 1, que la vuelve
+          Son las categorías con las que clasifica el procesador automático. La clasificación recae
+          en las <strong>hojas</strong>: una rama agrupa y por eso lleva umbral 1, que la vuelve
           inalcanzable a propósito.
         </p>
 
@@ -148,7 +148,7 @@ export function WorkerCategoriesConsole() {
         )}
       </Panel>
 
-      <Panel title="Inyección masiva">
+      <Panel title="Carga masiva">
         <CategoryImportPanel
           ocupado={inyectar.isPending}
           resumen={resumen}

@@ -10,12 +10,12 @@ export const engineTutorials: TutorialRegistry = {
     steps: [
       {
         title: 'Qué es una variable',
-        body: 'Cada variable es un dato de entrada o salida con un código estable (p. ej. monthly_income), un tipo y una clasificación. El motor solo puede usar variables declaradas aquí.',
+        body: 'Cada variable es un dato de entrada o salida con un código estable (p. ej. ingreso_mensual), un tipo y una clasificación. El motor solo puede usar variables declaradas aquí.',
       },
       {
         title: 'Crear una variable',
-        body: 'Pulsa «Add Variable», elige un código, su tipo de dato y su clasificación. Los campos de catálogo sugieren valores existentes, pero puedes escribir uno nuevo al vuelo.',
-        tip: 'Marca «Dato sensible» si contiene PII: el motor la tratará con controles reforzados.',
+        body: 'Pulsa «Nueva variable», elige un código, su tipo de dato y su clasificación. Los campos de catálogo sugieren valores existentes, pero puedes escribir uno nuevo al vuelo.',
+        tip: 'Marca «Dato sensible» si contiene datos personales: el motor la tratará con controles reforzados.',
       },
       {
         title: 'Versionado seguro',
@@ -29,21 +29,21 @@ export const engineTutorials: TutorialRegistry = {
   },
   '/reason-codes': {
     eyebrow: 'Motor de decisión · Diseño',
-    title: 'Catálogo de Reason Codes',
+    title: 'Catálogo de motivos',
     intro: 'Los motivos explicables que acompañan cada decisión de crédito, fraude o cumplimiento.',
     steps: [
       {
         title: 'Para qué sirven',
-        body: 'Cuando el motor aprueba o rechaza, adjunta uno o más reason codes. Son la base de la explicabilidad y de los avisos de adverse action.',
+        body: 'Cuando el motor aprueba o rechaza, adjunta uno o más motivos. Son la base para explicar cada decisión y para los avisos de decisión adversa.',
       },
       {
-        title: 'Crear un reason code',
-        body: 'Pulsa «Add Reason Code» y define código, categoría, severidad y dos mensajes: uno público para el cliente y uno interno para analistas.',
-        tip: 'Marca «Adverse action» si el código puede aparecer en una notificación legal de decisión adversa.',
+        title: 'Crear un motivo',
+        body: 'Pulsa «Nuevo motivo» y define código, categoría, severidad y dos mensajes: uno público para el cliente y uno interno para analistas.',
+        tip: 'Marca «Decisión adversa» si el motivo puede aparecer en una notificación legal de decisión adversa.',
       },
       {
         title: 'Organizar y priorizar',
-        body: 'Agrupa por categoría (KYC, FRAUD, CREDIT…) y severidad para filtrar y priorizar en el análisis posterior.',
+        body: 'Agrupa por categoría (identidad, fraude, crédito…) y severidad para filtrar y priorizar en el análisis posterior.',
       },
     ],
   },
@@ -59,7 +59,7 @@ export const engineTutorials: TutorialRegistry = {
       },
       {
         title: 'Crear un artefacto',
-        body: 'Pulsa «Nuevo Artefacto» y define código, tipo, equipo responsable, propósito de negocio y dominio de riesgo.',
+        body: 'Pulsa «Nuevo algoritmo» y define código, tipo, equipo responsable, propósito de negocio y dominio de riesgo.',
       },
       {
         title: 'Abrir el detalle',
@@ -99,8 +99,8 @@ export const engineTutorials: TutorialRegistry = {
       },
       {
         title: 'Añadir bloques',
-        body: 'Arrastra desde la paleta: Inicio, Condición, Switch, y en «Cálculo con código» los nodos Expresión y Score, donde escribes lógica en JavaScript o Python.',
-        tip: 'Los chips de variables insertan la referencia correcta: variables.x en JS, variables["x"] en Python.',
+        body: 'Arrastra desde la paleta: Inicio, Condición, Selector, y en «Cálculo con código» los nodos Expresión y Puntaje, donde escribes la lógica como código.',
+        tip: 'Los botones de variables escriben por ti la referencia correcta a cada variable, sin errores de tipeo.',
       },
       {
         title: 'Entradas, salidas y revisión de flujo',

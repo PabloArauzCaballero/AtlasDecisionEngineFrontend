@@ -124,8 +124,8 @@ export function ReferencePolicyFields({ form, onPatch }: Props) {
 
         <Field
           className="constraint-field constraint-wide"
-          label="Condición de ejecución (JSON; vacío = siempre se ejecuta)"
-          tooltip='Expresión que decide si se llama a la subdecisión. Ej.: {"op":"gt","left":{"var":"monto"},"right":{"value":1000}}.'
+          label="Condición de ejecución (vacío = siempre se ejecuta)"
+          tooltip='Fórmula que decide si se llama a la subdecisión. Ej.: {"op":"gt","left":{"var":"monto"},"right":{"value":1000}}.'
         >
           <textarea
             rows={2}

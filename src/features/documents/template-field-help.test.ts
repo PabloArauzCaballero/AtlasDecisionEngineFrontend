@@ -11,7 +11,7 @@ describe('ayuda de los campos de plantilla', () => {
   it('sin descripción usa el mapa local, y sin mapa dice lo que se sabe del contrato', () => {
     expect(ayudaDeCampo('score', { type: 'number', required: false })).toMatch(/Puntaje/);
     expect(ayudaDeCampo('otro', { type: 'integer', required: true })).toBe(
-      'Campo obligatorio de tipo integer que exige el contrato de esta plantilla.',
+      'Campo obligatorio de tipo número entero que exige el contrato de esta plantilla.',
     );
   });
 

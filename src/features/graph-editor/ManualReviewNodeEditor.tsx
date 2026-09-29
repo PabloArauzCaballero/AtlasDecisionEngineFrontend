@@ -19,11 +19,11 @@ export function ManualReviewNodeEditor({ config, onChange }: Props) {
       <h3>Derivación a revisión manual</h3>
       <Field
         label="Cola destino"
-        tooltip="A qué bandeja de revisión manual se envía el caso (p. ej. FRAUD_QUEUE). Un analista de esa cola lo resolverá."
+        tooltip="A qué bandeja de revisión manual se envía el caso (p. ej. FRAUDE_N2). Un analista de esa cola lo resolverá."
       >
         <input
           value={String(config.queueCode ?? '')}
-          placeholder="FRAUD_QUEUE"
+          placeholder="FRAUDE_N2"
           onChange={(event) => onChange({ ...config, queueCode: event.target.value.toUpperCase() })}
         />
       </Field>
@@ -58,7 +58,7 @@ export function ManualReviewNodeEditor({ config, onChange }: Props) {
         />
       </Field>
       {!String(config.queueCode ?? '').trim() ? (
-        <p className="field-hint">Sin cola destino, el motor rechazará la compilación del grafo.</p>
+        <p className="field-hint">Sin cola destino, el motor no aceptará este flujo.</p>
       ) : null}
     </section>
   );

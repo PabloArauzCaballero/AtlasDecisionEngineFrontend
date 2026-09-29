@@ -156,11 +156,11 @@ test('la configuración del modelo se prueba y se guarda desde el worker', async
   });
 
   // --- 1. Lo que está en uso, y de dónde sale ----------------------------------
-  const panel = page.locator('.panel', { hasText: 'Modelo del worker' });
+  const panel = page.locator('.panel', { hasText: 'Modelo del procesador automático' });
   await panel.waitFor({ timeout: 30_000 });
-  await expect(panel).toContainText('LiteLLM (gateway propio)');
+  await expect(panel).toContainText('Proveedor propio');
   await expect(panel).toContainText('semantic-classifier-deep');
-  await expect(panel).toContainText('Configurado por el entorno del motor');
+  await expect(panel).toContainText('Configurado por defecto en el motor');
   await expect(panel.getByRole('button', { name: /^Guardar/ })).toBeDisabled();
 
   // --- 2. OpenRouter, con el catálogo y sus precios -----------------------------
@@ -170,7 +170,7 @@ test('la configuración del modelo se prueba y se guarda desde el worker', async
   // El precio va en la propia opción: es lo que se compara al elegir.
   await profundo.click();
   const gemini = page.getByRole('option', { name: /gemini-2\.5-flash/ });
-  await expect(gemini).toContainText('$0.30 / $2.50 por M');
+  await expect(gemini).toContainText('$0.30 / $2.50 por millón de unidades de texto');
   await gemini.click();
   await expect(panel.getByRole('button', { name: /^Guardar/ })).toBeEnabled();
 
@@ -180,7 +180,7 @@ test('la configuración del modelo se prueba y se guarda desde el worker', async
   await sonda.waitFor({ timeout: 15_000 });
   await expect(sonda).toContainText('openai/gpt-4.1-mini@OpenAI');
   await expect(sonda).toContainText('3984 ms');
-  await expect(sonda).toContainText('$0.000367 · 507 tokens');
+  await expect(sonda).toContainText('$0.000367 · 507 unidades de texto');
   await expect(sonda).toContainText('GASTOS.SUPERMERCADO · 80 %');
   // El nivel que falló se ve, y no esconde al que respondió.
   await expect(sonda.locator('tr.is-error')).toContainText('HTTP 400');
@@ -200,7 +200,7 @@ test('la configuración del modelo se prueba y se guarda desde el worker', async
     deepModel: 'google/gemini-2.5-flash',
   });
   await expect(panel).toContainText('desde el portal por ana@atlas');
-  await expect(panel.getByRole('button', { name: /Volver al entorno/ })).toBeVisible();
+  await expect(panel.getByRole('button', { name: /Volver a lo predeterminado/ })).toBeVisible();
 
   await panel.screenshot({
     path: `${OUT}/31-modelo-semantico-guardado.png`,

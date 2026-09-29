@@ -82,11 +82,7 @@ function cargarScript(src: string): Promise<void> {
     script.dataset.atlasPyodide = 'true';
     script.onload = () => resolve();
     script.onerror = () =>
-      reject(
-        new Error(
-          'No se encontró el intérprete en /pyodide/. Ejecuta `node scripts/setup-pyodide.mjs` en el portal para traerlo.',
-        ),
-      );
+      reject(new Error('Python no está disponible en este ambiente. Avisa a soporte.'));
     document.head.appendChild(script);
   });
 }

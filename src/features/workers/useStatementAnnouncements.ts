@@ -49,7 +49,7 @@ export function useUploadRejection(): (error: unknown) => void {
     notify(
       rechazo ?? {
         tone: 'error',
-        title: 'No se pudo encolar el extracto',
+        title: 'No se pudo enviar el extracto',
         description: error instanceof Error ? error.message : undefined,
       },
     );

@@ -73,7 +73,7 @@ const GUIDANCE: Record<
 > = {
   DRAFT: {
     summary: 'Está en diseño: se puede editar y todavía no se ha comprobado.',
-    nextAction: 'Valídala para que el motor revise el grafo y fije su checksum.',
+    nextAction: 'Valídala para que el motor revise el grafo y fije su huella.',
     tone: 'info',
   },
   VALIDATION_FAILED: {
@@ -82,7 +82,7 @@ const GUIDANCE: Record<
     tone: 'warning',
   },
   VALIDATED: {
-    summary: 'El grafo pasó la validación y su checksum está fijado.',
+    summary: 'El grafo pasó la validación y su huella está fijada.',
     nextAction: 'Compílala para producir el artefacto que ejecuta el motor.',
     tone: 'success',
   },

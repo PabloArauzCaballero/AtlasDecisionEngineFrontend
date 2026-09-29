@@ -131,13 +131,14 @@ export function SimulatorInputEditor({
           aria-selected={view === 'json'}
           onClick={() => setView('json')}
         >
-          JSON
+          Texto
         </button>
       </div>
       {view === 'pairs' ? (
         parsed === null ? (
           <Alert tone="error">
-            El JSON actual es inválido: corrígelo en la vista JSON antes de usar atributo-valor.
+            El texto de las variables tiene un error: corrígelo en la vista Texto antes de usar
+            atributo-valor.
           </Alert>
         ) : (
           <PairsEditor
@@ -148,8 +149,8 @@ export function SimulatorInputEditor({
       ) : view === 'json' ? (
         <JsonTextarea
           id="variables"
-          label="Variables de entrada (JSON)"
-          tooltip="Valores de las variables de entrada en JSON, como los mandaría quien llama al motor."
+          label="Variables de entrada en texto"
+          tooltip="Valores de las variables de entrada escritos como texto, tal como los recibe el motor."
           value={value}
           onChange={onChange}
           rows={16}
@@ -161,12 +162,13 @@ export function SimulatorInputEditor({
           ) : null}
           {parsed === null ? (
             <Alert tone="error">
-              El JSON actual es inválido: corrígelo en la vista JSON antes de usar el formulario.
+              El texto de las variables tiene un error: corrígelo en la vista Texto antes de usar el
+              formulario.
             </Alert>
           ) : null}
           {artifactCode.trim() && contract.isSuccess && !inputs.length ? (
             <Alert tone="info">
-              El artefacto no declara variables de entrada; usa la vista JSON.
+              El artefacto no declara variables de entrada; usa la vista Texto.
             </Alert>
           ) : null}
           {missing.length ? (
@@ -238,7 +240,7 @@ export function SimulatorInputEditor({
             : null}
           {extraKeys.length ? (
             <small className="field-meta">
-              Campos adicionales fuera del contrato (edítalos en la vista JSON):{' '}
+              Campos adicionales fuera del contrato (edítalos en la vista Texto):{' '}
               {extraKeys.join(', ')}
             </small>
           ) : null}

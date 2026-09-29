@@ -105,7 +105,7 @@ export function resolverRelacion(relacion: string, catalogo: CatalogoMotor): [st
   const clave = relacion.trim().toLowerCase();
   if (!catalogo.has(clave)) {
     throw new RelacionNoPermitida(
-      `El motor no publica la relación «${relacion}». Es posible que el cuaderno apunte a una vista que ya no existe: elige otro dataset en el panel de la izquierda.`,
+      `El motor no publica la vista «${relacion}». Es posible que ya no exista: elige otro conjunto de datos en el panel de la izquierda.`,
     );
   }
   const [esquema, tabla] = clave.split('.');

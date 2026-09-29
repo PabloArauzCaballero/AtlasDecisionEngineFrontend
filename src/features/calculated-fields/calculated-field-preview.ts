@@ -47,6 +47,19 @@ export const KIND_LABELS: Readonly<Record<SampleKind, string>> = {
   INVALID: 'Inválidos (deben rechazarse)',
 };
 
+const OUTCOME_LABELS: Readonly<Record<string, string>> = {
+  VALID: 'Valor válido',
+  NULL_BY_POLICY: 'Sin valor',
+  DEFAULTED: 'Valor por defecto',
+  'ERROR:UNEXPECTED_ERROR': 'Error inesperado',
+};
+
+/** El desenlace de una ejecución dicho en palabras; los fallos conservan su código de error. */
+export function outcomeLabel(code: string): string {
+  if (OUTCOME_LABELS[code]) return OUTCOME_LABELS[code];
+  return code.startsWith('ERROR:') ? `Falla con ${code.slice('ERROR:'.length)}` : code;
+}
+
 export const KIND_HINTS: Readonly<Record<SampleKind, string>> = {
   OUTCOMES:
     'Genera de las tres clases, las ejecuta y agrupa por desenlace: enseña qué salidas del contrato se alcanzan y cuáles no.',

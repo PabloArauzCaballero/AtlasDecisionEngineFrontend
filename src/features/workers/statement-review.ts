@@ -27,7 +27,7 @@ export const REVIEW_REASONS = [
 export type StatementReviewReason = (typeof REVIEW_REASONS)[number];
 
 export const REVIEW_REASON_LABEL: Record<StatementReviewReason, string> = {
-  TIMEOUT: 'Timeout',
+  TIMEOUT: 'Tiempo agotado',
   LOW_CONFIDENCE: 'Baja confianza',
   DOUBTFUL_DOCUMENT: 'Documento dudoso',
   UNKNOWN_BANK: 'Banco no reconocido',
@@ -47,14 +47,15 @@ export const REVIEW_REASON_HELP: Record<StatementReviewReason, string> = {
   DOUBTFUL_DOCUMENT:
     'Se parece a un extracto y las señales no bastaron para confirmarlo. Si no lo es, márcalo como PDF no válido.',
   UNKNOWN_BANK:
-    'Es un extracto y no se reconoció la entidad, o su formato no tiene analizador verificado. Sirve para saber qué formato falta soportar.',
+    'Es un extracto y no se reconoció la entidad, o su formato todavía no se sabe leer con garantías. Sirve para saber qué formatos faltan por incorporar.',
   PARTIAL_EXTRACTION: 'Se reconoció el documento y no se obtuvieron movimientos utilizables.',
   AMBIGUOUS_DATA:
     'Los saldos o totales que imprime el banco no cuadran con lo leído. Es el caso más delicado: hay dato y contradice al documento.',
-  OCR_ERROR: 'No hay capa de texto aprovechable. Suele ser un escaneo o una foto del extracto.',
+  OCR_ERROR:
+    'El PDF no trae texto que se pueda leer. Suele ser un escaneo o una foto del extracto.',
   MANUAL_REQUEST: 'Alguien lo mandó a revisar a mano.',
   SUSPECTED_TAMPERING:
-    'El archivo muestra señales de haberse tocado después de emitirse y ninguna es concluyente: una impresión desde el navegador, una reescritura, metadatos borrados. Es la franja donde rechazar castigaría a un cliente honesto y aceptar sería mirar a otro lado.',
+    'El archivo muestra señales de haberse tocado después de emitirse y ninguna es concluyente: una impresión desde el navegador, una reescritura, datos internos del archivo borrados. Es la franja donde rechazar castigaría a un cliente honesto y aceptar sería mirar a otro lado.',
 };
 
 /** Por qué se rechazó un documento. Nunca aparecen en la cola: sólo en historial. */

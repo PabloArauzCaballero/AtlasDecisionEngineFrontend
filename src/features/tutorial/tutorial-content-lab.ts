@@ -3,7 +3,7 @@ import type { TutorialRegistry } from './tutorial.types';
 /** "El lab" — the quality + operation tools where artifacts are exercised. */
 export const labTutorials: TutorialRegistry = {
   '/test-suites': {
-    eyebrow: 'Lab · Calidad',
+    eyebrow: 'Laboratorio · Calidad',
     title: 'Suites de Prueba',
     intro: 'Validan de forma determinista que una versión de artefacto decide como esperas.',
     steps: [
@@ -13,22 +13,22 @@ export const labTutorials: TutorialRegistry = {
       },
       {
         title: 'Crear una suite',
-        body: '«Crear suite» crea una suite con un caso inicial: una entrada y su resultado esperado en JSON.',
+        body: '«Crear suite» crea una suite con un caso inicial: una entrada y su resultado esperado.',
       },
       {
         title: 'Compila antes de probar',
         body: 'Una suite solo se ejecuta si la versión del artefacto está compilada. Si no lo está, al ejecutarla aparece un aviso «Esta versión todavía no tiene un artefacto compilado»: abre «Validar y compilar» de esa versión, compílala y vuelve a ejecutar la suite.',
-        tip: 'La app te muestra un aviso con un enlace directo a la pantalla de compilar cuando falta ese paso.',
+        tip: 'El portal te muestra un aviso que lleva a la pantalla de compilar cuando falta ese paso.',
       },
       {
         title: 'Ejecutar y bloquear',
-        body: 'El botón ▶ («Ejecutar suite») de cada fila la encola; el worker la ejecuta y muestra resultado y cobertura. Una suite bloqueante frena el despliegue si falla.',
+        body: 'El botón ▶ («Ejecutar suite») de cada fila la pone en cola; un procesador automático la ejecuta y muestra resultado y cobertura. Una suite obligatoria impide publicar la versión si falla.',
         tip: 'Pulsa «Ejecutar todas» para validar toda la versión antes de solicitar su aprobación.',
       },
     ],
   },
   '/test-cases': {
-    eyebrow: 'Lab · Calidad',
+    eyebrow: 'Laboratorio · Calidad',
     title: 'Casos de Prueba',
     intro: 'Un caso fija una entrada concreta y el resultado esperado para un artefacto.',
     steps: [
@@ -38,7 +38,7 @@ export const labTutorials: TutorialRegistry = {
       },
       {
         title: 'Crear o importar',
-        body: 'Crea casos manualmente, o importa muchos de una vez desde un archivo CSV.',
+        body: 'Crea casos manualmente, o importa muchos de una vez desde una hoja de cálculo guardada como CSV.',
       },
       {
         title: 'Ejecutar y comparar',
@@ -47,7 +47,7 @@ export const labTutorials: TutorialRegistry = {
     ],
   },
   '/graph-coverage': {
-    eyebrow: 'Lab · Calidad',
+    eyebrow: 'Laboratorio · Calidad',
     title: 'Cobertura de Grafo',
     intro: 'Muestra qué nodos y aristas del grafo ejercitaron tus pruebas.',
     steps: [
@@ -62,9 +62,9 @@ export const labTutorials: TutorialRegistry = {
     ],
   },
   '/simulator': {
-    eyebrow: 'Lab · Operación',
+    eyebrow: 'Laboratorio · Operación',
     title: 'Simulador de Decisión',
-    intro: 'Ejecuta una decisión de prueba (dry-run) con tus entradas, sin afectar producción.',
+    intro: 'Ejecuta una decisión de prueba con tus entradas, sin afectar producción.',
     steps: [
       {
         title: 'Elegir artefacto y ambiente',
@@ -76,19 +76,19 @@ export const labTutorials: TutorialRegistry = {
       },
       {
         title: 'Ejecutar y leer el resultado',
-        body: 'Pulsa «Ejecutar» para ver el outcome, los reason codes y la traza de nodos recorridos.',
-        tip: 'La traza te dice exactamente por qué el grafo tomó una ruta: úsala para depurar.',
+        body: 'Pulsa «Ejecutar» para ver el resultado, los motivos y el recorrido de nodos recorridos.',
+        tip: 'El recorrido te dice exactamente por qué el grafo tomó una ruta: úsalo para encontrar errores.',
       },
     ],
   },
   '/manual-reviews': {
-    eyebrow: 'Lab · Operación',
+    eyebrow: 'Laboratorio · Operación',
     title: 'Cola de Revisión Manual',
     intro: 'Reúne los casos que una regla derivó a decisión humana controlada.',
     steps: [
       {
         title: 'La cola',
-        body: 'Cada fila es un caso pendiente con su prioridad, motivo de derivación y SLA restante.',
+        body: 'Cada fila es un caso pendiente con su prioridad, motivo de derivación y plazo restante.',
       },
       {
         title: 'Resolver un caso',

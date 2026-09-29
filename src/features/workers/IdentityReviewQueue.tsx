@@ -125,11 +125,12 @@ function CasoPendiente({ run }: { run: WorkerRun }) {
             className="button button-ghost"
             onClick={() => downloadRunTrace(WORKER, run)}
           >
-            <FileJson size={15} aria-hidden="true" /> Descargar traza (.json)
+            <FileJson size={15} aria-hidden="true" /> Descargar detalle completo
           </button>
         </div>
         <p className="field-help">
-          Solicitud <code>{run.requestId}</code> · correlación <code>{run.correlationId}</code>
+          Solicitud <code>{run.requestId}</code> · referencia para soporte{' '}
+          <code>{run.correlationId}</code>
         </p>
       </details>
     </li>

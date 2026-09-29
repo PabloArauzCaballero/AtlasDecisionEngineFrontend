@@ -87,6 +87,23 @@ export function executionReportFileName(execution: UnknownRecord): string {
   return `ejecucion-${limpio === '—' || !limpio ? 'sin-referencia' : limpio}.pdf`;
 }
 
+const ETIQUETAS: Readonly<Record<string, string>> = {
+  APPROVED: 'Aprobada',
+  DECLINED: 'Rechazada',
+  REJECTED: 'Rechazada',
+  MANUAL_REVIEW: 'En revisión manual',
+  COMPLETED: 'Completada',
+  FAILED: 'Fallida',
+  ERROR: 'Con error',
+  RUNNING: 'En ejecución',
+  PENDING: 'Pendiente',
+};
+
+/** Estado o desenlace en palabras; lo que no se conoce se deja tal cual antes que inventarlo. */
+function etiqueta(valor: string): string {
+  return ETIQUETAS[valor] ?? valor;
+}
+
 export function buildExecutionReport(
   execution: UnknownRecord,
   options: { generatedAt?: string } = {},
@@ -117,12 +134,12 @@ export function buildExecutionReport(
   if (variables.length) {
     secciones.push({
       title: 'Variables resueltas',
-      description: `${variables.length} variables con su valor final y el resolutor que lo produjo.`,
+      description: `${variables.length} variables con su valor final y de dónde salió.`,
       table: {
         columns: [
           { key: 'variable', label: 'Variable' },
           { key: 'valor', label: 'Valor final' },
-          { key: 'origen', label: 'Origen (resolutor)' },
+          { key: 'origen', label: 'Origen del valor' },
         ],
         rows: variables.slice(0, MAX_FILAS_TABLA).map((item) => ({
           variable: celda(display(item, 'variableCode', 'name')),
@@ -171,13 +188,13 @@ export function buildExecutionReport(
     avisos.push({
       level: 'critical',
       title: 'La decisión no terminó en aprobación',
-      text: `Desenlace registrado: ${desenlace === '—' ? estado : desenlace}.`,
+      text: `Desenlace registrado: ${etiqueta(desenlace === '—' ? estado : desenlace)}.`,
     });
   }
 
   const resumen: ExecutionReportPayload['summary'] = [
-    { label: 'Desenlace', value: desenlace === '—' ? estado : desenlace },
-    { label: 'Estado', value: estado },
+    { label: 'Desenlace', value: etiqueta(desenlace === '—' ? estado : desenlace) },
+    { label: 'Estado', value: etiqueta(estado) },
     { label: 'Duración', value: duracion === '—' ? null : `${duracion} ms` },
     { label: 'Pasos trazados', value: traza.length },
   ];

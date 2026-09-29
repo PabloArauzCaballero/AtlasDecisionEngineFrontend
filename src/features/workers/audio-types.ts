@@ -63,7 +63,7 @@ export interface AudioTemplate {
  * lee como un error cuando en realidad es «se está generando».
  */
 export const OUTCOME_LABEL: Record<AudioOutcome, string> = {
-  READY: 'Servido de caché',
+  READY: 'Ya estaba generado',
   QUEUED: 'Generado ahora',
   FALLBACK: 'Se sirvió el respaldo',
   UNAVAILABLE: 'Sin audio',
@@ -72,7 +72,7 @@ export const OUTCOME_LABEL: Record<AudioOutcome, string> = {
 export const OUTCOME_HELP: Record<AudioOutcome, string> = {
   READY: 'Esta frase ya estaba locutada con esta misma voz. No costó nada volver a servirla.',
   QUEUED:
-    'No existía y se generó en esta ejecución. La próxima vez que se pida la misma frase con la misma voz saldrá de la caché.',
+    'No existía y se generó en esta ejecución. La próxima vez que se pida la misma frase con la misma voz se reutilizará sin volver a generarla.',
   FALLBACK:
     'No se pudo generar lo que se pidió y sonó el audio de respaldo. Dice algo genérico: conviene revisar el motivo antes de darlo por bueno.',
   UNAVAILABLE:
@@ -132,7 +132,7 @@ export function formatBytes(bytes: number | null): string | null {
  * servido el respaldo precisamente porque NO se pudo generar nada.
  */
 export function costLabel(result: AudioRunResult): string {
-  if (result.cacheHit) return 'Ninguno: estaba en caché';
+  if (result.cacheHit) return 'Ninguno: ya estaba generado';
   if (result.generated) return 'Se generó en esta ejecución';
   return 'Ninguno: no se llegó a generar';
 }
@@ -149,7 +149,7 @@ export function segmentsLabel(result: AudioRunResult): string | null {
   const segments = result.segments;
   if (!segments || typeof segments.total !== 'number') return null;
   const cosido = `Ensamblado con ${String(segments.total)} tramos`;
-  const detalle = `${String(segments.cached)} de caché, ${String(segments.generated)} generados`;
+  const detalle = `${String(segments.cached)} reutilizados, ${String(segments.generated)} generados`;
   return `${cosido}: ${detalle}`;
 }
 

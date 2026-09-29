@@ -103,7 +103,7 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '.node-properties',
         title: 'Propiedades del bloque',
         content:
-          'Todo lo que configura el bloque seleccionado: su nombre, su regla, qué variable escribe y con qué motivo. Cambia según el tipo de bloque — una condición pide una comparación; un resultado, un desenlace y sus reason codes.',
+          'Todo lo que configura el bloque seleccionado: su nombre, su regla, qué variable escribe y con qué motivo. Cambia según el tipo de bloque — una condición pide una comparación; un resultado, un desenlace y sus motivos.',
         optional: true,
       },
       {
@@ -152,7 +152,7 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: '1 · Elige la versión borrador',
         content:
           'Un algoritmo siempre se diseña sobre una versión concreta de un artefacto. Elige una en estado BORRADOR y pulsa «Cargar»: es lo único que se puede editar.',
-        tip: 'Si no hay ninguna, créala antes desde Artefactos → tu artefacto → Nueva versión.',
+        tip: 'Si no hay ninguna, créala antes desde Algoritmos → tu algoritmo → Nueva versión.',
         optional: true,
       },
       {
@@ -169,8 +169,8 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '.input-contract-panel',
         title: '3 · Declara una ENTRADA',
         content:
-          'Las entradas son los datos que la decisión recibe: el ingreso mensual, el score de buró, la edad. Elige una del catálogo y pulsa «Añadir entrada». Hasta que declares alguna, los selectores de condiciones estarán vacíos: no hay nada sobre lo que decidir.',
-        tip: 'La estrella marca si es obligatoria. Si falta una obligatoria al evaluar, el motor no decide: falla cerrado.',
+          'Las entradas son los datos que la decisión recibe: el ingreso mensual, el puntaje de buró, la edad. Elige una del catálogo y pulsa «Añadir entrada». Hasta que declares alguna, los selectores de condiciones estarán vacíos: no hay nada sobre lo que decidir.',
+        tip: 'La estrella marca si es obligatoria. Si falta una obligatoria al evaluar, el motor no decide: prefiere detenerse antes que decidir con datos incompletos.',
         optional: true,
       },
       {
@@ -204,7 +204,7 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: '7 · Añade una CONDICIÓN',
         content:
           'Es la pregunta que bifurca el flujo: «¿el ingreso es mayor o igual a 3.000?». Arrastra «Condición» al lienzo, a la derecha del inicio.',
-        tip: 'Si el cálculo necesita código en vez de una comparación simple, usa «Expresión» o «Score».',
+        tip: 'Si el cálculo necesita código en vez de una comparación simple, usa «Expresión» o «Puntaje».',
         optional: true,
       },
       {
@@ -221,7 +221,7 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: '9 · Añade dos RESULTADOS',
         content:
           'Una condición tiene dos salidas, y las dos deben terminar en algún sitio: un camino no puede quedarse a medias. Añade dos bloques «Resultado» —por ejemplo aprobado y rechazado— y dales su desenlace y su motivo en el panel de propiedades.',
-        tip: 'El motivo (reason code) es lo que después explica al cliente por qué se decidió así.',
+        tip: 'El motivo es lo que después explica al cliente por qué se decidió así.',
         optional: true,
       },
       {

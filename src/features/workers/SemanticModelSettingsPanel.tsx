@@ -77,7 +77,7 @@ export function SemanticModelSettingsPanel({ active }: { active: boolean }) {
         tone: 'success',
         title: `Modelo cambiado a ${GATEWAY_LABELS[resultado.effective.gateway]}`,
         description:
-          'El worker lo usará en la siguiente glosa (≤ 10 s). Su caché de veredictos se vacía: lo que decidió el modelo anterior no se reutiliza.',
+          'Se usará desde la siguiente glosa (en menos de 10 s). Las respuestas que dio el modelo anterior se descartan y no se reutilizan.',
       });
       await refrescar();
     },
@@ -90,13 +90,18 @@ export function SemanticModelSettingsPanel({ active }: { active: boolean }) {
     onSuccess: async () => {
       notify({
         tone: 'warning',
-        title: 'Vuelve a mandar el entorno',
-        description: 'La elección hecha aquí se retiró; el worker usa lo que dictan sus variables.',
+        title: 'Se volvió a la configuración predeterminada',
+        description:
+          'La elección hecha aquí se retiró; el procesador automático vuelve a usar la configuración predeterminada del motor.',
       });
       await refrescar();
     },
     onError: (error) =>
-      notify({ tone: 'error', title: 'No se pudo volver', description: errorMessage(error) }),
+      notify({
+        tone: 'error',
+        title: 'No se pudo volver a lo predeterminado',
+        description: errorMessage(error),
+      }),
   });
 
   const probar = useMutation({
@@ -112,14 +117,14 @@ export function SemanticModelSettingsPanel({ active }: { active: boolean }) {
 
   if (ajustes.isPending || valor === null) {
     return (
-      <Panel title="Modelo del worker">
+      <Panel title="Modelo del procesador automático">
         <p className="entidad-vacio">Consultando la configuración del modelo…</p>
       </Panel>
     );
   }
   if (ajustes.isError || ajustes.data === undefined) {
     return (
-      <Panel title="Modelo del worker">
+      <Panel title="Modelo del procesador automático">
         <p className="entidad-vacio">No se pudo leer la configuración del modelo.</p>
       </Panel>
     );
@@ -136,14 +141,16 @@ export function SemanticModelSettingsPanel({ active }: { active: boolean }) {
 
   return (
     <div className="modelo-config">
-      <Panel title="Modelo del worker" meta={`modo ${datos.mode || 'sin definir'}`}>
+      <Panel
+        title="Modelo del procesador automático"
+        meta={datos.applies ? 'Se puede cambiar aquí' : 'No se puede cambiar aquí'}
+      >
         <EstadoActual datos={datos} />
 
         {!datos.applies ? (
           <p className="modelo-aviso">
-            Este despliegue clasifica con{' '}
-            <code>SEMANTIC_ANALYSIS_PROVIDER={datos.mode || '(vacío)'}</code>, que no usa ningún
-            gateway remoto: elegir uno aquí no tendría efecto. El modo se cambia en el entorno del
+            Este entorno clasifica con un método que no usa ningún proveedor remoto: elegir uno aquí
+            no tendría efecto. Ese método sólo lo cambia el equipo técnico en la configuración del
             motor.
           </p>
         ) : null}
@@ -186,13 +193,14 @@ export function SemanticModelSettingsPanel({ active }: { active: boolean }) {
               disabled={ocupado}
               onClick={() => volver.mutate()}
             >
-              <RotateCcw size={15} aria-hidden="true" /> Volver al entorno
+              <RotateCcw size={15} aria-hidden="true" /> Volver a lo predeterminado
             </button>
           ) : null}
         </div>
         <p className="field-help">
-          Probar clasifica una glosa sintética por nivel con lo elegido, sin guardar: cuesta lo que
-          cuestan dos glosas. Guardar aplica en caliente y vacía la caché de veredictos.
+          Probar clasifica una glosa de ejemplo con cada nivel elegido, sin guardar: cuesta lo mismo
+          que dos glosas. Guardar aplica el cambio al momento y descarta las respuestas del modelo
+          anterior.
         </p>
 
         {sonda !== null ? <ModelProbeResults resultado={sonda} /> : null}
@@ -210,7 +218,7 @@ function EstadoActual({ datos }: { datos: SemanticModelSettings }) {
   const origen =
     e.source === 'portal'
       ? `desde el portal por ${e.updatedBy ?? 'alguien'}${e.updatedAt ? ` el ${formatDateTime(e.updatedAt)}` : ''}`
-      : 'por el entorno del motor';
+      : 'por defecto en el motor';
   return (
     <div className="worker-facts">
       <ul className="worker-facts-list">

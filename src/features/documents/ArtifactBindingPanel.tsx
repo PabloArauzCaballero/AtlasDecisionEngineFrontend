@@ -107,8 +107,8 @@ export function ArtifactBindingPanel({
         meta="Casar el documento con lo que responde un algoritmo."
       >
         <p className="doc-format__note">
-          Este despliegue no puede consultar contratos de artefactos. Casar documentos con
-          artefactos sólo existe con el generador montado dentro del motor, que es quien los tiene.
+          En este entorno no se pueden consultar las salidas de los algoritmos. Casar documentos con
+          algoritmos sólo funciona cuando el generador forma parte del motor.
         </p>
       </Panel>
     );

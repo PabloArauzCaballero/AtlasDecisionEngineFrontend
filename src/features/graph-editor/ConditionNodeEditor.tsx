@@ -79,7 +79,7 @@ export function ConditionNodeEditor({
         </p>
         <Field
           label="Variable a evaluar"
-          tooltip="El dato de entrada sobre el que se decide (p. ej. score_buro). Al elegirlo se crea la condición editable."
+          tooltip="El dato de entrada sobre el que se decide (p. ej. puntaje_buro). Al elegirlo se crea la condición editable."
         >
           <OptionSelect
             name="newConditionVariable"
@@ -104,7 +104,7 @@ export function ConditionNodeEditor({
       <h3>Condición visual</h3>
       <Field
         label="Código"
-        tooltip="Identificador único de la condición dentro del algoritmo. Ej.: SCORE_MINIMO. Las ramas la citan por él."
+        tooltip="Identificador único de la condición dentro del algoritmo. Ej.: PUNTAJE_MINIMO. Las ramas la citan por él."
       >
         <input readOnly value={code} />
       </Field>
@@ -127,7 +127,7 @@ export function ConditionNodeEditor({
       ) : null}
       <Field
         label="Variable de entrada"
-        tooltip="El dato que se compara (p. ej. score_buro). Debe estar declarado como entrada del algoritmo."
+        tooltip="El dato que se compara (p. ej. puntaje_buro). Debe estar declarado como entrada del algoritmo."
       >
         <OptionSelect
           name="conditionVariable"
@@ -169,7 +169,7 @@ export function ConditionNodeEditor({
           <textarea
             key={`${code}-list`}
             rows={2}
-            placeholder='Lista en JSON, p. ej. ["A","B"]'
+            placeholder='Lista entre corchetes, p. ej. ["A","B"]'
             defaultValue={
               typeof parsed?.value === 'string' ? parsed.value : JSON.stringify(parsed?.value ?? [])
             }
@@ -226,9 +226,9 @@ export function ConditionNodeEditor({
           onChange={(value) => onChange({ severity: value })}
           options={closedOptions(
             [
-              { value: 'BLOCKING', label: 'Blocking' },
-              { value: 'WARNING', label: 'Warning' },
-              { value: 'INFO', label: 'Info' },
+              { value: 'BLOCKING', label: 'Bloquea' },
+              { value: 'WARNING', label: 'Aviso' },
+              { value: 'INFO', label: 'Informativo' },
             ],
             CONDITION_SEVERITY_HELP,
           )}

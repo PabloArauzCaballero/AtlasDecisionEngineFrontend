@@ -17,7 +17,7 @@ export const RESULT_MODE_HELP: OptionDescriptions = {
 export const ASSIGNMENT_SOURCE_HELP: OptionDescriptions = {
   LITERAL: 'Un valor fijo que escribes tú y es igual para todos los casos.',
   VARIABLE: 'Se copia tal cual el valor de una variable de entrada del caso.',
-  EXPRESSION: 'Se calcula con un árbol JSON {op, left, right} que evalúa el motor.',
+  EXPRESSION: 'Se calcula con una fórmula que evalúa el motor.',
   TEMPLATE: 'Texto con huecos que se rellenan con variables. Ej.: «Hola {{nombre}}».',
 };
 

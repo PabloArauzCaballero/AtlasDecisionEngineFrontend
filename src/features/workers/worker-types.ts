@@ -189,12 +189,12 @@ export const STATUS_LABEL: Record<WorkerRunStatus, string> = {
  * que evitar.
  */
 export const STATUS_HELP: Record<WorkerRunStatus, string> = {
-  QUEUED: 'Esperando a que un worker la tome. Puedes cancelarla mientras siga aquí.',
-  RUNNING: 'Un worker la está procesando ahora mismo.',
+  QUEUED: 'Esperando a que un procesador automático la tome. Puedes cancelarla mientras siga aquí.',
+  RUNNING: 'Un procesador automático la está procesando ahora mismo.',
   SUCCEEDED: 'Terminó sin incidencias.',
   SUCCEEDED_WITH_WARNINGS:
     'Hay resultado y es utilizable, pero algo quedó sin resolver del todo. Conviene revisarlo antes de darlo por bueno.',
-  FAILED: 'No se pudo completar. El código técnico y el identificador de correlación están abajo.',
+  FAILED: 'No se pudo completar. Abajo están el motivo y la referencia para soporte.',
   CANCELLED: 'Se canceló antes de empezar a procesarse.',
   PENDING_REVIEW:
     'El documento parece un extracto y algo no se pudo determinar con seguridad. Está en la cola de revisión y puedes seguir trabajando.',
@@ -213,7 +213,7 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
    * que cambiar es la foto, y el motivo exacto lo escribe el motor debajo.
    */
   DOCUMENT_REJECTED:
-    'La imagen no es un documento de identidad que este worker admita. No entra en la cola de revisión: nadie tiene que mirarla. Envía otra foto para volver a intentarlo.',
+    'La imagen no es un documento de identidad que este procesador automático admita. No entra en la cola de revisión: nadie tiene que mirarla. Envía otra foto para volver a intentarlo.',
 };
 
 /**

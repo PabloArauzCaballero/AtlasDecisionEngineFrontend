@@ -37,7 +37,7 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
     steps: [
       {
         title: 'Entradas y salidas',
-        body: 'Una variable de ENTRADA es un dato que la decisión recibe (ingreso mensual, edad, score de buró). Una de SALIDA es un resultado que produce (nivel de riesgo, límite aprobado).',
+        body: 'Una variable de ENTRADA es un dato que la decisión recibe (ingreso mensual, edad, puntaje de buró). Una de SALIDA es un resultado que produce (nivel de riesgo, límite aprobado).',
       },
       {
         title: 'Un contrato versionado',
@@ -45,7 +45,7 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
       },
       {
         title: 'Sensibilidad y privacidad',
-        body: 'Algunas variables contienen datos personales (PII) y se marcan como sensibles para aplicarles controles. Al segmentar o analizar, respeta esa clasificación.',
+        body: 'Algunas variables contienen datos personales y se marcan como sensibles para aplicarles controles. Al segmentar o analizar, respeta esa clasificación.',
       },
     ],
   },
@@ -97,20 +97,20 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
   },
   'reason-code': {
     eyebrow: 'Concepto · Fundamentos',
-    title: '¿Qué es un reason code?',
+    title: '¿Qué es un motivo?',
     intro: 'El "porqué" explicable que acompaña cada decisión.',
     steps: [
       {
         title: 'Explicabilidad',
-        body: 'Cuando el motor decide, adjunta uno o más reason codes que explican la razón. Un rechazo puede llevar "FRAUDE_ALTO" o "INGRESOS_INSUFICIENTES".',
+        body: 'Cuando el motor decide, adjunta uno o más motivos que explican la razón. Un rechazo puede llevar «Fraude alto» o «Ingresos insuficientes».',
       },
       {
         title: 'Dos audiencias',
-        body: 'Cada código trae un mensaje PÚBLICO (para el cliente) y uno INTERNO (para el analista). Comunicas distinto a cada audiencia con el mismo código.',
+        body: 'Cada motivo trae un mensaje PÚBLICO (para el cliente) y uno INTERNO (para el analista). Comunicas distinto a cada audiencia con el mismo motivo.',
       },
       {
-        title: 'Adverse action',
-        body: 'Algunos códigos marcan una "acción adversa": un rechazo que legalmente debe notificarse al cliente. El catálogo lo distingue para cumplir la regulación.',
+        title: 'Decisión adversa',
+        body: 'Algunos motivos marcan una «decisión adversa»: un rechazo que legalmente debe notificarse al cliente. El catálogo lo distingue para cumplir la regulación.',
       },
     ],
   },
@@ -126,7 +126,7 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
       },
       {
         title: 'Tipos de nodo',
-        body: 'Inicio marca la entrada; Condición y Switch bifurcan; Expresión y Score calculan (incluso con código); Resultado y Fin cierran. Cada solicitud recorre una ruta y termina en un resultado explicado.',
+        body: 'Inicio marca la entrada; Condición y Selector reparten el camino; Expresión y Puntaje calculan (incluso con código); Resultado y Fin cierran. Cada solicitud recorre una ruta y termina en un resultado explicado.',
       },
       {
         title: 'Por qué es visual',
@@ -141,15 +141,15 @@ export const conceptTutorials: Readonly<Record<string, Tutorial>> = {
     steps: [
       {
         title: 'Ambientes',
-        body: 'DEV, TEST y STAGING son para probar —DEV para diseñar, TEST para la regresión, STAGING como ensayo de producción—; PROD es producción real. Un despliegue lleva una versión concreta a un ambiente concreto.',
+        body: 'Desarrollo, pruebas y preproducción sirven para probar —desarrollo para diseñar, pruebas para repetir las pruebas de siempre, preproducción como ensayo general—; producción es donde se decide de verdad. Un despliegue lleva una versión concreta a un ambiente concreto.',
       },
       {
         title: 'Estrategias de tráfico',
-        body: 'DIRECT envía todo el tráfico a la nueva versión. CANARY y Champion lo reparten por reglas para probar gradualmente antes de ir al 100%.',
+        body: 'El modo completo envía todas las solicitudes a la nueva versión. El gradual y el comparativo las reparten por reglas para probar poco a poco antes de ir al 100%.',
       },
       {
         title: 'Reversible y auditado',
-        body: 'Cada despliegue queda registrado con quién y cuándo, y puede revertirse (rollback) si algo sale mal.',
+        body: 'Cada despliegue queda registrado con quién y cuándo, y puede revertirse si algo sale mal.',
       },
     ],
   },
@@ -179,7 +179,7 @@ export const CONCEPTS: readonly { key: string; title: string }[] = [
   { key: 'artifact', title: 'Artefacto' },
   { key: 'variable', title: 'Variable' },
   { key: 'output-variable', title: 'Variable de salida' },
-  { key: 'reason-code', title: 'Reason code' },
+  { key: 'reason-code', title: 'Motivo' },
   { key: 'decision-graph', title: 'Grafo de decisión' },
   { key: 'nested-tree', title: 'Árbol interno' },
   { key: 'deployment', title: 'Despliegue' },

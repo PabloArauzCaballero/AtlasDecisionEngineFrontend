@@ -86,7 +86,7 @@ export const MEASURE_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = 
       {
         id: 'cutoff',
         target: '[data-tutorial-id="quality-cutoff"]',
-        title: 'Champion contra challenger, por desenlace',
+        title: 'La versión vigente contra la alternativa, por desenlace',
         content:
           'Las dos versiones se comparan por lo que pasó con sus decisiones, no por cuántas tomó cada una. Comparar volúmenes diría qué versión se usó más, que no es lo mismo que cuál decidió mejor.',
         optional: true,
@@ -167,7 +167,7 @@ export const MEASURE_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = 
       {
         id: 'stability',
         target: '[data-tutorial-id="monitoring-stability"]',
-        title: 'PSI: cuánto se movió la población',
+        title: 'Índice de estabilidad (PSI): cuánto se movió la población',
         content:
           'Por debajo de 0,10 la población es estable; hasta 0,25 se ha desplazado; por encima, es otra población. Las bandas van ordenadas por aportación al índice: la primera explica el desplazamiento y es la que hay que mirar antes de tocar ningún umbral.',
         optional: true,
@@ -236,9 +236,9 @@ export const MEASURE_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = 
       {
         id: 'consent',
         target: '[data-tutorial-id="risk-consent"]',
-        title: 'La referencia tampoco viaja en la URL',
+        title: 'La referencia tampoco va en la dirección de la página',
         content:
-          'Igual que en «Derechos del titular», la consulta va en el cuerpo de la petición. Un identificador de persona en una dirección acaba copiado en el registro de acceso, en el proxy y en la traza, donde ya no lo controla nadie.',
+          'Igual que en «Derechos del titular», la referencia se envía oculta, nunca en la dirección de la página. Lo que va en la dirección acaba copiado en registros técnicos, donde ya no lo controla nadie.',
         optional: true,
       },
       {

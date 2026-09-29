@@ -89,17 +89,17 @@ export function ReturnContractForm({ value, onChange }: Props) {
             checked={value.nullable}
             onChange={(event) => patch({ nullable: event.target.checked })}
           />
-          <span>Puede devolver sin valor (null)</span>
+          <span>Puede devolver sin valor</span>
         </label>
 
         <Field
           className="constraint-field"
           label="Código de error"
-          tooltip="Código que devuelve el campo cuando no puede calcular. Ej.: DTI_NOT_COMPUTABLE."
+          tooltip="Código que devuelve el campo cuando no puede calcular. Ej.: DEUDA_INGRESO_NO_CALCULABLE."
         >
           <input
             value={value.errorCode}
-            placeholder="DTI_NOT_COMPUTABLE"
+            placeholder="DEUDA_INGRESO_NO_CALCULABLE"
             onChange={(event) => patch({ errorCode: event.target.value.toUpperCase() })}
           />
         </Field>
@@ -144,13 +144,13 @@ export function ReturnContractForm({ value, onChange }: Props) {
 
       {nullPolicyConflict ? (
         <p className="contract-warning">
-          Has elegido «devolver sin valor» en una política, pero el retorno está declarado como no
-          nulo. El backend rechazará la versión hasta que marques que puede devolver null.
+          Has elegido «devolver sin valor» en una política, pero el resultado no puede quedar vacío.
+          No se podrá guardar hasta que permitas que quede vacío.
         </p>
       ) : null}
       {value.nullable && !value.nullConditions.length ? (
         <p className="contract-warning">
-          Si el retorno admite null hay que documentar en qué condiciones ocurre.
+          Si puede devolver sin valor, hay que documentar en qué condiciones ocurre.
         </p>
       ) : null}
 

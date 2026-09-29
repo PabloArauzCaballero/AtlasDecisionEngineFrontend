@@ -43,7 +43,7 @@ export function CoveragePanel({ report }: CoveragePanelProps) {
           </strong>{' '}
           ({asPercent(seeded?.share ?? null)}). Los indicadores de abajo, y los del monitoreo del
           modelo, se calculan bien sobre una población inventada: son ejercicios, no evidencia. En
-          una base sembrada sin datos de demostración este aviso no aparece.
+          una base sin datos de demostración este aviso no aparece.
         </p>
       )}
 
@@ -65,7 +65,7 @@ export function CoveragePanel({ report }: CoveragePanelProps) {
         <MetricCard
           label="Decisiones sin solicitante"
           value={String(subject.missing)}
-          hint="Irreparables: la referencia se guarda en HMAC de una vía"
+          hint="Irreparables: la referencia se guarda cifrada y no se puede recuperar"
           icon={AlertTriangle}
           tone={subject.missing > 0 ? 'danger' : 'success'}
         />

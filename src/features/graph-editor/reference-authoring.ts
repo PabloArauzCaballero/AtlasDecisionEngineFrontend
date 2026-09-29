@@ -122,7 +122,7 @@ export function referenceErrors(nodeKey: string, state: ReferenceFormState): str
     state.environmentCode.trim().toUpperCase() === 'PROD'
   ) {
     errors.push(
-      'En PROD la referencia debe fijar una versión exacta: resolver la activa del ambiente haría la decisión irreproducible.',
+      'En producción la referencia debe fijar una versión exacta: resolver la activa del ambiente haría la decisión irreproducible.',
     );
   }
   // Una referencia opcional que igualmente tumba la decisión al fallar es una
@@ -136,7 +136,7 @@ export function referenceErrors(nodeKey: string, state: ReferenceFormState): str
     try {
       JSON.parse(state.executionCondition);
     } catch {
-      errors.push('La condición de ejecución no es un JSON válido.');
+      errors.push('La condición de ejecución no tiene un formato válido.');
     }
   }
 

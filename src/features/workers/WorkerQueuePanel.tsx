@@ -19,7 +19,7 @@ export function WorkerQueuePanel({ queue }: WorkerQueuePanelProps) {
   if (!pending) {
     return (
       <p className="worker-queue-empty">
-        No hay nada esperando. Todo lo que se encoló ya terminó, y las ejecuciones nuevas aparecerán
+        No hay nada esperando. Todo lo que se envió ya terminó, y las ejecuciones nuevas aparecerán
         aquí en cuanto se envíen.
       </p>
     );
@@ -34,7 +34,7 @@ export function WorkerQueuePanel({ queue }: WorkerQueuePanelProps) {
           <span className="worker-queue-dot tone-running" aria-hidden="true" />
           <div className="worker-queue-copy">
             <strong>Procesándose</strong>
-            <small>Un worker las tiene tomadas ahora mismo.</small>
+            <small>Un procesador automático las tiene tomadas ahora mismo.</small>
           </div>
           <span className="worker-queue-count">{queue.running}</span>
         </li>
@@ -47,7 +47,7 @@ export function WorkerQueuePanel({ queue }: WorkerQueuePanelProps) {
             <small>
               {espera
                 ? `La más antigua lleva ${espera} en cola.`
-                : 'Esperando a que un worker las tome.'}
+                : 'Esperando a que un procesador automático las tome.'}
             </small>
           </div>
           <span className="worker-queue-count">{queue.queued}</span>

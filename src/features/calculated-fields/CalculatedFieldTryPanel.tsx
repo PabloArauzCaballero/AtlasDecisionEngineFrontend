@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { CheckCircle2, Play, XCircle } from 'lucide-react';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
+import { outcomeLabel } from './calculated-field-preview';
 import { Alert } from '../../components/Alert';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { CalculatedFieldSampleControls } from './CalculatedFieldSampleControls';
@@ -114,8 +115,8 @@ export function CalculatedFieldTryPanel({ target, inputs, testCases }: Props) {
       {tryRun.isSuccess ? (
         <p className="constraint-result constraint-valid">
           <CheckCircle2 size={14} aria-hidden /> Resultado:{' '}
-          <code>{JSON.stringify(result.value)}</code> · {display(result, 'outcome')} en{' '}
-          {display(result, 'durationMs')} ms
+          <code>{JSON.stringify(result.value)}</code> · {outcomeLabel(display(result, 'outcome'))}{' '}
+          en {display(result, 'durationMs')} ms
         </p>
       ) : null}
       {tryRun.isError ? <ExecutionError error={tryRun.error} /> : null}

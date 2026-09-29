@@ -162,7 +162,10 @@ export function useNotebookRunner({
         // memoria de variables más pobre que la realidad del intérprete.
         setSimbolos((previos) => ({ ...previos, [motor]: corrida.simbolos }));
       } catch (error) {
-        const razon = error instanceof Error ? error.message : `No se pudo arrancar ${motor}.`;
+        const razon =
+          motor === 'python' && error instanceof Error
+            ? error.message
+            : `${motor === 'python' ? 'Python' : 'R'} no está disponible en este ambiente. Avisa a soporte.`;
         anotarMotor(motor, { phase: 'unavailable', reason: razon });
         terminar({ status: 'error', error: razon, logs: [], durationMs: 0 });
       }

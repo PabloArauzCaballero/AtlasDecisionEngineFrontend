@@ -124,7 +124,7 @@ export function ResultNodeEditor({
                       [
                         { value: 'LITERAL', label: 'Literal' },
                         { value: 'VARIABLE', label: 'Variable de entrada' },
-                        { value: 'EXPRESSION', label: 'Expresión visual (JSON AST)' },
+                        { value: 'EXPRESSION', label: 'Fórmula' },
                         { value: 'TEMPLATE', label: 'Plantilla' },
                       ],
                       ASSIGNMENT_SOURCE_HELP,
@@ -164,7 +164,7 @@ export function ResultNodeEditor({
                 {source === 'EXPRESSION' ? (
                   <Field
                     label="Expresión"
-                    tooltip='Árbol JSON que calcula el valor. Ej.: {"op":"mul","left":{"var":"ingreso"},"right":{"value":0.3}}.'
+                    tooltip='Fórmula que calcula el valor, escrita entre llaves. Ej.: {"op":"mul","left":{"var":"ingreso"},"right":{"value":0.3}}.'
                   >
                     <textarea
                       className="code-input"
@@ -223,10 +223,7 @@ export function ResultNodeEditor({
         />
       ) : (
         <>
-          <div className="script-warning">
-            Experimental: se ejecuta con límites estrictos y requiere habilitación explícita del
-            backend.
-          </div>
+          <div className="script-warning">Experimental: debe activarlo un administrador.</div>
           <Field
             label="Lenguaje"
             tooltip="En qué lenguaje está escrito el código del resultado; el motor lo ejecuta en su entorno aislado."
@@ -237,8 +234,8 @@ export function ResultNodeEditor({
               onChange={(value) => onChange({ ...config, script: { ...script, language: value } })}
               options={closedOptions(
                 [
-                  { value: 'JAVASCRIPT', label: 'JAVASCRIPT' },
-                  { value: 'PYTHON', label: 'PYTHON' },
+                  { value: 'JAVASCRIPT', label: 'JavaScript' },
+                  { value: 'PYTHON', label: 'Python' },
                 ],
                 SCRIPT_LANGUAGE_HELP,
               )}
@@ -269,8 +266,8 @@ export function ResultNodeEditor({
             </ul>
           ) : null}
           <small className="field-hint">
-            JS debe retornar un objeto. Python debe asignarlo a <code>result</code>. Sólo se aceptan
-            claves declaradas arriba.
+            JavaScript debe retornar un objeto. Python debe asignarlo a <code>result</code>. Sólo se
+            aceptan claves declaradas arriba.
           </small>
         </>
       )}

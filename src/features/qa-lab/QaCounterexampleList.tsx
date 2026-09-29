@@ -56,7 +56,7 @@ function InputTable({ input }: { input: unknown }) {
         <p className="field-hint">Sin variables: el fallo aparece con la entrada vacía.</p>
       )}
       <details>
-        <summary>Ver como JSON</summary>
+        <summary>Ver los datos sin formato, para copiarlos</summary>
         <pre className="code-block">{JSON.stringify(input, null, 2)}</pre>
       </details>
     </>

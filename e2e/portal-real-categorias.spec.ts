@@ -152,13 +152,13 @@ test.describe('árbol de categorías · CRUD contra el motor real', () => {
     );
 
     const filasAntes = await page.locator('.categoria-fila').count();
-    await page.getByLabel('JSON del árbol de categorías').fill(json);
+    await page.getByLabel('Categorías en formato JSON o CSV').fill(json);
     await page.screenshot({ path: `${EVIDENCIA}/5-json.png` });
 
     // 1 · En seco. No debe escribir nada, y debe decir exactamente qué haría.
-    await page.getByRole('button', { name: /Probar en seco/ }).click();
+    await page.getByRole('button', { name: /Simular carga/ }).click();
     const resumen = page.locator('.categoria-import-resumen');
-    await expect(resumen).toContainText('Prueba en seco', { timeout: 30_000 });
+    await expect(resumen).toContainText('Simulación', { timeout: 30_000 });
     await expect(resumen).toContainText(RAMA_JSON);
     /*
      * Lo que la prueba en seco promete no es «no existe», que dejaría de ser
@@ -173,8 +173,8 @@ test.describe('árbol de categorías · CRUD contra el motor real', () => {
     await page.screenshot({ path: `${EVIDENCIA}/6-en-seco.png` });
 
     // 2 · De verdad.
-    await page.getByRole('button', { name: /^Inyectar$/ }).click();
-    await expect(resumen).toContainText('Inyectado', { timeout: 30_000 });
+    await page.getByRole('button', { name: /^Cargar$/ }).click();
+    await expect(resumen).toContainText('Cargado', { timeout: 30_000 });
     await expect(fila(page, RAMA_JSON)).toBeVisible({ timeout: 30_000 });
     /*
      * La hoja vive DENTRO de su rama y el árbol arranca con las ramas cerradas,

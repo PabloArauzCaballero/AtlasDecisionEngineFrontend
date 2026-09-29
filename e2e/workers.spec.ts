@@ -149,7 +149,7 @@ test.describe('pestaña Procesamiento', () => {
     // MOTOR de las que arma el navegador con las categorías. El primero pasó de
     // «Descargar CSV» a «CSV» al agruparlos bajo ese rótulo, y esta prueba se
     // quedó con el nombre viejo.
-    for (const nombre of [/^CSV$/, /Movimientos \(JSON\)/i, /Contrato completo/i]) {
+    for (const nombre of [/^CSV$/, /Movimientos \(JSON\)/i, /Extracto completo \(JSON\)/i]) {
       await expect(consola.getByRole('button', { name: nombre })).toBeVisible();
     }
   });

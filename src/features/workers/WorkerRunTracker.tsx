@@ -128,7 +128,7 @@ export function WorkerRunTracker({
           <dd>{run.attemptCount || 1}</dd>
         </div>
         <div>
-          <dt>Encolada</dt>
+          <dt>Recibida</dt>
           <dd>{formatDateTime(run.queuedAt)}</dd>
         </div>
         {elapsed ? (
@@ -157,13 +157,11 @@ export function WorkerRunTracker({
             {run.errorMessage ?? 'La ejecución no se pudo completar.'}
           </p>
           <p className="worker-error-detail">
-            Código técnico: <code>{run.errorCode ?? 'DESCONOCIDO'}</code>
-            <br />
-            Identificador de correlación: <code>{run.correlationId}</code>
+            Referencia para soporte: <code>{run.correlationId}</code>
           </p>
           <p className="worker-error-hint">
-            Si el problema se repite, pasa esos dos valores a la persona que opere el motor:
-            identifican esta ejecución exacta en sus registros.
+            Si el problema se repite, pasa esa referencia a soporte: identifica esta ejecución
+            exacta.
           </p>
         </div>
       ) : null}
@@ -182,7 +180,7 @@ export function WorkerRunTracker({
             className="button button-ghost"
             onClick={() => downloadRunTrace(worker, run)}
           >
-            <FileJson size={15} aria-hidden="true" /> Descargar traza (.json)
+            <FileJson size={15} aria-hidden="true" /> Descargar detalle completo
           </button>
         ) : null}
         {run.status === 'QUEUED' && onCancel ? (

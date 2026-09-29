@@ -4,7 +4,7 @@ import type { TutorialRegistry } from './tutorial.types';
 export const governTutorials: TutorialRegistry = {
   '/platform-health': {
     eyebrow: 'Plataforma',
-    title: 'Platform Health',
+    title: 'Estado de la plataforma',
     intro: 'El estado operativo del motor: métricas, servicios y disponibilidad en tiempo real.',
     steps: [
       {
@@ -20,15 +20,15 @@ export const governTutorials: TutorialRegistry = {
   '/reviews': {
     eyebrow: 'Gobierno',
     title: 'Bandeja de Revisiones',
-    intro: 'Concentra las solicitudes de aprobación de Quality, Riesgo y Compliance.',
+    intro: 'Concentra las solicitudes de aprobación de Calidad, Riesgo y Cumplimiento.',
     steps: [
       {
         title: 'La bandeja',
-        body: 'Cada solicitud muestra el artefacto, la versión, el paso actual del flujo y su SLA.',
+        body: 'Cada solicitud muestra el artefacto, la versión, el paso actual del flujo y su plazo.',
       },
       {
         title: 'Decidir',
-        body: 'Abre una solicitud para revisar sus gates y el diff de cambios, y aprobar o rechazar con justificación auditada.',
+        body: 'Abre una solicitud para revisar sus controles y los cambios, y aprobar o rechazar con justificación auditada.',
       },
     ],
   },
@@ -50,7 +50,7 @@ export const governTutorials: TutorialRegistry = {
   '/deployments': {
     eyebrow: 'Gobierno',
     title: 'Historial de Despliegues',
-    intro: 'El registro auditable de promociones, resultados y rollbacks por ambiente.',
+    intro: 'El registro auditable de publicaciones, resultados y reversiones por ambiente.',
     steps: [
       {
         title: 'El historial',
@@ -58,7 +58,7 @@ export const governTutorials: TutorialRegistry = {
       },
       {
         title: 'Nuevo despliegue',
-        body: 'Con rol Platform Admin, «Nuevo Despliegue» promueve una versión aprobada: DIRECT envía todo el tráfico; CANARY y Champion lo reparten por reglas.',
+        body: 'Con rol de administrador de la plataforma, «Nuevo Despliegue» publica una versión aprobada: el modo completo envía todas las solicitudes a la nueva versión; el gradual y el comparativo las reparten por reglas.',
         tip: 'Solo se pueden desplegar versiones aprobadas y compiladas.',
       },
     ],
@@ -70,7 +70,7 @@ export const governTutorials: TutorialRegistry = {
     steps: [
       {
         title: 'Buscar',
-        body: 'Filtra por request ID, artefacto, ambiente o rango de fecha para localizar una ejecución concreta.',
+        body: 'Filtra por identificador de la solicitud, algoritmo, ambiente o rango de fecha para localizar una ejecución concreta.',
       },
       {
         title: 'Abrir el detalle',
@@ -85,11 +85,11 @@ export const governTutorials: TutorialRegistry = {
     steps: [
       {
         title: 'Cadena de eventos',
-        body: 'Cada evento registra actor, tipo, objeto afectado y un hash encadenado con el evento anterior.',
+        body: 'Cada evento registra actor, tipo, objeto afectado y un sello encadenado con el evento anterior.',
       },
       {
         title: 'Verificar integridad',
-        body: 'Los hashes encadenados permiten detectar cualquier alteración del registro sin depender de confianza.',
+        body: 'Los sellos encadenados permiten detectar cualquier alteración del registro sin depender de confianza.',
       },
     ],
   },
@@ -104,7 +104,7 @@ export const governTutorials: TutorialRegistry = {
       },
       {
         title: 'Crear un objetivo',
-        body: '«Nuevo Objetivo» (rol Risk Analyst o Compliance) define código, métrica, meta y equipo, y opcionalmente sus políticas iniciales.',
+        body: '«Nuevo Objetivo» (rol de analista de riesgo o de cumplimiento) define código, métrica, meta y equipo, y opcionalmente sus políticas iniciales.',
       },
       {
         title: 'Trazar de extremo a extremo',

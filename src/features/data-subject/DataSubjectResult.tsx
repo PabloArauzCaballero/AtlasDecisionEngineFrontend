@@ -5,6 +5,7 @@ import { Panel } from '../../components/Panel';
 import { StatusBadge } from '../../components/StatusBadge';
 import { formatDate } from '../../config/locale';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { REQUEST_TYPES } from './data-subject.api';
 
 /**
  * Resolución de una solicitud del titular.
@@ -25,7 +26,10 @@ export function DataSubjectResult({ result }: { result: UnknownRecord }) {
       <dl className="definition-grid">
         <div>
           <dt>Tipo</dt>
-          <dd>{display(data, 'requestType')}</dd>
+          <dd>
+            {REQUEST_TYPES.find((type) => type.code === display(data, 'requestType'))?.label ??
+              display(data, 'requestType')}
+          </dd>
         </div>
         <div>
           <dt>Estado</dt>

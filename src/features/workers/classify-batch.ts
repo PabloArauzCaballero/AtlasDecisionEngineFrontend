@@ -189,7 +189,7 @@ function veredictoDe(ejecucion: WorkerRun): VeredictoCategoria {
   if (ejecucion.status === 'FAILED' || ejecucion.status === 'CANCELLED') {
     return {
       fase: 'fallido',
-      error: ejecucion.errorMessage ?? ejecucion.errorCode ?? 'La ejecución no terminó bien.',
+      error: ejecucion.errorMessage ?? 'La ejecución no terminó bien.',
     };
   }
   return leerVeredicto(ejecucion.result);

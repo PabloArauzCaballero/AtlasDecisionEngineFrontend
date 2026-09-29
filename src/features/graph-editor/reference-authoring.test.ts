@@ -136,7 +136,7 @@ describe('reference-authoring', () => {
 
   it('rechaza una condición de ejecución que no es JSON', () => {
     const form = { ...validForm(), executionCondition: '{ esto no es json' };
-    expect(referenceErrors('RESULT_1', form).join(' ')).toContain('JSON válido');
+    expect(referenceErrors('RESULT_1', form).join(' ')).toContain('no tiene un formato válido');
   });
 
   it('envía la política completa al backend', () => {

@@ -150,7 +150,7 @@ describe('lo descargado se puede volver a subir', () => {
     const { problemas } = leerJson(JSON.stringify({ cualquier: 'cosa' }));
 
     expect(problemas).toHaveLength(1);
-    expect(problemas[0].mensaje).toMatch(/array/i);
+    expect(problemas[0].mensaje).toMatch(/lista/i);
   });
 });
 

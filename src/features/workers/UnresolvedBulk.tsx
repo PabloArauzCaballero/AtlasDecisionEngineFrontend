@@ -74,7 +74,8 @@ export function UnresolvedBulk({
       setAbierto(true);
       setAviso({
         tono: 'aviso',
-        texto: 'El navegador no dejó copiar. El contrato está aquí abajo para copiarlo a mano.',
+        texto:
+          'El navegador no dejó copiar. Las instrucciones están aquí abajo para copiarlas a mano.',
       });
     }
   }
@@ -140,7 +141,9 @@ export function UnresolvedBulk({
           onClick={() => void copiar()}
         >
           <ClipboardCopy size={15} aria-hidden="true" />
-          {copiado ? 'Contrato copiado' : `Copiar contrato (${String(pendientes.length)})`}
+          {copiado
+            ? 'Instrucciones copiadas'
+            : `Copiar instrucciones para IA (${String(pendientes.length)})`}
         </button>
         <button
           type="button"
@@ -194,11 +197,12 @@ export function UnresolvedBulk({
             />
           </Field>
           <p className="field-help">
-            En CSV la cabecera es <code>{COLUMNAS_PENDIENTES.join(', ')}</code> y sólo se leen{' '}
-            <code>id</code> y <code>categoryCode</code>: una fila con la categoría en blanco sigue
-            pendiente. Se comprueba cada línea contra la bandeja y contra el catálogo antes de
-            aplicar nada. Cada asignación queda auditada por separado y enseña su alias al motor,
-            igual que si se resolviera a mano.
+            En CSV la primera fila lleva los nombres de columna{' '}
+            <code>{COLUMNAS_PENDIENTES.join(', ')}</code>, y sólo se leen <code>id</code> (el número
+            del pendiente) y <code>categoryCode</code> (el código de categoría): una fila con la
+            categoría en blanco sigue pendiente. Cada línea se comprueba contra la bandeja y contra
+            el catálogo antes de aplicar nada. Cada asignación queda registrada por separado y el
+            motor la recuerda, igual que si se resolviera a mano.
           </p>
           {aviso === null ? null : (
             <p className={aviso.tono === 'error' ? 'field-error' : 'field-help is-aviso'}>

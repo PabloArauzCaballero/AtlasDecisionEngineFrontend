@@ -166,20 +166,22 @@ function apiDeCelda(language: NotebookLanguage): SimboloNotebook[] {
         nombre: 'df',
         origen: 'api',
         detalle: 'data.frame',
-        documentacion: 'La página cargada del dataset, con una columna por columna servida.',
+        documentacion:
+          'La página cargada del conjunto de datos, con una columna por columna servida.',
       },
       {
         nombre: 'columns',
         origen: 'api',
         detalle: 'character',
-        documentacion: 'Nombres de las columnas, en el orden en que las sirve el dataset.',
+        documentacion:
+          'Nombres de las columnas, en el orden en que las sirve el conjunto de datos.',
       },
       {
         nombre: 'n',
         origen: 'api',
         detalle: 'integer',
         documentacion:
-          'Filas cargadas: `nrow(df)`. Es la MUESTRA de esta página, no el total del dataset.',
+          'Filas cargadas: `nrow(df)`. Es la MUESTRA de esta página, no el total del conjunto de datos.',
       },
     ];
   }
@@ -190,7 +192,7 @@ function apiDeCelda(language: NotebookLanguage): SimboloNotebook[] {
         nombre: 'rows',
         origen: 'api',
         detalle: 'list[dict]',
-        documentacion: 'La página cargada del dataset, tal como llegó.',
+        documentacion: 'La página cargada del conjunto de datos, tal como llegó.',
       },
       {
         nombre: 'columns',
@@ -217,7 +219,7 @@ function apiDeCelda(language: NotebookLanguage): SimboloNotebook[] {
       nombre: 'rows',
       origen: 'api',
       detalle: 'Array<object>',
-      documentacion: 'La página cargada del dataset.',
+      documentacion: 'La página cargada del conjunto de datos.',
     },
     {
       nombre: 'columns',
@@ -229,7 +231,7 @@ function apiDeCelda(language: NotebookLanguage): SimboloNotebook[] {
 }
 
 /**
- * Todo lo que esta celda puede nombrar: su API, las columnas del dataset y la memoria de variables.
+ * Todo lo que esta celda puede nombrar: su API, las columnas del conjunto de datos y la memoria de variables.
  *
  * `previas` son las celdas de código ANTERIORES a ésta, en orden. Para JavaScript llegan vacías por
  * la razón explicada arriba —cada celda corre en su propio worker— y eso no es una carencia: es la
@@ -256,7 +258,7 @@ export function simbolosDisponibles(input: {
       nombre: columna,
       origen: 'columna',
       detalle: 'columna',
-      documentacion: 'Columna del dataset cargado.',
+      documentacion: 'Columna del conjunto de datos cargado.',
     });
   }
   /*

@@ -157,7 +157,7 @@ export function DecisionTableNodeEditor({ config, inputs, onChange }: Props) {
       </Field>
       <small className="field-hint">
         Las reglas se evalúan en orden y gana la primera coincidencia; sin coincidencias aplica el
-        resultado por defecto (fail-closed si queda vacío).
+        resultado por defecto (si queda vacío, se rechaza por seguridad).
       </small>
     </section>
   );

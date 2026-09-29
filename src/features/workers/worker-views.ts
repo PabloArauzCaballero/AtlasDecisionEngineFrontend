@@ -23,25 +23,25 @@ export const WORKER_VIEWS = [
     id: 'panel',
     label: 'Panel de control',
     icon: Gauge,
-    hint: 'Salud, latencia, cola de procesos e incidencias de este worker.',
+    hint: 'Estado, tiempos, trabajos en espera e incidencias de este procesador automático.',
   },
   {
     id: 'consola',
     label: 'Consola',
     icon: SquareTerminal,
-    hint: 'Enviar trabajo a este worker y ver su resultado.',
+    hint: 'Enviar trabajo a este procesador automático y ver su resultado.',
   },
   {
     id: 'categorias',
     label: 'Categorías',
     icon: ListTree,
-    hint: 'El árbol contra el que este worker clasifica: crearlo, corregirlo o inyectarlo desde JSON.',
+    hint: 'Las categorías con las que este procesador automático clasifica: crearlas, corregirlas o cargarlas desde un archivo.',
   },
   {
     id: 'entidades',
     label: 'Entidades financieras',
     icon: Landmark,
-    hint: 'El padrón de entidades bolivianas contra el que este worker decide de quién es un extracto.',
+    hint: 'El padrón de entidades bolivianas con el que este procesador automático reconoce de qué entidad es un extracto.',
   },
   {
     id: 'pendientes',
@@ -59,7 +59,7 @@ export const WORKER_VIEWS = [
     id: 'configuracion',
     label: 'Configuración',
     icon: Settings2,
-    hint: 'Qué gateway y qué modelo de lenguaje atienden este worker. Se cambia en caliente, sin desplegar.',
+    hint: 'Qué proveedor y qué modelo de lenguaje usa este procesador automático. El cambio se aplica al momento.',
   },
 ] as const;
 

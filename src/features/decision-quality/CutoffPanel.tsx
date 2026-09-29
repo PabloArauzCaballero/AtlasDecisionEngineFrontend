@@ -120,12 +120,15 @@ export function CutoffPanel() {
         </div>
         <p className="quality-note">
           El corte se aplica con la convención «más alto = más riesgo»: se aprueba lo que queda por
-          debajo. Si tu artefacto puntúa al revés, la curva sale invertida y se ve de inmediato.
+          debajo. Si tu modelo puntúa al revés, la curva sale invertida y se ve de inmediato.
         </p>
         {curve.data && <CurveTable curve={curve.data} />}
       </Panel>
 
-      <Panel title="Champion contra challenger" meta="comparados por desenlace, no por volumen">
+      <Panel
+        title="Modelo actual contra alternativo"
+        meta="comparados por desenlace, no por volumen"
+      >
         <Field
           className="quality-filter"
           label="Despliegue"

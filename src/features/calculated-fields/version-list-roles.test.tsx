@@ -28,7 +28,9 @@ describe('versiones de un campo calculado · qué ofrece cada rol', () => {
       />,
     );
     expect(screen.queryByTestId('try-panel')).not.toBeInTheDocument();
-    expect(screen.getByText(/requiere rol QA Analyst o Fraud Analyst/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/requiere el rol de analista de pruebas o de analista de fraude/),
+    ).toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(1); // sólo desplegar la versión
   });
 

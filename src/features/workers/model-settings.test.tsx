@@ -117,11 +117,13 @@ describe('configuración del modelo del worker semántico', () => {
 
     // La píldora «En uso», no la tarjeta del gateway: las dos dicen el nombre.
     const enUso = await screen.findByText('En uso');
-    expect(enUso.closest('li')).toHaveTextContent('LiteLLM (gateway propio)');
+    expect(enUso.closest('li')).toHaveTextContent('Proveedor propio');
     expect(screen.getByText('Rápido').closest('li')).toHaveTextContent('semantic-classifier-fast');
-    expect(screen.getByText(/Configurado por el entorno del motor/)).toBeInTheDocument();
+    expect(screen.getByText(/Configurado por defecto en el motor/)).toBeInTheDocument();
     // Sin elección del portal no hay a qué volver.
-    expect(screen.queryByRole('button', { name: /Volver al entorno/ })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Volver a lo predeterminado/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('un gateway sin credencial se ofrece deshabilitado y con el motivo', async () => {
@@ -132,7 +134,9 @@ describe('configuración del modelo del worker semántico', () => {
 
     const radio = await screen.findByRole('radio', { name: /OpenRouter/ });
     expect(radio).toBeDisabled();
-    expect(screen.getByText(/falta/)).toHaveTextContent('OPENROUTER_API_KEY');
+    expect(screen.getByText(/falta configurar la clave/)).toHaveTextContent(
+      'Sin clave de acceso en el motor',
+    );
   });
 
   it('elegir OpenRouter y un modelo del catálogo, y guardar manda exactamente eso', async () => {
@@ -213,7 +217,7 @@ describe('configuración del modelo del worker semántico', () => {
 
     await waitFor(() => expect(screen.getByText('gemini-2.0-flash')).toBeInTheDocument());
     expect(screen.getByText('812 ms')).toBeInTheDocument();
-    expect(screen.getByText('$0.000367 · 507 tokens')).toBeInTheDocument();
+    expect(screen.getByText('$0.000367 · 507 unidades de texto')).toBeInTheDocument();
     expect(screen.getByText('GASTOS.SUPERMERCADO · 95 %')).toBeInTheDocument();
     expect(screen.getByText(/model_not_found/)).toBeInTheDocument();
   });
@@ -223,7 +227,7 @@ describe('configuración del modelo del worker semántico', () => {
     pintar();
 
     await waitFor(() =>
-      expect(screen.getByText(/no usa ningún gateway remoto/)).toBeInTheDocument(),
+      expect(screen.getByText(/no usa ningún proveedor remoto/)).toBeInTheDocument(),
     );
     expect(screen.getByRole('button', { name: /^Guardar/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: /Probar/ })).toBeDisabled();

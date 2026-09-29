@@ -20,36 +20,36 @@ export interface TutorialStep {
 export const TUTORIAL_STEPS: readonly TutorialStep[] = [
   {
     id: 'welcome',
-    title: 'Bienvenido a Atlas Decision Engine',
+    title: 'Bienvenido al Motor de decisiones de Atlas',
     body: 'Este recorrido te muestra, en unos pocos pasos, cómo se prueba un árbol de decisión antes de publicarlo. Puedes salir en cualquier momento y reiniciarlo luego desde el botón de ayuda.',
   },
   {
     id: 'sample-algorithm',
     title: 'Datos de prueba (ejemplo ilustrativo)',
-    body: 'Ejemplo de referencia — no son datos reales: un algoritmo con entradas age, income y hasActiveDebt produce las salidas riskLevel y explanation. age=35, income=4200, hasActiveDebt=false → riskLevel="LOW", explanation="Ingresos estables y sin deuda activa".',
+    body: 'Ejemplo de referencia — no son datos reales: un algoritmo con entradas edad, ingreso y tiene_deuda produce las salidas nivel_riesgo y explicacion. edad=35, ingreso=4200, tiene_deuda=no → nivel_riesgo="BAJO", explicacion="Ingresos estables y sin deuda activa".',
   },
   {
     id: 'sample-algorithm-negative',
     title: 'Mismo ejemplo, otro caso',
-    body: 'Datos de prueba: age=22, income=1200, hasActiveDebt=true → riskLevel="HIGH", explanation="Ingresos bajos combinados con deuda activa". Así es como un árbol de decisión documenta el porqué de cada resultado.',
+    body: 'Datos de prueba: edad=22, ingreso=1200, tiene_deuda=sí → nivel_riesgo="ALTO", explicacion="Ingresos bajos combinados con deuda activa". Así es como un árbol de decisión documenta el porqué de cada resultado.',
   },
   {
     id: 'nav-simulator',
     title: 'Ahora, pruébalo tú',
-    body: 'Este es el enlace al simulador. Haz clic en "Siguiente" y te llevaremos ahí — desde ahí puedes ejecutar una decisión real contra cualquier artefacto desplegado.',
+    body: 'Este es el enlace al simulador. Haz clic en "Siguiente" y te llevaremos ahí — desde ahí puedes ejecutar una decisión real con cualquier algoritmo publicado.',
     route: '/simulator',
     targetSelector: '[data-tutorial-id="nav-simulator"]',
   },
   {
     id: 'simulator-form',
     title: 'Configura una decisión de prueba',
-    body: 'Indica el código del artefacto y el ambiente (usa DEV para no afectar producción), y edita las variables de entrada en formato JSON.',
+    body: 'Indica el código del algoritmo y el ambiente (usa uno de prueba para no afectar producción), y completa los valores de las variables de entrada.',
     targetSelector: '[data-tutorial-id="simulator-form"]',
   },
   {
     id: 'simulator-submit',
     title: 'Ejecuta la simulación',
-    body: 'Al enviar, el motor evalúa el árbol de decisión con esos valores y te muestra el resultado explicado — outcome, razones y la ruta que siguió por el grafo.',
+    body: 'Al enviar, el motor evalúa el árbol de decisión con esos valores y te muestra el resultado explicado — la decisión, sus motivos y la ruta que siguió por el grafo.',
     targetSelector: '[data-tutorial-id="simulator-submit"]',
   },
   {

@@ -198,7 +198,7 @@ describe('archivo CSV que vuelve de la hoja de cálculo', () => {
       validos,
     );
     expect(asignaciones).toHaveLength(1);
-    expect(descartadas).toEqual(['1 fila(s) sin «categoryCode»: siguen pendientes.']);
+    expect(descartadas).toEqual(['1 fila(s) sin código de categoría: siguen pendientes.']);
   });
 
   it('valida contra el catálogo igual que el pegado', () => {

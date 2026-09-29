@@ -89,7 +89,7 @@ describe('SimulatorSampleBar', () => {
     expect(mockedApiRequest.mock.calls[1][1]?.body).toMatchObject({ seed: 'k3f2' });
   });
 
-  it('avisa cuando los fakers no respondieron', async () => {
+  it('avisa cuando el generador de datos realistas no respondió', async () => {
     mockedApiRequest.mockResolvedValue({
       seed: 'k3f2',
       kind: 'VALID',
@@ -103,7 +103,9 @@ describe('SimulatorSampleBar', () => {
     renderBar();
     elegirOpcion(campo('Valores de prueba'), 'VALID');
     fireEvent.click(screen.getByRole('button', { name: /Generar valores/ }));
-    expect(await screen.findByText(/sin fakers \(El servidor de fakers no respondió/)).toBeTruthy();
+    expect(
+      await screen.findByText(/sin datos realistas \(el generador no respondió\)/),
+    ).toBeTruthy();
   });
 
   it('por omisión pide un caso por desenlace y rotula cada uno con el suyo', async () => {

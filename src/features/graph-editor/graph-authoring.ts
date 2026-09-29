@@ -1,4 +1,5 @@
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { nodeTypeLabel } from './node-catalog';
 
 interface Position {
   x: number;
@@ -54,7 +55,7 @@ export function createNodeDraft(
   const node: UnknownRecord = {
     key,
     type,
-    label: type === 'START' ? 'Start' : `${type.replace(/_/g, ' ')} ${key.split('_').at(-1)}`,
+    label: type === 'START' ? 'Inicio' : `${nodeTypeLabel(type)} ${key.split('_').at(-1)}`,
     config: {},
     x: position?.x ?? 10 + ((nodes.length * 14) % 70),
     y: position?.y ?? 14 + ((nodes.length * 11) % 60),
@@ -80,7 +81,7 @@ export function createNodeDraft(
     node,
     condition: {
       code: conditionCode,
-      name: `Condition for ${node.label}`,
+      name: `Condición de ${node.label}`,
       expressionType: 'JSON_AST',
       expression: { variable: inputCode, operator: 'gte', value: 0 },
       severity: 'BLOCKING',

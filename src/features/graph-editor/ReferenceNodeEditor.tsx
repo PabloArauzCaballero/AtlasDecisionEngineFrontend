@@ -60,7 +60,7 @@ export function ReferenceNodeEditor({
       notify({
         tone: 'success',
         title: 'Referencia vinculada',
-        description: 'Guarda el grafo para persistir el mapeo de salida del nodo.',
+        description: 'Guarda el grafo para conservar qué salidas se copian en este paso.',
       });
       setForm(emptyReferenceForm());
     },
@@ -229,7 +229,7 @@ export function ReferenceNodeEditor({
           }
           options={closedOptions(
             [
-              { value: 'FAIL', label: 'Fallar la decisión (fail-closed)' },
+              { value: 'FAIL', label: 'Fallar la decisión (se rechaza por seguridad)' },
               { value: 'FALLBACK', label: 'Usar salida de reserva' },
               { value: 'SKIP', label: 'Omitir la referencia' },
             ],

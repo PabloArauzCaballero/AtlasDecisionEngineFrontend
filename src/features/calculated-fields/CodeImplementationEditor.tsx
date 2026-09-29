@@ -40,8 +40,8 @@ const PLACEHOLDERS: Record<Exclude<ImplementationKind, 'OPERATION'>, string> = {
 };
 
 const HINTS: Record<Exclude<ImplementationKind, 'OPERATION'>, string> = {
-  JAVASCRIPT: 'Devuelve el resultado con `return`. Las entradas están en `variables.<id>`.',
-  PYTHON: 'Asigna el resultado a `result`. Las entradas están en `variables["<id>"]`.',
+  JAVASCRIPT: 'Devuelve el resultado con «return». Las entradas están en «variables.<id>».',
+  PYTHON: 'Asigna el resultado a «result». Las entradas están en «variables["<id>"]».',
 };
 
 /**

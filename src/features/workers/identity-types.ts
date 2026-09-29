@@ -109,7 +109,7 @@ export const REASON_LABEL: Record<string, string> = {
   DOCUMENT_SIDES_MISMATCH: 'El anverso y el reverso no son del mismo documento',
   DOCUMENT_MRZ_MISMATCH: 'El texto impreso y la zona de lectura mecánica no dicen lo mismo',
   DOCUMENT_MRZ_CHECK_FAILED: 'La zona de lectura mecánica se leyó, pero su control no cuadra',
-  GENERIC_PARSER_USED: 'Se usó el analizador genérico: ese tipo de documento no tiene uno propio',
+  GENERIC_PARSER_USED: 'Se usó la lectura genérica: ese tipo de documento no tiene una propia',
   MRZ_NOT_FOUND: 'No se encontró la zona de lectura mecánica',
   LOW_RESOLUTION: 'La imagen tiene poca resolución',
   UNDEREXPOSED: 'La imagen está subexpuesta',

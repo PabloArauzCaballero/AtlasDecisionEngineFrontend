@@ -74,14 +74,11 @@ export function runJavaScriptCell(
     try {
       url = URL.createObjectURL(new Blob([fuenteDelWorker(codigo)], { type: 'text/javascript' }));
       worker = new Worker(url);
-    } catch (error) {
+    } catch {
       limpiar();
       resolve({
         status: 'error',
-        error:
-          error instanceof Error
-            ? `No se pudo arrancar el ejecutor de JavaScript: ${error.message}`
-            : 'No se pudo arrancar el ejecutor de JavaScript.',
+        error: 'JavaScript no está disponible en este ambiente. Avisa a soporte.',
         logs: [],
         durationMs: 0,
       });

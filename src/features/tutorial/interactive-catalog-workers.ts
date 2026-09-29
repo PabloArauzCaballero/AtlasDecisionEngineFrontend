@@ -12,26 +12,26 @@ import type { InteractiveTutorial } from './interactive-types';
 export const WORKER_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   workers: {
     id: 'workers',
-    title: 'Workers: convertir un documento en datos',
+    title: 'Procesadores automáticos: convertir un documento en datos',
     intro:
-      'Un algoritmo decide sobre números y categorías, no sobre PDFs. Los workers son los procesos que convierten lo que llega —un extracto bancario, un texto libre— en las variables que el contrato del algoritmo espera.',
+      'Un algoritmo decide sobre números y categorías, no sobre PDFs. Los procesadores automáticos convierten lo que llega —un extracto bancario, un texto libre— en las variables que el contrato del algoritmo espera.',
     version: 1,
     steps: [
       {
         id: 'what',
         route: '/workers',
         target: '[data-tutorial-id="workers-switch"]',
-        title: 'Qué hace un worker en la cadena',
+        title: 'Qué hace un procesador automático en la cadena',
         content:
-          'Cada worker es una pantalla propia: los tienes todos en «Workers», en el menú de la izquierda. El de extractos lee un PDF y saca movimientos, saldos e institución; el de análisis semántico clasifica texto en categorías del catálogo. Ninguno decide nada: producen los datos con los que después decide un algoritmo. Las pestañas de aquí arriba son las caras del worker que estés mirando.',
-        tip: 'Un nodo del grafo puede llamar a un worker. Cuando lo hace, la calidad de la decisión no puede ser mejor que la calidad de esta extracción.',
+          'Cada procesador automático tiene su pantalla: los tienes todos en «Procesadores automáticos», en el menú de la izquierda. El de extractos lee un PDF y saca movimientos, saldos e institución; el de análisis semántico clasifica texto en categorías del catálogo. Ninguno decide nada: producen los datos con los que después decide un algoritmo. Las pestañas de aquí arriba son las vistas del procesador que estés mirando.',
+        tip: 'Un nodo del grafo puede llamar a un procesador automático. Cuando lo hace, la calidad de la decisión no puede ser mejor que la calidad de esta extracción.',
       },
       {
         id: 'panel',
         target: '[data-tutorial-id="workers-dashboard"]',
         title: 'El panel dice si se puede confiar',
         content:
-          'Resume las corridas recientes, cuánto tardan y cuántas terminan con advertencias o con error. Una tasa alta de advertencias no es ruido: significa que el worker está entregando datos incompletos, y una decisión tomada sobre datos incompletos es una decisión mal tomada.',
+          'Resume las corridas recientes, cuánto tardan y cuántas terminan con advertencias o con error. Una tasa alta de advertencias no es ruido: significa que el procesador está entregando datos incompletos, y una decisión tomada sobre datos incompletos es una decisión mal tomada.',
         optional: true,
       },
       {
@@ -39,7 +39,7 @@ export const WORKER_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         target: '[data-tutorial-id="workers-console"]',
         title: 'Probar con un documento real',
         content:
-          'La consola procesa un documento delante de ti y enseña lo que el worker entendió, campo por campo. Es la forma de comprobar un formato nuevo —otro banco, otra maquetación— antes de dejar que alimente decisiones de verdad.',
+          'La consola procesa un documento delante de ti y enseña lo que el procesador entendió, campo por campo. Es la forma de comprobar un formato nuevo —otro banco, otro diseño de página— antes de dejar que alimente decisiones de verdad.',
         tip: 'Si el resultado trae advertencias, léelas antes que el resumen: dicen exactamente qué parte del documento no se pudo interpretar.',
         optional: true,
       },

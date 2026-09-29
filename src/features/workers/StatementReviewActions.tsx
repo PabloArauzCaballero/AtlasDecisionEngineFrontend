@@ -94,7 +94,8 @@ export function StatementReviewActions({ detalle }: { detalle: StatementReviewDe
     mutationFn: () =>
       promise(reprocessStatementReview(detalle.requestId), {
         loading: 'Devolviendo el documento a la cola…',
-        success: 'Reencolado: el motor volverá a intentarlo y el caso sale de la cola de revisión.',
+        success:
+          'Enviado de nuevo: el motor volverá a intentarlo y el caso sale de la cola de revisión.',
       }),
     onSuccess: refrescar,
   });
@@ -205,7 +206,7 @@ export function StatementReviewActions({ detalle }: { detalle: StatementReviewDe
           }
           onClick={() => reprocesar.mutate()}
         >
-          {reprocesar.isPending ? 'Reencolando…' : 'Reprocesar'}
+          {reprocesar.isPending ? 'Enviando…' : 'Reprocesar'}
         </button>
       </div>
     </form>

@@ -18,7 +18,9 @@ interface Props {
  * Sirve para que quien consume la decisión sepa qué esperar antes de publicarla.
  */
 export function OutputContractJsonPreview({ outputs, fields }: Props) {
-  return <JsonPanel value={buildPreviewShape(outputs, fields)} label="Vista previa JSON" />;
+  return (
+    <JsonPanel value={buildPreviewShape(outputs, fields)} label="Vista previa del resultado" />
+  );
 }
 
 export function buildPreviewShape(
