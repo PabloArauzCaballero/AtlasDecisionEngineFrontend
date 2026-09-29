@@ -6,7 +6,7 @@ import { useAmbientMotion } from '../../../hooks/useMotionPreferences';
 
 const MESSAGES = [
   'Diseña decisiones comprensibles.',
-  'Automatiza pruebas de forma segura.',
+  'Prueba cada cambio antes de que llegue a un cliente.',
   'Analiza cada ejecución paso a paso.',
   'Convierte datos en decisiones verificables.',
 ] as const;

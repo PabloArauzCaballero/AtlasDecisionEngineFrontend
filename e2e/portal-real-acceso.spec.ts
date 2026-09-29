@@ -6,7 +6,7 @@ import {
   botonEntrar,
   campoClave,
   campoCorreo,
-  campoTenant,
+  escribirTenant,
   entrar,
 } from './support/real-portal';
 import { deAplicacion, vigilar } from './support/real-portal-watch';
@@ -74,7 +74,7 @@ test.describe('acceso · motor real', () => {
     const problemas = vigilar(page, () => '/login', { esperadas: [/\/v1\/session\/login/] });
 
     await page.goto('/login', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await campoTenant(page).fill(CREDENCIALES.tenantId);
+    await escribirTenant(page, CREDENCIALES.tenantId);
     await campoCorreo(page).fill(CREDENCIALES.email);
     await campoClave(page).fill('contrasena-que-no-es-la-suya');
 
@@ -117,7 +117,7 @@ test.describe('acceso · motor real', () => {
     const problemas = vigilar(page, () => '/login', { esperadas: [/\/v1\/session\/login/] });
 
     await page.goto('/login', { waitUntil: 'domcontentloaded', timeout: 60_000 });
-    await campoTenant(page).fill('999999');
+    await escribirTenant(page, '999999');
     await campoCorreo(page).fill(CREDENCIALES.email);
     await campoClave(page).fill(CREDENCIALES.password);
 

@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import '../styles/global.css';
+import { env } from '../config/env';
+import { resolveEnvironmentLabel } from '../config/environment-label';
 import { THEME_BOOTSTRAP_SCRIPT } from '../theme/theme';
 import { AppProviders } from './AppProviders';
 
@@ -81,7 +83,13 @@ interface RootLayoutProps {
 export default async function RootLayout({ children }: RootLayoutProps) {
   // Lo escribe `src/middleware.next.ts` en cada petición; sin él el script del tema
   // sería lo único que la CSP bloquearía, y volvería el destello blanco.
-  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  const requestHeaders = await headers();
+  const nonce = requestHeaders.get('x-nonce') ?? undefined;
+  const environmentLabel = resolveEnvironmentLabel({
+    runtimeLabel: process.env.ENVIRONMENT_LABEL,
+    host: requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host'),
+    bakedLabel: env.environmentLabel,
+  });
 
   return (
     <html lang="es-BO" className={inter.variable} suppressHydrationWarning>
@@ -109,7 +117,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <a className="skip-link" href="#main-content">
           Saltar al contenido principal
         </a>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders environmentLabel={environmentLabel}>{children}</AppProviders>
       </body>
     </html>
   );

@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { PasswordChangeDialog } from '../../auth/PasswordChangeDialog';
 import { useAuth } from '../../auth/useAuth';
-import { env } from '../../config/env';
+import { canAccessPath } from '../../auth/route-access';
+import { useEffectiveRoles } from '../../auth/useAuth';
+import { useEnvironmentLabel } from '../../config/EnvironmentLabelProvider';
 import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
 import { NavLink } from '../../navigation/NavLink';
 import { NotificationCenter } from '../../notifications/NotificationCenter';
@@ -16,12 +18,24 @@ interface NextTopbarProps {
   onMenu: () => void;
 }
 
+/** Atajos de la barra superior, con el nombre de lo que abren y no una palabra de moda en inglés. */
+const TOP_SHORTCUTS = [
+  { href: '/platform-health', label: 'Inicio' },
+  { href: '/artifacts', label: 'Algoritmos' },
+  { href: '/coverage-matrix', label: 'Cobertura' },
+] as const;
+
 export function NextTopbar({ onMenu }: NextTopbarProps) {
   const { user, logout } = useAuth();
   const { notify } = useNotifications();
   const router = useRouter();
   const [closing, setClosing] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const environmentLabel = useEnvironmentLabel();
+  const roles = useEffectiveRoles();
+  // Un acceso que lleva a «no tienes permiso» es un botón que no funciona para quien lo pulsa.
+  const shortcuts = TOP_SHORTCUTS.filter((link) => canAccessPath(link.href, roles));
+  const canSimulate = canAccessPath('/simulator', roles);
 
   const closeSession = async () => {
     // Sign-out is a redirect, so the button itself has to carry the busy state.
@@ -53,35 +67,42 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
       </button>
       <GlobalSearchBox />
       <nav className="top-links" aria-label="Accesos rápidos">
-        <NavLink href="/platform-health">Dashboard</NavLink>
-        <NavLink href="/artifacts">Workspaces</NavLink>
-        <NavLink href="/coverage-matrix">Analytics</NavLink>
+        {shortcuts.map((link) => (
+          <NavLink key={link.href} href={link.href}>
+            {link.label}
+          </NavLink>
+        ))}
       </nav>
       <div className="topbar-spacer" />
       {/* Antes decía "Production" siempre, incluso corriendo contra sandbox.
           Ahora se muestra el ambiente declarado en la configuración y, si no
           hay ninguno declarado, no se muestra nada: mejor un hueco que una
           afirmación falsa sobre dónde está trabajando el usuario. */}
-      {env.environmentLabel ? (
+      {environmentLabel ? (
         <div
           data-tutorial-id="environment-chip"
-          className={`environment-chip ${env.environmentLabel === 'PRODUCTION' ? '' : 'environment-nonprod'}`}
+          className={`environment-chip ${environmentLabel === 'PRODUCTION' ? '' : 'environment-nonprod'}`}
           title={
-            env.environmentLabel === 'PRODUCTION'
+            environmentLabel === 'PRODUCTION'
               ? 'Estás trabajando contra el ambiente productivo.'
-              : `Estás trabajando contra ${env.environmentLabel}, no contra producción.`
+              : `Estás trabajando contra ${environmentLabel}, no contra producción.`
           }
         >
-          <span /> {env.environmentLabel}
+          <span /> {environmentLabel}
         </div>
       ) : null}
-      <NavLink className="top-action" href="/simulator">
-        <Boxes size={15} /> Simulate
-      </NavLink>
+      {canSimulate ? (
+        <NavLink className="top-action" href="/simulator">
+          <Boxes size={15} /> Simular
+        </NavLink>
+      ) : null}
       <ThemeToggle />
       <NotificationCenter />
-      <div className="security-label">
-        <ShieldCheck size={15} /> Verified
+      <div
+        className="security-label"
+        title="Entraste con contraseña y código enviado a tu correo; todo lo que hagas queda registrado."
+      >
+        <ShieldCheck size={15} /> Sesión protegida
       </div>
       <div className="user-summary" data-tutorial-id="user-summary">
         <strong>{user?.name ?? user?.fullName}</strong>

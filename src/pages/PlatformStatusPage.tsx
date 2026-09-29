@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { errorMessage } from '../api/ApiError';
+import { canAccessPath } from '../auth/route-access';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import type { AmbientState } from '../components/AmbientBackground';
@@ -35,6 +37,9 @@ const QUICK_ACCESS = [
  * humano pendiente— de modo que el color comunica algo verdadero y no adorna.
  */
 export function PlatformStatusPage() {
+  const roles = useEffectiveRoles();
+  // Un acceso que termina en «no tienes permiso» no es un atajo: sólo se ofrece lo que se puede abrir.
+  const quickAccess = QUICK_ACCESS.filter((item) => canAccessPath(item.href, roles));
   const health = useQuery({
     queryKey: ['platform-health'],
     queryFn: async ({ signal }) => ({
@@ -191,16 +196,18 @@ export function PlatformStatusPage() {
         environments={environments}
       />
 
-      <Panel title="Accesos rápidos" meta="Las operaciones más habituales">
-        <div className="dash-shortcuts">
-          {QUICK_ACCESS.map((item) => (
-            <Link key={item.href} className="dash-shortcut" href={item.href}>
-              <ConceptIcon concept={item.concept} tone="accent" decorative />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </Panel>
+      {quickAccess.length > 0 ? (
+        <Panel title="Accesos rápidos" meta="Las operaciones más habituales">
+          <div className="dash-shortcuts">
+            {quickAccess.map((item) => (
+              <Link key={item.href} className="dash-shortcut" href={item.href}>
+                <ConceptIcon concept={item.concept} tone="accent" decorative />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </Panel>
+      ) : null}
     </>
   );
 }

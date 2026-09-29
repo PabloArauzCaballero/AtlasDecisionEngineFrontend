@@ -2,6 +2,7 @@
 
 import type { PropsWithChildren } from 'react';
 import { AuthProvider } from '../auth/AuthProvider';
+import { EnvironmentLabelProvider } from '../config/EnvironmentLabelProvider';
 import { NavigationProgressProvider } from '../navigation/NavigationProgressProvider';
 import { NotificationProvider } from '../notifications/NotificationProvider';
 import { QueryProvider } from './QueryProvider';
@@ -14,14 +15,19 @@ import { QueryProvider } from './QueryProvider';
  * toast. The QueryClient itself is owned by QueryProvider, which keeps it to a
  * single instance per browser session.
  */
-export function AppProviders({ children }: PropsWithChildren) {
+export function AppProviders({
+  children,
+  environmentLabel,
+}: PropsWithChildren<{ environmentLabel: string }>) {
   return (
-    <NotificationProvider>
-      <NavigationProgressProvider>
-        <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryProvider>
-      </NavigationProgressProvider>
-    </NotificationProvider>
+    <EnvironmentLabelProvider label={environmentLabel}>
+      <NotificationProvider>
+        <NavigationProgressProvider>
+          <QueryProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryProvider>
+        </NavigationProgressProvider>
+      </NotificationProvider>
+    </EnvironmentLabelProvider>
   );
 }

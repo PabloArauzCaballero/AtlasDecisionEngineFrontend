@@ -45,7 +45,7 @@ export async function entrar(page: Page): Promise<void> {
 
   const buzon = await abrirBuzon();
   try {
-    await campoTenant(page).fill(CREDENCIALES.tenantId);
+    await escribirTenant(page, CREDENCIALES.tenantId);
     await campoCorreo(page).fill(CREDENCIALES.email);
     await campoClave(page).fill(CREDENCIALES.password);
     await botonEntrar(page).click();
@@ -169,6 +169,18 @@ async function pinDeArchivo(): Promise<string | null> {
  */
 export function campoTenant(page: Page): Locator {
   return page.locator('.login-form input[inputmode="numeric"]').first();
+}
+
+/**
+ * El número de organización va plegado en «Entrar en otra organización»: casi nadie lo cambia.
+ * Se despliega antes de escribirlo, o la prueba esperaría a un campo invisible.
+ */
+export async function escribirTenant(page: Page, valor: string): Promise<void> {
+  const plegable = page.locator('.login-form details.login-advanced');
+  if (!(await plegable.evaluate((el) => (el as HTMLDetailsElement).open))) {
+    await plegable.locator('summary').click();
+  }
+  await campoTenant(page).fill(valor);
 }
 
 export function campoCorreo(page: Page): Locator {

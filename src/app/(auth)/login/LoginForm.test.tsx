@@ -124,7 +124,8 @@ describe('describeLoginError', () => {
     expect(problem.title).toMatch(/no está autorizado/);
     expect(problem.body).toMatch(/No es tu cuenta/);
     expect(problem.body).not.toMatch(/rol/);
-    expect(problem.action).toMatch(/CORS_ALLOWED_ORIGINS/);
+    expect(problem.action).toMatch(/equipo de sistemas/);
+    expect(problem.action).not.toMatch(/CORS/);
     expect(problem.retryable).toBe(false);
   });
 

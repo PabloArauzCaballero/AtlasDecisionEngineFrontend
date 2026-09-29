@@ -48,7 +48,7 @@ export function describeLoginError(error: unknown): LoginProblem {
       title: 'Este portal no está autorizado a hablar con el motor',
       body: 'No es tu cuenta: el servidor rechazó la dirección desde la que se abrió el portal, así que ni siquiera llegó a comprobar tus credenciales.',
       action:
-        'Avisa al equipo de plataforma: falta añadir esta dirección a CORS_ALLOWED_ORIGINS del motor.',
+        'Avisa al equipo de sistemas: el motor todavía no reconoce la dirección desde la que abriste el portal.',
       tone: 'error',
       retryable: false,
     };

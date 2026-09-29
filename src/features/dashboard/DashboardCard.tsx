@@ -1,5 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { canAccessPath } from '../../auth/route-access';
+import { useEffectiveRoles } from '../../auth/useAuth';
 import { AnimatedNumber } from '../../components/AnimatedNumber';
 import { ConceptIcon } from '../../components/ConceptIcon';
 import type { ConceptKey } from '../../components/concept-icons';
@@ -7,7 +9,7 @@ import type { ConceptKey } from '../../components/concept-icons';
 interface DashboardCardProps {
   concept: ConceptKey;
   label: string;
-  /** Valor real. `null` cuando el backend no pudo responder ese recurso. */
+  /** Valor real. `null` cuando el motor no pudo responder ese recurso. */
   value: number | null;
   suffix?: string;
   /** Decimales del contador; los porcentajes usan uno. */
@@ -43,6 +45,9 @@ export function DashboardCard({
   actionLabel = 'Abrir',
 }: DashboardCardProps) {
   const unavailable = value === null;
+  const roles = useEffectiveRoles();
+  // Sin permiso para abrir el destino, el número se enseña igual pero sin el enlace a «prohibido».
+  const target = href && canAccessPath(href, roles) ? href : undefined;
   return (
     <article className={`dash-card dash-${tone} ${unavailable ? 'is-unavailable' : ''}`}>
       <header>
@@ -52,9 +57,13 @@ export function DashboardCard({
       <strong>
         {unavailable ? '—' : <AnimatedNumber value={value} suffix={suffix} decimals={decimals} />}
       </strong>
-      <small>{unavailable ? 'Dato no disponible ahora mismo en el backend.' : hint}</small>
-      {href ? (
-        <Link className="dash-card-action" href={href}>
+      <small>
+        {unavailable
+          ? 'No se pudo obtener este dato ahora mismo. Vuelve a intentarlo en unos minutos.'
+          : hint}
+      </small>
+      {target ? (
+        <Link className="dash-card-action" href={target}>
           {actionLabel} <ArrowRight size={13} aria-hidden="true" />
         </Link>
       ) : null}

@@ -186,3 +186,15 @@
   font-size: var(--type-xs);
   text-align: center;
 }
+
+/* «Entrar en otra organización»: el número de organización, plegado porque casi nadie lo cambia. */
+.login-advanced > summary {
+  cursor: pointer;
+  color: var(--text-muted, currentColor);
+  font-size: 0.875rem;
+  padding: 0.25rem 0;
+}
+
+.login-advanced[open] > summary {
+  margin-bottom: 0.5rem;
+}
