@@ -1,0 +1,314 @@
+{
+  "caseRuns": [
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_NO_ALCANZA", "E_A_REVISAR_PUNTAJE"],
+          "nodes": [
+            "START",
+            "CONTAR_FALTANTES",
+            "EVALUAR",
+            "EMITIR_PUNTAJE_INSUFICIENTE",
+            "REVISAR_PUNTAJE"
+          ],
+          "terminal": "REVISAR_PUNTAJE"
+        },
+        "outcome": "MANUAL_REVIEW",
+        "reasons": ["BELOW_MINIMUM_RISK_SCORE"],
+        "reasonCodes": ["BELOW_MINIMUM_RISK_SCORE"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "MANUAL_REVIEW"
+        },
+        "riesgo_motivo": "BELOW_MINIMUM_RISK_SCORE",
+        "riesgo_decision": "MANUAL_REVIEW",
+        "riesgo_faltantes": 0
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "3",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-60-REVISA",
+        "testName": "60 puntos no alcanzan: a una persona, con motivo adverso",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 60,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": true,
+          "has_identity_document": true,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "MANUAL_REVIEW",
+          "reasonCodes": ["BELOW_MINIMUM_RISK_SCORE"],
+          "riesgo_motivo": "BELOW_MINIMUM_RISK_SCORE",
+          "riesgo_decision": "MANUAL_REVIEW"
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    },
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_NO_ALCANZA", "E_A_REVISAR_PUNTAJE"],
+          "nodes": [
+            "START",
+            "CONTAR_FALTANTES",
+            "EVALUAR",
+            "EMITIR_PUNTAJE_INSUFICIENTE",
+            "REVISAR_PUNTAJE"
+          ],
+          "terminal": "REVISAR_PUNTAJE"
+        },
+        "outcome": "MANUAL_REVIEW",
+        "reasons": ["BELOW_MINIMUM_RISK_SCORE"],
+        "reasonCodes": ["BELOW_MINIMUM_RISK_SCORE"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "MANUAL_REVIEW"
+        },
+        "riesgo_motivo": "BELOW_MINIMUM_RISK_SCORE",
+        "riesgo_decision": "MANUAL_REVIEW",
+        "riesgo_faltantes": 0
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "4",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-64-99-REVISA",
+        "testName": "64,99 no es 65",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 64.99,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": true,
+          "has_identity_document": true,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "MANUAL_REVIEW",
+          "riesgo_decision": "MANUAL_REVIEW"
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    },
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_ALCANZA", "E_A_APROBAR"],
+          "nodes": ["START", "CONTAR_FALTANTES", "EVALUAR", "EMITIR_RIESGO_SUPERADO", "APROBAR"],
+          "terminal": "APROBAR"
+        },
+        "outcome": "APPROVE",
+        "reasons": ["MINIMUM_ONBOARDING_RISK_PASSED"],
+        "reasonCodes": ["MINIMUM_ONBOARDING_RISK_PASSED"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "APPROVE"
+        },
+        "riesgo_motivo": "MINIMUM_ONBOARDING_RISK_PASSED",
+        "riesgo_decision": "APPROVE",
+        "riesgo_faltantes": 0
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "2",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-65-JUSTO-APRUEBA",
+        "testName": "65 puntos justos alcanzan el umbral",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 65,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": true,
+          "has_identity_document": true,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "APPROVE",
+          "riesgo_decision": "APPROVE"
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    },
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_ALCANZA", "E_A_APROBAR"],
+          "nodes": ["START", "CONTAR_FALTANTES", "EVALUAR", "EMITIR_RIESGO_SUPERADO", "APROBAR"],
+          "terminal": "APROBAR"
+        },
+        "outcome": "APPROVE",
+        "reasons": ["MINIMUM_ONBOARDING_RISK_PASSED"],
+        "reasonCodes": ["MINIMUM_ONBOARDING_RISK_PASSED"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "APPROVE"
+        },
+        "riesgo_motivo": "MINIMUM_ONBOARDING_RISK_PASSED",
+        "riesgo_decision": "APPROVE",
+        "riesgo_faltantes": 0
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "1",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-70-APRUEBA",
+        "testName": "Evidencias completas y 70 puntos: sigue adelante",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 70,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": true,
+          "has_identity_document": true,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "APPROVE",
+          "reasonCodes": ["MINIMUM_ONBOARDING_RISK_PASSED"],
+          "riesgo_decision": "APPROVE",
+          "riesgo_faltantes": 0
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    },
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_SIN_CONSENTIMIENTO", "E_A_REVISAR_CONSENTIMIENTO"],
+          "nodes": [
+            "START",
+            "CONTAR_FALTANTES",
+            "EVALUAR",
+            "EMITIR_SIN_CONSENTIMIENTO",
+            "REVISAR_SIN_CONSENTIMIENTO"
+          ],
+          "terminal": "REVISAR_SIN_CONSENTIMIENTO"
+        },
+        "outcome": "MANUAL_REVIEW",
+        "reasons": ["MISSING_CONSENT"],
+        "reasonCodes": ["MISSING_CONSENT"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "MANUAL_REVIEW"
+        },
+        "riesgo_motivo": "MISSING_CONSENT",
+        "riesgo_decision": "MANUAL_REVIEW",
+        "riesgo_faltantes": 1
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "6",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-SIN-CONSENTIMIENTO-REVISA",
+        "testName": "Sin consentimiento va a una persona aunque el puntaje sobre",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 90,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": false,
+          "has_identity_document": true,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "MANUAL_REVIEW",
+          "reasonCodes": ["MISSING_CONSENT"],
+          "riesgo_motivo": "MISSING_CONSENT",
+          "riesgo_decision": "MANUAL_REVIEW",
+          "riesgo_faltantes": 1
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    },
+    {
+      "resultStatus": "PASS",
+      "actualResultJson": {
+        "trace": {
+          "edges": ["E_START", "E_CONTADO", "E_SIN_IDENTIDAD", "E_A_REVISAR_IDENTIDAD"],
+          "nodes": [
+            "START",
+            "CONTAR_FALTANTES",
+            "EVALUAR",
+            "EMITIR_SIN_IDENTIDAD",
+            "REVISAR_SIN_IDENTIDAD"
+          ],
+          "terminal": "REVISAR_SIN_IDENTIDAD"
+        },
+        "outcome": "MANUAL_REVIEW",
+        "reasons": ["MISSING_IDENTITY_DOCUMENT"],
+        "reasonCodes": ["MISSING_IDENTITY_DOCUMENT"],
+        "primaryResult": {
+          "code": "riesgo_decision",
+          "value": "MANUAL_REVIEW"
+        },
+        "riesgo_motivo": "MISSING_IDENTITY_DOCUMENT",
+        "riesgo_decision": "MANUAL_REVIEW",
+        "riesgo_faltantes": 1
+      },
+      "errorJson": null,
+      "testCase": {
+        "id": "5",
+        "testSuiteId": "1",
+        "caseCode": "RIESGO-SIN-IDENTIDAD-REVISA",
+        "testName": "Sin documento de identidad va a una persona aunque el puntaje sobre",
+        "inputJson": {
+          "fraud_score": 20,
+          "total_score": 90,
+          "device_score": 50,
+          "contact_score": 70,
+          "behavior_score": 70,
+          "identity_score": 70,
+          "assessment_type": "onboarding_initial",
+          "consistency_score": 70,
+          "has_granted_consent": true,
+          "has_identity_document": false,
+          "verified_contact_count": 1
+        },
+        "expectedResultJson": {
+          "outcome": "MANUAL_REVIEW",
+          "reasonCodes": ["MISSING_IDENTITY_DOCUMENT"],
+          "riesgo_motivo": "MISSING_IDENTITY_DOCUMENT",
+          "riesgo_decision": "MANUAL_REVIEW",
+          "riesgo_faltantes": 1
+        },
+        "tagsJson": null,
+        "isActive": true
+      }
+    }
+  ]
+}

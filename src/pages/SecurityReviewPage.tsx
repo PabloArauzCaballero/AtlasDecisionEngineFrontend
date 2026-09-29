@@ -1,16 +1,19 @@
 import { useMutation } from '@tanstack/react-query';
-import { Download, GitBranch, ShieldAlert, ThumbsDown, ThumbsUp } from 'lucide-react';
-import Link from 'next/link';
+import { Download, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
-import { SeverityBadge } from '../components/SeverityBadge';
 import { useDetailQuery } from '../hooks/useDetailQuery';
 import { asRecord, asRows, display } from '../utils/records';
 import { Field } from '../components/Field';
+import { StatusBadge } from '../components/StatusBadge';
+import { DecisionSteps } from '../features/analyst-review/DecisionSteps';
+import { TestEvidence } from '../features/analyst-review/TestEvidence';
+import { orderedSteps } from '../features/analyst-review/review-model';
+import { SecurityDetails } from '../features/analyst-review/SecurityDetails';
 
 interface SecurityReviewPageProps {
   versionId: string;
@@ -36,16 +39,23 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
   const [comments, setComments] = useState('');
   const path = versionId ? `/v1/security-review/versions/${encodeURIComponent(versionId)}` : null;
   const query = useDetailQuery<unknown>('security-review', path);
+  // Lo que el analista firma: el grafo con sus reglas y las pruebas con sus corridas.
+  const graphQuery = useDetailQuery<unknown>(
+    'version-graph',
+    versionId ? `/v1/artifact-versions/${encodeURIComponent(versionId)}/graph` : null,
+  );
+  const suitesQuery = useDetailQuery<unknown>(
+    'version-test-suites',
+    versionId ? `/v1/artifact-versions/${encodeURIComponent(versionId)}/test-suites` : null,
+  );
+  const graph = asRecord(graphQuery.data);
+  const graphVersion = asRecord(graph.version);
+  const outputs = asRows(graph.outputContract);
+  const suites = asRows(asRecord(suitesQuery.data).items ?? suitesQuery.data);
+  const steps = orderedSteps(graph);
   const review = asRecord(query.data);
   const artifact = asRecord(review.artifact);
-  const findings = asRows(review.findings);
-  const code = asRows(review.code);
-  const variables = asRows(review.variables);
-  const nestedTrees = asRecord(review.nestedTrees);
-  const dependsOn = asRows(nestedTrees.dependsOn);
-  const dependedOnBy = asRows(nestedTrees.dependedOnBy);
   const governance = asRows(review.governance);
-  const incidents = asRows(review.incidents);
   const pendingStep = governance
     .flatMap((request) => asRows(request.steps))
     .find((step) => step.status === 'PENDING');
@@ -81,7 +91,7 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
   return (
     <>
       <PageHeader
-        eyebrow="F10 · Security Review"
+        eyebrow="Revisión de la versión"
         title={
           display(artifact, 'name', 'artifactCode') === '—'
             ? 'Revisión de seguridad'
@@ -90,7 +100,7 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
         description={`${display(artifact, 'artifactCode')} · v${display(review.version ? asRecord(review.version) : {}, 'semanticVersion', 'versionNumber')}`}
         actions={
           <>
-            <SeverityBadge value={review.severity} />
+            <StatusBadge value={asRecord(review.version).status} />
             <button
               className="button"
               type="button"
@@ -104,87 +114,48 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
       />
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
 
-      <Panel title="Hallazgos" meta={`${findings.length}`}>
-        {findings.length ? (
-          <ul className="dependency-list">
-            {findings.map((finding, index) => (
-              <li key={index}>
-                <ShieldAlert size={14} aria-hidden="true" />
-                <SeverityBadge value={finding.severity} />
-                {display(finding, 'message')}
-              </li>
-            ))}
-          </ul>
+      <Panel title="Qué decide y por qué" meta={display(artifact, 'riskDomain')}>
+        <div className="analyst-intro">
+          {display(graphVersion, 'authoringNotes') !== '—' ? (
+            <p>{display(graphVersion, 'authoringNotes')}</p>
+          ) : (
+            <p className="muted-text">La autora no dejó notas sobre esta versión.</p>
+          )}
+          {outputs.length ? (
+            <ul className="analyst-step__why">
+              {outputs.map((output) => (
+                <li key={display(output, 'code')}>
+                  <strong>{display(output, 'name', 'code')}</strong>
+                  {display(output, 'description') !== '—'
+                    ? `: ${display(output, 'description')}`
+                    : ''}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </Panel>
+
+      <Panel title="Paso a paso" meta={`${steps.length} pasos`}>
+        {graphQuery.isError ? (
+          <Alert tone="error">{errorMessage(graphQuery.error)}</Alert>
+        ) : graphQuery.isLoading ? (
+          <p className="muted-text">Leyendo el grafo…</p>
         ) : (
-          <div className="empty-state">Sin hallazgos de riesgo.</div>
+          <DecisionSteps steps={steps} />
         )}
       </Panel>
 
-      <div className="code-import-layout">
-        <Panel title="Código" meta={`${code.length} nodos de script`}>
-          {code.length ? (
-            code.map((script, index) => (
-              <pre key={index} className="security-code-excerpt">
-                {display(script, 'nodeKey')} · {display(script, 'language')}
-                {'\n'}
-                {display(script, 'sourceExcerpt')}
-              </pre>
-            ))
-          ) : (
-            <div className="empty-state">Esta versión no ejecuta nodos de script.</div>
-          )}
-        </Panel>
-        <Panel title="Variables" meta={`${variables.length}`}>
-          <ul className="dependency-list">
-            {variables.map((variable, index) => (
-              <li key={index}>
-                <span className="dependency-node-key">{display(variable, 'usageType')}</span>
-                {display(variable, 'code')} ({display(variable, 'dataClassification')}
-                {variable.isSensitive ? ', sensible' : ''})
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
-
-      <Panel
-        title="Subárboles"
-        meta={`${dependsOn.length} referencias · ${dependedOnBy.length} dependientes`}
-      >
-        <ul className="dependency-list">
-          {dependsOn.map((reference, index) => (
-            <li key={`dep-${index}`}>
-              <GitBranch size={14} aria-hidden="true" />
-              Depende de artefacto {display(reference, 'childArtifactId')} (
-              {display(reference, 'nodeKey')})
-            </li>
-          ))}
-          {dependedOnBy.map((reference, index) => (
-            <li key={`ref-${index}`}>
-              <GitBranch size={14} aria-hidden="true" />
-              Referenciado por versión {display(reference, 'parentArtifactVersionId')}
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <Panel title="Incidentes" meta={`${incidents.length}`}>
-        {incidents.length ? (
-          <ul className="dependency-list">
-            {incidents.map((incident, index) => (
-              <li key={index}>
-                {display(incident, 'eventType')} · {display(incident, 'occurredAt')} ·{' '}
-                <Link href={`/artifacts/${display(incident, 'artifactId')}`}>Ver artefacto</Link>
-              </li>
-            ))}
-          </ul>
+      <Panel title="Pruebas y corridas" meta={`${suites.length} suites`}>
+        {suitesQuery.isError ? (
+          <Alert tone="error">{errorMessage(suitesQuery.error)}</Alert>
         ) : (
-          <div className="empty-state">Sin incidentes registrados para esta versión.</div>
+          <TestEvidence suites={suites} graph={graph} />
         )}
       </Panel>
 
       {pendingStepId ? (
-        <Panel title="Decisión de seguridad" meta={`Paso #${pendingStepId}`}>
+        <Panel title="Tu firma" meta={`Paso #${pendingStepId}`}>
           <Field
             label="Comentarios"
             tooltip="Observaciones de la revisión de seguridad; quedan con el dictamen."
@@ -224,6 +195,8 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
           {decide.isError ? <Alert tone="error">{errorMessage(decide.error)}</Alert> : null}
         </Panel>
       ) : null}
+
+      <SecurityDetails review={review} />
     </>
   );
 }
