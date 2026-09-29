@@ -18,6 +18,14 @@ import { CalculatedFieldTryPanel } from './CalculatedFieldTryPanel';
 interface Props {
   versions: UnknownRecord[];
   onPromote: (versionId: string, status: string) => void;
+  /** Cambiar el estado de una versión: quien la escribe o `COMPLIANCE`. */
+  canPromote: boolean;
+  /**
+   * Probar una versión la EJECUTA en el sandbox del motor: es autoría (QA/FRAUD), igual que
+   * escribirla. Quien sólo consulta ve el código y el contrato, no el banco de pruebas que le
+   * respondería 403.
+   */
+  canTry: boolean;
 }
 
 /** Siguiente estado alcanzable, en el orden en que se gobierna una versión. */
@@ -62,7 +70,7 @@ function codeOf(version: UnknownRecord): string {
   return version.operation ? summarizeOperation(version.operation as OperationNode) : '';
 }
 
-export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
+export function CalculatedFieldVersionList({ versions, onPromote, canPromote, canTry }: Props) {
   /*
    * La versión más reciente empieza abierta: es la que se viene a leer, y dejarla plegada
    * escondía el código y el contrato tras un clic que nadie sabía que había que dar.
@@ -114,7 +122,7 @@ export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
                 ) : null}
               </button>
               <div className="calculated-version-actions">
-                {(NEXT_STATUS[status] ?? []).map((next) => (
+                {(canPromote ? (NEXT_STATUS[status] ?? []) : []).map((next) => (
                   <button
                     key={next}
                     type="button"
@@ -164,11 +172,17 @@ export function CalculatedFieldVersionList({ versions, onPromote }: Props) {
                   </div>
                 </dl>
 
-                <CalculatedFieldTryPanel
-                  target={{ kind: 'VERSION', versionId: id }}
-                  inputs={asRows(version.inputs)}
-                  testCases={asRows(version.testCases)}
-                />
+                {canTry ? (
+                  <CalculatedFieldTryPanel
+                    target={{ kind: 'VERSION', versionId: id }}
+                    inputs={asRows(version.inputs)}
+                    testCases={asRows(version.testCases)}
+                  />
+                ) : (
+                  <p className="field-hint">
+                    Probar una versión la ejecuta: requiere rol QA Analyst o Fraud Analyst.
+                  </p>
+                )}
               </div>
             ) : null}
           </li>

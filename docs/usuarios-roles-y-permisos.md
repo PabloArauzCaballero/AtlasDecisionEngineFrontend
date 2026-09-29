@@ -100,6 +100,12 @@ para que un descuido no se lleve por delante la cola de revisión manual.
 | **Expediente del caso / pedir información** | `RISK_ANALYST`, `FRAUD_ANALYST`, `OPERATIONS` |
 | Consultar catálogo, artefactos, ambientes   | `RISK_ANALYST` y el resto de roles de lectura |
 | Auditoría / seguridad                       | `AUDITOR`, `COMPLIANCE`                       |
+| Registrar o revocar un consentimiento       | Nadie aquí: se hace en **Atlas Core**         |
+| Consultar consentimientos de un titular     | `COMPLIANCE`, `OPERATIONS`, `AUDITOR`         |
+
+> Consentimientos: se registran y revocan en Atlas Core (Portal admin ▸ Proveedores externos ▸
+> Datos del cliente, y la app del cliente), que los replica al motor. Aquí sólo se consultan; el
+> motor rechaza la escritura desde una sesión de persona (`403 CONSENT_WRITE_MACHINE_ONLY`).
 
 > Nota de separación de funciones: **el autor de una versión no puede desplegarla**
 > él mismo. Necesitas un segundo usuario con `PLATFORM_ADMIN` distinto del autor.
@@ -115,6 +121,17 @@ es la mitad cliente del contrato: evita ofrecer una acción que va a terminar en
 403 sin explicar por qué, y nada más. **El backend revalida cada POST con sus
 propios `@Roles`**, y es ahí donde estas reglas tienen que existir también. Si el
 motor no las impone, un cliente HTTP directo las salta enteras.
+
+Desde 2026-09-29 el motor impone estas tres reglas (alta sólo `PLATFORM_ADMIN`,
+autoría `QA_ANALYST`/`FRAUD_ANALYST`, `RISK_ANALYST` sin autoría); la matriz ruta
+por ruta está en `AtlasDecisionEngineBackend/docs/security/roles-y-autoria-de-artefactos.md`.
+Para la separación de funciones, «autor» de una versión es quien la creó **o quien
+guardó su grafo**.
+
+**Discrepancia abierta:** la tabla dice que QA/FRAUD promueven a un ambiente de
+trabajo, pero el motor exige `PLATFORM_ADMIN` para desplegar a cualquier ambiente.
+Un QA/FRAUD que pulse «Promover» a `DEV` recibe 403. Abrirlo en el backend es
+ampliar un permiso de despliegue y lo decide el dueño.
 
 ## Cómo crear los usuarios de risk y de revisión manual
 
