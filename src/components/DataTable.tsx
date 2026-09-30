@@ -21,10 +21,7 @@ export interface TableColumn<T> {
   status?: boolean;
   /** Con `status` o `code`, traduce valores crudos del motor a etiquetas legibles. */
   labels?: Record<string, string>;
-  /**
-   * La columna trae un código de catálogo (tipo, origen, ambiente, evento…): se enseña su
-   * nombre en palabras (`labels` y, si no, el mapa común) en vez del código crudo.
-   */
+  /** Código de catálogo (tipo, origen, ambiente…): se enseña en palabras (`codeText`). */
   code?: boolean;
   /**
    * Dot-notation path into the row for nested or renamed backend fields, e.g.
