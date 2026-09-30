@@ -115,6 +115,11 @@ export function ModelDossierPanel() {
           type="button"
           className="button primary"
           disabled={!complete || record.isPending}
+          title={
+            complete
+              ? undefined
+              : 'Completa la versión, quién la validó y una fecha de revalidación posterior a la de validación.'
+          }
           onClick={submit}
         >
           {record.isPending ? 'Registrando…' : 'Registrar expediente'}

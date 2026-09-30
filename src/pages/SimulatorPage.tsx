@@ -64,6 +64,14 @@ export function SimulatorPage() {
   const deployments = useArtifactDeployments(artifactCode);
   const deployedHere = deployments.has(environmentCode);
   const canSimulate = Boolean(artifactCode) && safeEnvironments.length > 0 && deployedHere;
+  // Un botón apagado dice qué falta, en el orden en que la persona lo resolvería.
+  const simulateBlockedReason = !artifactCode
+    ? 'Elige primero un algoritmo.'
+    : !safeEnvironments.length
+      ? 'No hay un ambiente de pruebas disponible para simular.'
+      : !deployedHere
+        ? 'Este algoritmo no está desplegado en el ambiente elegido; elige otro ambiente.'
+        : undefined;
 
   // "Clonar" on an execution detail page leaves the original request here so
   // the operator can replay it as a dry run. Consumed once, then discarded.
@@ -219,6 +227,7 @@ export function SimulatorPage() {
             <button
               className="button button-primary"
               disabled={simulation.isPending || !canSimulate}
+              title={simulateBlockedReason}
               type="submit"
               data-tutorial-id="simulator-submit"
             >

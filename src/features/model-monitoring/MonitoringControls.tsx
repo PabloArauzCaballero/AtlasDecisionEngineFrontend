@@ -111,6 +111,7 @@ export function MonitoringControls({ form, onChange, onRun, running }: Monitorin
         className="primary"
         data-tutorial-id="monitoring-run"
         disabled={!form.versionId || running}
+        title={form.versionId ? undefined : 'Elige primero un algoritmo y una versión.'}
       >
         {running ? 'Midiendo…' : 'Medir'}
       </button>

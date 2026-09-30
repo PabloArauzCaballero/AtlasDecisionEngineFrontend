@@ -18,6 +18,9 @@ import {
 } from '../testing/testing.schemas';
 import { asRecord, asRows, display } from '../utils/records';
 import { ScrollRegion } from '../components/ScrollRegion';
+
+/** Por qué Importar, Agregar y Ejecutar están apagados. */
+const ELIGE_SUITE = 'Elige primero una suite de pruebas en el selector de arriba.';
 import { Field } from '../components/Field';
 
 interface TestCasesPageProps {
@@ -168,6 +171,7 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
                 className="button"
                 type="button"
                 disabled={!suiteId || importCases.isPending}
+                title={suiteId ? undefined : ELIGE_SUITE}
                 onClick={() => fileInput.current?.click()}
               >
                 <Download size={16} /> {importCases.isPending ? 'Importando…' : 'Importar CSV'}
@@ -176,18 +180,20 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
                 className="button"
                 type="button"
                 disabled={!suiteId}
+                title={suiteId ? undefined : ELIGE_SUITE}
                 aria-expanded={showCreate}
                 onClick={() => setShowCreate((visible) => !visible)}
               >
-                <Plus size={16} /> Agregar Caso
+                <Plus size={16} /> Agregar caso
               </button>
               <button
                 className="button button-primary"
                 type="button"
                 disabled={!suiteId || run.isPending}
+                title={suiteId ? undefined : ELIGE_SUITE}
                 onClick={() => run.mutate()}
               >
-                <Play size={16} /> {run.isPending ? 'Encolando…' : 'Ejecutar Suite'}
+                <Play size={16} /> {run.isPending ? 'Encolando…' : 'Ejecutar suite'}
               </button>
             </>
           }
