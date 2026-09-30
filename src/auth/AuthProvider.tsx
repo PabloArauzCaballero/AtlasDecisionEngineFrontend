@@ -106,6 +106,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     [expireSession, refreshAccessToken],
   );
 
+  /*
+    Al abrir o recargar, sólo se cierra la sesión si el motor la RECHAZÓ. Antes cualquier fallo
+    mandaba a la entrada: durante un despliegue (503/502 del proxy) quien tenía la sesión viva
+    veía «Bienvenido nuevamente» en siete pantallas seguidas (barrido de TEST, 2026-09-29).
+  */
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
+  const retrySession = useCallback(() => {
+    setStatus('loading');
+    setRestoreAttempt((attempt) => attempt + 1);
+  }, []);
+
   useEffect(() => {
     let active = true;
     authApi
@@ -113,13 +124,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
       .then((session) => {
         if (active) applySession(session);
       })
-      .catch(() => {
-        if (active) expireSession();
+      .catch((error: unknown) => {
+        if (!active) return;
+        if (sessionRejected(error)) expireSession();
+        else setStatus('unavailable');
       });
     return () => {
       active = false;
     };
-  }, [applySession, expireSession]);
+  }, [applySession, expireSession, restoreAttempt]);
 
   const expireByLimit = useCallback(() => {
     expireSession();
@@ -195,8 +208,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const value = useMemo(
-    () => ({ status, user, login, verifyLoginPin, logout, refreshAccessToken }),
-    [status, user, login, verifyLoginPin, logout, refreshAccessToken],
+    () => ({ status, user, login, verifyLoginPin, logout, refreshAccessToken, retrySession }),
+    [status, user, login, verifyLoginPin, logout, refreshAccessToken, retrySession],
   );
   return (
     <AuthContext.Provider value={value}>

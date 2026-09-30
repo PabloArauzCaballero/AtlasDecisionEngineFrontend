@@ -80,7 +80,8 @@ export function LoginClient() {
     setRestored(true);
   }, []);
 
-  if (status !== 'unauthenticated' || !restored) {
+  // Sin motor, la entrada igual se enseña: el intento de acceso dirá que el servicio no contesta.
+  if ((status !== 'unauthenticated' && status !== 'unavailable') || !restored) {
     return <LoadingScreen label="Recuperando sesión" />;
   }
 
