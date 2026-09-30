@@ -73,7 +73,7 @@ export function MonitoringControls({ form, onChange, onRun, running }: Monitorin
         </Field>
         <Field
           label="Atributo de sesgo"
-          tooltip="Atributo de la población con el que se comparan los grupos. Ej.: AGE_BAND."
+          tooltip="Atributo de la población con el que se comparan los grupos, escrito tal como lo guarda el motor. Ej.: AGE_BAND (franja de edad)."
         >
           <input
             value={form.attribute}

@@ -4,6 +4,7 @@ import { apiRequest } from '../../api/http-client';
 import { apiDownload } from '../../api/file-download';
 import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
+import { ApiError } from '../../api/ApiError';
 import { env } from '../../config/env';
 
 /**
@@ -125,8 +126,11 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
       {query.isLoading ? <p className="muted">Cargando las imágenes…</p> : null}
       {query.error ? (
         <p className="muted">
-          No se pudieron traer las imágenes desde AtlasBackend. La decisión debería tomarse con
-          ellas delante.
+          {query.error instanceof ApiError && query.error.kind === 'not-found'
+            ? // El caso apunta a un intento de verificación que la plataforma ya no conserva
+              // (barrido de TEST, 2026-09-29: caso 6 → 404 IDENTITY_ATTEMPT_NOT_FOUND).
+              'Los documentos de este cliente ya no están disponibles en la plataforma. Decide con lo que muestra el caso o pide al cliente que vuelva a subirlos.'
+            : 'No se pudieron traer las imágenes del cliente. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
         </p>
       ) : null}
 

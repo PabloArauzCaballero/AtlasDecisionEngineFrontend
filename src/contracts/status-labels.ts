@@ -245,6 +245,7 @@ export const STATUS_LABELS: Readonly<Record<string, string>> = {
   TEST_RUN_PASSED: 'Corrida de pruebas superada',
   TEST_RUN_FAILED: 'Corrida de pruebas fallida',
   TEST_SUITE_CREATED: 'Suite de pruebas creada',
+  VALIDATION_PASSED: 'Validación superada',
   VARIABLE_DEFINITION_CREATED: 'Variable creada',
   VARIABLE_VERSION_CREATED: 'Versión de variable creada',
   'SIN DATO': 'Sin dato',

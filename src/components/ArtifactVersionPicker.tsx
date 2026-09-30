@@ -114,7 +114,7 @@ export function ArtifactVersionPicker({
         queryKey={`avp-versions-${artifactCode || 'all'}`}
         required={required}
         disabled={!artifactCode}
-        placeholder={artifactCode ? 'Elegir versión…' : 'Elige primero un artefacto'}
+        placeholder={artifactCode ? 'Elegir versión…' : 'Elige primero un algoritmo'}
         mapOption={(row: UnknownRecord) => versionOption(row, requireCompiled)}
       />
     </div>
