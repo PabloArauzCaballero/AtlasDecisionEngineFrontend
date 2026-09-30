@@ -114,6 +114,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               className="button"
               type="button"
               disabled={!rows.length || batchPending || run.isPending}
+              title={rows.length ? undefined : 'Esta versión todavía no tiene suites que ejecutar.'}
               onClick={() => void runAll()}
             >
               {batchPending ? (
@@ -127,6 +128,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
               className="button button-primary"
               type="button"
               disabled={!versionId}
+              title={versionId ? undefined : 'Elige primero un algoritmo y una versión.'}
               aria-expanded={showCreate}
               onClick={() => setShowCreate((visible) => !visible)}
             >

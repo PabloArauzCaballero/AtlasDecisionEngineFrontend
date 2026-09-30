@@ -15,6 +15,8 @@ import {
 } from '../features/data-subject/data-subject.api';
 import { asRecord, asRows, display } from '../utils/records';
 import { Field } from '../components/Field';
+
+const ESCRIBE_REFERENCIA = 'Escribe primero la referencia de la persona.';
 import { OptionSelect } from '../components/OptionSelect';
 
 /**
@@ -123,6 +125,7 @@ export function DataSubjectRequestsPage() {
               className="primary"
               data-tutorial-id="dsr-submit"
               disabled={!trimmed || submit.isPending}
+              title={trimmed ? undefined : ESCRIBE_REFERENCIA}
             >
               {submit.isPending ? 'Resolviendo…' : 'Registrar y resolver'}
             </button>
@@ -130,6 +133,7 @@ export function DataSubjectRequestsPage() {
               type="button"
               data-tutorial-id="dsr-history"
               disabled={!trimmed || history.isPending}
+              title={trimmed ? undefined : ESCRIBE_REFERENCIA}
               onClick={() => history.mutate(trimmed)}
             >
               {history.isPending ? 'Consultando…' : 'Ver solicitudes anteriores'}

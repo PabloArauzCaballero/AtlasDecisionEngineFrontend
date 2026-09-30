@@ -39,7 +39,13 @@ export function ResourceListActions({
 
   return (
     <>
-      <button className="button" type="button" disabled={!hasRows} onClick={onExport}>
+      <button
+        className="button"
+        type="button"
+        disabled={!hasRows}
+        title={hasRows ? undefined : 'No hay filas que exportar con estos filtros.'}
+        onClick={onExport}
+      >
         <Download size={16} /> Exportar
       </button>
       {config.primaryAction ? (

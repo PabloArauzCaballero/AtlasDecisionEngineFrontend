@@ -1,5 +1,6 @@
 import { EXECUTION_OUTCOME_HELP } from './resource-option-help';
 import type { ResourceConfig } from './resource.types';
+import { SYSTEM_ACTOR_LABELS } from '../contracts/status-labels';
 
 /** Auditoría y trazabilidad de negocio (F6–F7). Se fusionan en `resources`. */
 export const auditResources: Readonly<Record<string, ResourceConfig>> = {
@@ -64,7 +65,12 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
         mono: true,
         path: 'artifactVersion.artifact.artifactCode',
       },
-      { key: 'environmentCode', label: 'Ambiente', path: 'deployment.environment.code' },
+      {
+        key: 'environmentCode',
+        label: 'Ambiente',
+        path: 'deployment.environment.code',
+        code: true,
+      },
       {
         key: 'businessOutcome',
         label: 'Resultado',
@@ -109,8 +115,8 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
       // Se leían `createdAt`, `ipAddress` y `currentHash`, que no existen, y salían «—». La IP no se
       // guarda en el registro, así que no hay columna que enseñar.
       { key: 'occurredAt', label: 'Fecha / Hora' },
-      { key: 'eventType', label: 'Evento', mono: true },
-      { key: 'actorId', label: 'Quién actuó', mono: true },
+      { key: 'eventType', label: 'Evento', code: true },
+      { key: 'actorId', label: 'Quién actuó', code: true, labels: SYSTEM_ACTOR_LABELS },
       { key: 'previousHash', label: 'Sello anterior', mono: true },
       {
         key: 'eventHash',
@@ -133,9 +139,9 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
       { key: 'objectiveCode', label: 'Código', mono: true },
       { key: 'name', label: 'Objetivo' },
       { key: 'metric', label: 'Métrica / Meta' },
-      { key: 'ownerTeam', label: 'Propietario' },
+      { key: 'ownerTeam', label: 'Equipo responsable', code: true },
       { key: 'policyCount', label: 'Políticas' },
-      { key: 'artifactCount', label: 'Artefactos' },
+      { key: 'artifactCount', label: 'Algoritmos' },
       { key: 'testCount', label: 'Pruebas' },
       { key: 'status', label: 'Estado', status: true },
     ],

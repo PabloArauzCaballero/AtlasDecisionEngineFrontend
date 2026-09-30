@@ -8,6 +8,7 @@ import { ActionIcon } from './ActionIcon';
 import { ACTIONS, type ActionKey } from './action-catalog';
 import { DataTableToolbar, type TableDensity } from './DataTableToolbar';
 import { InfoHint } from './InfoHint';
+import { codeText } from '../contracts/status-labels';
 import { StatusBadge } from './StatusBadge';
 import { formatCell } from './table-format';
 import { nextSort, quickFilterRows, sortRows, type SortState } from './table-tools';
@@ -18,8 +19,10 @@ export interface TableColumn<T> {
   label: string;
   mono?: boolean;
   status?: boolean;
-  /** Con `status`, traduce valores crudos del backend a etiquetas legibles. */
+  /** Con `status` o `code`, traduce valores crudos del motor a etiquetas legibles. */
   labels?: Record<string, string>;
+  /** Código de catálogo (tipo, origen, ambiente…): se enseña en palabras (`codeText`). */
+  code?: boolean;
   /**
    * Dot-notation path into the row for nested or renamed backend fields, e.g.
    * 'artifactVersion.artifact.artifactCode'. When set it overrides `key` as the
@@ -181,6 +184,8 @@ export function DataTable<T extends Record<string, unknown>>({
                         <td key={column.key} className={classes || undefined}>
                           {column.status ? (
                             <StatusBadge value={value} labels={column.labels} />
+                          ) : column.code ? (
+                            codeText(value, column.labels)
                           ) : (
                             formatCell(value)
                           )}

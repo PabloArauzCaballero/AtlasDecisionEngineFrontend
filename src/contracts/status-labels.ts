@@ -124,7 +124,6 @@ export const STATUS_LABELS: Readonly<Record<string, string>> = {
   RESOLVED: 'Resuelto',
   UNASSIGNED: 'Sin asignar',
   EXPIRED: 'Vencido',
-  OVERDUE: 'Vencido',
   ON_TIME: 'En plazo',
   BREACHED: 'Plazo incumplido',
   AT_RISK: 'En riesgo',
@@ -146,6 +145,108 @@ export const STATUS_LABELS: Readonly<Record<string, string>> = {
   UNCOVERED: 'Sin cubrir',
   REACHED: 'Alcanzado',
   UNREACHED: 'No alcanzado',
+  // Plazos de una revisión (`governance.service.ts`).
+  ON_TRACK: 'En plazo',
+  OVERDUE: 'Fuera de plazo',
+  // Tipos de acción de un nodo (`graph-structure.validator.ts`).
+  SET_OUTCOME: 'Fija el resultado',
+  SET_SCORE: 'Fija el puntaje',
+  ADD_SCORE: 'Suma puntaje',
+  SET_LIMIT: 'Fija el límite',
+  SET_RISK_BAND: 'Fija la banda de riesgo',
+  SET_FIELD: 'Asigna un valor',
+  CREATE_MANUAL_REVIEW: 'Envía a revisión manual',
+  EMIT_REASON: 'Emite un motivo',
+  // Ambientes.
+  DEV: 'Desarrollo',
+  DEVELOPMENT: 'Desarrollo',
+  TEST: 'Pruebas',
+  QA: 'Pruebas',
+  SANDBOX: 'Pruebas aisladas',
+  STAGING: 'Preproducción',
+  PROD: 'Producción',
+  PRODUCTION: 'Producción',
+  // Modos de despliegue y flujos de aprobación.
+  FULL: 'Completo',
+  STANDARD: 'Estándar',
+  EXPEDITED: 'Urgente',
+  // Tipos y dominios de los algoritmos, y categorías de motivos.
+  CREDIT_UNDERWRITING: 'Aprobación de crédito',
+  RISK_POLICY: 'Política de riesgo',
+  IDENTITY_POLICY: 'Política de identidad',
+  FRAUD_POLICY: 'Política de fraude',
+  PRICING_POLICY: 'Política de precio',
+  RISK_DECISIONING: 'Decisiones de riesgo',
+  MERCHANT_RISK: 'Riesgo de comercios',
+  ONBOARDING_RISK: 'Riesgo de alta',
+  CREDIT: 'Crédito',
+  FRAUD: 'Fraude',
+  KYC: 'Identidad',
+  KYB: 'Identidad del comercio',
+  COMPLIANCE: 'Cumplimiento',
+  // Origen de una variable.
+  REQUEST_PAYLOAD: 'Datos de la solicitud',
+  DECISION_ENGINE: 'Lo calcula el motor',
+  // Eventos de la bitácora.
+  APPROVAL_REQUEST_CREATED: 'Solicitud de aprobación creada',
+  APPROVAL_APPROVE: 'Aprobación firmada',
+  APPROVAL_REJECT: 'Aprobación rechazada',
+  APPROVED_LIBRARY_UPSERTED: 'Librería autorizada guardada',
+  ARTIFACT_COMPILED: 'Algoritmo compilado',
+  ARTIFACT_CREATED: 'Algoritmo creado',
+  ARTIFACT_REFERENCE_CREATED: 'Referencia entre algoritmos creada',
+  ARTIFACT_REFERENCE_DELETED: 'Referencia entre algoritmos borrada',
+  ARTIFACT_REFERENCE_UPDATED: 'Referencia entre algoritmos cambiada',
+  ARTIFACT_VERSION_CLONED: 'Versión copiada',
+  ARTIFACT_VERSION_NOTES_UPDATED: 'Notas de la versión cambiadas',
+  ARTIFACT_VERSION_PROCESSING_BASIS_UPDATED: 'Base legal de la versión cambiada',
+  BANK_STATEMENT_REVIEW_CLAIMED: 'Extracto tomado para revisar',
+  BANK_STATEMENT_REVIEW_REPROCESSED: 'Extracto reprocesado',
+  BANK_STATEMENT_REVIEW_RESOLVED: 'Revisión de extracto resuelta',
+  BUSINESS_OBJECTIVE_CREATED: 'Objetivo de negocio creado',
+  CALCULATED_FIELD_CREATED: 'Campo calculado creado',
+  CALCULATED_FIELD_VERSION_CREATED: 'Versión de campo calculado creada',
+  CALCULATED_FIELD_VERSION_PROMOTED: 'Versión de campo calculado activada',
+  CODE_IMPORT_ANALYZED: 'Código importado analizado',
+  CODE_IMPORT_CANCELLED: 'Importación de código cancelada',
+  CREDIT_FACILITIES_REGISTERED: 'Créditos concedidos registrados',
+  DATA_SUBJECT_REQUEST_RECEIVED: 'Solicitud del titular recibida',
+  DECISION_EXECUTED: 'Decisión tomada',
+  DECISION_FAILED: 'Decisión fallida',
+  DECISION_NO_DECISION_ECONOMIC_OUTPUT: 'Sin decisión: falta la salida económica',
+  DECISION_NO_DECISION_ENABLING_BASIS: 'Sin decisión: falta la base legal',
+  DECISION_NO_DECISION_VARIABLES: 'Sin decisión: faltan datos',
+  DEPLOYMENT_ACTIVATED: 'Despliegue activado',
+  DEPLOYMENT_ROLLED_BACK: 'Despliegue revertido',
+  DEPLOYMENT_SUSPENDED: 'Despliegue suspendido',
+  EXPOSURE_LIMIT_UPSERTED: 'Límite de exposición guardado',
+  IDENTITY_REVIEW_CLAIMED: 'Revisión de identidad tomada',
+  IDENTITY_REVIEW_RESOLVED: 'Revisión de identidad resuelta',
+  MANUAL_REVIEW_ASSIGNED: 'Caso asignado',
+  MANUAL_REVIEW_CALLBACK_FAILED: 'No se pudo avisar el resultado del caso',
+  MANUAL_REVIEW_DOSSIER_ATTACHED: 'Expediente adjuntado al caso',
+  MANUAL_REVIEW_OPENED: 'Caso abierto',
+  MANUAL_REVIEW_RESOLVED: 'Caso resuelto',
+  MODEL_DOSSIER_RECORDED: 'Expediente del modelo registrado',
+  MODEL_MONITORING_ATTRIBUTES_RECORDED: 'Atributos de monitoreo registrados',
+  MODEL_OUTCOMES_RECORDED: 'Desenlaces registrados',
+  POLICY_ARTIFACT_LINKED: 'Algoritmo vinculado a una política',
+  POLICY_TEST_LINKED: 'Prueba vinculada a una política',
+  QA_GENERATION_RUN_COMPLETED: 'Generación de casos terminada',
+  REASON_CODE_CREATED: 'Motivo creado',
+  REIDENTIFICATION_REQUESTED: 'Reidentificación pedida',
+  RULE_GRAPH_REPLACED: 'Diagrama de reglas reemplazado',
+  SEMANTIC_MODEL_SETTINGS_RESET: 'Ajustes del modelo semántico restablecidos',
+  SEMANTIC_MODEL_SETTINGS_UPDATED: 'Ajustes del modelo semántico cambiados',
+  SUBJECT_CONSENT_RECORDED: 'Consentimiento registrado',
+  SUBJECT_CONSENT_REVOKED: 'Consentimiento revocado',
+  TEST_CASES_ADDED: 'Casos de prueba añadidos',
+  TEST_RUN_QUEUED: 'Corrida de pruebas en cola',
+  TEST_RUN_PASSED: 'Corrida de pruebas superada',
+  TEST_RUN_FAILED: 'Corrida de pruebas fallida',
+  TEST_SUITE_CREATED: 'Suite de pruebas creada',
+  VARIABLE_DEFINITION_CREATED: 'Variable creada',
+  VARIABLE_VERSION_CREATED: 'Versión de variable creada',
   'SIN DATO': 'Sin dato',
 };
 
@@ -161,3 +262,23 @@ export function statusText(raw: unknown, labels?: Record<string, string>): strin
   const key = String(raw).toUpperCase();
   return labels?.[key] ?? STATUS_LABELS[key] ?? readableStatus(key);
 }
+
+/**
+ * El texto de un CÓDIGO de catálogo (tipo, origen, ambiente, evento…) dentro de una tabla.
+ * A diferencia de `statusText`, un código sin traducción se enseña tal cual y no «legible»:
+ * pasar `CUSTOM_SEGMENT_A` a «Custom segment a» inventaría una palabra que nadie usa.
+ */
+export function codeText(raw: unknown, labels?: Record<string, string>): string {
+  if (raw === null || raw === undefined || raw === '') return '—';
+  const code = String(raw);
+  return (
+    labels?.[code] ?? labels?.[code.toUpperCase()] ?? STATUS_LABELS[code.toUpperCase()] ?? code
+  );
+}
+
+/** Quién actuó cuando no fue una persona: las cuentas técnicas con las que el motor se carga solo. */
+export const SYSTEM_ACTOR_LABELS: Readonly<Record<string, string>> = {
+  'bootstrap-management': 'Sistema (carga inicial)',
+  'seed.system': 'Sistema (carga inicial)',
+  system: 'Sistema',
+};

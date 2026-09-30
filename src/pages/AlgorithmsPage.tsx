@@ -9,6 +9,7 @@ import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { StatusBadge } from '../components/StatusBadge';
+import { codeText } from '../contracts/status-labels';
 import { AlgorithmVersions } from '../features/algorithms/AlgorithmVersions';
 import type { PagedResponse, ResourceRow } from '../resources/resource.types';
 import { asRows, display } from '../utils/records';
@@ -152,12 +153,12 @@ export function AlgorithmsPage() {
                       </td>
                       <td className="mono">{display(row, 'artifactCode')}</td>
                       <td>{display(row, 'name')}</td>
-                      <td>{display(row, 'artifactType')}</td>
+                      <td>{codeText(row.artifactType)}</td>
                       <td>{display(row, 'latestVersion')}</td>
                       <td>
                         <StatusBadge value={row.latestStatus} />
                       </td>
-                      <td>{display(row, 'ownerTeam')}</td>
+                      <td>{codeText(row.ownerTeam)}</td>
                       <td>
                         {/* Mismo icono que en las demás tablas del portal (suites,
                             casos): «ver el detalle» se dibuja siempre con el ojo.

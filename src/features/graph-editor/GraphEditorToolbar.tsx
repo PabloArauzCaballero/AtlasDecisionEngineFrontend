@@ -16,6 +16,9 @@ import { asRows, display, type UnknownRecord } from '../../utils/records';
 import type { CanvasZoom } from '../graph-view/useCanvasZoom';
 import { ZoomControls } from '../graph-view/ZoomControls';
 import { OptionSelect } from '../../components/OptionSelect';
+
+/** Por qué Cargar, Validar y Guardar están apagados: un botón apagado dice qué falta. */
+const ELIGE_VERSION = 'Elige primero un algoritmo y una versión en el selector de la izquierda.';
 import { ARTIFACT_STATUS_HELP } from '../../resources/resource-option-help';
 
 interface GraphEditorToolbarProps {
@@ -105,6 +108,7 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
               className="button"
               type="button"
               disabled={!props.versionId || props.loading}
+              title={props.versionId ? undefined : ELIGE_VERSION}
               onClick={props.onLoad}
             >
               {props.loading ? 'Cargando…' : 'Cargar'}
@@ -177,6 +181,7 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
           type="button"
           data-tutorial-id="graph-validate"
           disabled={!props.versionId || props.validating}
+          title={props.versionId ? undefined : ELIGE_VERSION}
           onClick={props.onValidate}
         >
           <ShieldCheck size={16} /> {props.validating ? 'Validando…' : 'Validar'}
@@ -185,6 +190,7 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
           className="button button-primary"
           type="button"
           disabled={!props.versionId || props.saving}
+          title={props.versionId ? undefined : ELIGE_VERSION}
           onClick={props.onSave}
         >
           <Save size={16} /> {props.saving ? 'Guardando…' : 'Guardar'}

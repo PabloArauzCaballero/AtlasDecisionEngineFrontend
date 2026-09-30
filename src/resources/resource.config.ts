@@ -7,7 +7,12 @@ import {
   variablesCreateStaticBody,
 } from './resource.create-fields';
 import type { ResourceConfig } from './resource.types';
-import { SENSITIVITY_LABELS } from '../contracts/data-types';
+import {
+  DATA_TYPE_LABELS,
+  SENSITIVITY_LABELS,
+  VARIABLE_ORIGIN_LABELS,
+} from '../contracts/data-types';
+import { SYSTEM_ACTOR_LABELS } from '../contracts/status-labels';
 import { CASE_STATUS_LABEL } from '../features/manual-review/resolution-options';
 import {
   artifactsFilters,
@@ -51,13 +56,15 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
         status: true,
         hint: 'Si los algoritmos la usan como entrada (dato que hay que aportar) o como salida (resultado que el motor produce).',
       },
-      { key: 'category', label: 'Categoría' },
+      { key: 'category', label: 'Categoría', code: true },
       {
         key: 'dataType',
         label: 'Tipo de dato',
+        code: true,
+        labels: DATA_TYPE_LABELS,
         hint: 'El tipo de dato: número, texto, sí/no, fecha…',
       },
-      { key: 'source', label: 'Origen' },
+      { key: 'source', label: 'Origen', code: true, labels: VARIABLE_ORIGIN_LABELS },
       { key: 'latestVersion', label: 'Versión' },
       {
         key: 'sensitivity',
@@ -90,7 +97,7 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     filters: reasonCodesFilters,
     columns: [
       { key: 'reasonCode', label: 'Código', mono: true },
-      { key: 'category', label: 'Categoría' },
+      { key: 'category', label: 'Categoría', code: true },
       { key: 'severity', label: 'Severidad', status: true },
       {
         key: 'publicMessage',
@@ -126,11 +133,11 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     columns: [
       { key: 'artifactCode', label: 'Código', mono: true },
       { key: 'name', label: 'Nombre' },
-      { key: 'artifactType', label: 'Tipo' },
-      { key: 'ownerTeam', label: 'Equipo responsable' },
+      { key: 'artifactType', label: 'Tipo', code: true },
+      { key: 'ownerTeam', label: 'Equipo responsable', code: true },
       { key: 'latestVersion', label: 'Versión' },
       { key: 'latestStatus', label: 'Estado', status: true },
-      { key: 'environmentCode', label: 'Ambiente' },
+      { key: 'environmentCode', label: 'Ambiente', code: true },
       { key: 'lastValidatedAt', label: 'Última validación' },
     ],
   },
@@ -145,8 +152,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     columns: [
       { key: 'artifactCode', label: 'Algoritmo', mono: true },
       { key: 'versionNumber', label: 'Versión' },
-      { key: 'workflowCode', label: 'Tipo' },
-      { key: 'requestedBy', label: 'Solicitante' },
+      { key: 'workflowCode', label: 'Tipo', code: true },
+      { key: 'requestedBy', label: 'Solicitante', code: true, labels: SYSTEM_ACTOR_LABELS },
       {
         key: 'currentStep',
         label: 'Paso actual',
@@ -187,10 +194,11 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
       {
         key: 'deploymentMode',
         label: 'Modo',
+        code: true,
         hint: 'Cómo se registró el despliegue: completo, gradual o comparando la versión actual con una alternativa. Hoy es sólo un dato de registro: el motor siempre responde con la versión activa del ambiente.',
       },
-      { key: 'environmentCode', label: 'Ambiente', path: 'environment.code' },
-      { key: 'deployedBy', label: 'Desplegado por' },
+      { key: 'environmentCode', label: 'Ambiente', path: 'environment.code', code: true },
+      { key: 'deployedBy', label: 'Desplegado por', code: true, labels: SYSTEM_ACTOR_LABELS },
       { key: 'deployedAt', label: 'Fecha' },
       {
         key: 'deploymentStatus',

@@ -1,7 +1,11 @@
 import { createContext } from 'react';
 import type { IdentityUser, LoginInput, LoginOutcome, LoginPinInput } from './auth.types';
 
-export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+/**
+ * `unavailable`: al abrir la página el motor no contestó (un despliegue, un corte). NO es
+ * «sin sesión»: el refresh token puede seguir valiendo, así que no se manda a la entrada.
+ */
+export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'unavailable';
 
 export interface AuthContextValue {
   status: AuthStatus;
@@ -15,6 +19,8 @@ export interface AuthContextValue {
   verifyLoginPin: (input: LoginPinInput) => Promise<void>;
   logout: (allDevices?: boolean) => Promise<void>;
   refreshAccessToken: () => Promise<string>;
+  /** Vuelve a pedir la sesión tras `unavailable`. */
+  retrySession: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

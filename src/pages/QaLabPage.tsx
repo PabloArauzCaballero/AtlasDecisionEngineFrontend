@@ -97,6 +97,7 @@ export function QaLabPage({ initialVersionId = '' }: { initialVersionId?: string
             type="button"
             className="button"
             disabled={!draftId}
+            title={draftId ? undefined : 'Elige primero un algoritmo y una versión.'}
             onClick={() => setVersionId(draftId)}
             data-tutorial-id="qa-lab-use-version"
           >

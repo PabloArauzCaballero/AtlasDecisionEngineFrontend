@@ -29,6 +29,7 @@ import { simulationResponseSchema, type SimulationResponse } from '../testing/te
 import { parseJsonObject } from '../utils/json';
 import { asRecord, asRows, display } from '../utils/records';
 import { Field } from '../components/Field';
+import { simulationBlockedReason } from '../features/simulator/simulation-blocked-reason';
 import { OptionSelect } from '../components/OptionSelect';
 
 // El payload arranca VACÍO: en cuanto se elige un artefacto, el editor lo siembra
@@ -64,6 +65,11 @@ export function SimulatorPage() {
   const deployments = useArtifactDeployments(artifactCode);
   const deployedHere = deployments.has(environmentCode);
   const canSimulate = Boolean(artifactCode) && safeEnvironments.length > 0 && deployedHere;
+  const simulateBlockedReason = simulationBlockedReason({
+    artifactCode,
+    environments: safeEnvironments.length,
+    deployedHere,
+  });
 
   // "Clonar" on an execution detail page leaves the original request here so
   // the operator can replay it as a dry run. Consumed once, then discarded.
@@ -219,6 +225,7 @@ export function SimulatorPage() {
             <button
               className="button button-primary"
               disabled={simulation.isPending || !canSimulate}
+              title={simulateBlockedReason}
               type="submit"
               data-tutorial-id="simulator-submit"
             >

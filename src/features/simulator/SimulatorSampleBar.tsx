@@ -244,6 +244,7 @@ export function SimulatorSampleBar({
           type="button"
           className="button"
           disabled={!ready || generate.isPending}
+          title={ready ? undefined : 'Elige primero un algoritmo.'}
           onClick={() => generate.mutate()}
         >
           <Dices size={16} /> {generate.isPending ? 'Generando…' : 'Generar valores'}
@@ -258,7 +259,13 @@ export function SimulatorSampleBar({
           className="button"
           onClick={() => fileInput.current?.click()}
           disabled={!ready || contractLoading}
-          title={contractLoading ? 'Esperando el contrato del artefacto…' : undefined}
+          title={
+            !ready
+              ? 'Elige primero un algoritmo.'
+              : contractLoading
+                ? 'Esperando qué datos pide este algoritmo…'
+                : undefined
+          }
         >
           <Upload size={16} /> {contractLoading ? 'Leyendo el contrato…' : uploadLabel(contract)}
         </button>
