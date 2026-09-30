@@ -9,6 +9,7 @@ import {
   isAssistDisabled,
   type AssistConversation,
 } from './assist.api';
+import { useAssistHistory } from './useAssistHistory';
 
 /**
  * El hilo con el asistente, del lado de la pantalla.
@@ -69,6 +70,7 @@ export function useAssist() {
   // En estado y no leído de `pending`: una referencia no se lee al pintar.
   const [retryable, setRetryable] = useState(false);
   const conversationId = useRef<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const pending = useRef<Pending | null>(null);
   // El candado es «hay una petición en viaje»: mientras tanto no se envía ni se recarga nada.
   const inFlight = useRef(false);
@@ -81,6 +83,7 @@ export function useAssist() {
       const conversation = await fetchAssistConversation();
       if (inFlight.current) return;
       conversationId.current = conversation.conversationId;
+      setActiveId(conversationId.current);
       const unanswered = pending.current;
       setBubbles([
         ...toBubbles(conversation),
@@ -127,6 +130,7 @@ export function useAssist() {
         screen,
       });
       conversationId.current = answer.conversationId ?? conversationId.current;
+      setActiveId(conversationId.current);
       pending.current = null;
       setBubbles((current) => [
         ...current,
@@ -166,7 +170,42 @@ export function useAssist() {
     [send],
   );
 
+  /** Deja el hilo en blanco: la próxima pregunta abre una conversación NUEVA. No llama al servidor. */
+  const reset = useCallback(() => {
+    conversationId.current = null;
+    pending.current = null;
+    setActiveId(null);
+    setBubbles([]);
+    setError(null);
+    setRetryable(false);
+    setHistoryFailed(false);
+    setStatus((current) => (current === 'disabled' ? current : 'ready'));
+  }, []);
+
+  const applyThread = useCallback((conversation: AssistConversation) => {
+    conversationId.current = conversation.conversationId;
+    pending.current = null;
+    setActiveId(conversation.conversationId);
+    setBubbles(toBubbles(conversation));
+    setError(null);
+    setRetryable(false);
+    setHistoryFailed(false);
+    setStatus('ready');
+  }, []);
+
+  /** «Nueva conversación»: no hace nada mientras hay una pregunta en curso. */
+  const startNew = useCallback((): boolean => {
+    if (inFlight.current) return false;
+    reset();
+    return true;
+  }, [reset]);
+
+  const history = useAssistHistory({ activeId, inFlight, applyThread, reset });
+
   return {
+    activeId,
+    startNew,
+    history,
     status,
     bubbles,
     sending,

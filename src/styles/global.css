@@ -176,6 +176,7 @@
 /* Después de `responsive-tokens.css`: amplía el margen inferior de `.content`
    para que el botón flotante del asistente no tape el final de la página. */
 @import './parts/assist.css';
+@import './parts/assist-history.css';
 /* Tema oscuro al final de todo: sólo actúa bajo [data-theme='dark'] y debe
    poder afinar cualquier hoja anterior sin subir la especificidad. */
 @import './parts/theme-dark-base.css';
