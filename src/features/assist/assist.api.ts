@@ -29,7 +29,7 @@ export const ASSIST_SURFACE = 'risk-portal';
 export const ASSIST_PROMPT_MAX = 2_000;
 
 const CHAT_PATH = '/atlas-backend/internal/assist/chat';
-const CONVERSATION_PATH = `/atlas-backend/internal/assist/conversation?surface=${ASSIST_SURFACE}`;
+export const CONVERSATION_PATH = `/atlas-backend/internal/assist/conversation?surface=${ASSIST_SURFACE}`;
 
 /** Cuántas veces se insiste en silencio ante «sigue en curso» antes de enseñar el error. */
 const MAX_SILENT_RETRIES = 3;
@@ -40,7 +40,7 @@ const MAX_WAIT_MS = 10_000;
 const CHAT_TIMEOUT_MS = 60_000;
 
 /** AtlasBackend envuelve toda respuesta en `{ requestId, data, timestamp }`; se admite pelada. */
-function envelope<S extends z.ZodTypeAny>(schema: S) {
+export function envelope<S extends z.ZodTypeAny>(schema: S) {
   return z.preprocess(
     (body) =>
       body && typeof body === 'object' && 'data' in body ? (body as { data: unknown }).data : body,
@@ -154,6 +154,13 @@ export async function askAssist(
 /** El hilo vigente de esta persona en este portal, para rehidratar el panel al abrirlo. */
 export function fetchAssistConversation(signal?: AbortSignal): Promise<AssistConversation> {
   return authorizedFetch(CONVERSATION_PATH, { signal }).then((response) =>
+    parseResponse(response, envelope(conversationSchema)),
+  );
+}
+
+/** Lee un hilo por su ruta completa (la vigente o una del historial). */
+export function fetchAssistConversationById(path: string): Promise<AssistConversation> {
+  return authorizedFetch(path).then((response) =>
     parseResponse(response, envelope(conversationSchema)),
   );
 }
