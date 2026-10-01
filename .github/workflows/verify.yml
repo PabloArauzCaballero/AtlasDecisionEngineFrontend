@@ -51,7 +51,9 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Test published smoke contract
-        run: node --test .github/tests/post-deploy-smoke.test.mjs
+        run: |
+          node --test .github/tests/post-deploy-smoke.test.mjs
+          node --test .github/tests/audit-high.test.mjs
 
       - name: Verify formatting
         run: yarn format:check
