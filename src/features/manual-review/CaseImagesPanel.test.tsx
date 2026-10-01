@@ -145,3 +145,49 @@ describe('el expediente es un extra cuando ya hay carnet', () => {
     expect(await screen.findByText(/Anverso del carnet/)).toBeTruthy();
   });
 });
+
+describe('caso viejo sin cliente: el analista indica el expediente', () => {
+  it('con IDENTITY_ATTEMPT_NOT_FOUND ofrece el número de expediente y pinta sus imágenes', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { apiDownload } = await import('../../api/file-download');
+    const { ApiError } = await import('../../api/ApiError');
+    const { fireEvent } = await import('@testing-library/react');
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:c');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const pedidas: string[] = [];
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) => {
+      pedidas.push(ruta);
+      if (ruta.includes('identity-verifications'))
+        return Promise.reject(new ApiError('no', 404, 'IDENTITY_ATTEMPT_NOT_FOUND'));
+      return Promise.resolve([
+        {
+          nodoId: '8',
+          tipo: 'archivo',
+          nombre: 'carnet-54.jpg',
+          clase: null,
+          mimeType: 'image/jpeg',
+          sha256: null,
+          objetoAusente: false,
+          borradoEn: null,
+        },
+      ]);
+    }) as typeof apiRequest);
+    vi.mocked(apiDownload).mockResolvedValue({ blob: new Blob(['x']), fileName: 'x' } as never);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel attemptId="abc" requestId="16314699-dba4-4e09-a35b-4bb71964c7ea" />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Indicar el expediente a mano' }));
+    const campo = await screen.findByPlaceholderText('54');
+    fireEvent.change(campo, { target: { value: '54' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Ver imágenes' }));
+
+    expect(await screen.findByText(/carnet-54\.jpg/)).toBeTruthy();
+    expect(pedidas.some((r) => r.includes('/expedientes/54/nodos'))).toBe(true);
+  });
+});

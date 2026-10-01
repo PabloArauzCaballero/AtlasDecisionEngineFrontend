@@ -98,11 +98,20 @@ export async function imagenesDelExpediente(
   );
   if (!expediente?.expedienteId) return { expedienteId: null, imagenes: [] };
   if (!descargar) return { expedienteId: expediente.expedienteId, imagenes: [] };
-  const nodos = await archivosDeImagen(expediente.expedienteId, null, 1, signal);
-  const imagenes = await Promise.all(
+  const imagenes = await imagenesDeExpediente(expediente.expedienteId, signal);
+  return { expedienteId: expediente.expedienteId, imagenes };
+}
+
+/** Las imágenes de un expediente por su número (el que muestra el portal en `/internal/files/<n>`). */
+export async function imagenesDeExpediente(
+  expedienteId: string,
+  signal: AbortSignal,
+): Promise<ImagenDeExpediente[]> {
+  const nodos = await archivosDeImagen(expedienteId, null, 1, signal);
+  return Promise.all(
     nodos.map(async (nodo) => {
       const archivo = await apiDownload(
-        `/atlas-backend/expedientes/${encodeURIComponent(expediente.expedienteId)}/nodos/${encodeURIComponent(nodo.nodoId)}/contenido?disposition=inline`,
+        `/atlas-backend/expedientes/${encodeURIComponent(expedienteId)}/nodos/${encodeURIComponent(nodo.nodoId)}/contenido?disposition=inline`,
         nodo.nombre,
         { signal },
       );
@@ -114,5 +123,4 @@ export async function imagenesDelExpediente(
       };
     }),
   );
-  return { expedienteId: expediente.expedienteId, imagenes };
 }
