@@ -222,6 +222,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
           <CaseImagesPanel
             attemptId={attemptId}
             requestId={String(resolvePath(review, 'execution.requestId') ?? '')}
+            executedAt={String(resolvePath(review, 'execution.executedAt') ?? '')}
           />
           <CaseFilePanel executionId={executionId} />
         </div>
