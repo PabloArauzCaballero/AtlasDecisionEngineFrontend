@@ -6,6 +6,7 @@ import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
 import { ApiError } from '../../api/ApiError';
 import { resolveAdminPortalUrl } from '../../config/env';
+import { imagenesDelExpediente } from './expediente-images';
 
 /**
  * Las fotos con las que hay que decidir.
@@ -98,16 +99,38 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
         customerId: body.customerId ?? '',
         documents: body.documents ?? [],
       };
-      const documents = await Promise.all(
-        meta.documents.map(async (document): Promise<EvidenceImage> => {
-          const file = await apiDownload(
-            `/atlas-backend/customer-onboarding/${meta.customerId}/evidence-documents/${document.documentId}/content`,
-            `${document.documentType}-${document.documentId}`,
-            { signal },
-          );
-          return { ...document, objectUrl: URL.createObjectURL(file.blob) };
+      /*
+       * Cada archivo se pide por separado y un fallo NO tumba a los demás: si el registro de
+       * evidencias del alta ya no sirve el archivo (404), el expediente del cliente suele
+       * conservarlo —es de donde lo muestra el portal interno—, y se recurre a él.
+       */
+      const traidos = await Promise.all(
+        meta.documents.map(async (document): Promise<EvidenceImage | null> => {
+          try {
+            const file = await apiDownload(
+              `/atlas-backend/customer-onboarding/${meta.customerId}/evidence-documents/${document.documentId}/content`,
+              `${document.documentType}-${document.documentId}`,
+              { signal },
+            );
+            return { ...document, objectUrl: URL.createObjectURL(file.blob) };
+          } catch (error) {
+            if (error instanceof ApiError && error.kind === 'not-found') return null;
+            throw error;
+          }
         }),
       );
+      let documents = traidos.filter((item): item is EvidenceImage => item !== null);
+      if (!documents.length && meta.customerId) {
+        const delExpediente = await imagenesDelExpediente(meta.customerId, signal);
+        documents = delExpediente.map((imagen) => ({
+          documentId: imagen.nodoId,
+          documentType: imagen.nombre,
+          mimeType: null,
+          sizeBytes: null,
+          sha256: imagen.sha256,
+          objectUrl: imagen.objectUrl,
+        }));
+      }
       return { customerId: meta.customerId, documents };
     },
   });
@@ -146,6 +169,7 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
               // (barrido de TEST, 2026-09-29: caso 6 → 404 IDENTITY_ATTEMPT_NOT_FOUND).
               'Los documentos de este cliente ya no están disponibles en la plataforma. Decide con lo que muestra el caso o pide al cliente que vuelva a subirlos.'
             : 'No se pudieron traer las imágenes del cliente. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
+          {query.error instanceof ApiError && query.error.code ? ` (${query.error.code})` : ''}
         </p>
       ) : null}
 
