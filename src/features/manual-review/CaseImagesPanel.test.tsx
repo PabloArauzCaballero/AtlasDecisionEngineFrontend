@@ -159,6 +159,7 @@ describe('caso viejo sin cliente: el analista indica el expediente', () => {
       pedidas.push(ruta);
       if (ruta.includes('identity-verifications'))
         return Promise.reject(new ApiError('no', 404, 'IDENTITY_ATTEMPT_NOT_FOUND'));
+      if (ruta.includes('por-momento')) return Promise.resolve([]);
       return Promise.resolve([
         {
           nodoId: '8',
@@ -189,5 +190,90 @@ describe('caso viejo sin cliente: el analista indica el expediente', () => {
 
     expect(await screen.findByText(/carnet-54\.jpg/)).toBeTruthy();
     expect(pedidas.some((r) => r.includes('/expedientes/54/nodos'))).toBe(true);
+  });
+});
+
+describe('caso viejo sin cliente: candidatos por hora', () => {
+  it('busca en la ventana previa al caso y pinta el carnet del candidato avisando que no está verificado', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { apiDownload } = await import('../../api/file-download');
+    const { ApiError } = await import('../../api/ApiError');
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:c');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const pedidas: string[] = [];
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) => {
+      pedidas.push(ruta);
+      if (ruta.includes('identity-verifications'))
+        return Promise.reject(new ApiError('no', 404, 'IDENTITY_ATTEMPT_NOT_FOUND'));
+      if (ruta.includes('por-momento'))
+        return Promise.resolve([
+          {
+            expedienteId: '54',
+            customerCode: 'CLI-54',
+            imagenes: [
+              { nodoId: '8', nombre: 'carnet-54.jpg', creadoEn: '2026-09-28T15:27:00.000Z' },
+            ],
+          },
+        ]);
+      return Promise.resolve([
+        {
+          nodoId: '8',
+          tipo: 'archivo',
+          nombre: 'carnet-54.jpg',
+          clase: null,
+          mimeType: 'image/jpeg',
+          sha256: null,
+          objetoAusente: false,
+          borradoEn: null,
+        },
+      ]);
+    }) as typeof apiRequest);
+    vi.mocked(apiDownload).mockResolvedValue({ blob: new Blob(['x']), fileName: 'x' } as never);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel
+          attemptId="abc"
+          requestId="uuid-sin-cliente"
+          executedAt="2026-09-28T15:29:21.373Z"
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText(/Coincidencia por hora, no verificada/)).toBeTruthy();
+    expect(await screen.findByText(/Expediente 54 · CLI-54/)).toBeTruthy();
+    const ventana = pedidas.find((r) => r.includes('por-momento')) ?? '';
+    expect(ventana).toContain('desde=2026-09-28T14%3A59%3A21.373Z');
+    expect(ventana).toContain('hasta=2026-09-28T15%3A31%3A21.373Z');
+  });
+});
+
+describe('candidatos por hora: con varios no se muestra ninguno', () => {
+  it('con dos clientes en la ventana no descarga imágenes y pide el expediente', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { apiDownload } = await import('../../api/file-download');
+    const { ApiError } = await import('../../api/ApiError');
+    vi.mocked(apiDownload).mockReset();
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) => {
+      if (ruta.includes('identity-verifications'))
+        return Promise.reject(new ApiError('no', 404, 'IDENTITY_ATTEMPT_NOT_FOUND'));
+      return Promise.resolve([
+        { expedienteId: '54', customerCode: 'A', imagenes: [] },
+        { expedienteId: '55', customerCode: 'B', imagenes: [] },
+      ]);
+    }) as typeof apiRequest);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel attemptId="abc" requestId="uuid" executedAt="2026-09-28T15:29:21.373Z" />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText(/2 clientes subieron su carnet/)).toBeTruthy();
+    expect(vi.mocked(apiDownload)).not.toHaveBeenCalled();
   });
 });
