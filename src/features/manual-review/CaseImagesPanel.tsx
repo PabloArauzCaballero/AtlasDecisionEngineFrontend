@@ -6,7 +6,7 @@ import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
 import { ApiError } from '../../api/ApiError';
 import { resolveAdminPortalUrl } from '../../config/env';
-import { imagenesDelExpediente } from './expediente-images';
+import { imagenesDelExpediente, sujetoDelCaso } from './expediente-images';
 
 /**
  * Las fotos con las que hay que decidir.
@@ -77,66 +77,105 @@ interface EvidenceImage extends EvidenceDocument {
   objectUrl: string;
 }
 
-export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) {
+interface CaseImages {
+  expedienteId: string | null;
+  documents: EvidenceImage[];
+}
+
+/** El intento de verificación, si todavía existe: devuelve el cliente y los archivos del alta. */
+async function documentosDelIntento(attemptId: string, signal: AbortSignal) {
+  try {
+    const body = await apiRequest<{ data?: EvidenceResponse } & Partial<EvidenceResponse>>(
+      `/atlas-backend/customer-onboarding/identity-verifications/${attemptId}/evidence-documents`,
+      { signal },
+    );
+    return {
+      customerId: body.data?.customerId ?? body.customerId ?? '',
+      documents: body.data?.documents ?? body.documents ?? [],
+    };
+  } catch (error) {
+    // Un intento que ya no existe no es el fin: el cliente puede leerse del `requestId` y su
+    // expediente conserva los archivos. Cualquier otro fallo (401, 500) sí se propaga.
+    if (error instanceof ApiError && error.kind === 'not-found') return null;
+    throw error;
+  }
+}
+
+export function CaseImagesPanel({
+  attemptId,
+  requestId = '',
+}: Readonly<{ attemptId: string; requestId?: string }>) {
+  const sujeto = sujetoDelCaso(requestId);
   const query = useQuery({
-    queryKey: ['case-images', attemptId],
-    enabled: Boolean(attemptId),
-    queryFn: async ({ signal }): Promise<{ customerId: string; documents: EvidenceImage[] }> => {
+    queryKey: ['case-images', attemptId, requestId],
+    enabled: Boolean(attemptId) || Boolean(sujeto),
+    queryFn: async ({ signal }): Promise<CaseImages> => {
       /*
-       * Los bytes de la imagen se piden por la MISMA puerta autenticada que todo lo demás y se
-       * pintan desde un blob local. Antes el `src` apuntaba directo a la ruta `/content`, y una
-       * etiqueta `<img>` NO puede mandar `Authorization` —sólo tiene una dirección—, así que el
-       * motor devolvía 401 y el analista se quedaba sin ver el carnet ni la selfie. Es el mismo
-       * arreglo que ya tenían el audio (`downloadAudio`) y las descargas (`apiDownload`): la
-       * credencial va puesta, la renovación de token vale igual, y el inquilino/rol los sigue
-       * decidiendo el servidor (no una URL pública que expondría PII fuera de sus controles).
+       * Los bytes se piden por la MISMA puerta autenticada que todo lo demás y se pintan desde un
+       * blob local: una etiqueta `<img>` no puede mandar `Authorization`, y una URL pública
+       * expondría PII fuera de los controles de inquilino y rol del servidor.
+       *
+       * Orden: 1) los archivos del alta, si el intento existe; 2) el expediente del sujeto, que es
+       * de donde los muestra el portal interno. El sujeto sale del `requestId` y, si no viene ahí
+       * (casos de identidad anteriores), del intento.
        */
-      const body = await apiRequest<{ data?: EvidenceResponse } & Partial<EvidenceResponse>>(
-        `/atlas-backend/customer-onboarding/identity-verifications/${attemptId}/evidence-documents`,
-        { signal },
-      );
-      const meta = body.data ?? {
-        customerId: body.customerId ?? '',
-        documents: body.documents ?? [],
-      };
-      /*
-       * Cada archivo se pide por separado y un fallo NO tumba a los demás: si el registro de
-       * evidencias del alta ya no sirve el archivo (404), el expediente del cliente suele
-       * conservarlo —es de donde lo muestra el portal interno—, y se recurre a él.
-       */
+      const intento = attemptId ? await documentosDelIntento(attemptId, signal) : null;
       const traidos = await Promise.all(
-        meta.documents.map(async (document): Promise<EvidenceImage | null> => {
+        (intento?.documents ?? []).map(async (document): Promise<EvidenceImage | null> => {
           try {
             const file = await apiDownload(
-              `/atlas-backend/customer-onboarding/${meta.customerId}/evidence-documents/${document.documentId}/content`,
+              `/atlas-backend/customer-onboarding/${intento?.customerId}/evidence-documents/${document.documentId}/content`,
               `${document.documentType}-${document.documentId}`,
               { signal },
             );
             return { ...document, objectUrl: URL.createObjectURL(file.blob) };
           } catch (error) {
+            // Un archivo ausente no tumba a los demás.
             if (error instanceof ApiError && error.kind === 'not-found') return null;
             throw error;
           }
         }),
       );
-      let documents = traidos.filter((item): item is EvidenceImage => item !== null);
-      if (!documents.length && meta.customerId) {
-        const delExpediente = await imagenesDelExpediente(meta.customerId, signal);
-        documents = delExpediente.map((imagen) => ({
-          documentId: imagen.nodoId,
-          documentType: imagen.nombre,
-          mimeType: null,
-          sizeBytes: null,
-          sha256: imagen.sha256,
-          objectUrl: imagen.objectUrl,
-        }));
+      const documents = traidos.filter((item): item is EvidenceImage => item !== null);
+
+      const delExpediente =
+        sujeto ??
+        (intento?.customerId ? { tipo: 'customer' as const, id: intento.customerId } : null);
+      let expedienteId: string | null = null;
+      if (delExpediente) {
+        const expediente = await imagenesDelExpediente(
+          delExpediente.tipo,
+          delExpediente.id,
+          signal,
+        );
+        expedienteId = expediente.expedienteId;
+        if (!documents.length) {
+          documents.push(
+            ...expediente.imagenes.map((imagen) => ({
+              documentId: imagen.nodoId,
+              documentType: imagen.nombre,
+              mimeType: null,
+              sizeBytes: null,
+              sha256: imagen.sha256,
+              objectUrl: imagen.objectUrl,
+            })),
+          );
+        } else {
+          expediente.imagenes.forEach((imagen) => URL.revokeObjectURL(imagen.objectUrl));
+        }
       }
-      return { customerId: meta.customerId, documents };
+      if (!documents.length && !expedienteId && attemptId && !intento) {
+        throw new ApiError(
+          'El intento de verificación ya no existe y el caso no dice de qué cliente es.',
+          404,
+          'IDENTITY_ATTEMPT_NOT_FOUND',
+        );
+      }
+      return { expedienteId, documents };
     },
   });
 
-  // Las URL de objeto se liberan al cambiar de caso o desmontar: sin esto, cada caso mirado deja
-  // sus blobs en memoria hasta recargar la pestaña.
+  // Las URL de objeto se liberan al cambiar de caso o desmontar.
   useEffect(() => {
     const urls = query.data?.documents.map((document) => document.objectUrl) ?? [];
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
@@ -144,16 +183,12 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
 
   const adminPortalUrl = resolveAdminPortalUrl();
 
-  if (!attemptId) {
-    /*
-     * Antes devolvía `null` y el panel desaparecía sin decir nada: el analista no sabía si el caso
-     * no tenía carnet o si la pantalla no lo estaba trayendo.
-     */
+  if (!attemptId && !sujeto) {
     return (
-      <Panel title="Documentos del solicitante" meta="sin vínculo con la verificación">
+      <Panel title="Documentos del solicitante" meta="sin vínculo con el cliente">
         <p className="muted">
-          Este caso no trae el identificador del intento de verificación, así que no se puede llegar
-          a su carnet ni a su selfie desde aquí. No lo resuelvas a ciegas.
+          Este caso no dice de qué cliente o comercio es, así que no se puede llegar a su carnet ni
+          a su expediente desde aquí. No lo resuelvas a ciegas.
         </p>
       </Panel>
     );
@@ -165,18 +200,14 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
       {query.error ? (
         <p className="muted">
           {query.error instanceof ApiError && query.error.kind === 'not-found'
-            ? // El caso apunta a un intento de verificación que la plataforma ya no conserva
-              // (barrido de TEST, 2026-09-29: caso 6 → 404 IDENTITY_ATTEMPT_NOT_FOUND).
-              'Los documentos de este cliente ya no están disponibles en la plataforma. Decide con lo que muestra el caso o pide al cliente que vuelva a subirlos.'
-            : 'No se pudieron traer las imágenes del cliente. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
+            ? 'No se encontró el cliente de este caso ni su expediente. Decide con lo que muestra el caso o pide que vuelvan a subir los documentos.'
+            : 'No se pudieron traer las imágenes. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
           {query.error instanceof ApiError && query.error.code ? ` (${query.error.code})` : ''}
         </p>
       ) : null}
 
       {query.data && !query.data.documents.length ? (
-        <p className="muted">
-          El cliente no tiene documentos de identidad guardados para este intento.
-        </p>
+        <p className="muted">El expediente no tiene imágenes de este solicitante.</p>
       ) : null}
 
       {query.data?.documents.length ? (
@@ -186,28 +217,20 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
             id: documento.documentId,
             etiqueta: ETIQUETA[documento.documentType] ?? documento.documentType,
             objectUrl: documento.objectUrl,
-            // El hash prueba que ESTA imagen es la que el motor evaluó: su instantánea de entrada
-            // guarda el mismo valor. Sin él, «vi la foto» y «vi la foto que se decidió» son la
-            // misma frase para dos cosas distintas.
+            // El hash prueba que ESTA imagen es la que el motor evaluó.
             pie: documento.sha256 ? `${documento.sha256.slice(0, 12)}…` : undefined,
           }))}
         />
       ) : null}
 
-      {/*
-        Estas imágenes son las que el Motor evaluó, no todo lo que la persona entregó: los
-        extractos, lo que subió después y lo que añadió un operador viven en su expediente. Quien
-        revisa a mano necesita saber que existe ese resto; decidir creyendo que se vio todo es
-        peor que saber que falta por mirar.
-      */}
-      {adminPortalUrl && query.data?.customerId ? (
+      {adminPortalUrl && query.data?.expedienteId ? (
         <p className="muted">
           <a
-            href={`${adminPortalUrl}/internal/files/cliente/${encodeURIComponent(query.data.customerId)}`}
+            href={`${adminPortalUrl}/internal/files/${encodeURIComponent(query.data.expedienteId)}`}
             target="_blank"
             rel="noreferrer"
           >
-            Ver el expediente completo del cliente
+            Ver el expediente completo
           </a>{' '}
           — extractos, documentos añadidos después y la bitácora de quién abrió cada uno.
         </p>

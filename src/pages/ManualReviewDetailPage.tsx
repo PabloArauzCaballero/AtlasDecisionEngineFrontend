@@ -219,7 +219,10 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
             decidió y por qué motivos— es lo que el analista de riesgo necesita
             para valorar el caso. Antes sólo había una instantánea cruda.
           */}
-          <CaseImagesPanel attemptId={attemptId} />
+          <CaseImagesPanel
+            attemptId={attemptId}
+            requestId={String(resolvePath(review, 'execution.requestId') ?? '')}
+          />
           <CaseFilePanel executionId={executionId} />
         </div>
         <div data-tutorial-id="review-resolution">

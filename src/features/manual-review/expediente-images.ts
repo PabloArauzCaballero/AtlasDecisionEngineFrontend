@@ -57,18 +57,46 @@ async function archivosDeImagen(
   return [...imagenes, ...hijas.flat()];
 }
 
-/** Las imágenes del expediente del cliente; vacío si no tiene expediente o no hay imágenes. */
+export type TipoDeSujeto = 'customer' | 'partner';
+
+export interface ImagenesDelExpediente {
+  /** `null` si el sujeto no tiene expediente. */
+  expedienteId: string | null;
+  imagenes: ImagenDeExpediente[];
+}
+
+/**
+ * De quién es un caso, leído de su propio `requestId`.
+ *
+ * El caso del Motor no guarda el cliente: sólo el `requestId` y el `correlationId` viajan en
+ * claro. Antes el vínculo era el id del intento de verificación, que se pierde con el intento (y
+ * en comercios no existía), y el caso quedaba sin carnet ni expediente para siempre. Ahora quien
+ * llama al Motor pone el sujeto en el `requestId` y aquí se lee:
+ * - `kyb-<comercio>-…` — evaluación de un comercio (AtlasBackend, desde el ERP o el portal).
+ * - `identity-<cliente>-…` — verificación de identidad de un cliente.
+ * Un `requestId` de otra forma (casos anteriores de identidad) devuelve `null` y se cae al intento.
+ */
+export function sujetoDelCaso(requestId: string): { tipo: TipoDeSujeto; id: string } | null {
+  const comercio = /^kyb-(\d+)-/.exec(requestId);
+  if (comercio?.[1]) return { tipo: 'partner', id: comercio[1] };
+  const cliente = /^identity-(\d+)-/.exec(requestId);
+  if (cliente?.[1]) return { tipo: 'customer', id: cliente[1] };
+  return null;
+}
+
+/** Las imágenes del expediente del sujeto; vacío si no tiene expediente o no hay imágenes. */
 export async function imagenesDelExpediente(
-  customerId: string,
+  tipo: TipoDeSujeto,
+  sujetoId: string,
   signal: AbortSignal,
-): Promise<ImagenDeExpediente[]> {
+): Promise<ImagenesDelExpediente> {
   const expediente = await apiRequest<Expediente | null>(
-    `/atlas-backend/expedientes/por-sujeto/customer/${encodeURIComponent(customerId)}`,
+    `/atlas-backend/expedientes/por-sujeto/${tipo}/${encodeURIComponent(sujetoId)}`,
     { signal },
   );
-  if (!expediente?.expedienteId) return [];
+  if (!expediente?.expedienteId) return { expedienteId: null, imagenes: [] };
   const nodos = await archivosDeImagen(expediente.expedienteId, null, 1, signal);
-  return Promise.all(
+  const imagenes = await Promise.all(
     nodos.map(async (nodo) => {
       const archivo = await apiDownload(
         `/atlas-backend/expedientes/${encodeURIComponent(expediente.expedienteId)}/nodos/${encodeURIComponent(nodo.nodoId)}/contenido?disposition=inline`,
@@ -83,4 +111,5 @@ export async function imagenesDelExpediente(
       };
     }),
   );
+  return { expedienteId: expediente.expedienteId, imagenes };
 }

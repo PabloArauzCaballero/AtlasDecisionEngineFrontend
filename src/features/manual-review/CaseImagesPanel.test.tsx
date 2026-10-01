@@ -70,3 +70,50 @@ describe('carnet desde el expediente cuando el registro del alta no sirve el arc
     ).toBe(true);
   });
 });
+
+describe('comercio del ERP: el caso se ata a su expediente por el requestId', () => {
+  it('sin intento de verificación pide el expediente partner y enlaza a él', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { apiDownload } = await import('../../api/file-download');
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:rut');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    const pedidas: string[] = [];
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) => {
+      pedidas.push(ruta);
+      if (ruta.includes('por-sujeto')) return Promise.resolve({ expedienteId: '12' });
+      return Promise.resolve([
+        {
+          nodoId: '3',
+          tipo: 'archivo',
+          nombre: 'nit.png',
+          clase: null,
+          mimeType: 'image/png',
+          sha256: null,
+          objetoAusente: false,
+          borradoEn: null,
+        },
+      ]);
+    }) as typeof apiRequest);
+    vi.mocked(apiDownload).mockResolvedValue({ blob: new Blob(['x']), fileName: 'x' } as never);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel attemptId="" requestId="kyb-77-abc123" />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText(/nit\.png/)).toBeTruthy();
+    expect(pedidas.some((r) => r.endsWith('/expedientes/por-sujeto/partner/77'))).toBe(true);
+  });
+});
+
+describe('sujetoDelCaso', () => {
+  it('lee comercio e identidad del requestId y descarta el resto', async () => {
+    const { sujetoDelCaso } = await import('./expediente-images');
+    expect(sujetoDelCaso('kyb-77-abc')).toEqual({ tipo: 'partner', id: '77' });
+    expect(sujetoDelCaso('identity-54-9f2')).toEqual({ tipo: 'customer', id: '54' });
+    expect(sujetoDelCaso('16314699-dba4-4e09-a35b-4bb71964c7ea')).toBeNull();
+  });
+});
