@@ -63,3 +63,21 @@ function readPublicEnvironment() {
 }
 
 export const env = readPublicEnvironment();
+
+/**
+ * Dónde está el portal interno desde ESTE navegador.
+ *
+ * `NEXT_PUBLIC_ADMIN_PORTAL_URL` se hornea al construir y ningún Dockerfile ni compose la define,
+ * así que en los despliegues llegaba vacía y el enlace al expediente del cliente no se pintaba
+ * nunca: el analista decidía sin saber que el resto del expediente existía. Si no está
+ * configurada, se deduce del nombre del propio Motor, que sigue la convención
+ * `<prefijo>.decisionengine.<entorno>` ↔ `<prefijo>.adminportal.<entorno>`.
+ */
+export function resolveAdminPortalUrl(): string {
+  if (env.adminPortalUrl) return env.adminPortalUrl;
+  if (typeof window === 'undefined') return '';
+  const { protocol, hostname } = window.location;
+  return hostname.includes('.decisionengine.')
+    ? `${protocol}//${hostname.replace('.decisionengine.', '.adminportal.')}`
+    : '';
+}
