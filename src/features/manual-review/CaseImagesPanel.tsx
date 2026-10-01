@@ -6,6 +6,7 @@ import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
 import { ApiError } from '../../api/ApiError';
 import { resolveAdminPortalUrl } from '../../config/env';
+import { CaseManualDossier } from './CaseManualDossier';
 import { imagenesDelExpediente, sujetoDelCaso } from './expediente-images';
 
 /**
@@ -202,8 +203,9 @@ export function CaseImagesPanel({
       <Panel title="Documentos del solicitante" meta="sin vínculo con el cliente">
         <p className="muted">
           Este caso no dice de qué cliente o comercio es, así que no se puede llegar a su carnet ni
-          a su expediente desde aquí. No lo resuelvas a ciegas.
+          a su expediente desde aquí. Si sabes cuál es, indícalo:
         </p>
+        <CaseManualDossier />
       </Panel>
     );
   }
@@ -223,6 +225,8 @@ export function CaseImagesPanel({
       {query.data && !query.data.documents.length ? (
         <p className="muted">El expediente no tiene imágenes de este solicitante.</p>
       ) : null}
+
+      {query.error || (query.data && !query.data.documents.length) ? <CaseManualDossier /> : null}
 
       {query.data?.documents.length ? (
         <CarruselDeDocumentos
