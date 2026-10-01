@@ -123,7 +123,7 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
         </div>
         {/*
           El primer caso de la suite es un caso como cualquier otro, así que se
-          rellena igual que en «Casos de Prueba»: escribir a mano un JSON que
+          rellena igual que en «Casos de prueba»: escribir a mano un JSON que
           cumpla el contrato de la versión obliga a ir consultando el catálogo
           campo por campo, y un nombre mal escrito no se ve hasta el 422.
         */}

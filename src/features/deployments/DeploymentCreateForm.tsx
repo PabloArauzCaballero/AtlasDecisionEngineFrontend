@@ -180,7 +180,8 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
               <Alert tone="info">
                 Puedes promover a ambientes de trabajo. Publicar en producción (
                 {targets.withheldProduction.map((environment) => environment.code).join(', ')})
-                requiere rol Platform Admin: envía la versión a revisión para que la firme.
+                requiere el rol de administrador de la plataforma: envía la versión a revisión para
+                que la firme.
               </Alert>
             ) : null}
             {denial ? <Alert tone="error">{denial}</Alert> : null}

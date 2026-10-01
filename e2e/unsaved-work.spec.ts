@@ -34,7 +34,7 @@ test('la guarda pregunta antes de tirar trabajo, y no molesta cuando no lo hay',
   await cajon.getByRole('link', { name: /^Variables$/i }).click();
   const aviso = page.getByRole('dialog');
   await expect(aviso).toBeVisible({ timeout: 30_000 });
-  await expect(aviso).toContainText('Análisis Semántico');
+  await expect(aviso).toContainText('Análisis semántico');
   await aviso.getByRole('button', { name: 'Quedarme aquí' }).click();
   await expect(aviso).toHaveCount(0);
   await expect(page).toHaveURL(/\/workers/);

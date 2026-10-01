@@ -180,7 +180,7 @@ export function CalculatedFieldVersionList({ versions, onPromote, canPromote, ca
                   />
                 ) : (
                   <p className="field-hint">
-                    Probar una versión la ejecuta: requiere el rol de analista de pruebas o de
+                    Probar una versión la ejecuta: requiere el rol de analista de calidad o de
                     analista de fraude.
                   </p>
                 )}

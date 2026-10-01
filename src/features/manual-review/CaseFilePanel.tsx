@@ -69,8 +69,8 @@ export function CaseFilePanel({ executionId }: CaseFilePanelProps) {
       <Panel title="Expediente del caso" meta="Sin permiso">
         <p className="muted-note">
           Ver el expediente —datos del solicitante, variables resueltas y entrada original— requiere
-          rol Risk Analyst, Fraud Analyst u Operations. Lo que se ve arriba son los metadatos de la
-          cola, que no incluyen datos personales.
+          el rol de analista de riesgo, analista de fraude u operaciones. Lo que se ve arriba son
+          los metadatos de la cola, que no incluyen datos personales.
         </p>
       </Panel>
     );

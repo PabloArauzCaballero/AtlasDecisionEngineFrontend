@@ -3,7 +3,7 @@ import { collectProblems, EMPTY_PAGE, MOCK_SESSION } from './support/backend-moc
 import { denseBackend } from './support/dense-backend';
 
 /**
- * Centro de Tutoriales y motor de recorridos, en el navegador de verdad.
+ * Centro de tutoriales y motor de recorridos, en el navegador de verdad.
  *
  * Lo que las pruebas unitarias no pueden ver es justo lo que aquí se rompe: que
  * al pulsar "Comenzar" el portal NAVEGUE a la pantalla del tutorial, que el
@@ -76,15 +76,15 @@ async function mockDensePortal(page: Page): Promise<void> {
   });
 }
 
-test.describe('Centro de Tutoriales', () => {
+test.describe('Centro de tutoriales', () => {
   test('lista los recorridos, filtra y muestra el avance', async ({ page }) => {
     const problems = collectProblems(page);
     await mockPortal(page);
 
     await page.goto('/tutorials', { waitUntil: 'domcontentloaded' });
-    // Por nivel: "Centro de Tutoriales" es también el título de una tarjeta del
+    // Por nivel: "Centro de tutoriales" es también el título de una tarjeta del
     // catálogo (el recorrido que enseña a usar esta pantalla).
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Centro de Tutoriales', {
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Centro de tutoriales', {
       timeout: 30_000,
     });
 
@@ -115,7 +115,7 @@ test.describe('Centro de Tutoriales', () => {
     await mockPortal(page);
 
     await page.goto('/tutorials', { waitUntil: 'domcontentloaded' });
-    await tutorialCard(page, 'Catálogo de Variables')
+    await tutorialCard(page, 'Catálogo de variables')
       .getByRole('button', { name: /Comenzar/ })
       .click();
 
@@ -243,9 +243,9 @@ test.describe('Centro de Tutoriales', () => {
     await mockPortal(page);
 
     await page.goto('/tutorials', { waitUntil: 'domcontentloaded' });
-    // Por nivel: "Centro de Tutoriales" es también el título de una tarjeta del
+    // Por nivel: "Centro de tutoriales" es también el título de una tarjeta del
     // catálogo (el recorrido que enseña a usar esta pantalla).
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Centro de Tutoriales', {
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Centro de tutoriales', {
       timeout: 30_000,
     });
 

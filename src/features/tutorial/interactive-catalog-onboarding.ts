@@ -49,7 +49,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         target: '[data-tutorial-id="tutorial-center-link"]',
         title: 'Nunca te quedas sin ayuda',
         content:
-          'Cada pantalla tiene su propio recorrido guiado, y aquí, en el Centro de Tutoriales, están todos juntos con tu avance. Puedes retomar donde lo dejaste o repetir cualquiera cuando quieras.',
+          'Cada pantalla tiene su propio recorrido guiado, y aquí, en el Centro de tutoriales, están todos juntos con tu avance. Puedes retomar donde lo dejaste o repetir cualquiera cuando quieras.',
         optional: true,
       },
     ],
@@ -151,7 +151,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
 
   'tutorial-center': {
     id: 'tutorial-center',
-    title: 'Usar el Centro de Tutoriales',
+    title: 'Usar el Centro de tutoriales',
     intro:
       'Aprende a encontrar el recorrido que necesitas, ver tu avance y retomar lo que dejaste a medias.',
     version: 1,

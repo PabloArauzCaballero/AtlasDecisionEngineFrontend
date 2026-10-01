@@ -19,7 +19,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/reviews': {
     eyebrow: 'Gobierno',
-    title: 'Bandeja de Revisiones',
+    title: 'Bandeja de revisiones',
     intro: 'Concentra las solicitudes de aprobación de Calidad, Riesgo y Cumplimiento.',
     steps: [
       {
@@ -34,7 +34,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/environments': {
     eyebrow: 'Gobierno',
-    title: 'Gestión de Ambientes',
+    title: 'Gestión de ambientes',
     intro: 'Estado, capacidad y versión desplegada en cada entorno operativo.',
     steps: [
       {
@@ -49,7 +49,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/deployments': {
     eyebrow: 'Gobierno',
-    title: 'Historial de Despliegues',
+    title: 'Historial de despliegues',
     intro: 'El registro auditable de publicaciones, resultados y reversiones por ambiente.',
     steps: [
       {
@@ -58,14 +58,14 @@ export const governTutorials: TutorialRegistry = {
       },
       {
         title: 'Nuevo despliegue',
-        body: 'Con rol de administrador de la plataforma, «Nuevo Despliegue» publica una versión aprobada: el modo completo envía todas las solicitudes a la nueva versión; el gradual y el comparativo las reparten por reglas.',
+        body: 'Con rol de administrador de la plataforma, «Nuevo despliegue» publica una versión aprobada: el modo completo envía todas las solicitudes a la nueva versión; el gradual y el comparativo las reparten por reglas.',
         tip: 'Solo se pueden desplegar versiones aprobadas y compiladas.',
       },
     ],
   },
   '/executions': {
     eyebrow: 'Auditoría',
-    title: 'Buscador de Ejecuciones',
+    title: 'Buscador de ejecuciones',
     intro: 'Consulta reproducible de cada solicitud de decisión y su resultado.',
     steps: [
       {
@@ -80,7 +80,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/audit-events': {
     eyebrow: 'Auditoría',
-    title: 'Bitácora de Auditoría',
+    title: 'Bitácora de auditoría',
     intro: 'La cadena inmutable de eventos administrativos y operativos de la plataforma.',
     steps: [
       {
@@ -95,7 +95,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/objectives': {
     eyebrow: 'Trazabilidad',
-    title: 'Objetivos de Negocio',
+    title: 'Objetivos de negocio',
     intro: 'Conectan metas medibles con las políticas, artefactos y pruebas que las cumplen.',
     steps: [
       {
@@ -114,7 +114,7 @@ export const governTutorials: TutorialRegistry = {
   },
   '/coverage-matrix': {
     eyebrow: 'Trazabilidad',
-    title: 'Matriz de Cobertura',
+    title: 'Matriz de cobertura',
     intro: 'Cruza objetivos y artefactos para ver qué metas están respaldadas por evidencia.',
     steps: [
       {

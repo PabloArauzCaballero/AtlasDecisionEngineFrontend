@@ -2,7 +2,7 @@ import type { TutorialMeta } from './interactive-types';
 import { AUDIT_META_LIST } from './tutorial-registry.data.audit';
 
 /**
- * Fichas del Centro de Tutoriales: qué recorridos hay, en qué categoría, con qué nivel y
+ * Fichas del Centro de tutoriales: qué recorridos hay, en qué categoría, con qué nivel y
  * qué conviene haber hecho antes.
  *
  * Vive separado de `tutorial-registry.ts` —que es la lógica de filtrado y de permisos—

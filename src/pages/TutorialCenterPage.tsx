@@ -39,7 +39,7 @@ function groupByCategory(listings: readonly TutorialListing[]) {
 }
 
 /**
- * Centro de Tutoriales: el catálogo completo de recorridos que ESTE usuario
+ * Centro de tutoriales: el catálogo completo de recorridos que ESTE usuario
  * puede hacer, con su avance y el botón para empezar, continuar o repetir.
  *
  * Sólo lista; el recorrido lo ejecuta el motor sobre la interfaz real. Al pulsar
@@ -71,7 +71,7 @@ export function TutorialCenterPage() {
     <>
       <PageHeader
         eyebrow="Aprendizaje"
-        title="Centro de Tutoriales"
+        title="Centro de tutoriales"
         description="Recorridos guiados sobre la interfaz real del portal. Empieza por los recomendados o retoma lo que dejaste a medias."
         hint="Cada tutorial se ejecuta sobre las pantallas de verdad: te lleva a la vista, resalta el elemento y te dice qué hacer. Puedes salir en cualquier momento y continuar después."
       />

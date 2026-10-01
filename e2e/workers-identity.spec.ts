@@ -14,7 +14,7 @@ import { mockWorkersBackend } from './support/workers-backend';
 
 const RUTA = '/workers/identity-verification';
 
-test.describe('pestaña Verificación de Identidad', () => {
+test.describe('pestaña Verificación de identidad', () => {
   test.setTimeout(180_000);
 
   test('es un worker más del grupo, junto a los dos anteriores', async ({ page }) => {
@@ -31,7 +31,7 @@ test.describe('pestaña Verificación de Identidad', () => {
     await expect(propio).toHaveAttribute('aria-current', 'page');
 
     // Y el enlace directo aterriza en ESTE worker, no en el primero de la lista.
-    await expect(page.getByRole('heading', { name: 'Verificación de Identidad' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Verificación de identidad' })).toBeVisible();
   });
 
   test('el panel de control mide este worker antes de que nadie lo use', async ({ page }) => {

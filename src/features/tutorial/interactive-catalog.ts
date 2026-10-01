@@ -112,7 +112,7 @@ export function tutorialForRoute(pathname: string): string | null {
  * grafo tiene el mapa de herramientas («¿qué hace este botón?») y la
  * construcción guiada («¿y cómo hago un algoritmo?»). Sin esta tabla, el botón
  * «Tutorial» de la pantalla sólo alcanzaba al primero y el segundo quedaba
- * enterrado en el Centro de Tutoriales, que es justo donde no está quien tiene
+ * enterrado en el Centro de tutoriales, que es justo donde no está quien tiene
  * la duda.
  *
  * Es una tabla explícita a propósito: derivarla de `route` en el registro

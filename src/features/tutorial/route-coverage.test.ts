@@ -7,7 +7,7 @@ import { TUTORIAL_META_LIST } from './tutorial-registry.data';
 /**
  * Un recorrido escrito que nadie encuentra es un recorrido que no existe.
  *
- * El Centro de Tutoriales lo lista todo, pero la ayuda que la gente usa de verdad es el
+ * El Centro de tutoriales lo lista todo, pero la ayuda que la gente usa de verdad es el
  * botón junto al título de la pantalla, y ese botón depende de que la ruta esté cableada
  * en `interactive-catalog`. Esa tabla y el registro se editan por separado, así que se
  * desincronizan en silencio: `coverage` estuvo publicado apuntando a `/coverage`, una ruta

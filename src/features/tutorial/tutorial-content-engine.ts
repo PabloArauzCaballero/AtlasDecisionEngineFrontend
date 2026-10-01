@@ -4,7 +4,7 @@ import type { TutorialRegistry } from './tutorial.types';
 export const engineTutorials: TutorialRegistry = {
   '/variables': {
     eyebrow: 'Motor de decisión · Diseño',
-    title: 'Catálogo de Variables',
+    title: 'Catálogo de variables',
     intro:
       'Define los datos versionados que tus reglas, modelos y grafos de decisión pueden consumir.',
     steps: [
@@ -49,7 +49,7 @@ export const engineTutorials: TutorialRegistry = {
   },
   '/artifacts': {
     eyebrow: 'Motor de decisión · Diseño',
-    title: 'Inventario de Artefactos',
+    title: 'Inventario de artefactos',
     intro:
       'Un artefacto es una unidad de decisión versionable: su grafo, sus reglas y su contrato.',
     steps: [
@@ -69,7 +69,7 @@ export const engineTutorials: TutorialRegistry = {
   },
   '/algorithms': {
     eyebrow: 'Motor de decisión · Diseño',
-    title: 'Algoritmos y Versiones',
+    title: 'Algoritmos y versiones',
     intro:
       'Una tabla desplegable con todos tus algoritmos de decisión y su historial de versiones.',
     steps: [
@@ -90,7 +90,7 @@ export const engineTutorials: TutorialRegistry = {
   },
   '/graph-editor': {
     eyebrow: 'Motor de decisión · Diseño',
-    title: 'Editor de Grafo',
+    title: 'Editor de grafo',
     intro: 'El lienzo donde construyes visualmente el algoritmo de decisión de una versión.',
     steps: [
       {

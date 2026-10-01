@@ -45,7 +45,7 @@ test.describe('grupo Workers del cajón', () => {
     // Y navegar de verdad: cambia la ruta y el título, no una pestaña interna.
     await cajon.getByRole('link', { name: 'Extractos bancarios', exact: true }).click();
     await expect(page).toHaveURL(/\/workers\/bank-statement/);
-    await expect(page.getByRole('heading', { name: 'Extractos Bancarios' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Extractos bancarios' })).toBeVisible();
 
     await cajon.getByRole('link', { name: 'Locución', exact: true }).click();
     await expect(page).toHaveURL(/\/workers\/audio-tts/);

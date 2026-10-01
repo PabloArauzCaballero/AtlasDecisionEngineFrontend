@@ -82,7 +82,7 @@ test.describe('extractos bancarios contra el motor real', () => {
 
     // 1. La vista existe y el motor declara el worker encendido. Si el catálogo
     //    no llegara, el botón quedaría deshabilitado y todo lo demás sobraría.
-    await expect(page.getByRole('heading', { name: 'Extractos Bancarios' })).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'Extractos bancarios' })).toBeVisible({
       timeout: 30_000,
     });
     const cajon = page.locator('.sidebar');
@@ -196,7 +196,7 @@ test.describe('análisis semántico contra el motor real', () => {
       waitUntil: 'domcontentloaded',
       timeout: 60_000,
     });
-    await expect(page.getByRole('heading', { name: 'Análisis Semántico' })).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'Análisis semántico' })).toBeVisible({
       timeout: 30_000,
     });
     await page.getByRole('tab', { name: 'Consola' }).click();

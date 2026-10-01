@@ -68,7 +68,7 @@ export function CoverageMatrixPage() {
     <>
       <PageHeader
         eyebrow="Trazabilidad"
-        title="Matriz de Cobertura"
+        title="Matriz de cobertura"
         description="Estado de cumplimiento entre objetivos, políticas, artefactos y pruebas."
         actions={
           <>

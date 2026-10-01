@@ -90,10 +90,10 @@ export function DeploymentsPage() {
         primaryActionDisabled={!canCreate}
         primaryActionTitle={
           !canCreate
-            ? 'Requiere rol QA Analyst, Fraud Analyst o Platform Admin'
+            ? 'Requiere el rol de analista de calidad, analista de fraude o administrador de la plataforma'
             : canPromoteToProduction
               ? 'Promover una versión aprobada a cualquier ambiente'
-              : 'Promover una versión a un ambiente de trabajo; producción requiere Platform Admin'
+              : 'Promover una versión a un ambiente de trabajo; producción requiere el rol de administrador de la plataforma'
         }
         rowActions={accionesDeFila}
       />

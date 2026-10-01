@@ -88,7 +88,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
     <>
       <PageHeader
         eyebrow="Diseño · Asistente"
-        title="Validar y Compilar Modelo"
+        title="Validar y compilar modelo"
         description="Proceso controlado de pre-validación, pruebas estructurales y compilación determinista."
         hint="El asistente sólo ofrece lo que el estado de la versión admite: el motor sólo compila lo que está validado, y una versión ya compilada se aprueba, no se vuelve a compilar."
         actions={

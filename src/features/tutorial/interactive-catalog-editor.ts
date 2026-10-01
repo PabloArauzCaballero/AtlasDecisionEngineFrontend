@@ -262,7 +262,7 @@ export const EDITOR_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: '14 · Guarda el borrador',
         content:
           'Hasta ahora todo vivía en tu navegador. Guardar escribe la versión borrador en el motor. A partir de aquí el algoritmo ya se puede probar con casos, enviar a revisión y desplegar.',
-        tip: 'Lo siguiente es Suites de Prueba: escribe casos con su entrada y su resultado esperado, y ejecútalos.',
+        tip: 'Lo siguiente es Suites de prueba: escribe casos con su entrada y su resultado esperado, y ejecútalos.',
       },
     ],
   },

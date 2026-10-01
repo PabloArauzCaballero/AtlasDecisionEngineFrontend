@@ -136,7 +136,7 @@ export function ObjectiveDetailPage({ objectiveId }: ObjectiveDetailPageProps) {
                           title={
                             canLinkArtifact || canLinkTest
                               ? `Vincular evidencia a ${code}`
-                              : 'Requiere el rol Compliance, Riesgo o QA'
+                              : 'Requiere el rol de cumplimiento, analista de riesgo o analista de calidad'
                           }
                           onClick={() => setLinking({ id: display(policy, 'id'), code })}
                         >
