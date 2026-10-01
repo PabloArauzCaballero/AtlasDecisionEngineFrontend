@@ -18,6 +18,11 @@ COPY . .
 # se podía construir en la máquina que ya tenía los intérpretes bajados.
 # Se garantiza aquí; si están, el desplegador los copia al contexto y viajan dentro.
 RUN mkdir -p public
+# PLAT-03: la identidad del artefacto se escribe AQUÍ, dentro de la imagen, y `/version` la lee de este
+# archivo. `SOURCE_COMMIT` (build-arg de Coolify) manda; si llega vacío se lee `.git/HEAD` del contexto
+# (el .dockerignore lo deja pasar). Sin ninguno queda `commit: null`: no se inventa, y el smoke lo rechaza.
+ARG SOURCE_COMMIT=""
+RUN SOURCE_COMMIT="$SOURCE_COMMIT" node scripts/write-build-info.mjs build-info.json
 RUN yarn build
 
 FROM node:22-alpine AS runner
@@ -33,6 +38,7 @@ RUN addgroup --system --gid 1001 nodejs \
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/build-info.json ./build-info.json
 # `public/` NO viaja dentro de `standalone`: Next lo deja fuera a proposito y su documentacion
 # pide copiarlo aparte, igual que `.next/static`. Sin esta linea la imagen no servia NADA de
 # `public/`, y el fallo era invisible mientras el directorio estuvo vacio. Dejo de serlo con el

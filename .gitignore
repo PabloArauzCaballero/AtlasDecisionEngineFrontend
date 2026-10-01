@@ -45,3 +45,6 @@ public/webr/
 # ninguna y quedaba listo para commitear. Se invierte: se ignora todo y se readmiten los ejemplos.
 .env*
 !.env*.example
+
+# Identidad del build (se genera al construir la imagen)
+/build-info.json

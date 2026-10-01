@@ -9,4 +9,7 @@ test-results
 *.log
 *.tsbuildinfo
 .git
+!.git/HEAD
+!.git/packed-refs
+!.git/refs
 .github
