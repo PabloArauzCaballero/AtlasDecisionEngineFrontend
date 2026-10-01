@@ -117,3 +117,31 @@ describe('sujetoDelCaso', () => {
     expect(sujetoDelCaso('16314699-dba4-4e09-a35b-4bb71964c7ea')).toBeNull();
   });
 });
+
+describe('el expediente es un extra cuando ya hay carnet', () => {
+  it('si su lectura falla, el carnet del alta se sigue viendo', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { apiDownload } = await import('../../api/file-download');
+    const { ApiError } = await import('../../api/ApiError');
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:ok');
+    globalThis.URL.revokeObjectURL = vi.fn();
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) =>
+      ruta.includes('identity-verifications')
+        ? Promise.resolve({
+            customerId: '54',
+            documents: [{ documentId: '9', documentType: 'identity_front', mimeType: 'image/png' }],
+          })
+        : Promise.reject(new ApiError('Sin permiso', 403, 'FORBIDDEN'))) as typeof apiRequest);
+    vi.mocked(apiDownload).mockResolvedValue({ blob: new Blob(['x']), fileName: 'x' } as never);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel attemptId="abc" requestId="" />
+      </QueryClientProvider>,
+    );
+
+    expect(await screen.findByText(/Anverso del carnet/)).toBeTruthy();
+  });
+});

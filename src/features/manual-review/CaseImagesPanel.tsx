@@ -79,6 +79,7 @@ interface EvidenceImage extends EvidenceDocument {
 
 interface CaseImages {
   expedienteId: string | null;
+  customerId: string;
   documents: EvidenceImage[];
 }
 
@@ -138,31 +139,32 @@ export function CaseImagesPanel({
       );
       const documents = traidos.filter((item): item is EvidenceImage => item !== null);
 
+      /*
+       * El expediente sólo se descarga aquí si NO hay imágenes del alta. Con imágenes, el carnet se
+       * muestra ya y el expediente se resuelve aparte (`enlace`), sin hacerlo esperar: un backend
+       * lento o un 403 en el expediente no pueden esconder un carnet que ya se tiene.
+       */
       const delExpediente =
         sujeto ??
         (intento?.customerId ? { tipo: 'customer' as const, id: intento.customerId } : null);
       let expedienteId: string | null = null;
-      if (delExpediente) {
+      if (delExpediente && !documents.length) {
         const expediente = await imagenesDelExpediente(
           delExpediente.tipo,
           delExpediente.id,
           signal,
         );
         expedienteId = expediente.expedienteId;
-        if (!documents.length) {
-          documents.push(
-            ...expediente.imagenes.map((imagen) => ({
-              documentId: imagen.nodoId,
-              documentType: imagen.nombre,
-              mimeType: null,
-              sizeBytes: null,
-              sha256: imagen.sha256,
-              objectUrl: imagen.objectUrl,
-            })),
-          );
-        } else {
-          expediente.imagenes.forEach((imagen) => URL.revokeObjectURL(imagen.objectUrl));
-        }
+        documents.push(
+          ...expediente.imagenes.map((imagen) => ({
+            documentId: imagen.nodoId,
+            documentType: imagen.nombre,
+            mimeType: null,
+            sizeBytes: null,
+            sha256: imagen.sha256,
+            objectUrl: imagen.objectUrl,
+          })),
+        );
       }
       if (!documents.length && !expedienteId && attemptId && !intento) {
         throw new ApiError(
@@ -171,7 +173,7 @@ export function CaseImagesPanel({
           'IDENTITY_ATTEMPT_NOT_FOUND',
         );
       }
-      return { expedienteId, documents };
+      return { expedienteId, customerId: intento?.customerId ?? '', documents };
     },
   });
 
@@ -181,6 +183,18 @@ export function CaseImagesPanel({
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [query.data]);
 
+  const sujetoDelEnlace =
+    sujeto ??
+    (query.data?.customerId ? { tipo: 'customer' as const, id: query.data.customerId } : null);
+  const enlace = useQuery({
+    queryKey: ['case-dossier-link', sujetoDelEnlace?.tipo, sujetoDelEnlace?.id],
+    enabled: Boolean(sujetoDelEnlace) && !query.data?.expedienteId,
+    retry: false,
+    queryFn: async ({ signal }) =>
+      (await imagenesDelExpediente(sujetoDelEnlace!.tipo, sujetoDelEnlace!.id, signal, false))
+        .expedienteId,
+  });
+  const expedienteId = query.data?.expedienteId ?? enlace.data ?? null;
   const adminPortalUrl = resolveAdminPortalUrl();
 
   if (!attemptId && !sujeto) {
@@ -223,10 +237,10 @@ export function CaseImagesPanel({
         />
       ) : null}
 
-      {adminPortalUrl && query.data?.expedienteId ? (
+      {adminPortalUrl && expedienteId ? (
         <p className="muted">
           <a
-            href={`${adminPortalUrl}/internal/files/${encodeURIComponent(query.data.expedienteId)}`}
+            href={`${adminPortalUrl}/internal/files/${encodeURIComponent(expedienteId)}`}
             target="_blank"
             rel="noreferrer"
           >

@@ -89,12 +89,15 @@ export async function imagenesDelExpediente(
   tipo: TipoDeSujeto,
   sujetoId: string,
   signal: AbortSignal,
+  /** `false` sólo resuelve el expediente (para enlazarlo) sin bajar sus archivos. */
+  descargar = true,
 ): Promise<ImagenesDelExpediente> {
   const expediente = await apiRequest<Expediente | null>(
     `/atlas-backend/expedientes/por-sujeto/${tipo}/${encodeURIComponent(sujetoId)}`,
     { signal },
   );
   if (!expediente?.expedienteId) return { expedienteId: null, imagenes: [] };
+  if (!descargar) return { expedienteId: expediente.expedienteId, imagenes: [] };
   const nodos = await archivosDeImagen(expediente.expedienteId, null, 1, signal);
   const imagenes = await Promise.all(
     nodos.map(async (nodo) => {
