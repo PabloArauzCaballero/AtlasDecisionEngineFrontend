@@ -161,7 +161,7 @@ export function SimulatorPage() {
       </div>
       <PageHeader
         eyebrow="Operación"
-        title="Simulador de Decisión"
+        title="Simulador de decisiones"
         description="Prueba una decisión con los datos que escribas, sin afectar a ningún cliente y sin dejar registro."
         hint="Prueba cómo decidiría un algoritmo con las entradas que tú escribas, sin afectar producción ni guardar nada. Ideal para entender por qué el motor toma una ruta."
       />

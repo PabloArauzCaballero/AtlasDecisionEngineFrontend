@@ -38,7 +38,7 @@ const config: ResourceConfig = {
   primaryAction: 'Nuevo Artefacto',
   createFields: [{ key: 'artifactCode', label: 'Código', required: true }],
   createRoles: ['PLATFORM_ADMIN'],
-  createDeniedHint: 'Sólo un Platform Admin crea artefactos.',
+  createDeniedHint: 'Sólo un administrador de la plataforma crea artefactos.',
 };
 
 function userWith(roles: string[]): IdentityUser {
@@ -65,7 +65,10 @@ describe('alta restringida en un listado de recursos', () => {
     renderWith(['RISK_ANALYST']);
     const button = await screen.findByRole('button', { name: /Nuevo Artefacto/ });
     expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('title', 'Sólo un Platform Admin crea artefactos.');
+    expect(button).toHaveAttribute(
+      'title',
+      'Sólo un administrador de la plataforma crea artefactos.',
+    );
   });
 
   it('tampoco se lo permite al tester: proponer una versión no es crear el artefacto', async () => {

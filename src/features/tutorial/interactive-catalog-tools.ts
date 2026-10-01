@@ -44,7 +44,7 @@ const listSteps = (what: string, createHint: string): InteractiveTutorial['steps
 export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   variables: t(
     'variables',
-    'Catálogo de Variables',
+    'Catálogo de variables',
     'Los datos con los que deciden tus algoritmos, y en qué sentido los usan.',
     [
       {
@@ -96,7 +96,7 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   ),
   artifacts: t(
     'artifacts',
-    'Inventario de Artefactos',
+    'Inventario de artefactos',
     'Todos los algoritmos de decisión del sistema.',
     [
       {
@@ -120,7 +120,7 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   ),
   algorithms: t(
     'algorithms',
-    'Algoritmos y Versiones',
+    'Algoritmos y versiones',
     'El historial de cada algoritmo, versión a versión.',
     [
       {
@@ -146,7 +146,7 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   ),
   'test-suites': t(
     'test-suites',
-    'Suites de Prueba',
+    'Suites de prueba',
     'Comprobar que una versión decide como esperas.',
     [
       {
@@ -169,7 +169,7 @@ export const TOOL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       ),
     ],
   ),
-  'test-cases': t('test-cases', 'Casos de Prueba', 'Los ejemplos concretos de una suite.', [
+  'test-cases': t('test-cases', 'Casos de prueba', 'Los ejemplos concretos de una suite.', [
     {
       id: 'what',
       title: '¿Qué es un caso?',

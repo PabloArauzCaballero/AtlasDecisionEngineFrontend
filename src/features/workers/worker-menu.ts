@@ -27,7 +27,7 @@ export interface WorkerMenuEntry {
   /**
    * El nombre corto, sólo para el raíl de 280 px.
    *
-   * «Verificación de Identidad» ocupa tres líneas en un submenú indentado y
+   * «Verificación de identidad» ocupa tres líneas en un submenú indentado y
    * convierte una lista de cinco en un párrafo. El nombre largo sigue siendo el
    * de la página: aquí sólo se elige, allí se lee.
    */
@@ -42,7 +42,7 @@ export interface WorkerMenuEntry {
 export const WORKER_MENU: readonly WorkerMenuEntry[] = [
   {
     code: 'semantic-analysis',
-    label: 'Análisis Semántico',
+    label: 'Análisis semántico',
     short: 'Análisis semántico',
     path: '/workers/semantic-analysis',
     icon: Sparkles,
@@ -52,7 +52,7 @@ export const WORKER_MENU: readonly WorkerMenuEntry[] = [
   },
   {
     code: 'bank-statement',
-    label: 'Extractos Bancarios',
+    label: 'Extractos bancarios',
     short: 'Extractos bancarios',
     path: '/workers/bank-statement',
     icon: FileSpreadsheet,
@@ -62,7 +62,7 @@ export const WORKER_MENU: readonly WorkerMenuEntry[] = [
   },
   {
     code: 'identity-verification',
-    label: 'Verificación de Identidad',
+    label: 'Verificación de identidad',
     short: 'Identidad',
     path: '/workers/identity-verification',
     icon: ScanFace,

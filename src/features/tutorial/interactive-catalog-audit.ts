@@ -20,7 +20,7 @@ const t = (
 export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   executions: t(
     'executions',
-    'Buscador de Ejecuciones',
+    'Buscador de ejecuciones',
     'Encontrar una decisión concreta entre todas las que el motor ya tomó.',
     [
       {
@@ -60,7 +60,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         title: 'Abre una para ver el porqué',
         content:
           'El icono «Ver detalle» —el ojo, al final de la fila— abre la ficha con las entradas, las salidas y el recorrido nodo a nodo. Ahí se ve qué condición decidió el resultado, que es lo que hay que enseñar cuando alguien reclama.',
-        tip: 'Ese detalle tiene su propio recorrido: «Detalle de una ejecución», en el Centro de Tutoriales.',
+        tip: 'Ese detalle tiene su propio recorrido: «Detalle de una ejecución», en el Centro de tutoriales.',
         requiredAction: 'click',
         optional: true,
       },
@@ -74,7 +74,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   ),
   'audit-events': t(
     'audit-events',
-    'Bitácora de Auditoría',
+    'Bitácora de auditoría',
     'Quién hizo qué en la plataforma, en una cadena que no se puede reescribir.',
     [
       {
@@ -146,7 +146,7 @@ export const AUDIT_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       {
         id: 'submit',
         target: '[data-tutorial-id="dsr-submit"]',
-        title: 'Registrar ES atender',
+        title: 'Registrar es atender',
         content:
           'No hay guardar borrador: al pulsar, el motor abre el expediente y lo resuelve contra el historial en ese mismo momento. Queda constancia de que alguien consultó todas las decisiones sobre esa persona, porque esa consulta es en sí misma un acceso a sus datos.',
         requiredAction: 'click',

@@ -16,7 +16,7 @@ const t = (
 export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
   simulator: t(
     'simulator',
-    'Simulador de Decisión',
+    'Simulador de decisiones',
     'Probar cómo decidiría un algoritmo sin afectar nada real.',
     [
       {
@@ -131,7 +131,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         'Para cada nodo ves qué evaluó y qué rama tomó. Es la misma traza que queda guardada en una decisión real, así que sirve para aprender a leer auditorías.',
     },
   ]),
-  deployments: t('deployments', 'Historial de Despliegues', 'Publicar una versión a un ambiente.', [
+  deployments: t('deployments', 'Historial de despliegues', 'Publicar una versión a un ambiente.', [
     {
       id: 'what',
       title: '¿Qué es un despliegue?',
@@ -153,7 +153,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         'Cada despliegue recuerda cuál era el anterior, así que revertir es publicar de nuevo la versión previa: nada se pierde ni se sobrescribe.',
     },
   ]),
-  environments: t('environments', 'Gestión de Ambientes', 'Dónde se ejecutan tus decisiones.', [
+  environments: t('environments', 'Gestión de ambientes', 'Dónde se ejecutan tus decisiones.', [
     {
       id: 'what',
       title: '¿Qué es un ambiente?',
@@ -167,7 +167,7 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
         'Cada tarjeta muestra su tipo y estado; “Detalles” lista qué versiones se han desplegado allí. Es la respuesta a “¿qué está decidiendo ahora mismo en producción?”.',
     },
   ]),
-  reviews: t('reviews', 'Bandeja de Revisiones', 'Aprobar versiones antes de producción.', [
+  reviews: t('reviews', 'Bandeja de revisiones', 'Aprobar versiones antes de producción.', [
     {
       id: 'what',
       title: '¿Qué es?',

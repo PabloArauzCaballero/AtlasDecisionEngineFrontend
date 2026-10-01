@@ -136,7 +136,7 @@ export function ManualReviewDetailPage({ caseId }: ManualReviewDetailPageProps) 
       />
       {decisionRegistrada ? (
         <ModalDialog
-          title="Resolución registrada en el Decision Engine"
+          title="Resolución registrada en el motor de decisiones"
           subtitle={`El caso #REV-${display(review, 'id')} ${RESOLUTION_OUTCOME_TEXT[decisionRegistrada]}`}
           icon={<CheckCircle2 size={20} />}
           actions={

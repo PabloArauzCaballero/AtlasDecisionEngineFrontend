@@ -43,13 +43,13 @@ interface Props {
   /**
    * Etiquetas legibles por valor crudo del backend (p. ej. `SENSITIVITY_LABELS`).
    * Un valor sin entrada aquí cae en `STATUS_LABELS` y, si tampoco está, se
-   * enseña legible («Some new state») en vez de como constante.
+   * enseña tal cual: nunca se inventa una frase en inglés a partir del código.
    */
   labels?: Record<string, string>;
 }
 
 export function StatusBadge({ value, labels }: Props) {
   const text = String(value ?? '—').toUpperCase();
-  const label = value === null || value === undefined ? '—' : statusText(text, labels);
+  const label = value === null || value === undefined ? '—' : statusText(value, labels);
   return <span className={`status-badge status-${toneOf(text)}`}>{label}</span>;
 }

@@ -87,7 +87,7 @@ describe('CaseFilePanel', () => {
     currentUser = userWith(['AUDITOR']);
     renderPanel();
 
-    expect(await screen.findByText(/requiere rol Risk Analyst/i)).toBeInTheDocument();
+    expect(await screen.findByText(/requiere el rol de analista de riesgo/i)).toBeInTheDocument();
     // Por el encabezado y no por el texto: el propio mensaje de permiso nombra
     // «datos del solicitante» al explicar lo que NO se está enseñando.
     expect(

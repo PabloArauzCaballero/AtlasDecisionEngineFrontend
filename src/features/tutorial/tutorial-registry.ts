@@ -4,7 +4,7 @@ import type { TutorialListing, TutorialMeta } from './interactive-types';
 import { TUTORIAL_META_LIST as META } from './tutorial-registry.data';
 
 /**
- * Registro del Centro de Tutoriales: convierte las fichas en lo que el Centro lista y
+ * Registro del Centro de tutoriales: convierte las fichas en lo que el Centro lista y
  * decide quién ve cada recorrido.
  *
  * Las fichas viven en `tutorial-registry.data.ts`. Añadir un tutorial es añadir una ficha

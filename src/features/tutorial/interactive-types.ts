@@ -54,7 +54,7 @@ export interface ErrorTutorialLink {
   description: string;
 }
 
-/** Agrupación del Centro de Tutoriales. Refleja las secciones del menú lateral. */
+/** Agrupación del Centro de tutoriales. Refleja las secciones del menú lateral. */
 export type TutorialCategory =
   'introduccion' | 'diseno' | 'calidad' | 'gobierno' | 'operacion' | 'auditoria' | 'errores';
 

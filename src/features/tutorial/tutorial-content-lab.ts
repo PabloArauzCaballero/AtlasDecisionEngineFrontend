@@ -4,7 +4,7 @@ import type { TutorialRegistry } from './tutorial.types';
 export const labTutorials: TutorialRegistry = {
   '/test-suites': {
     eyebrow: 'Laboratorio · Calidad',
-    title: 'Suites de Prueba',
+    title: 'Suites de prueba',
     intro: 'Validan de forma determinista que una versión de artefacto decide como esperas.',
     steps: [
       {
@@ -29,7 +29,7 @@ export const labTutorials: TutorialRegistry = {
   },
   '/test-cases': {
     eyebrow: 'Laboratorio · Calidad',
-    title: 'Casos de Prueba',
+    title: 'Casos de prueba',
     intro: 'Un caso fija una entrada concreta y el resultado esperado para un artefacto.',
     steps: [
       {
@@ -48,7 +48,7 @@ export const labTutorials: TutorialRegistry = {
   },
   '/graph-coverage': {
     eyebrow: 'Laboratorio · Calidad',
-    title: 'Cobertura de Grafo',
+    title: 'Cobertura de grafo',
     intro: 'Muestra qué nodos y aristas del grafo ejercitaron tus pruebas.',
     steps: [
       {
@@ -63,7 +63,7 @@ export const labTutorials: TutorialRegistry = {
   },
   '/simulator': {
     eyebrow: 'Laboratorio · Operación',
-    title: 'Simulador de Decisión',
+    title: 'Simulador de decisiones',
     intro: 'Ejecuta una decisión de prueba con tus entradas, sin afectar producción.',
     steps: [
       {
@@ -83,7 +83,7 @@ export const labTutorials: TutorialRegistry = {
   },
   '/manual-reviews': {
     eyebrow: 'Laboratorio · Operación',
-    title: 'Cola de Revisión Manual',
+    title: 'Cola de revisión manual',
     intro: 'Reúne los casos que una regla derivó a decisión humana controlada.',
     steps: [
       {

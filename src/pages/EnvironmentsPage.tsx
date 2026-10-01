@@ -35,7 +35,7 @@ export function EnvironmentsPage() {
     <>
       <PageHeader
         eyebrow="Gobierno"
-        title="Gestión de Ambientes"
+        title="Gestión de ambientes"
         description="Estado, tipo y despliegues por entorno operativo."
         hint="Cada tarjeta es un entorno (sandbox, test, producción). «Detalles» muestra qué versiones se han desplegado ahí y con qué resultado."
         actions={

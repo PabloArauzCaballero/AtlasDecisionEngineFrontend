@@ -20,7 +20,7 @@ export function PageHeader({ eyebrow, title, description, actions, hint }: PageH
           Los dos controles van JUNTO al `<h1>`, no dentro.
           Dentro, su texto entraba en el nombre accesible del encabezado de todas
           las páginas del portal: un lector de pantalla anunciaba «Matriz de
-          Cobertura Qué es: Matriz de Cobertura Ayuda de esta pantalla» como si
+          Cobertura Qué es: Matriz de cobertura Ayuda de esta pantalla» como si
           fuera el título. El envoltorio conserva la misma línea y el mismo
           `flex`, así que visualmente no se mueve nada.
         */}

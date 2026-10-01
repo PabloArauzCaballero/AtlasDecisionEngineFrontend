@@ -143,7 +143,7 @@ export function BankStatementWorkerConsole() {
    */
   useUnsavedWork(
     requestId === null && file !== null,
-    'Un PDF elegido en la consola de Extractos Bancarios, sin convertir.',
+    'Un PDF elegido en la consola de Extractos bancarios, sin convertir.',
   );
   useUnsavedWork(
     categorias.corriendo,

@@ -208,7 +208,7 @@ export function InteractiveTutorialOverlay({
           <div className="tutorial-confirm" role="alertdialog" aria-label="Confirmar salida">
             <p>
               Llevas {stepIndex + 1} de {tutorial.steps.length} completados. Si sales ahora se
-              guarda tu avance y puedes retomarlo desde el Centro de Tutoriales.
+              guarda tu avance y puedes retomarlo desde el Centro de tutoriales.
             </p>
             <div className="tutorial-confirm-actions">
               <button className="button" type="button" onClick={() => setConfirmingExit(false)}>

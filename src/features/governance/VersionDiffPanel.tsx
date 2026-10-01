@@ -88,7 +88,7 @@ export function VersionDiffPanel({ targetVersionId, targetLabel, bases }: Versio
 
   return (
     <Panel
-      title="Resumen de Cambios"
+      title="Resumen de cambios"
       meta={diff ? `${diff.substantive.length} cambios de fondo` : 'Comparación estructural'}
     >
       {!bases.length ? (

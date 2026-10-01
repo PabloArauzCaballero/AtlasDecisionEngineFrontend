@@ -20,4 +20,12 @@ describe('lo que la tabla enseña en lugar del código crudo', () => {
     expect(codeText('SEGMENTO_PROPIO_A')).toBe('SEGMENTO_PROPIO_A');
     expect(codeText(null)).toBe('—');
   });
+
+  it('un estado que nadie tradujo tampoco se convierte en una frase en inglés', () => {
+    expect(statusText('SOME_NEW_STATE')).toBe('SOME_NEW_STATE');
+    expect(statusText('some_new_state')).toBe('some_new_state');
+    expect(statusText('approved')).toBe('Aprobado');
+    expect(statusText('NUEVO', { NUEVO: 'Nuevo' })).toBe('Nuevo');
+    expect(statusText(undefined)).toBe('—');
+  });
 });

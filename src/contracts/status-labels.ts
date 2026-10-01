@@ -3,8 +3,7 @@
  *
  * `StatusBadge` enseñaba el valor crudo en mayúsculas (ACTIVE, DRAFT, PASSED, WAITING…) salvo en
  * las 5 de sus 43 llamadas que pasaban su propio mapa. Éste es el mapa por defecto: una llamada con
- * `labels` propios sigue mandando, y un valor que no esté aquí se enseña legible (sin guiones
- * bajos, sólo la primera en mayúscula) en vez de como constante.
+ * `labels` propios sigue mandando, y un valor que no esté aquí se enseña tal cual.
  */
 export const STATUS_LABELS: Readonly<Record<string, string>> = {
   ACTIVE: 'Activo',
@@ -251,22 +250,21 @@ export const STATUS_LABELS: Readonly<Record<string, string>> = {
   'SIN DATO': 'Sin dato',
 };
 
-/** Un valor sin traducción, legible: «SOME_NEW_STATE» → «Some new state». */
-export function readableStatus(raw: string): string {
-  const spaced = raw.replace(/_+/g, ' ').trim().toLowerCase();
-  return spaced ? spaced.charAt(0).toUpperCase() + spaced.slice(1) : raw;
-}
-
-/** El texto de un estado para ponerlo dentro de una frase o de un subtítulo. */
+/**
+ * El texto de un estado para ponerlo dentro de una frase o de un subtítulo.
+ * Un estado sin traducción se enseña tal cual, como en `codeText`: convertir `ON_TRACK` en
+ * «On track» inventaba una frase en inglés que nadie había escrito.
+ */
 export function statusText(raw: unknown, labels?: Record<string, string>): string {
   if (raw === null || raw === undefined || raw === '') return '—';
-  const key = String(raw).toUpperCase();
-  return labels?.[key] ?? STATUS_LABELS[key] ?? readableStatus(key);
+  const code = String(raw);
+  const key = code.toUpperCase();
+  return labels?.[key] ?? labels?.[code] ?? STATUS_LABELS[key] ?? code;
 }
 
 /**
  * El texto de un CÓDIGO de catálogo (tipo, origen, ambiente, evento…) dentro de una tabla.
- * A diferencia de `statusText`, un código sin traducción se enseña tal cual y no «legible»:
+ * Como `statusText`, un código sin traducción se enseña tal cual y no «legible»:
  * pasar `CUSTOM_SEGMENT_A` a «Custom segment a» inventaría una palabra que nadie usa.
  */
 export function codeText(raw: unknown, labels?: Record<string, string>): string {

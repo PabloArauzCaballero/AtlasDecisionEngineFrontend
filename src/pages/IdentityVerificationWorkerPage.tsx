@@ -158,7 +158,7 @@ export function IdentityVerificationWorkerConsole() {
   // hacerlas— es trabajo, y en un móvil es rehacer la captura entera.
   useUnsavedWork(
     requestId === null && (document !== null || selfie !== null),
-    'Imágenes elegidas en la consola de Verificación de Identidad, sin enviar.',
+    'Imágenes elegidas en la consola de Verificación de identidad, sin enviar.',
   );
 
   /**

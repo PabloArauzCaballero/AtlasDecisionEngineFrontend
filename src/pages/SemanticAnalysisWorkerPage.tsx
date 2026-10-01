@@ -129,7 +129,7 @@ export function SemanticAnalysisWorkerConsole() {
    */
   useUnsavedWork(
     requestId === null && text.trim() !== '',
-    'Un texto escrito en la consola de Análisis Semántico, sin enviar.',
+    'Un texto escrito en la consola de Análisis semántico, sin enviar.',
   );
 
   const maxLength = Number(descriptor?.limits?.maxTextLength ?? 8_000);

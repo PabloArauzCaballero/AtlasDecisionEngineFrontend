@@ -52,11 +52,11 @@ beforeEach(() => {
   currentUser = userWith(['QA_ANALYST']);
 });
 
-describe('Centro de Tutoriales', () => {
+describe('Centro de tutoriales', () => {
   it('lista los tutoriales que el rol puede hacer, agrupados por módulo', async () => {
     render(<TutorialCenterPage />);
 
-    expect(await screen.findByText('Centro de Tutoriales')).toBeInTheDocument();
+    expect(await screen.findByText('Centro de tutoriales')).toBeInTheDocument();
     expect(screen.getByText('El editor de grafo, herramienta por herramienta')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Diseño' })).toBeInTheDocument();
   });
@@ -65,7 +65,7 @@ describe('Centro de Tutoriales', () => {
     currentUser = userWith(['AUDITOR']);
     render(<TutorialCenterPage />);
 
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
     expect(
       screen.queryByText('El editor de grafo, herramienta por herramienta'),
     ).not.toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('Centro de Tutoriales', () => {
     currentUser = userWith(['RISK_ANALYST']);
     render(<TutorialCenterPage />);
 
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
     expect(
       screen.queryByText('El editor de grafo, herramienta por herramienta'),
     ).not.toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('Centro de Tutoriales', () => {
 
   it('el buscador filtra la lista y anuncia cuántos quedan', async () => {
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'grafo' } });
 
@@ -105,12 +105,12 @@ describe('Centro de Tutoriales', () => {
     // ofreciendo por dónde empezar aunque la búsqueda no los incluya.
     const list = within(screen.getByTestId('tutorial-list'));
     expect(list.getByText('El editor de grafo, herramienta por herramienta')).toBeInTheDocument();
-    expect(list.queryByText('Simulador de Decisión')).not.toBeInTheDocument();
+    expect(list.queryByText('Simulador de decisiones')).not.toBeInTheDocument();
   });
 
   it('un filtro sin resultados explica cómo salir del estado vacío', async () => {
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'zzzzz' } });
 
@@ -121,7 +121,7 @@ describe('Centro de Tutoriales', () => {
 
   it('«Comenzar» arranca el recorrido retomando el progreso guardado', async () => {
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     const card = screen
       .getByText('El editor de grafo, herramienta por herramienta')
@@ -144,7 +144,7 @@ describe('Centro de Tutoriales', () => {
       }),
     );
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     const card = screen
       .getByText('El editor de grafo, herramienta por herramienta')
@@ -164,7 +164,7 @@ describe('Centro de Tutoriales', () => {
       JSON.stringify({ 'graph-editor': { tutorialId: 'graph-editor', ...entry } }),
     );
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     const card = screen
       .getByText('El editor de grafo, herramienta por herramienta')
@@ -189,7 +189,7 @@ describe('Centro de Tutoriales', () => {
       }),
     );
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     const card = screen
       .getByText('El editor de grafo, herramienta por herramienta')
@@ -201,7 +201,7 @@ describe('Centro de Tutoriales', () => {
 
   it('avisa de los recorridos previos que conviene hacer antes', async () => {
     render(<TutorialCenterPage />);
-    await screen.findByText('Centro de Tutoriales');
+    await screen.findByText('Centro de tutoriales');
 
     const card = screen
       .getByText('El editor de grafo, herramienta por herramienta')

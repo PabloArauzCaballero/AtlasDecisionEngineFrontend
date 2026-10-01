@@ -106,7 +106,7 @@ test.describe('verificación de identidad · motor real', () => {
 
     // --- 3. El worker nuevo -------------------------------------------------
     await enlace.click();
-    await expect(page.getByRole('heading', { name: 'Verificación de Identidad' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Verificación de identidad' })).toBeVisible();
     const mio = panelDeIdentidad(page);
     await expect(mio.locator('.worker-dashboard')).toBeVisible({ timeout: 60_000 });
     await capturar(page, '04-pestana-identidad');

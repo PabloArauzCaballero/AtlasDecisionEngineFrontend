@@ -40,7 +40,7 @@ export function ReviewsPage() {
       notify({
         tone: 'success',
         title: 'Versión enviada a revisión',
-        description: `v${id} entró al flujo de aprobación con Compliance requerido.`,
+        description: `v${id} entró al flujo de aprobación con la firma de cumplimiento requerida.`,
       });
     },
   });
@@ -89,7 +89,7 @@ export function ReviewsPage() {
             disabled={submitReview.isPending || !canPropose}
           >
             {submitReview.isPending ? <span className="inline-spinner" aria-hidden="true" /> : null}
-            {submitReview.isPending ? 'Enviando…' : 'Enviar con Compliance'}
+            {submitReview.isPending ? 'Enviando…' : 'Enviar con firma de cumplimiento'}
           </button>
         </form>
         <form

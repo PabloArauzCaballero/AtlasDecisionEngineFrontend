@@ -133,7 +133,7 @@ export const auditResources: Readonly<Record<string, ResourceConfig>> = {
     description: 'Métricas, políticas, artefactos y pruebas conectados de extremo a extremo.',
     hint: 'Los objetivos de negocio (p. ej. reducir la morosidad) conectados con las políticas, algoritmos y pruebas que los cumplen, para trazar todo de punta a punta.',
     endpoint: '/v1/traceability/objectives',
-    primaryAction: 'Nuevo Objetivo',
+    primaryAction: 'Nuevo objetivo',
     detailPath: (row) => `/objectives/${String(row.id)}`,
     columns: [
       { key: 'objectiveCode', label: 'Código', mono: true },
