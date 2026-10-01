@@ -5,7 +5,7 @@ import { apiDownload } from '../../api/file-download';
 import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Panel } from '../../components/Panel';
 import { ApiError } from '../../api/ApiError';
-import { env } from '../../config/env';
+import { resolveAdminPortalUrl } from '../../config/env';
 
 /**
  * Las fotos con las que hay que decidir.
@@ -119,7 +119,22 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [query.data]);
 
-  if (!attemptId) return null;
+  const adminPortalUrl = resolveAdminPortalUrl();
+
+  if (!attemptId) {
+    /*
+     * Antes devolvía `null` y el panel desaparecía sin decir nada: el analista no sabía si el caso
+     * no tenía carnet o si la pantalla no lo estaba trayendo.
+     */
+    return (
+      <Panel title="Documentos del solicitante" meta="sin vínculo con la verificación">
+        <p className="muted">
+          Este caso no trae el identificador del intento de verificación, así que no se puede llegar
+          a su carnet ni a su selfie desde aquí. No lo resuelvas a ciegas.
+        </p>
+      </Panel>
+    );
+  }
 
   return (
     <Panel title="Documentos del solicitante" meta="lo que subió el cliente">
@@ -131,6 +146,12 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
               // (barrido de TEST, 2026-09-29: caso 6 → 404 IDENTITY_ATTEMPT_NOT_FOUND).
               'Los documentos de este cliente ya no están disponibles en la plataforma. Decide con lo que muestra el caso o pide al cliente que vuelva a subirlos.'
             : 'No se pudieron traer las imágenes del cliente. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
+        </p>
+      ) : null}
+
+      {query.data && !query.data.documents.length ? (
+        <p className="muted">
+          El cliente no tiene documentos de identidad guardados para este intento.
         </p>
       ) : null}
 
@@ -155,10 +176,10 @@ export function CaseImagesPanel({ attemptId }: Readonly<{ attemptId: string }>) 
         revisa a mano necesita saber que existe ese resto; decidir creyendo que se vio todo es
         peor que saber que falta por mirar.
       */}
-      {env.adminPortalUrl && query.data?.customerId ? (
+      {adminPortalUrl && query.data?.customerId ? (
         <p className="muted">
           <a
-            href={`${env.adminPortalUrl}/internal/files/cliente/${encodeURIComponent(query.data.customerId)}`}
+            href={`${adminPortalUrl}/internal/files/cliente/${encodeURIComponent(query.data.customerId)}`}
             target="_blank"
             rel="noreferrer"
           >
