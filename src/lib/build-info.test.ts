@@ -99,20 +99,30 @@ describe('identidad del build (PLAT-03)', () => {
   });
 });
 
-describe('el Dockerfile lleva la identidad dentro del artefacto', () => {
-  const dockerfile = readFileSync('Dockerfile', 'utf8');
-  it('recibe SOURCE_COMMIT como build-arg, escribe build-info.json ANTES de compilar y lo copia a la imagen final', () => {
-    expect(dockerfile).toMatch(/ARG SOURCE_COMMIT/);
-    expect(dockerfile.indexOf('write-build-info.mjs')).toBeGreaterThan(0);
-    expect(dockerfile.indexOf('write-build-info.mjs')).toBeLessThan(
-      dockerfile.indexOf('RUN yarn build'),
-    );
-    expect(dockerfile).toMatch(/COPY --from=builder[^\n]*\/app\/build-info\.json/);
-  });
-  it('el .dockerignore deja pasar .git/HEAD, packed-refs y refs aunque excluya .git', () => {
-    const ignore = readFileSync('.dockerignore', 'utf8');
-    expect(ignore).toMatch(/^\.git$/m);
-    for (const entry of ['!.git/HEAD', '!.git/packed-refs', '!.git/refs'])
-      expect(ignore).toContain(entry);
+describe.each(['Dockerfile', 'Dockerfile.dev'])(
+  'el %s lleva la identidad dentro del artefacto',
+  (archivo) => {
+    const dockerfile = readFileSync(archivo, 'utf8');
+    it('recibe SOURCE_COMMIT como build-arg, escribe build-info.json ANTES de compilar y lo copia a la imagen final', () => {
+      expect(dockerfile).toMatch(/ARG SOURCE_COMMIT/);
+      expect(dockerfile.indexOf('write-build-info.mjs')).toBeGreaterThan(0);
+      expect(dockerfile.indexOf('write-build-info.mjs')).toBeLessThan(
+        dockerfile.indexOf('RUN yarn build'),
+      );
+      expect(dockerfile).toMatch(/COPY --from=builder[^\n]*\/app\/build-info\.json/);
+    });
+    it('el .dockerignore deja pasar .git/HEAD, packed-refs y refs aunque excluya .git', () => {
+      const ignore = readFileSync('.dockerignore', 'utf8');
+      expect(ignore).toMatch(/^\.git$/m);
+      for (const entry of ['!.git/HEAD', '!.git/packed-refs', '!.git/refs'])
+        expect(ignore).toContain(entry);
+    });
+  },
+);
+
+describe('el compose de Coolify pasa SOURCE_COMMIT como build-arg (Coolify construye con Dockerfile.dev)', () => {
+  it('declara SOURCE_COMMIT dentro de build.args', () => {
+    const compose = readFileSync('docker-compose.coolify.yml', 'utf8');
+    expect(compose).toMatch(/args:\n(?:[ ]+#[^\n]*\n)*[ ]+SOURCE_COMMIT: '\$\{SOURCE_COMMIT:-\}'/);
   });
 });

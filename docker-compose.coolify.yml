@@ -70,6 +70,9 @@ services:
       # Es decir: esto se arregla en el SERVIDOR (Settings -> Docker Cleanup -> desactivar el forzado,
       # dejando el umbral del 80%), no en este archivo.
       args:
+        # PLAT-03: el commit compilado. Sin este build-arg `/version` sale con commit `unknown` y el smoke de
+        # TEST lo rechaza. Coolify rellena SOURCE_COMMIT al construir; si no, se lee `.git/HEAD`.
+        SOURCE_COMMIT: '${SOURCE_COMMIT:-}'
         SETUP_INTERPRETES: 'false'
         NEXT_PUBLIC_ENVIRONMENT: 'DEV'
     # `init: true` reparte SIGTERM al proceso de Node, sin depender de instalar un binario.
