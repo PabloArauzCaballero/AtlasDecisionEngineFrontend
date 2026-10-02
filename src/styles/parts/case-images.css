@@ -154,3 +154,52 @@
   opacity: 0.6;
   font-variant-numeric: tabular-nums;
 }
+
+/*
+  Herramientas de lectura: girar, voltear y recortar. Sólo cambian lo que ve el analista, nunca el
+  documento guardado.
+*/
+.case-carousel__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.case-carousel__tool {
+  border: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--type-2xs);
+  cursor: pointer;
+}
+.case-carousel__tool:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.case-carousel__hint {
+  font-size: var(--type-2xs);
+  opacity: 0.6;
+}
+.case-carousel__crop {
+  position: relative;
+  height: 320px;
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.case-carousel__crop img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.case-carousel__crop-box {
+  position: absolute;
+  border: 2px solid var(--accent);
+  /* La sombra oscurece lo que queda fuera del área elegida; no es un color de marca. */
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
