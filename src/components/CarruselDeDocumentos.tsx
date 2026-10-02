@@ -1,4 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BarraDeEdicion } from './BarraDeEdicion';
+import { ZonaDeRecorte } from './ZonaDeRecorte';
+import { editarImagen, type OperacionDeImagen, type Seleccion } from './imagen-edicion';
 
 /**
  * Una imagen ya traída como blob local, lista para pintarse.
@@ -46,6 +49,46 @@ export function CarruselDeDocumentos({
   const pista = useRef<HTMLDivElement>(null);
   const [indice, setIndice] = useState(0);
   const [ampliada, setAmpliada] = useState<string | null>(null);
+
+  /*
+   * Las ediciones (giro, espejo, recorte) son sólo para MIRAR mejor: viven aquí como blobs locales,
+   * por documento, y el original que vino del servidor no se toca. Cada operación parte de la
+   * imagen que ya se ve, así que se encadenan sin tener que recomponer una matriz.
+   */
+  const [editadas, setEditadas] = useState<Record<string, string>>({});
+  const [recortando, setRecortando] = useState<string | null>(null);
+  const [seleccion, setSeleccion] = useState<Seleccion | null>(null);
+  const [errorDeEdicion, setErrorDeEdicion] = useState(false);
+  const generadas = useRef(new Set<string>());
+  useEffect(() => {
+    const urls = generadas.current;
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
+  const urlDe = (documento: DiapositivaDeDocumento) =>
+    editadas[documento.id] ?? documento.objectUrl;
+
+  const editar = useCallback(
+    async (documento: DiapositivaDeDocumento, operacion: OperacionDeImagen) => {
+      try {
+        const nueva = await editarImagen(editadas[documento.id] ?? documento.objectUrl, operacion);
+        generadas.current.add(nueva);
+        setEditadas((previas) => ({ ...previas, [documento.id]: nueva }));
+        setErrorDeEdicion(false);
+      } catch {
+        setErrorDeEdicion(true);
+      }
+    },
+    [editadas],
+  );
+  const restablecer = (id: string) => {
+    setEditadas((previas) => {
+      const resto = { ...previas };
+      delete resto[id];
+      return resto;
+    });
+    setRecortando(null);
+    setSeleccion(null);
+  };
 
   /*
    * El índice sale del desplazamiento real y no de un estado que el carrusel controle.
@@ -107,17 +150,41 @@ export function CarruselDeDocumentos({
         >
           {documentos.map((documento) => (
             <figure key={documento.id} className="case-carousel__slide">
-              <button
-                type="button"
-                className="case-carousel__button"
-                onClick={() => setAmpliada(documento.objectUrl)}
-                title="Ampliar"
-              >
-                <img src={documento.objectUrl} alt={documento.etiqueta} loading="lazy" />
-              </button>
+              {recortando === documento.id ? (
+                <ZonaDeRecorte
+                  url={urlDe(documento)}
+                  alt={documento.etiqueta}
+                  seleccion={seleccion}
+                  onSeleccion={setSeleccion}
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="case-carousel__button"
+                  onClick={() => setAmpliada(urlDe(documento))}
+                  title="Ampliar"
+                >
+                  <img src={urlDe(documento)} alt={documento.etiqueta} loading="lazy" />
+                </button>
+              )}
             </figure>
           ))}
         </div>
+
+        <BarraDeEdicion
+          activo={activo}
+          recortando={recortando === activo?.id}
+          editada={Boolean(activo && editadas[activo.id])}
+          seleccion={seleccion}
+          error={errorDeEdicion}
+          onEditar={(operacion) => activo && editar(activo, operacion)}
+          onRecortar={() => activo && setRecortando(activo.id)}
+          onTerminarRecorte={() => {
+            setRecortando(null);
+            setSeleccion(null);
+          }}
+          onRestablecer={() => activo && restablecer(activo.id)}
+        />
 
         {/*
           El pie describe la diapositiva ACTIVA y vive fuera de la pista.
