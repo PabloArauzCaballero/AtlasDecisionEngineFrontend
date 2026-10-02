@@ -85,3 +85,11 @@ export async function editarImagen(url: string, operacion: OperacionDeImagen): P
   );
   return URL.createObjectURL(blob);
 }
+
+/** Rectángulo arrastrado sobre la imagen, en fracciones (0–1) de su área real. */
+export interface Seleccion {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}

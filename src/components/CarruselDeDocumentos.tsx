@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { PointerEvent as PunteroEvento } from 'react';
-import { areaVisibleDeImagen, editarImagen, type OperacionDeImagen } from './imagen-edicion';
+import { BarraDeEdicion } from './BarraDeEdicion';
+import { ZonaDeRecorte } from './ZonaDeRecorte';
+import { editarImagen, type OperacionDeImagen, type Seleccion } from './imagen-edicion';
 
 /**
  * Una imagen ya traída como blob local, lista para pintarse.
@@ -41,13 +42,6 @@ export interface DiapositivaDeDocumento {
  * garantizaba que una de las dos se quedara sin las correcciones de la otra; ya pasó con la
  * carrera del desplazamiento que se documenta más abajo.
  */
-interface Seleccion {
-  x0: number;
-  y0: number;
-  x1: number;
-  y1: number;
-}
-
 export function CarruselDeDocumentos({
   documentos,
   etiquetaDelGrupo,
@@ -177,98 +171,20 @@ export function CarruselDeDocumentos({
           ))}
         </div>
 
-        {activo ? (
-          <div className="case-carousel__tools" role="toolbar" aria-label="Editar imagen">
-            {recortando === activo.id ? (
-              <>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  disabled={!seleccion || Math.abs(seleccion.x1 - seleccion.x0) < 0.02}
-                  onClick={async () => {
-                    if (!seleccion) return;
-                    await editar(activo, {
-                      tipo: 'recortar',
-                      x: Math.min(seleccion.x0, seleccion.x1),
-                      y: Math.min(seleccion.y0, seleccion.y1),
-                      ancho: Math.abs(seleccion.x1 - seleccion.x0),
-                      alto: Math.abs(seleccion.y1 - seleccion.y0),
-                    });
-                    setRecortando(null);
-                    setSeleccion(null);
-                  }}
-                >
-                  Aplicar recorte
-                </button>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => {
-                    setRecortando(null);
-                    setSeleccion(null);
-                  }}
-                >
-                  Cancelar
-                </button>
-                <span className="case-carousel__hint">
-                  Arrastra sobre la imagen para elegir el área.
-                </span>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => editar(activo, { tipo: 'girar', sentido: 'antihorario' })}
-                >
-                  ↺ Girar izquierda
-                </button>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => editar(activo, { tipo: 'girar', sentido: 'horario' })}
-                >
-                  ↻ Girar derecha
-                </button>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => editar(activo, { tipo: 'voltear', eje: 'horizontal' })}
-                >
-                  ⇆ Voltear horizontal
-                </button>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => editar(activo, { tipo: 'voltear', eje: 'vertical' })}
-                >
-                  ⇅ Voltear vertical
-                </button>
-                <button
-                  type="button"
-                  className="case-carousel__tool"
-                  onClick={() => setRecortando(activo.id)}
-                >
-                  ✂ Recortar
-                </button>
-                {editadas[activo.id] ? (
-                  <button
-                    type="button"
-                    className="case-carousel__tool"
-                    onClick={() => restablecer(activo.id)}
-                  >
-                    Restablecer
-                  </button>
-                ) : null}
-              </>
-            )}
-            {errorDeEdicion ? (
-              <span className="case-carousel__hint" role="alert">
-                No se pudo editar esta imagen.
-              </span>
-            ) : null}
-          </div>
-        ) : null}
+        <BarraDeEdicion
+          activo={activo}
+          recortando={recortando === activo?.id}
+          editada={Boolean(activo && editadas[activo.id])}
+          seleccion={seleccion}
+          error={errorDeEdicion}
+          onEditar={(operacion) => activo && editar(activo, operacion)}
+          onRecortar={() => activo && setRecortando(activo.id)}
+          onTerminarRecorte={() => {
+            setRecortando(null);
+            setSeleccion(null);
+          }}
+          onRestablecer={() => activo && restablecer(activo.id)}
+        />
 
         {/*
           El pie describe la diapositiva ACTIVA y vive fuera de la pista.
@@ -324,89 +240,5 @@ export function CarruselDeDocumentos({
         </button>
       ) : null}
     </>
-  );
-}
-
-/**
- * La imagen con un rectángulo que se arrastra encima.
- *
- * La selección se guarda en fracciones del ÁREA REAL de la imagen —no de la caja, que con
- * `object-fit: contain` tiene bandas vacías a los lados—, de modo que el recorte cae sobre píxeles
- * de la imagen sin importar el tamaño en pantalla.
- */
-function ZonaDeRecorte({
-  url,
-  alt,
-  seleccion,
-  onSeleccion,
-}: Readonly<{
-  url: string;
-  alt: string;
-  seleccion: Seleccion | null;
-  onSeleccion: (valor: Seleccion | null) => void;
-}>) {
-  const caja = useRef<HTMLDivElement>(null);
-  const imagen = useRef<HTMLImageElement>(null);
-  const arrastrando = useRef(false);
-
-  const area = () => {
-    const nodoCaja = caja.current;
-    const nodoImagen = imagen.current;
-    if (!nodoCaja || !nodoImagen || !nodoImagen.naturalWidth) return null;
-    const medidas = nodoCaja.getBoundingClientRect();
-    return {
-      medidas,
-      visible: areaVisibleDeImagen(
-        { ancho: medidas.width, alto: medidas.height },
-        { ancho: nodoImagen.naturalWidth, alto: nodoImagen.naturalHeight },
-      ),
-    };
-  };
-
-  const punto = (evento: PunteroEvento) => {
-    const datos = area();
-    if (!datos) return null;
-    const { medidas, visible } = datos;
-    const limitar = (valor: number) => Math.max(0, Math.min(1, valor));
-    return {
-      x: limitar((evento.clientX - medidas.left - visible.x) / visible.ancho),
-      y: limitar((evento.clientY - medidas.top - visible.y) / visible.alto),
-    };
-  };
-
-  const datos = area();
-  const marco =
-    seleccion && datos
-      ? {
-          left: datos.visible.x + Math.min(seleccion.x0, seleccion.x1) * datos.visible.ancho,
-          top: datos.visible.y + Math.min(seleccion.y0, seleccion.y1) * datos.visible.alto,
-          width: Math.abs(seleccion.x1 - seleccion.x0) * datos.visible.ancho,
-          height: Math.abs(seleccion.y1 - seleccion.y0) * datos.visible.alto,
-        }
-      : null;
-
-  return (
-    <div
-      ref={caja}
-      className="case-carousel__crop"
-      onPointerDown={(evento) => {
-        const inicio = punto(evento);
-        if (!inicio) return;
-        evento.currentTarget.setPointerCapture(evento.pointerId);
-        arrastrando.current = true;
-        onSeleccion({ x0: inicio.x, y0: inicio.y, x1: inicio.x, y1: inicio.y });
-      }}
-      onPointerMove={(evento) => {
-        if (!arrastrando.current || !seleccion) return;
-        const actual = punto(evento);
-        if (actual) onSeleccion({ ...seleccion, x1: actual.x, y1: actual.y });
-      }}
-      onPointerUp={() => {
-        arrastrando.current = false;
-      }}
-    >
-      <img ref={imagen} src={url} alt={alt} draggable={false} />
-      {marco ? <div className="case-carousel__crop-box" style={marco} /> : null}
-    </div>
   );
 }
