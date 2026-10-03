@@ -38,7 +38,12 @@ services:
     environment:
       APP_COMMIT_SHA: '${SOURCE_COMMIT:-}'
       APP_VERSION: '3.0.0'
-    networks: ['default', 'coolify']
+    # Alias estable en la red `coolify`: el nombre del servicio es ambiguo entre apps y el del
+    # contenedor cambia en cada despliegue. Lo usan el failover de Traefik y el guardián de TEST.
+    networks:
+      default: {}
+      coolify:
+        aliases: ['motor-web']
     restart: unless-stopped
     logging:
       driver: json-file
