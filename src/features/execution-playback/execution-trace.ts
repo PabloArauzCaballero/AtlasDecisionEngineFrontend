@@ -59,10 +59,21 @@ function statusOf(raw: UnknownRecord): NodeRunStatus {
   return 'done';
 }
 
-function durationOf(raw: UnknownRecord): number | undefined {
-  if (typeof raw.durationMs === 'number') return raw.durationMs;
-  if (typeof raw.durationUs === 'number') return Math.round(raw.durationUs / 1000);
+/** Los `BigInt` del backend (`durationUs`) llegan serializados como texto. */
+function numberOf(value: unknown): number | undefined {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : undefined;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
   return undefined;
+}
+
+function durationOf(raw: UnknownRecord): number | undefined {
+  const ms = numberOf(raw.durationMs);
+  if (ms !== undefined) return ms;
+  const us = numberOf(raw.durationUs);
+  return us === undefined ? undefined : Math.round(us / 1000);
 }
 
 function stringList(value: unknown): string[] {
@@ -70,30 +81,42 @@ function stringList(value: unknown): string[] {
   return value.map((entry) => String(entry)).filter(Boolean);
 }
 
+function firstShown(...values: string[]): string {
+  return values.find((value) => value !== '—') ?? '—';
+}
+
 /** Extrae los pasos de una ejecución tal y como los devuelve `/v1/audit/executions/:id`. */
 export function normalizeTrace(execution: unknown): TraceStep[] {
   const record = asRecord(execution);
   const rows = asRows(record.traceSteps ?? record.trace ?? record.steps);
   return rows.map((raw, index) => {
-    const nodeKey = display(raw, 'nodeKey', 'nodeId', 'key');
+    // La auditoría persiste cada paso como `decision_execution_step`: la clave y
+    // el tipo del nodo viven en `node`, y lo evaluado en `evaluationResultJson`.
+    // `nodeId` es la clave primaria de la fila del nodo, no su clave en el grafo:
+    // usarla como `nodeKey` dejaba la reproducción sin ningún nodo que encender.
+    const node = asRecord(raw.node);
+    const nodeKey = firstShown(display(raw, 'nodeKey'), display(node, 'nodeKey', 'key'));
+    const nodeType = firstShown(
+      display(raw, 'nodeType', 'type'),
+      display(node, 'nodeType', 'type'),
+    );
     const error = raw.errorMessage ?? raw.error;
     return {
       index,
       nodeKey: nodeKey === '—' ? `paso-${index + 1}` : nodeKey,
-      nodeType: display(raw, 'nodeType', 'type'),
+      nodeType,
       status: statusOf(raw),
       durationMs: durationOf(raw),
       branchTaken: raw.branchTaken ? String(raw.branchTaken) : undefined,
       discardedEdgeKeys: stringList(raw.discardedEdgeKeys ?? raw.discardedEdges),
       input: raw.inputJson ?? raw.input ?? raw.variables,
-      output: raw.outputJson ?? raw.output ?? raw.result,
+      output: raw.outputJson ?? raw.output ?? raw.result ?? raw.evaluationResultJson,
       outcome: raw.outcome ? String(raw.outcome) : undefined,
       error: error ? String(error) : undefined,
       referenceVersionId: raw.childArtifactVersionId
         ? String(raw.childArtifactVersionId)
         : undefined,
-      manualReview:
-        display(raw, 'nodeType', 'type') === 'MANUAL_REVIEW' || Boolean(raw.manualReviewRequired),
+      manualReview: nodeType === 'MANUAL_REVIEW' || Boolean(raw.manualReviewRequired),
     };
   });
 }
