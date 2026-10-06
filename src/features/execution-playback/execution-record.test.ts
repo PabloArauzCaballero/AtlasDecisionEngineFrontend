@@ -39,7 +39,11 @@ describe('flattenExecution', () => {
   it('expone el estado de variables del nodo y su clave para el panel por nodo', () => {
     const [, step] = execution.traceSteps as Array<Record<string, unknown>>;
     expect(step).toMatchObject({ nodeKey: 'RIESGO', variableState: { nodeKey: 'RIESGO' } });
-    expect(normalizeTrace(execution).map((item) => item.nodeKey)).toEqual(['INICIO', 'RIESGO']);
+    expect(normalizeTrace(execution).map((item) => item.nodeKey)).toEqual([
+      'INICIO',
+      'RIESGO',
+      'VERIFICAR_IDENTIDAD',
+    ]);
     expect(normalizeTrace(execution)[1]).toMatchObject({ nodeType: 'SCORE', durationMs: 2 });
   });
 });

@@ -15,6 +15,7 @@ import { saveFile } from '../features/documents/save-file';
 import { ExecutionPlayback } from '../features/execution-playback/ExecutionPlayback';
 import { normalizeTrace } from '../features/execution-playback/execution-trace';
 import { flattenExecution } from '../features/execution-playback/execution-record';
+import { ExecutionIdentityEvidence } from '../features/execution-playback/ExecutionIdentityEvidence';
 import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
@@ -216,6 +217,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           ]}
         />
       </Panel>
+      <ExecutionIdentityEvidence traceSteps={execution.traceSteps} />
       <Panel title="Reproducción de la decisión" meta={`${steps.length} pasos trazados`}>
         <ExecutionPlayback steps={steps} nodes={asRows(graph.nodes)} edges={asRows(graph.edges)} />
       </Panel>
