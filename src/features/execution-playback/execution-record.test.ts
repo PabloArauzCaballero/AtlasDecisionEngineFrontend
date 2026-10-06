@@ -2,54 +2,26 @@ import { describe, expect, it } from 'vitest';
 import { sensitiveCodesOfExecution } from '../../utils/sensitivity';
 import { normalizeTrace } from './execution-trace';
 import { flattenExecution } from './execution-record';
+import contract from '../../contracts/fixtures/audit-execution.example.json';
 
-/** Forma real de `GET /v1/audit/executions/:id` (relaciones de Prisma, BigInt como texto). */
-const AUDIT_ROW = {
-  id: '103',
-  decisionStatus: 'SUCCEEDED',
-  businessOutcome: 'APPROVED',
-  inputSnapshotJson: { monthly_income: 5200 },
-  artifactVersion: { versionNumber: 3, artifact: { artifactCode: 'SCORING' } },
-  deployment: { environment: { code: 'PROD' } },
-  variables: [
-    {
-      id: '1',
-      valueJson: 'BO',
-      sourceCode: 'REQUEST',
-      variableVersion: {
-        definition: { variableCode: 'country', isSensitive: false, sensitivityClass: 'INTERNAL' },
-      },
-    },
-    {
-      id: '2',
-      valueJson: '1234567',
-      sourceCode: 'REQUEST',
-      variableVersion: {
-        definition: { variableCode: 'document_number', isSensitive: true, sensitivityClass: 'PII' },
-      },
-    },
-  ],
-  steps: [
-    {
-      nodeId: '55',
-      durationUs: '2400',
-      evaluationResultJson: { score: 640, variableState: { nodeKey: 'RIESGO', inputs: [] } },
-      node: { nodeKey: 'RIESGO', nodeType: 'SCORE' },
-    },
-  ],
-};
+/**
+ * Copia de `docs/contracts/audit-execution.example.json` del motor. Allí se tipa
+ * contra la fila real de Prisma: si el motor cambia la forma, cambia ese JSON y
+ * esta copia deja de coincidir. NO se edita a mano: se vuelve a copiar.
+ */
+const AUDIT_ROW = contract as Record<string, unknown>;
 
 describe('flattenExecution', () => {
   const execution = flattenExecution(AUDIT_ROW);
 
   it('sube artefacto, versión, ambiente, estado y entrada desde las relaciones', () => {
     expect(execution).toMatchObject({
-      artifactCode: 'SCORING',
+      artifactCode: 'SCORING_CONTRATO',
       versionNumber: 3,
-      environmentCode: 'PROD',
+      environmentCode: 'SANDBOX',
       status: 'SUCCEEDED',
       outcome: 'APPROVED',
-      inputJson: { monthly_income: 5200 },
+      inputJson: { country: 'BO', monthly_income: 5200, document_number: '0000000' },
     });
   });
 
@@ -65,8 +37,9 @@ describe('flattenExecution', () => {
   });
 
   it('expone el estado de variables del nodo y su clave para el panel por nodo', () => {
-    const [step] = execution.traceSteps as Array<Record<string, unknown>>;
+    const [, step] = execution.traceSteps as Array<Record<string, unknown>>;
     expect(step).toMatchObject({ nodeKey: 'RIESGO', variableState: { nodeKey: 'RIESGO' } });
-    expect(normalizeTrace(execution)[0]).toMatchObject({ nodeKey: 'RIESGO', durationMs: 2 });
+    expect(normalizeTrace(execution).map((item) => item.nodeKey)).toEqual(['INICIO', 'RIESGO']);
+    expect(normalizeTrace(execution)[1]).toMatchObject({ nodeType: 'SCORE', durationMs: 2 });
   });
 });
