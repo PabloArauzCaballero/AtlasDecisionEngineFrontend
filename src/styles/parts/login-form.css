@@ -162,3 +162,25 @@
   font-size: 11px;
   text-align: center;
 }
+
+/* «¿Olvidaste tu contraseña?» y las acciones de la recuperación son botones (cambian de pantalla,
+   no navegan), pintados como el enlace que eran. */
+button.login-recover {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+button.login-recover:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+.recovery-field.has-error input {
+  border-color: var(--danger);
+}
+.recovery-actions {
+  margin-top: 14px;
+}

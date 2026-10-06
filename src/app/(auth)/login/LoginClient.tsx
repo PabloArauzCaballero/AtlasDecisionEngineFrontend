@@ -9,6 +9,7 @@ import { ThemeToggle } from '../../../theme/ThemeToggle';
 import { LoginForm, type LoginCredentials } from './LoginForm';
 import { describeLoginError, sessionNotice, type LoginProblem } from './login-errors';
 import { LoginShowcase } from './LoginShowcase';
+import { PasswordRecovery } from './PasswordRecovery';
 
 function resolveDestination(value: string | null): string {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return '/platform-health';
@@ -50,6 +51,11 @@ export function LoginClient() {
   const [submitting, setSubmitting] = useState(false);
   const [remembered, setRemembered] = useState<RememberedIdentity | null>(null);
   const [restored, setRestored] = useState(false);
+  // La recuperación vive en la misma página y no en una ruta propia: es un desvío del acceso, y
+  // al terminar devuelve al formulario con el correo puesto.
+  const [recovering, setRecovering] = useState<{ tenantId: string; email: string } | null>(null);
+  const [identity, setIdentity] = useState<{ tenantId: string; email: string } | null>(null);
+  const [recoveryNotice, setRecoveryNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'authenticated') router.replace(destination);
@@ -106,17 +112,39 @@ export function LoginClient() {
       </div>
       <div className="login-layout">
         <LoginShowcase />
-        <LoginForm
-          initial={{
-            tenantId: remembered?.tenantId ?? '1',
-            email: remembered?.email ?? '',
-            remember: Boolean(remembered),
-          }}
-          submitting={submitting}
-          problem={problem}
-          notice={notice}
-          onSubmit={(credentials) => void submit(credentials)}
-        />
+        {recovering ? (
+          <PasswordRecovery
+            initial={recovering}
+            onDone={(next, changed) => {
+              setIdentity(next);
+              setProblem(null);
+              setRecoveryNotice(
+                changed
+                  ? 'Tu contraseña se actualizó y cerramos tus sesiones abiertas. Inicia sesión con la contraseña nueva.'
+                  : null,
+              );
+              setRecovering(null);
+            }}
+          />
+        ) : (
+          <LoginForm
+            // Se remonta al volver de la recuperación, para tomar el correo que se usó allí.
+            key={identity ? `${identity.tenantId}:${identity.email}` : 'login'}
+            initial={{
+              tenantId: identity?.tenantId ?? remembered?.tenantId ?? '1',
+              email: identity?.email ?? remembered?.email ?? '',
+              remember: Boolean(remembered),
+            }}
+            submitting={submitting}
+            problem={problem}
+            notice={recoveryNotice ?? notice}
+            onSubmit={(credentials) => void submit(credentials)}
+            onRecover={(current) => {
+              setRecoveryNotice(null);
+              setRecovering(current);
+            }}
+          />
+        )}
       </div>
       <p className="login-foot">
         Acceso únicamente para personal autorizado · Todas las acciones son auditadas
