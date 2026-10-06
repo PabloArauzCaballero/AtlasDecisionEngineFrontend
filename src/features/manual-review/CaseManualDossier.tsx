@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
+import { Field } from '../../components/Field';
 import { imagenesDeExpediente } from './expediente-images';
 
 /**
@@ -50,15 +51,17 @@ export function CaseManualDossier() {
           setPedido(escrito.trim());
         }}
       >
-        <label>
-          Número de expediente (el de «Archivos» en el portal interno){' '}
+        <Field
+          label="Número de expediente"
+          tooltip="El número que aparece en «Archivos» del portal interno para este cliente."
+        >
           <input
             inputMode="numeric"
             value={escrito}
             onChange={(event) => setEscrito(event.target.value)}
             placeholder="54"
           />
-        </label>{' '}
+        </Field>{' '}
         <button type="submit" className="button" disabled={!/^\d+$/.test(escrito.trim())}>
           Ver imágenes
         </button>
