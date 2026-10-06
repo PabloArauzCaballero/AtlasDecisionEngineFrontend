@@ -8,7 +8,6 @@ import {
   FileCode2,
   FileSearch,
   FlaskConical,
-  Gauge,
   GitBranch,
   GraduationCap,
   History,
@@ -16,14 +15,12 @@ import {
   Library,
   ListChecks,
   Play,
-  Radio,
   Rocket,
   ScanSearch,
   ScrollText,
   Scale,
   Search,
   ShieldCheck,
-  UserSearch,
   Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
@@ -198,12 +195,6 @@ export const navigation: readonly NavigationSection[] = [
         roles: accessPolicies.simulator,
       },
       {
-        label: 'Ejecución en vivo',
-        path: '/live-execution',
-        icon: Radio,
-        roles: accessPolicies.simulator,
-      },
-      {
         label: 'Revisión manual',
         path: '/manual-reviews',
         icon: ScanSearch,
@@ -238,21 +229,9 @@ export const navigation: readonly NavigationSection[] = [
         icon: Activity,
         roles: accessPolicies.modelMonitoring,
       },
-      {
-        // Debajo del monitoreo y no dentro: aquél mide si el modelo se degrada, ésta si hay
-        // datos con los que medirlo. Un tablero verde sobre un sistema de observación apagado
-        // es la lectura peligrosa que esta entrada existe para impedir.
-        label: 'Calidad de la decisión',
-        path: '/decision-quality',
-        icon: Gauge,
-        roles: accessPolicies.decisionQuality,
-      },
-      {
-        label: 'Derechos del titular',
-        path: '/data-subject-requests',
-        icon: UserSearch,
-        roles: accessPolicies.dataSubjectRights,
-      },
+      // «Calidad de la decisión» y «Derechos del titular» salen del menú hasta que se rehagan:
+      // hoy no enseñan nada útil (ver docs/trabajo/2026-10-06-refactor-calidad-y-titular/PLAN.md).
+      // Las rutas siguen existiendo para poder rehacerlas sobre el mismo código.
     ],
   },
   ...navigationTail,

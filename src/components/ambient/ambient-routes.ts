@@ -23,7 +23,6 @@ const ROUTE_VARIANTS: ReadonlyArray<readonly [string, AmbientVariant]> = [
   ['/graph-coverage', 'lab'],
   ['/coverage-matrix', 'lab'],
   ['/simulator', 'lab'],
-  ['/live-execution', 'lab'],
   ['/environments', 'deploy'],
   ['/deployments', 'deploy'],
   ['/reviews', 'deploy'],

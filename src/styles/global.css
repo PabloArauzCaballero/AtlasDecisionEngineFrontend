@@ -63,7 +63,6 @@
 @import './parts/notifications.css';
 @import './parts/notification-center.css';
 @import './parts/tutorial.css';
-@import './parts/live-execution.css';
 @import './parts/responsive.css';
 /* Premium refinement — additive polish, loaded last so it wins on equal specificity. */
 @import './parts/refinement.css';

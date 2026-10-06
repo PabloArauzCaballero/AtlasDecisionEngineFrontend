@@ -117,20 +117,6 @@ export const OPS_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
       },
     ],
   ),
-  'live-execution': t('live-execution', 'Ejecución en Vivo', 'Ver al motor decidir paso a paso.', [
-    {
-      id: 'what',
-      title: '¿Qué muestra?',
-      content:
-        'Ejecuta una decisión y te muestra, nodo por nodo, el camino que recorre el motor. Sólo en ambientes de prueba.',
-    },
-    {
-      id: 'steps',
-      title: 'Cada paso es auditable',
-      content:
-        'Para cada nodo ves qué evaluó y qué rama tomó. Es la misma traza que queda guardada en una decisión real, así que sirve para aprender a leer auditorías.',
-    },
-  ]),
   deployments: t('deployments', 'Historial de despliegues', 'Publicar una versión a un ambiente.', [
     {
       id: 'what',

@@ -180,13 +180,6 @@ export const explanations: Readonly<Record<string, ViewExplanation>> = {
     systems:
       'Corre una versión del algoritmo con los datos que escribas y muestra el resultado, los motivos y el recorrido paso a paso.',
   },
-  'live-execution': {
-    module: 'Ejecución en vivo',
-    business:
-      'Observa decisiones ejecutándose en tiempo real, útil para monitoreo operativo y demostraciones.',
-    systems:
-      'Cada paso de la decisión aparece en pantalla en el momento en que ocurre, sin recargar.',
-  },
   'sql-console': {
     module: 'Consultas SQL',
     business:
