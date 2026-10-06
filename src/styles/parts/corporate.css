@@ -79,26 +79,6 @@
   background: var(--canvas);
   font-size: var(--type-xs);
 }
-.top-links {
-  display: flex;
-  gap: 22px;
-}
-.top-links a,
-.top-action {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: var(--type-sm);
-  font-weight: var(--weight-medium);
-}
-.top-links a:hover,
-.top-action:hover {
-  color: var(--ink);
-}
-.top-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
 .table-action {
   display: inline-grid;
   place-items: center;

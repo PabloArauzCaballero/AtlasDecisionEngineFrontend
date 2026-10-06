@@ -102,7 +102,6 @@
  * en vez de repetir `min-height` en seis hojas distintas. Todos son elementos en
  * línea, así que hace falta `inline-flex` para que la altura mínima se respete.
  */
-.top-action,
 .table-sort,
 .info-hint-trigger,
 .dash-card-action,
