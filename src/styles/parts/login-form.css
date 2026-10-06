@@ -222,7 +222,7 @@ button.login-recover:disabled {
 }
 .login-form .recovery-field > small.field-error {
   color: var(--danger-text);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 .recovery-actions {
   margin-top: 14px;
