@@ -16,6 +16,7 @@ import {
   type LoginProblem,
 } from './login-errors';
 import { LoginShowcase } from './LoginShowcase';
+import { PasswordRecovery } from './PasswordRecovery';
 
 function resolveDestination(value: string | null): string {
   if (!value || !value.startsWith('/') || value.startsWith('//')) return '/platform-health';
@@ -68,6 +69,11 @@ export function LoginClient() {
   // Las credenciales del primer paso sobreviven al segundo SÓLO para poder recordar el correo si
   // así se pidió. La contraseña no se guarda: el desafío ya la sustituyó.
   const [pending, setPending] = useState<Omit<LoginCredentials, 'password'> | null>(null);
+  // La recuperación vive en la misma página y no en una ruta propia: es un desvío del acceso, y
+  // al terminar devuelve al formulario con el correo puesto.
+  const [recovering, setRecovering] = useState<{ tenantId: string; email: string } | null>(null);
+  const [identity, setIdentity] = useState<{ tenantId: string; email: string } | null>(null);
+  const [recoveryNotice, setRecoveryNotice] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'authenticated') router.replace(destination);
@@ -178,17 +184,37 @@ export function LoginClient() {
             onSubmit={(pin) => void submitPin(pin)}
             onCancel={cancelChallenge}
           />
+        ) : recovering ? (
+          <PasswordRecovery
+            initial={recovering}
+            onDone={(next, changed) => {
+              setIdentity(next);
+              setProblem(null);
+              setRecoveryNotice(
+                changed
+                  ? 'Tu contraseña se actualizó y cerramos tus sesiones abiertas. Inicia sesión con la contraseña nueva.'
+                  : null,
+              );
+              setRecovering(null);
+            }}
+          />
         ) : (
           <LoginForm
+            // Se remonta al volver de la recuperación, para tomar el correo que se usó allí.
+            key={identity ? `${identity.tenantId}:${identity.email}` : 'login'}
             initial={{
-              tenantId: remembered?.tenantId ?? '1',
-              email: remembered?.email ?? '',
+              tenantId: identity?.tenantId ?? remembered?.tenantId ?? '1',
+              email: identity?.email ?? remembered?.email ?? '',
               remember: Boolean(remembered),
             }}
             submitting={submitting}
             problem={problem}
-            notice={notice}
+            notice={recoveryNotice ?? notice}
             onSubmit={(credentials) => void submit(credentials)}
+            onRecover={(current) => {
+              setRecoveryNotice(null);
+              setRecovering(current);
+            }}
           />
         )}
       </div>
