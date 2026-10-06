@@ -7,6 +7,7 @@ import { useEffectiveRoles } from '../auth/useAuth';
 import { hasAnyRole } from '../auth/roles';
 import type { RowAction } from '../components/DataTable';
 import { DeploymentCreateForm } from '../features/deployments/DeploymentCreateForm';
+import { UltimaVersionTabla } from '../features/deployments/UltimaVersionTabla';
 import {
   DeploymentControlDialog,
   type DeploymentControlKind,
@@ -34,7 +35,8 @@ function describir(row: Record<string, unknown>): string {
 }
 
 export function DeploymentsPage() {
-  const [creating, setCreating] = useState(false);
+  // `null` = cerrado; '' = abierto sin versión elegida; un id = abierto con esa versión ya elegida.
+  const [creating, setCreating] = useState<string | null>(null);
   const [objetivo, setObjetivo] = useState<Objetivo | null>(null);
   const roles = useEffectiveRoles();
   const queryClient = useQueryClient();
@@ -86,7 +88,7 @@ export function DeploymentsPage() {
     <>
       <ResourceListPage
         config={resources.deployments}
-        onPrimaryAction={() => setCreating(true)}
+        onPrimaryAction={() => setCreating('')}
         primaryActionDisabled={!canCreate}
         primaryActionTitle={
           !canCreate
@@ -96,8 +98,16 @@ export function DeploymentsPage() {
               : 'Promover una versión a un ambiente de trabajo; producción requiere el rol de administrador de la plataforma'
         }
         rowActions={accionesDeFila}
+        intro={
+          canCreate ? <UltimaVersionTabla onDeploy={(versionId) => setCreating(versionId)} /> : null
+        }
       />
-      {creating ? <DeploymentCreateForm onClose={() => setCreating(false)} /> : null}
+      {creating !== null ? (
+        <DeploymentCreateForm
+          initialVersionId={creating || undefined}
+          onClose={() => setCreating(null)}
+        />
+      ) : null}
       {objetivo ? (
         <DeploymentControlDialog
           kind={objetivo.kind}

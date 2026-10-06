@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { hasAnyRole } from '../auth/roles';
 import { useEffectiveRoles } from '../auth/useAuth';
@@ -32,6 +32,8 @@ interface ResourceListPageProps {
    * despliegue vivo se puede revertir— y de los roles de quien mira.
    */
   rowActions?: (row: Record<string, unknown>) => RowAction[];
+  /** Un bloque propio de la pantalla entre el encabezado y los filtros (p. ej. lo pendiente de desplegar). */
+  intro?: ReactNode;
 }
 
 export function ResourceListPage({
@@ -40,6 +42,7 @@ export function ResourceListPage({
   primaryActionDisabled = false,
   primaryActionTitle,
   rowActions,
+  intro,
 }: ResourceListPageProps) {
   const [page, setPage] = useState(1);
   const [creating, setCreating] = useState(false);
@@ -124,6 +127,7 @@ export function ResourceListPage({
           />
         }
       />
+      {intro}
       {config.filterParam ? (
         <form className="filter-bar" onSubmit={submit} data-tutorial-id="resource-filters">
           {config.filterPicker ? (
