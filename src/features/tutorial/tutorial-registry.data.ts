@@ -204,14 +204,6 @@ export const TUTORIAL_META_LIST: readonly TutorialMeta[] = [
     essential: true,
   },
   {
-    id: 'live-execution',
-    category: 'operacion',
-    level: 'intermedio',
-    route: '/live-execution',
-    estimatedMinutes: 4,
-    prerequisites: ['simulator'],
-  },
-  {
     id: 'manual-review',
     category: 'operacion',
     level: 'intermedio',

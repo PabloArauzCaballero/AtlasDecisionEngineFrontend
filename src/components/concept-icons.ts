@@ -17,7 +17,6 @@ import {
   LogIn,
   LogOut,
   Play,
-  Radio,
   ScanSearch,
   ScrollText,
   Server,
@@ -114,11 +113,6 @@ export const CONCEPTS = {
     icon: Play,
     label: 'Ejecución',
     hint: 'Una decisión real ya resuelta, con su recorrido completo.',
-  },
-  liveExecution: {
-    icon: Radio,
-    label: 'Ejecución en vivo',
-    hint: 'Seguimiento nodo por nodo mientras el motor decide.',
   },
   simulation: {
     icon: Play,

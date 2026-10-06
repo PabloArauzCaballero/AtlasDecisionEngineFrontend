@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import { collectProblems } from './support/backend-mock';
 import { notificationsBackend } from './support/notifications-backend';
 import { elegirOpcion } from './support/option-select';
 
@@ -84,33 +83,4 @@ test('el fallo de guardar notas se cuenta una vez, no dos', async ({ page }) => 
    */
   await expect(page.locator(AVISOS)).toHaveCount(1);
   await expect(page.locator(AVISOS).first()).toContainText('El motor no está disponible');
-});
-
-test('una ejecución larga acaba diciendo en qué acabó', async ({ page }) => {
-  const problemas = collectProblems(page);
-  await page.goto('/live-execution');
-  await page.waitForSelector('.simulator-layout', { timeout: 30_000 });
-
-  // Los dos selectores del par artefacto/versión comparten nombre accesible con
-  // su marcador de posición, así que se toman por posición dentro del control.
-  const picker = page.locator('.artifact-version-picker [role="combobox"]');
-  await elegirOpcion(picker.first(), 'BNPL_CREDIT_DECISION');
-  await elegirOpcion(picker.nth(1), 'ver-demo');
-
-  const lanzar = page.getByRole('button', { name: /Iniciar ejecución en vivo/ });
-  await expect(lanzar).toBeEnabled();
-  await lanzar.click();
-
-  /*
-   * El desenlace llega a la MISMA tarjeta que anunció el arranque. Antes la
-   * ejecución terminaba en silencio —rellenaba un panel y ya está—, así que
-   * quien hubiera bajado la página no se enteraba de que había acabado.
-   */
-  const aviso = page.locator(AVISOS).filter({ hasText: 'Ejecución completada' });
-  await expect(aviso).toHaveCount(1);
-  await expect(aviso).toContainText('2 nodos');
-  // Y no deja además la tarjeta de «en curso» colgada girando para siempre.
-  await expect(page.locator(AVISOS).filter({ hasText: 'en curso' })).toHaveCount(0);
-
-  expect(problemas, problemas.join('\n')).toEqual([]);
 });

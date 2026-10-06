@@ -6,8 +6,8 @@ import { GRAPH } from './graph-fixtures';
  * Motor simulado para medir cómo se AVISA, no qué se pinta.
  *
  * Las otras suites quieren un backend que conteste bien; ésta necesita uno que
- * falle a voluntad y que sepa transmitir una ejecución por SSE, porque el motor
- * de avisos sólo se puede juzgar cuando algo sale mal o algo tarda.
+ * falle a voluntad, porque el motor
+ * de avisos sólo se puede juzgar cuando algo sale mal.
  */
 
 const VACIO = { items: [], page: 1, pageSize: 25, total: 0, totalPages: 0, hasNextPage: false };
@@ -35,17 +35,6 @@ const AMBIENTES = [
   },
 ];
 
-/** Una ejecución completa, en el formato de marcos que lee `apiEventStream`. */
-function eventStream(frames: { type: string; data: unknown }[]): string {
-  return frames.map((f) => `event: ${f.type}\ndata: ${JSON.stringify(f.data)}\n\n`).join('');
-}
-
-const EJECUCION = eventStream([
-  { type: 'node_step', data: { nodeKey: 'inicio', status: 'COMPLETED', durationMs: 4 } },
-  { type: 'node_step', data: { nodeKey: 'score', status: 'COMPLETED', durationMs: 9 } },
-  { type: 'execution_completed', data: { decision: 'APPROVE', nestedExecutions: [] } },
-]);
-
 interface Opciones {
   /** Estado con el que responder al guardado de notas. `200` para que funcione. */
   notesStatus?: number;
@@ -56,9 +45,6 @@ export async function notificationsBackend(page: Page, options: Opciones = {}): 
   await page.route('**/v1/**', (route) => {
     const url = route.request().url();
 
-    if (url.includes('/v1/live-executions/stream')) {
-      return route.fulfill({ contentType: 'text/event-stream', body: EJECUCION });
-    }
     /*
      * El guardado de notas es el disparador de fallos repetidos: se pulsa varias
      * veces y el motor contesta siempre lo mismo, que es justo el caso que antes

@@ -70,6 +70,11 @@
   }
 }
 
+/* Icono que gira mientras dura una operación (login, estado de plataforma, editor). */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 /**
  * Route view transition. Keyed on pathname in the app shell, so each
  * navigation replays the entrance and the user gets a clear "this is new
