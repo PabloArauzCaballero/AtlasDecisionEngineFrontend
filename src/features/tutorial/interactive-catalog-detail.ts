@@ -13,7 +13,7 @@ export const DETAIL_TUTORIALS: Readonly<Record<string, InteractiveTutorial>> = {
     intro: 'Cómo leer y gobernar una política de decisión y sus versiones.',
     version: 2,
     steps: [
-      openRecordStep('/artifacts', 'un artefacto'),
+      openRecordStep('/algorithms', 'un artefacto'),
       inRecord({
         id: 'intro',
         title: 'Qué es esta pantalla',

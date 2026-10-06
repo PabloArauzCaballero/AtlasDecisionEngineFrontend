@@ -1,6 +1,5 @@
 import {
   Activity,
-  Boxes,
   Braces,
   Calculator,
   ClipboardCheck,
@@ -92,12 +91,6 @@ export const navigation: readonly NavigationSection[] = [
         path: '/reason-codes',
         icon: Braces,
         roles: accessPolicies.catalogRead,
-      },
-      {
-        label: 'Inventario de algoritmos',
-        path: '/artifacts',
-        icon: Boxes,
-        roles: accessPolicies.artifacts,
       },
       {
         label: 'Algoritmos y versiones',

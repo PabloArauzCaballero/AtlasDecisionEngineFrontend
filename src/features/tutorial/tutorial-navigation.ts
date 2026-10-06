@@ -24,6 +24,8 @@ export interface TutorialRouter {
  */
 export function isAtRoute(pathname: string | undefined, route: string): boolean {
   if (!pathname) return false;
+  // La ficha de un artefacto vive en /artifacts/:id, pero su listado es /algorithms.
+  if (route === '/algorithms' && pathname.startsWith('/artifacts/')) return true;
   return pathname === route || pathname.startsWith(`${route}/`);
 }
 

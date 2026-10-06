@@ -32,11 +32,11 @@ function Harness() {
 }
 
 function renderApp() {
-  // Ya en `/artifacts` y sin tabla en el DOM: el paso que pide abrir una ficha
+  // Ya en `/algorithms` y sin tabla en el DOM: el paso que pide abrir una ficha
   // es opcional, así que el recorrido lo salta solo y arranca en la ficha, que
   // es lo que estas pruebas cubren.
   return render(
-    <InteractiveTutorialProvider router={{ pathname: '/artifacts', push: vi.fn() }}>
+    <InteractiveTutorialProvider router={{ pathname: '/algorithms', push: vi.fn() }}>
       <Harness />
     </InteractiveTutorialProvider>,
   );

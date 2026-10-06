@@ -1,7 +1,7 @@
 'use client';
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Eye, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Eye, Plus, Search, X } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment, useState, type FormEvent } from 'react';
 import { errorMessage } from '../api/ApiError';
@@ -17,6 +17,10 @@ import { ScrollRegion } from '../components/ScrollRegion';
 import { Field } from '../components/Field';
 import { OptionSelect } from '../components/OptionSelect';
 import { ARTIFACT_STATUS_HELP } from '../resources/resource-option-help';
+import { hasAnyRole } from '../auth/roles';
+import { useEffectiveRoles } from '../auth/useAuth';
+import { ResourceCreateForm } from '../resources/ResourceCreateForm';
+import { resources } from '../resources/resource.config';
 
 const STATUSES = [
   'DRAFT',
@@ -35,6 +39,12 @@ export function AlgorithmsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  // El alta es la del inventario de artefactos, que esta pantalla absorbió: mismo formulario,
+  // mismo permiso (`createRoles`) y misma explicación cuando falta.
+  const artifactConfig = resources.artifacts;
+  const roles = useEffectiveRoles();
+  const canCreate = !artifactConfig.createRoles || hasAnyRole(roles, artifactConfig.createRoles);
 
   const query = useQuery({
     queryKey: ['algorithms', page, search, status],
@@ -70,8 +80,23 @@ export function AlgorithmsPage() {
         eyebrow="Diseño"
         title="Algoritmos y versiones"
         description="Todos los algoritmos de decisión y su historial de versiones, en una tabla desplegable."
-        hint="Cada fila es un algoritmo (artefacto). Despliégala para ver sus versiones, en qué estado está cada una y saltar a su grafo, compilación o pruebas."
+        hint="Cada fila es un algoritmo (artefacto): su grafo, sus reglas y su contrato de entradas/salidas. Despliégala para ver sus versiones, en qué estado está cada una y saltar a su grafo, compilación o pruebas; desde aquí también se crean."
+        actions={
+          <button
+            className="button button-primary"
+            type="button"
+            data-tutorial-id="resource-create"
+            disabled={!canCreate}
+            title={canCreate ? undefined : artifactConfig.createDeniedHint}
+            onClick={() => setCreating(true)}
+          >
+            <Plus size={16} /> {artifactConfig.primaryAction}
+          </button>
+        }
       />
+      {creating && canCreate ? (
+        <ResourceCreateForm config={artifactConfig} onClose={() => setCreating(false)} />
+      ) : null}
       <form className="filter-bar" onSubmit={submit}>
         <Field label="Buscar algoritmo" tooltip="Código o nombre del algoritmo que buscas.">
           <input

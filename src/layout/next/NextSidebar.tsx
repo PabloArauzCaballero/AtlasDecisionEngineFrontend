@@ -14,6 +14,8 @@ interface NextSidebarProps {
 }
 
 function isActivePath(pathname: string, itemPath: string): boolean {
+  // El detalle de un artefacto cuelga de /artifacts, pero su entrada de menú es «Algoritmos y versiones».
+  if (itemPath === '/algorithms' && pathname.startsWith('/artifacts/')) return true;
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`);
 }
 

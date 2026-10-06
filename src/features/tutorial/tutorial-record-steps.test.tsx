@@ -28,7 +28,7 @@ describe('recorridos de ficha: el motor lleva hasta el registro', () => {
   });
 
   it('el paso de apertura vive en el LISTADO, no en la ficha', () => {
-    expect(routeForStep(TUTORIALS['artifact-detail'], 0)).toBe('/artifacts');
+    expect(routeForStep(TUTORIALS['artifact-detail'], 0)).toBe('/algorithms');
     expect(routeForStep(TUTORIALS['execution-detail'], 0)).toBe('/executions');
     expect(routeForStep(TUTORIALS['manual-review'], 0)).toBe('/manual-reviews');
     expect(routeForStep(TUTORIALS['objective-detail'], 0)).toBe('/objectives');
@@ -48,6 +48,7 @@ describe('recorridos de ficha: el motor lleva hasta el registro', () => {
     // avance, así que el efecto de navegación corría todavía con el paso del
     // listado y empujaba de vuelta —justo al entrar—, dejando el recorrido en
     // un bucle. Estar en `/artifacts/row-1` ES estar en `/artifacts`.
+    expect(isAtRoute('/artifacts/row-1', '/algorithms')).toBe(true);
     expect(isAtRoute('/artifacts/row-1', '/artifacts')).toBe(true);
     expect(isAtRoute('/artifacts', '/artifacts')).toBe(true);
     // Pero no vale cualquier prefijo de texto: `/artifacts-nuevo` es otra vista.
