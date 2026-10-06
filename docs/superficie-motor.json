@@ -819,6 +819,18 @@
     },
     {
       "method": "POST",
+      "path": "/v1/session/password/reset/confirm",
+      "operationId": "identitySessionConfirmPasswordReset",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/session/password/reset/request",
+      "operationId": "identitySessionRequestPasswordReset",
+      "tag": "Portal Session"
+    },
+    {
+      "method": "POST",
       "path": "/v1/session/refresh",
       "operationId": "identitySessionRefresh",
       "tag": "Portal Session"

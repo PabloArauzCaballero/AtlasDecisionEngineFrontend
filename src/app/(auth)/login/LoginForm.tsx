@@ -29,6 +29,8 @@ interface LoginFormProps {
   problem: LoginProblem | null;
   notice: string | null;
   onSubmit: (credentials: LoginCredentials) => void;
+  /** Abre la recuperación con lo ya escrito, para no tener que repetir tenant y correo. */
+  onRecover: (identity: { tenantId: string; email: string }) => void;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +44,14 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * borde rojo solo no es un mensaje— y los errores se enlazan por
  * `aria-describedby` para que un lector de pantalla los lea al entrar al campo.
  */
-export function LoginForm({ initial, submitting, problem, notice, onSubmit }: LoginFormProps) {
+export function LoginForm({
+  initial,
+  submitting,
+  problem,
+  notice,
+  onSubmit,
+  onRecover,
+}: LoginFormProps) {
   const environmentLabel = useEnvironmentLabel();
   const [tenantId, setTenantId] = useState(initial.tenantId);
   const [email, setEmail] = useState(initial.email);
@@ -221,12 +230,13 @@ export function LoginForm({ initial, submitting, problem, notice, onSubmit }: Lo
             />
             <span>Recordar mi correo en este equipo</span>
           </label>
-          <a
+          <button
+            type="button"
             className="login-recover"
-            href="mailto:soporte@atlas.bo?subject=Recuperar%20contrase%C3%B1a"
+            onClick={() => onRecover({ tenantId, email: email.trim() })}
           >
             ¿Olvidaste tu contraseña?
-          </a>
+          </button>
         </div>
 
         <button className="button button-primary login-submit" type="submit" disabled={submitting}>
