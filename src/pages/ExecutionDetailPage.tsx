@@ -14,6 +14,8 @@ import {
 import { saveFile } from '../features/documents/save-file';
 import { ExecutionPlayback } from '../features/execution-playback/ExecutionPlayback';
 import { normalizeTrace } from '../features/execution-playback/execution-trace';
+import { flattenExecution } from '../features/execution-playback/execution-record';
+import { ExecutionIdentityEvidence } from '../features/execution-playback/ExecutionIdentityEvidence';
 import { NodeVariableStatePanel } from '../features/graph-editor/NodeVariableStatePanel';
 import { DefinitionGrid } from '../components/DefinitionGrid';
 import { JsonPanel } from '../components/JsonPanel';
@@ -35,9 +37,9 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
     'execution-detail',
     executionId ? `/v1/audit/executions/${encodeURIComponent(executionId)}` : null,
   );
-  const execution = asRecord(query.data);
+  const execution = flattenExecution(asRecord(query.data));
   const variables = asRows(execution.variables);
-  const trace = asRows(execution.traceSteps ?? execution.trace);
+  const trace = asRows(execution.traceSteps);
   /*
    * Qué variables clasificó el catálogo como personales. La traza por nodo ya
    * las enmascaraba; esta pantalla —la tabla de variables resueltas y los dos
@@ -215,6 +217,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           ]}
         />
       </Panel>
+      <ExecutionIdentityEvidence traceSteps={execution.traceSteps} />
       <Panel title="Reproducción de la decisión" meta={`${steps.length} pasos trazados`}>
         <ExecutionPlayback steps={steps} nodes={asRows(graph.nodes)} edges={asRows(graph.edges)} />
       </Panel>
@@ -260,12 +263,12 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
           </Panel>
         </div>
         <div className="execution-detail-side">
-          <Panel title="Línea de tiempo de la ejecución" meta={`${trace.length} pasos`}>
+          <Panel title="Línea de tiempo de la ejecución" meta={`${steps.length} pasos`}>
             <Timeline
-              items={trace.map((item) => ({
-                title: display(item, 'nodeKey', 'nodeType'),
-                detail: display(item, 'branchTaken', 'evaluation'),
-                meta: `${display(item, 'durationUs')} μs`,
+              items={steps.map((step) => ({
+                title: `${step.index + 1}. ${step.nodeKey}`,
+                detail: step.error ?? step.branchTaken ?? step.nodeType,
+                meta: step.durationMs === undefined ? '—' : `${step.durationMs} ms`,
               }))}
             />
           </Panel>

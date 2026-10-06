@@ -212,6 +212,14 @@ Los botones destructivos (borrar, aprobar, promover, desplegar) **no se pulsan**
 y el barrido informa de cuáles omitió: un tope silencioso se leería como «se
 probó todo».
 
+- **El detalle de ejecución se prueba contra el contrato del motor, no contra un
+  ejemplo escrito a mano.** `src/contracts/fixtures/audit-execution.example.json` es
+  una COPIA de `docs/contracts/audit-execution.example.json` del backend, que allí
+  está tipada contra la fila real de Prisma. Se probó durante meses contra un
+  `traceSteps` inventado: las pruebas pasaban y en producción no se veía el paso a
+  paso ni se enmascaraban los datos personales. Si el motor cambia la forma, se
+  vuelve a copiar el JSON y se ajusta `execution-record.ts`; nunca se edita la copia.
+
 ## Convenciones clave
 
 - **El acceso puede tener DOS pasos.** `POST /v1/session/login` devuelve una

@@ -46,6 +46,31 @@ describe('normalizeTrace', () => {
     expect(steps[0].error).toBe('timeout');
   });
 
+  it('lee la forma real de la auditoría: `steps` con el nodo anidado y BigInt como texto', () => {
+    // Así serializa `GET /v1/audit/executions/:id` cada `decision_execution_step`.
+    const steps = normalizeTrace({
+      steps: [
+        {
+          id: '901',
+          nodeId: '55',
+          stepOrder: 1,
+          evaluationResultJson: { score: 640 },
+          branchTaken: null,
+          durationUs: '2400',
+          node: { id: '55', nodeKey: 'RIESGO', nodeType: 'SCORE' },
+        },
+      ],
+    });
+
+    expect(steps[0]).toMatchObject({
+      nodeKey: 'RIESGO',
+      nodeType: 'SCORE',
+      status: 'done',
+      durationMs: 2,
+      output: { score: 640 },
+    });
+  });
+
   it('devuelve una lista vacía cuando la ejecución no registró traza', () => {
     expect(normalizeTrace({ status: 'COMPLETED' })).toEqual([]);
     expect(normalizeTrace(null)).toEqual([]);
