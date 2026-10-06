@@ -68,7 +68,6 @@ const ROUTE_TUTORIAL: Readonly<Record<string, string>> = {
   '/deployments': 'deployments',
   '/environments': 'environments',
   '/simulator': 'simulator',
-  '/live-execution': 'live-execution',
   '/code-import': 'code-import',
   '/reviews': 'reviews',
   // §5–§10: las cuatro pantallas que llegaron sin recorrido y son las que menos

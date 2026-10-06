@@ -60,8 +60,6 @@ export const viewExamples: Readonly<Record<string, string>> = {
     'Una solicitud dudosa cae en tu bandeja con el motivo por el que llegó. La resuelves a mano y esa decisión queda registrada igual que las automáticas.',
   simulator:
     'Antes de publicar, pruebas un solicitante inventado y ves qué decidiría. Si el resultado te sorprende, todavía estás a tiempo.',
-  'live-execution':
-    'Lanzas una decisión y ves el recorrido dibujándose paso a paso, con el valor de cada variable al pasar por cada nodo. Es depurar mirando, no leyendo registros.',
   'qa-lab':
     'Pides doscientos casos generados del contrato, con nombres y carnets de los fakers, y el laboratorio te devuelve, reducido al mínimo, cada caso que el motor acepta sin deber o rechaza sin motivo.',
   search:

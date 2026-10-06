@@ -68,7 +68,6 @@ export const AUDIT_ROUTES = [
   '/environments',
   '/deployments',
   '/simulator',
-  '/live-execution',
   '/manual-reviews',
   '/manual-reviews/1',
   '/executions',
