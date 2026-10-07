@@ -9,6 +9,8 @@ import { Panel } from '../components/Panel';
 import { StatusBadge } from '../components/StatusBadge';
 import { Tabs } from '../components/Tabs';
 import { useTabParam } from '../components/useTabParam';
+import { NewVersionButton } from '../features/algorithms/NewVersionButton';
+import { isEditableVersionStatus } from '../features/algorithms/new-version';
 import { EnvironmentHeadsPanel } from '../features/governance/EnvironmentHeadsPanel';
 import { VersionDiffPanel } from '../features/governance/VersionDiffPanel';
 import { VersionHistoryGraph } from '../features/version-history/VersionHistoryGraph';
@@ -46,6 +48,10 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
   // the previous version instead of mutating anything directly.
   const previousId = display(versions[1] ?? {}, 'id');
   const artifactCode = display(artifact, 'artifactCode', 'code');
+  const latestVersion = display(latest, 'semanticVersion', 'versionNumber');
+  // «Editar borrador» sólo tiene sentido si la última versión TODAVÍA es un borrador. Antes se ofrecía siempre y,
+  // sobre una versión aprobada o desplegada, el editor abría algo que el motor ya no deja guardar.
+  const latestEditable = isEditableVersionStatus(latest.status);
   const tabIds = ['summary', 'versions', 'data'] as const;
   const [activeTab, setActiveTab] = useTabParam(tabIds, 'summary');
 
@@ -65,13 +71,20 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
             <Link className="button" href={`/artifacts/${artifactId}/dependency-graph`}>
               <Workflow size={16} /> Dependencias
             </Link>
-            {latestId !== '—' ? (
+            {latestId !== '—' && latestEditable ? (
               <Link
                 className="button button-primary"
                 href={`/graph-editor?versionId=${encodeURIComponent(latestId)}`}
               >
                 <Pencil size={16} /> Editar borrador
               </Link>
+            ) : latestId !== '—' ? (
+              <NewVersionButton
+                variant="primary"
+                sourceVersionId={latestId}
+                sourceVersion={latestVersion}
+                algorithmName={display(artifact, 'name', 'artifactCode')}
+              />
             ) : (
               <button
                 className="button button-primary"
@@ -148,7 +161,22 @@ export function ArtifactDetailPage({ artifactId }: ArtifactDetailPageProps) {
                       `checksum` a secas dejaba siempre un guión. */}
                   <p className="mono">{display(latest, 'canonicalChecksum', 'checksum')}</p>
                 </div>
+                {latestId !== '—' && !latestEditable ? (
+                  <p className="muted-text">
+                    Esta versión ya no se edita. Para cambiar el algoritmo, crea una{' '}
+                    <strong>versión nueva</strong>: parte de ésta como borrador y vuelve a pasar por
+                    validación, pruebas, dos firmas y despliegue.
+                  </p>
+                ) : null}
                 <div className="stack-actions">
+                  {latestId !== '—' ? (
+                    <NewVersionButton
+                      sourceVersionId={latestId}
+                      sourceVersion={latestVersion}
+                      algorithmName={display(artifact, 'name', 'artifactCode')}
+                      label={latestEditable ? 'Otra versión desde ésta' : 'Nueva versión'}
+                    />
+                  ) : null}
                   {previousId !== '—' ? (
                     <Link
                       className="button"

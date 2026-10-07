@@ -24,6 +24,8 @@
 }
 .wizard-steps li svg {
   width: 19px;
+  /* Sin esto el icono se encoge cuando el texto del paso ocupa dos líneas y la columna deja de alinearse. */
+  flex-shrink: 0;
 }
 .wizard-steps li span,
 .wizard-steps li small {

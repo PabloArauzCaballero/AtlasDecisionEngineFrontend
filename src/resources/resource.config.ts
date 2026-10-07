@@ -145,7 +145,8 @@ export const resources: Readonly<Record<string, ResourceConfig>> = {
     key: 'reviews',
     eyebrow: 'Gobierno',
     title: 'Bandeja de revisiones',
-    description: 'Solicitudes de aprobación pendientes para Calidad, Riesgo y Cumplimiento.',
+    description:
+      'Envía versiones compiladas a aprobación y sigue cada solicitud de Calidad, Riesgo y Cumplimiento.',
     hint: 'Solicitudes de aprobación que deben resolverse antes de que una versión de un algoritmo pueda desplegarse.',
     endpoint: '/v1/approval-requests',
     detailPath: (row) => `/approval-requests/${String(row.id)}`,

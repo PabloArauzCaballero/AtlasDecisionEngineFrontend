@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { CheckCircle2, Circle, Play, Save, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Circle, CircleDot, Play, Pin, Send, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
@@ -9,7 +9,10 @@ import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
+import { NewVersionButton } from '../features/algorithms/NewVersionButton';
+import { useSubmitForReview } from '../features/governance/useSubmitForReview';
 import { LIFECYCLE_STEPS, lifecycleGuidance } from '../features/lifecycle/version-lifecycle';
+import { ARTIFACT_STATUS_LABEL } from '../resources/artifact-status';
 import { ValidationReportPanel } from '../features/lifecycle/ValidationReportPanel';
 import { useNotifications } from '../notifications/useNotifications';
 import { display, type UnknownRecord } from '../utils/records';
@@ -51,12 +54,15 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
   });
   const status = version.data ? display(version.data, 'status') : undefined;
   const guidance = lifecycleGuidance(status);
+  // El estado, en español: el asistente enseñaba `COMPILED` tal cual lo manda el motor.
+  const statusLabel = status ? (ARTIFACT_STATUS_LABEL[status] ?? status) : undefined;
+  const review = useSubmitForReview(versionId);
 
   const saveDraft = () => {
     localStorage.setItem(DRAFT_KEY, versionId);
     notify({
       tone: 'success',
-      title: 'Borrador guardado',
+      title: 'Versión recordada',
       description: versionId
         ? `El asistente se abrirá con la versión ${versionId} ya elegida.`
         : 'El borrador quedó vacío; el asistente se abrirá sin versión.',
@@ -92,8 +98,13 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
         description="Proceso controlado de pre-validación, pruebas estructurales y compilación determinista."
         hint="El asistente sólo ofrece lo que el estado de la versión admite: el motor sólo compila lo que está validado, y una versión ya compilada se aprueba, no se vuelve a compilar."
         actions={
-          <button className="button" type="button" onClick={saveDraft}>
-            <Save size={16} /> Guardar Borrador
+          <button
+            className="button"
+            type="button"
+            title="La próxima vez que abras el asistente, vendrá con esta versión ya elegida. No guarda ni cambia la versión."
+            onClick={saveDraft}
+          >
+            <Pin size={16} /> Recordar esta versión
           </button>
         }
       />
@@ -103,12 +114,23 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
             {LIFECYCLE_STEPS.map((step, index) => {
               const done = guidance.stepIndex > index;
               const active = guidance.stepIndex === index;
+              // El paso que TOCA: el siguiente al actual. Es lo que el recorrido no decía con una versión
+              // recién compilada, donde lo que falta es la revisión.
+              const upNext = guidance.stepIndex >= 0 && index === guidance.stepIndex + 1;
               return (
                 <li key={step.id} className={active ? 'active' : done ? 'done' : ''}>
-                  {done || active ? <CheckCircle2 /> : <Circle />}
+                  {done || active ? <CheckCircle2 /> : upNext ? <CircleDot /> : <Circle />}
                   <span>
                     {step.label}
-                    <small>{active ? status : done ? 'Superado' : 'Pendiente'}</small>
+                    <small>
+                      {active
+                        ? `Aquí está · ${statusLabel ?? ''}`
+                        : done
+                          ? 'Superado'
+                          : upNext
+                            ? `Siguiente · ${step.what}`
+                            : step.what}
+                    </small>
                   </span>
                 </li>
               );
@@ -116,7 +138,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
           </ol>
         </div>
         <div className="wizard-main">
-          <Panel title="Versión" meta={status ?? 'sin elegir'}>
+          <Panel title="Versión" meta={statusLabel ?? 'sin elegir'}>
             <ArtifactVersionPicker
               versionId={versionId}
               onVersionChange={setVersionId}
@@ -126,23 +148,55 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
             <div className={`lifecycle-state tone-${guidance.tone}`}>
               <strong>{guidance.summary}</strong>
               <p>{guidance.nextAction}</p>
-              {status === 'COMPILED' ? (
-                <Link className="button" href="/reviews">
-                  Ir a Revisiones
+              {guidance.next === 'submit-review' && !review.requestId ? (
+                <button
+                  className="button button-primary"
+                  type="button"
+                  data-tutorial-id="compile-submit-review"
+                  disabled={!review.canPropose || review.pending}
+                  title={
+                    review.canPropose
+                      ? 'Abre la solicitud de aprobación de esta versión'
+                      : 'Enviar a revisión es de quien propone el cambio: analista de calidad o de fraude.'
+                  }
+                  onClick={review.submit}
+                >
+                  <Send size={16} /> {review.pending ? 'Enviando…' : 'Enviar a revisión'}
+                </button>
+              ) : null}
+              {review.requestId ? (
+                <Link
+                  className="button button-primary"
+                  href={`/approval-requests/${review.requestId}`}
+                >
+                  Ver la solicitud REQ-{review.requestId}
                 </Link>
               ) : null}
-              {status === 'APPROVED' ? (
-                <Link className="button" href="/deployments">
+              {guidance.next === 'follow-review' && !review.requestId ? (
+                <Link className="button" href="/reviews">
+                  Ver en Revisiones
+                </Link>
+              ) : null}
+              {guidance.next === 'deploy' ? (
+                <Link className="button button-primary" href="/deployments">
                   Ir a Despliegues
                 </Link>
               ) : null}
-              {status === 'DRAFT' || status === 'VALIDATION_FAILED' ? (
+              {guidance.next === 'edit' ? (
                 <Link className="button" href={`/artifact-versions/${versionId}/graph`}>
                   Abrir el editor
                 </Link>
               ) : null}
+              {guidance.next === 'new-version' ? (
+                <NewVersionButton
+                  variant="primary"
+                  sourceVersionId={versionId}
+                  sourceVersion={display(version.data ?? {}, 'semanticVersion', 'versionNumber')}
+                />
+              ) : null}
             </div>
 
+            {review.problem ? <Alert tone="error">{review.problem}</Alert> : null}
             {action.isError ? <Alert tone="error">{errorMessage(action.error)}</Alert> : null}
             {version.isError ? (
               <Alert tone="warning">

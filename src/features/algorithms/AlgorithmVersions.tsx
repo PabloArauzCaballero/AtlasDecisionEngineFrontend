@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { apiRequest } from '../../api/http-client';
 import { StatusBadge } from '../../components/StatusBadge';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
+import { NewVersionButton } from './NewVersionButton';
 
 /**
  * Lazy-loaded version list for one algorithm (artifact), shown when its row is
@@ -64,6 +65,11 @@ export function AlgorithmVersions({ artifactId }: { artifactId: string }) {
               <Link className="button" href={`/artifact-versions/${versionId}/test-suites`}>
                 <TerminalSquare size={14} /> Pruebas
               </Link>
+              <NewVersionButton
+                sourceVersionId={versionId}
+                sourceVersion={display(version, 'semanticVersion', 'versionNumber')}
+                label="Nueva versión desde ésta"
+              />
             </div>
           </div>
         );
