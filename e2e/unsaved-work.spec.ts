@@ -30,7 +30,9 @@ test('la guarda pregunta antes de tirar trabajo, y no molesta cuando no lo hay',
   await page.getByRole('tab', { name: 'Consola' }).click();
   await expect(consola.locator('textarea')).toHaveValue(TEXTO);
 
-  // 3) Salir de la ruta SÍ pregunta, y quedarse conserva el texto.
+  // 3) Salir de la ruta SÍ pregunta, y quedarse conserva el texto. «Variables» vive dentro del
+  // grupo «Catálogos» del menú: se despliega primero, y se queda desplegado para el paso 4.
+  await cajon.getByRole('button', { name: /Catálogos/ }).click();
   await cajon.getByRole('link', { name: /^Variables$/i }).click();
   const aviso = page.getByRole('dialog');
   await expect(aviso).toBeVisible({ timeout: 30_000 });

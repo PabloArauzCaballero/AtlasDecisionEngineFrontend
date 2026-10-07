@@ -24,10 +24,17 @@ function matches(pathname: string, path: string): boolean {
 }
 
 function flatten(items: readonly NavigationItem[], trail: string[]): [string, string[]][] {
-  return items.flatMap((item) => [
-    [item.path, [...trail, item.label]] as [string, string[]],
-    ...flatten(item.children ?? [], [...trail, item.label]),
-  ]);
+  return items.flatMap((item) => {
+    // Un grupo de pantallas hermanas («Catálogos», «Pruebas») es un estante del menú, no un sitio:
+    // toma prestada la ruta de su primera pantalla y no entra en el nombre. La persona está en
+    // «Diseño › Variables», igual que antes de agruparlas.
+    const shelf = (item.children ?? []).some((child) => child.path === item.path);
+    if (shelf) return flatten(item.children ?? [], trail);
+    return [
+      [item.path, [...trail, item.label]] as [string, string[]],
+      ...flatten(item.children ?? [], [...trail, item.label]),
+    ];
+  });
 }
 
 const MENU_ROUTES = navigation.flatMap((section) => flatten(section.items, [section.label]));

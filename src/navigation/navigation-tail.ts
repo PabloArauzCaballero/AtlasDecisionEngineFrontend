@@ -1,10 +1,10 @@
 import { Bot, Goal, NotebookPen, ShieldCheck, TerminalSquare } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
 import { WORKER_MENU } from '../features/workers/worker-menu';
-import type { NavigationSection } from './navigation-types';
+import { navigationGroup, type NavigationItem, type NavigationSection } from './navigation-types';
 
 /**
- * Las dos últimas secciones del menú.
+ * La última sección del menú, y el grupo «Cobertura» que usa «Calidad».
  *
  * Viven aparte por el tope de 299 líneas del repositorio, y el corte va por donde menos
  * duele: «Procesamiento» y «Trazabilidad» son las dos secciones que no describen el ciclo
@@ -76,21 +76,28 @@ export const navigationTail: readonly NavigationSection[] = [
       },
     ],
   },
-  {
-    label: 'Trazabilidad',
-    items: [
-      {
-        label: 'Objetivos',
-        path: '/objectives',
-        icon: Goal,
-        roles: accessPolicies.traceability,
-      },
-      {
-        label: 'Cobertura de objetivos',
-        path: '/coverage-matrix',
-        icon: ShieldCheck,
-        roles: accessPolicies.traceability,
-      },
-    ],
-  },
 ] as const;
+
+/**
+ * «Cobertura», en Calidad: qué parte del diagrama está probada y qué objetivo cubre cada cosa.
+ *
+ * «Trazabilidad» era una sección de dos entradas al final del menú, y las dos contestan la misma
+ * pregunta que «Cobertura del diagrama»: ¿está cubierto? Quien la hace mira las tres juntas.
+ */
+export function coverageGroup(graphCoverage: NavigationItem): NavigationItem {
+  return navigationGroup('Cobertura', ShieldCheck, [
+    graphCoverage,
+    {
+      label: 'Objetivos',
+      path: '/objectives',
+      icon: Goal,
+      roles: accessPolicies.traceability,
+    },
+    {
+      label: 'Cobertura de objetivos',
+      path: '/coverage-matrix',
+      icon: ShieldCheck,
+      roles: accessPolicies.traceability,
+    },
+  ]);
+}

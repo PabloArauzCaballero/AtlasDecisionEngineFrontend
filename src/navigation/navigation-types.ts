@@ -30,3 +30,25 @@ export interface NavigationSection {
   label: string;
   items: readonly NavigationItem[];
 }
+
+/**
+ * Una entrada que agrupa pantallas hermanas bajo una sola línea del menú.
+ *
+ * A diferencia de «Procesadores automáticos», el grupo no tiene pantalla propia: su `path` es el
+ * de su primera pantalla —sólo identifica al grupo— y sus `roles` son la unión de los de sus
+ * hijos, para que la línea salga a quien puede abrir al menos uno. Cada hijo conserva su ruta y
+ * sus roles: agrupar no concede nada.
+ */
+export function navigationGroup(
+  label: string,
+  icon: LucideIcon,
+  children: readonly NavigationItem[],
+): NavigationItem {
+  return {
+    label,
+    icon,
+    path: children[0]?.path ?? '',
+    roles: [...new Set(children.flatMap((child) => child.roles))],
+    children,
+  };
+}
