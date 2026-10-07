@@ -1,14 +1,17 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Eye, Play, Plus } from 'lucide-react';
+import { Eye, Play, Plus, Wand2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ApiError, errorMessage } from '../api/ApiError';
 import { apiRequest } from '../api/http-client';
+import { canProposeArtifactChange } from '../auth/business-rules';
+import { useEffectiveRoles } from '../auth/useAuth';
 import { Alert } from '../components/Alert';
 import { useAmbientState } from '../components/ambient/useAmbientState';
 import { EmptyState } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
+import { useGenerateCoverageSuite } from '../features/governance/useGenerateCoverageSuite';
 import { TutorialMenu } from '../features/tutorial/TutorialMenu';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
 import { ProgressBar } from '../components/ProgressBar';
@@ -50,6 +53,8 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
         responseSchema: queuedTestRunSchema,
       }),
   });
+  const generate = useGenerateCoverageSuite(versionId);
+  const canAuthor = canProposeArtifactChange(useEffectiveRoles());
   const rows = query.data?.items ?? [];
   // El fondo se tiñe mientras el worker tiene suites encoladas de verdad.
   useAmbientState(run.isPending || batchPending ? 'running' : 'idle');
@@ -123,6 +128,27 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
                 <Play size={16} />
               )}
               Ejecutar todas
+            </button>
+            <button
+              className="button"
+              type="button"
+              data-tutorial-id="test-suites-generate"
+              disabled={!versionId || !canAuthor || generate.isPending}
+              title={
+                !versionId
+                  ? 'Elige primero un algoritmo y una versión.'
+                  : canAuthor
+                    ? 'El motor busca los casos que recorren todo el diagrama, los guarda como suite bloqueante «AUTO-COBERTURA» y la ejecuta. Regenerar reemplaza los casos anteriores.'
+                    : 'Generar pruebas es de quien propone el cambio: analista de calidad o de fraude.'
+              }
+              onClick={() => generate.mutate()}
+            >
+              {generate.isPending ? (
+                <span className="inline-spinner" aria-hidden="true" />
+              ) : (
+                <Wand2 size={16} />
+              )}
+              Generar pruebas automáticas
             </button>
             <button
               className="button button-primary"

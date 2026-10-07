@@ -1,0 +1,40 @@
+/*
+ * La lista de requisitos para enviar una versión a revisión (`ReviewReadinessList`). Reutiliza `.gate-list` de
+ * la pantalla de aprobación y añade lo suyo: el icono de un pendiente, los botones por requisito y el acceso a
+ * las suites. Vive aparte para no pasar del tope de líneas de `governance-decision.css`.
+ */
+/* El icono de un requisito pendiente no puede ser el verde de «cumplido», y el de un botón hereda el del botón. */
+.gate-list li[data-passing='no'] > span svg {
+  color: var(--warning);
+}
+.gate-list .button svg {
+  color: inherit;
+}
+.gate-list li > span strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.gate-list li > span strong svg {
+  flex-shrink: 0;
+}
+@media (max-width: 560px) {
+  .gate-list li {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* El acceso a las suites, bajo la lista de requisitos: un enlace del portal, no el azul del navegador. */
+.readiness-footnote a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+.readiness-footnote a:hover {
+  text-decoration: underline;
+}
+.gate-list li > .stack-actions {
+  justify-content: flex-end;
+}
