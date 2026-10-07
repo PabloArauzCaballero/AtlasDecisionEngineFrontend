@@ -102,11 +102,14 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
   return (
     <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>
       <div className="brand-row">
-        <div className="brand-mark">A</div>
-        <div>
-          <strong>ATLAS</strong>
-          <span>Decision Engine</span>
-        </div>
+        {/* El logotipo es el acceso a Inicio, como en el ERP y el portal admin. */}
+        <NavLink href="/platform-health" className="brand-link" onClick={onClose}>
+          <div className="brand-mark">A</div>
+          <div>
+            <strong>ATLAS</strong>
+            <span>Decision Engine</span>
+          </div>
+        </NavLink>
         <button
           className="icon-button sidebar-close"
           type="button"

@@ -215,30 +215,3 @@
 .topbar-spacer {
   flex: 1;
 }
-.security-label {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  color: var(--success);
-  font-size: var(--type-2xs);
-  font-weight: var(--weight-semibold);
-}
-.user-summary {
-  padding-left: var(--space-3);
-  border-left: 1px solid var(--line);
-  min-width: 130px;
-}
-.user-summary strong,
-.user-summary span {
-  display: block;
-}
-.user-summary strong {
-  font-size: var(--type-sm);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--track-tight);
-}
-.user-summary span {
-  font-size: var(--type-3xs);
-  color: var(--faint);
-  margin-top: 1px;
-}

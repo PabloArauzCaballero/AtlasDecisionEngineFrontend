@@ -122,7 +122,6 @@
  * and the only travel left is the press itself, which confirms a real event.
  */
 .button,
-.top-action,
 .quick-action {
   transition:
     background-color var(--dur-fast) var(--ease-standard),
@@ -132,7 +131,6 @@
     transform var(--dur-instant) var(--ease-standard);
 }
 .button:active:not(:disabled),
-.top-action:active,
 .quick-action:active {
   transform: scale(0.97);
   transition-duration: var(--dur-instant);
