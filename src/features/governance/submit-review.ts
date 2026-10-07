@@ -31,7 +31,7 @@ const SUBMIT_ERRORS: Readonly<Record<string, string>> = {
   VERSION_NOT_REVIEWABLE:
     'El motor sólo acepta versiones compiladas. Compílala en «Validar y compilar» y vuelve a enviarla.',
   BLOCKING_TESTS_NOT_PASSED:
-    'Sus pruebas bloqueantes no están en verde. Ejecútalas en «Pruebas» de esa versión; sin eso no entra a revisión.',
+    'El motor no la aceptó por sus pruebas: le falta una suite bloqueante, una corrida en verde o llegar al 80 % de los nodos. La lista de requisitos dice cuál y te lleva a resolverlo.',
   APPROVAL_REQUEST_EXISTS:
     'Esta versión ya tiene una solicitud abierta: búscala en la tabla de abajo.',
   VERSION_NOT_FOUND: 'Esa versión ya no existe. Elige otra.',

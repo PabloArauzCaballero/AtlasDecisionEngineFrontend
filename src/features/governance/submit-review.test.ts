@@ -24,7 +24,7 @@ describe('enviar una versión a revisión', () => {
   });
 
   it('traduce los rechazos del motor y no inventa los que no conoce', () => {
-    expect(explainSubmitError('BLOCKING_TESTS_NOT_PASSED')).toContain('pruebas bloqueantes');
+    expect(explainSubmitError('BLOCKING_TESTS_NOT_PASSED')).toContain('suite bloqueante');
     expect(explainSubmitError('APPROVAL_REQUEST_EXISTS')).toContain('solicitud abierta');
     expect(explainSubmitError('OTRO_CODIGO')).toBeNull();
     expect(explainSubmitError(undefined)).toBeNull();

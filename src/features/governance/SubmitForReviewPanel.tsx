@@ -9,6 +9,7 @@ import { Alert } from '../../components/Alert';
 import { ArtifactVersionPicker } from '../../components/ArtifactVersionPicker';
 import { Panel } from '../../components/Panel';
 import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { ReviewReadinessList, useReviewReadiness } from './ReviewReadinessList';
 import { submitBlockerForStatus } from './submit-review';
 import { useSubmitForReview } from './useSubmitForReview';
 
@@ -42,6 +43,9 @@ export function SubmitForReviewPanel() {
   // Recién enviada, la versión pasa a «en revisión»: ese aviso lo da el mensaje de éxito, no un bloqueo.
   const blocker = review.requestId ? null : submitBlockerForStatus(status === '—' ? null : status);
   const waiting = Boolean(versionId) && version.isPending;
+  // Lo que el motor va a exigir, leído ANTES de pulsar: cada pendiente trae el enlace a donde se arregla.
+  const { known, readiness } = useReviewReadiness(versionId, status === '—' ? null : status);
+  const notReady = known && readiness !== null && !readiness.ready && !review.requestId;
 
   return (
     <Panel title="Enviar una versión a revisión" meta="Sólo versiones compiladas">
@@ -69,7 +73,17 @@ export function SubmitForReviewPanel() {
           versionLabel="Versión a enviar"
           required
         />
-        {versionId && blocker ? <Alert tone="warning">{blocker}</Alert> : null}
+        {versionId && blocker && !readiness ? <Alert tone="warning">{blocker}</Alert> : null}
+        {readiness && !review.requestId ? (
+          <>
+            <p className="muted-text">
+              {readiness.ready
+                ? 'Esta versión cumple lo que el motor exige para entrar a revisión.'
+                : 'A esta versión todavía le falta algo para entrar a revisión. Cada punto pendiente te lleva a donde se resuelve:'}
+            </p>
+            <ReviewReadinessList readiness={readiness} />
+          </>
+        ) : null}
         {review.problem ? <Alert tone="error">{review.problem}</Alert> : null}
         {review.requestId ? (
           <Alert tone="success">
@@ -79,27 +93,31 @@ export function SubmitForReviewPanel() {
             </Link>
           </Alert>
         ) : null}
-        <button
-          className="button button-primary"
-          type="submit"
-          disabled={
-            !review.canPropose ||
-            !versionId ||
-            Boolean(blocker) ||
-            review.pending ||
-            waiting ||
-            Boolean(review.requestId)
-          }
-          title={
-            !review.canPropose
-              ? 'Tu rol no envía versiones a revisión'
-              : !versionId
-                ? 'Elige primero el algoritmo y la versión'
-                : (blocker ?? undefined)
-          }
-        >
-          <Send size={16} /> {review.pending ? 'Enviando…' : 'Enviar a revisión'}
-        </button>
+        <div className="stack-actions">
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={
+              !review.canPropose ||
+              !versionId ||
+              Boolean(blocker) ||
+              notReady ||
+              review.pending ||
+              waiting ||
+              Boolean(review.requestId)
+            }
+            title={
+              !review.canPropose
+                ? 'Tu rol no envía versiones a revisión'
+                : !versionId
+                  ? 'Elige primero el algoritmo y la versión'
+                  : (blocker ??
+                    (notReady ? 'Resuelve antes los puntos pendientes de arriba' : undefined))
+            }
+          >
+            <Send size={16} /> {review.pending ? 'Enviando…' : 'Enviar a revisión'}
+          </button>
+        </div>
       </form>
     </Panel>
   );
