@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { brokenImages, expectImagesPainted } from './support/image-health';
 
 /**
  * Evidencia visual de la revisión de un caso de IDENTIDAD.
@@ -139,13 +140,19 @@ const DOCUMENTOS = [
   },
 ];
 
-async function mockBackend(page: Page): Promise<void> {
+async function mockBackend(
+  page: Page,
+  contenido: (documentId: string) => Buffer = () => PIXEL,
+): Promise<void> {
   await page.route('**/health/**', (route) => route.fulfill({ json: { status: 'UP' } }));
 
   // Los bytes de cada documento. Van ANTES del comodín de `/atlas-backend/**` porque el primer
   // manejador que casa es el que responde, y el comodín también casaría con esta ruta.
   await page.route('**/evidence-documents/*/content', (route) =>
-    route.fulfill({ body: PIXEL, contentType: 'image/png' }),
+    route.fulfill({
+      body: contenido(route.request().url().split('/evidence-documents/')[1]?.split('/')[0] ?? ''),
+      contentType: 'image/png',
+    }),
   );
   await page.route('**/identity-verifications/*/evidence-documents', (route) =>
     route.fulfill({ json: { customerId: CUSTOMER_ID, documents: DOCUMENTOS } }),
@@ -190,6 +197,8 @@ test('la revisión de identidad enseña las tres fuentes y las capturas como sli
   await expect(carrusel.locator('.case-carousel__slide')).toHaveCount(3);
   await expect(carrusel.locator('.case-carousel__count')).toHaveText('1 / 3');
   await expect(carrusel.locator('.case-carousel__caption')).toContainText('Anverso del carnet');
+  // Que las tres slides EXISTAN no dice que se vean: se exige que cada imagen esté pintada.
+  await expectImagesPainted(carrusel, 3);
 
   await page.screenshot({
     path: `${OUT}/20-revision-identidad-slide-1.png`,
@@ -258,4 +267,21 @@ test('la revisión de identidad enseña las tres fuentes y las capturas como sli
    */
   const resolucion = page.locator('.panel', { hasText: 'Resolver el caso' });
   await expect(resolucion).toBeVisible();
+});
+
+/*
+ * El caso que motivó la comprobación de arriba: el servidor contesta 200 con algo que NO es una
+ * imagen y en pantalla quedaba sólo el texto. Esta prueba fija que la comprobación lo ATRAPA —
+ * si un día dejara de verlo, la de arriba pasaría en verde con las fotos rotas.
+ */
+test('una imagen que llega rota se detecta, no pasa como vista', async ({ page }) => {
+  test.setTimeout(120_000);
+  await mockBackend(page, (documentId) =>
+    documentId === 'd2' ? Buffer.from('esto no es una imagen') : PIXEL,
+  );
+  await page.goto(`/manual-reviews/${CASO_ID}`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+  const carrusel = page.locator('.case-carousel');
+  await carrusel.waitFor({ timeout: 30_000 });
+  await expect(carrusel.locator('img')).toHaveCount(3);
+  expect(await brokenImages(carrusel)).toEqual([expect.stringContaining('blob:')]);
 });
