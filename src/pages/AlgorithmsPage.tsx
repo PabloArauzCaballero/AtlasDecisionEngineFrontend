@@ -139,7 +139,11 @@ export function AlgorithmsPage() {
 
       {query.isError ? <Alert tone="error">{errorMessage(query.error)}</Alert> : null}
 
-      <section className="panel" aria-labelledby="algorithms-title">
+      <section
+        className="panel"
+        aria-labelledby="algorithms-title"
+        data-tutorial-id="resource-table"
+      >
         <div className="panel-title">
           <h2 id="algorithms-title">{query.data?.total ?? 0} algoritmos</h2>
           <small>{query.isFetching ? 'Actualizando…' : 'Datos en vivo'}</small>
