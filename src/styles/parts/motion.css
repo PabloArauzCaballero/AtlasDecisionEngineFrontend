@@ -121,8 +121,7 @@
  * hover state is now what it should always have been — the surface answers —
  * and the only travel left is the press itself, which confirms a real event.
  */
-.button,
-.quick-action {
+.button {
   transition:
     background-color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard),
@@ -130,8 +129,7 @@
     box-shadow var(--dur-fast) var(--ease-standard),
     transform var(--dur-instant) var(--ease-standard);
 }
-.button:active:not(:disabled),
-.quick-action:active {
+.button:active:not(:disabled) {
   transform: scale(0.97);
   transition-duration: var(--dur-instant);
 }

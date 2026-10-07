@@ -75,7 +75,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         target: '[data-tutorial-id="quick-action"]',
         title: 'Atajos a lo más frecuente',
         content:
-          '«Acción rápida» lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
+          'El icono «+» de la barra superior (Acción rápida) lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
         optional: true,
       },
       {

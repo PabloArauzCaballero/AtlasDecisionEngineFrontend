@@ -1,10 +1,8 @@
 'use client';
 
-import { Boxes, GitBranch, Plus, SendHorizonal, Target, X } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { hasAnyRole } from '../../auth/roles';
-import { canAccessPath } from '../../auth/route-access';
 import { useEffectiveRoles } from '../../auth/useAuth';
 import { NavLink } from '../../navigation/NavLink';
 import { navigation } from '../../navigation/navigation';
@@ -28,72 +26,6 @@ const NAV_TUTORIAL_IDS: Readonly<Record<string, string | undefined>> = {
   '/simulator': 'nav-simulator',
   '/tutorials': 'tutorial-center-link',
 };
-
-const QUICK_ACTIONS = [
-  { path: '/simulator', label: 'Ejecutar simulación', icon: Boxes },
-  { path: '/reviews', label: 'Enviar a revisión', icon: SendHorizonal },
-  { path: '/graph-editor', label: 'Editar grafo', icon: GitBranch },
-  { path: '/objectives', label: 'Objetivos de negocio', icon: Target },
-] as const;
-
-/** Shortcut menu to the portal's most common operations, filtered by role. */
-function QuickActionMenu({ roles, onNavigate }: { roles: string[]; onNavigate: () => void }) {
-  const [open, setOpen] = useState(false);
-  const container = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const actions = QUICK_ACTIONS.filter((action) => canAccessPath(action.path, roles));
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (event: PointerEvent) => {
-      if (!container.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
-
-  if (actions.length === 0) return null;
-
-  return (
-    <div className="quick-action-wrap" ref={container}>
-      <button
-        className="quick-action"
-        type="button"
-        data-tutorial-id="quick-action"
-        aria-expanded={open}
-        aria-haspopup="menu"
-        onClick={() => setOpen((visible) => !visible)}
-      >
-        <Plus size={17} /> Acción rápida
-      </button>
-      {open ? (
-        <div className="quick-action-menu" role="menu" aria-label="Acciones rápidas">
-          {actions.map(({ path, label, icon: Icon }) => (
-            <button
-              key={path}
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                onNavigate();
-                router.push(path);
-              }}
-            >
-              <Icon size={16} /> {label}
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export function NextSidebar({ open, onClose }: NextSidebarProps) {
   const pathname = usePathname() ?? '';
@@ -119,7 +51,6 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
           <X />
         </button>
       </div>
-      <QuickActionMenu roles={roles} onNavigate={onClose} />
       <nav aria-label="Navegación principal" data-tutorial-id="sidebar-nav">
         {navigation.map((section) => {
           const visibleItems = section.items.filter((item) => hasAnyRole(roles, item.roles));
