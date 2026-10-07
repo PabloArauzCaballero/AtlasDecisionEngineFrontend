@@ -6,6 +6,7 @@ import {
   confirmPasswordReset as confirmReset,
   requestPasswordReset as requestReset,
 } from '../../../auth/auth.api';
+import { PasswordInput } from '../../../components/PasswordInput';
 import { FieldLabel } from '../../../components/FieldLabel';
 import type { LoginProblem } from './login-errors';
 import { describeRecoveryError } from './recovery-errors';
@@ -186,13 +187,14 @@ export function PasswordRecovery({
             >
               <input
                 id="recovery-code"
+                className="login-pin-input"
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 maxLength={6}
                 value={code}
                 aria-invalid={codeError}
                 aria-describedby="recovery-code-status"
-                onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
               />
             </RecoveryField>
             <RecoveryField
@@ -202,9 +204,8 @@ export function PasswordRecovery({
               error={passwordError ? `Usa al menos ${MIN_PASSWORD} caracteres.` : null}
               help={`Mínimo ${MIN_PASSWORD} caracteres. Al cambiarla se cierran tus sesiones abiertas.`}
             >
-              <input
+              <PasswordInput
                 id="recovery-password"
-                type="password"
                 autoComplete="new-password"
                 value={password}
                 aria-invalid={passwordError}
@@ -218,9 +219,8 @@ export function PasswordRecovery({
               id="recovery-repeat"
               error={repeatError ? 'Las dos contraseñas no coinciden.' : null}
             >
-              <input
+              <PasswordInput
                 id="recovery-repeat"
-                type="password"
                 autoComplete="new-password"
                 value={repeat}
                 aria-invalid={repeatError}

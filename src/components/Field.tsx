@@ -11,6 +11,7 @@ import {
 import { useFieldHelp } from '../hooks/useFieldHelp';
 import { FieldLabel } from './FieldLabel';
 import { InfoHint } from './InfoHint';
+import { PasswordInput } from './PasswordInput';
 import { OptionSelect } from './OptionSelect';
 
 interface FieldProps {
@@ -37,6 +38,8 @@ function esControl(child: ReactElement): boolean {
   if (child.type === OptionSelect || child.type === 'textarea' || child.type === 'select') {
     return true;
   }
+  // Reenvía `id`, `aria-describedby` y el foco a su `<input>`: se cablea como uno nativo.
+  if (child.type === PasswordInput) return true;
   return child.type === 'input' && (child.props as AnyProps).type !== 'hidden';
 }
 

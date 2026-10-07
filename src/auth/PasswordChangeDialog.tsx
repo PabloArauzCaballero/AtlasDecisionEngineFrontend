@@ -7,6 +7,7 @@ import { confirmPasswordChange, requestPasswordChange } from './auth.api';
 import type { PinChallenge } from './auth.types';
 import { useAuth } from './useAuth';
 import { Field } from '../components/Field';
+import { PasswordInput } from '../components/PasswordInput';
 
 /**
  * Cambio de contraseña de quien ya está dentro, en dos pasos y con el mismo
@@ -81,7 +82,8 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
           >
             <input
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="login-pin-input"
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
@@ -92,8 +94,7 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
             label="Contraseña nueva"
             tooltip="La contraseña que usarás desde ahora: mínimo 10 caracteres, con letra y número o símbolo."
           >
-            <input
-              type="password"
+            <PasswordInput
               value={newPassword}
               onChange={(event) => setNewPassword(event.target.value)}
               autoComplete="new-password"
@@ -106,8 +107,7 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
             label="Repite la contraseña nueva"
             tooltip="Escríbela otra vez para descartar un error de tecleo."
           >
-            <input
-              type="password"
+            <PasswordInput
               value={repeatPassword}
               onChange={(event) => setRepeatPassword(event.target.value)}
               autoComplete="new-password"
@@ -139,8 +139,7 @@ export function PasswordChangeDialog({ onClose }: Readonly<{ onClose: () => void
           label="Contraseña actual"
           tooltip="La contraseña con la que entraste; confirma que el cambio lo pides tú."
         >
-          <input
-            type="password"
+          <PasswordInput
             value={currentPassword}
             onChange={(event) => setCurrentPassword(event.target.value)}
             autoComplete="current-password"

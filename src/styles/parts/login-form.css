@@ -150,11 +150,19 @@
  * Seis dígitos, muy separados y en monoespaciada: se teclean mirando el correo, y con la
  * tipografía normal es fácil saltarse uno o repetirlo sin notarlo.
  */
-.login-pin-input {
+/*
+ * Seis casillas, ni una más: el campo mide lo que mide el código. A todo el ancho prometía sitio
+ * para una frase. `input.` sube la especificidad sobre el `width: 100%` de los campos; el relleno
+ * izquierdo compensa la separación que la tipografía añade tras el último dígito.
+ */
+input.login-pin-input {
+  display: block;
+  width: calc(6ch + 2.4em + 2.4rem);
+  max-width: 100%;
+  padding-inline: calc(1.2rem + 0.2em) 1.2rem;
   font-family: var(--font-mono);
   font-size: var(--type-2xl);
   letter-spacing: 0.4em;
-  text-align: center;
 }
 .login-pin-back {
   display: inline-flex;
