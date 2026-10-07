@@ -98,8 +98,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const [density, setDensity] = useState<TableDensity>('comfortable');
   const [expanded, setExpanded] = useState<string | null>(null);
   const tableRef = useFrozenIdentity();
-  const hasActions =
-    Boolean(detailPath) || Boolean(rowActions && rows.some((r) => rowActions(r).length));
+  const hasActions = Boolean(detailPath) || Boolean(rows.some((r) => rowActions?.(r).length));
   const sortable = columns.map((column) => ({ key: column.key, path: column.path }));
   const inRow = tools ? columns.filter((column) => !column.detail) : columns;
   const visible = tools ? sortRows(quickFilterRows(rows, query, sortable), sort, sortable) : rows;
