@@ -13,6 +13,7 @@ import { StatusBadge } from './StatusBadge';
 import { formatCell } from './table-format';
 import { nextSort, quickFilterRows, sortRows, type SortState } from './table-tools';
 import { ScrollRegion } from './ScrollRegion';
+import { useFrozenIdentity } from '../hooks/useFrozenIdentity';
 
 export interface TableColumn<T> {
   key: keyof T & string;
@@ -96,7 +97,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const [query, setQuery] = useState('');
   const [density, setDensity] = useState<TableDensity>('comfortable');
   const [expanded, setExpanded] = useState<string | null>(null);
-
+  const tableRef = useFrozenIdentity();
   const hasActions = Boolean(rowActions) || Boolean(detailPath);
   const sortable = columns.map((column) => ({ key: column.key, path: column.path }));
   const inRow = tools ? columns.filter((column) => !column.detail) : columns;
@@ -131,7 +132,7 @@ export function DataTable<T extends Record<string, unknown>>({
         />
       ) : null}
       <ScrollRegion label="Tabla de resultados">
-        <table>
+        <table ref={tableRef}>
           <thead>
             <tr>
               {tools ? <th scope="col" className="table-expander-head" /> : null}
