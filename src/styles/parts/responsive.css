@@ -1,7 +1,4 @@
 @media (max-width: 1180px) {
-  .top-links {
-    display: none;
-  }
   .graph-workbench {
     height: auto;
     grid-template-columns: 210px minmax(480px, 1fr);

@@ -19,6 +19,7 @@ import {
   type LucideIcon,
   Undo2,
   PauseOctagon,
+  Rocket,
 } from 'lucide-react';
 
 export type ActionVariant = 'default' | 'primary' | 'danger';
@@ -126,6 +127,15 @@ export const ACTIONS = {
     icon: PauseOctagon,
     label: 'Suspender el despliegue',
     variant: 'danger',
+  },
+  /*
+   * Desplegar una versión aprobada. Sin `confirm` del catálogo: abre el formulario de despliegue,
+   * que pide el ambiente y el modo — esa elección es la confirmación.
+   */
+  deploy: {
+    icon: Rocket,
+    label: 'Desplegar esta versión',
+    variant: 'primary',
   },
 } as const satisfies Record<string, ActionDefinition>;
 

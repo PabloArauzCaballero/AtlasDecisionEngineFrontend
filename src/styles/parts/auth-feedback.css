@@ -162,9 +162,6 @@
   .action-grid {
     grid-template-columns: 1fr;
   }
-  .security-label {
-    display: none;
-  }
 }
 
 @media (max-width: 820px) {
@@ -196,9 +193,6 @@
   }
   /* El margen lateral de `.topbar` y `.content` ya no se escalona aquí: lo
      recorre `--gutter` de forma continua (parts/responsive-tokens.css). */
-  .user-summary {
-    display: none;
-  }
   .two-column,
   .form-row {
     grid-template-columns: 1fr;

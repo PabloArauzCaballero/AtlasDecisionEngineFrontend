@@ -1,33 +1,14 @@
 /* Technical Corporate components from the supplied Stitch views */
-.quick-action {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin: var(--space-3) var(--space-4) var(--space-1);
-  padding: 9px 12px;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--navy);
-  color: var(--surface);
-  font-size: var(--type-sm);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--track-tight);
-  cursor: pointer;
-}
 .quick-action-wrap {
   position: relative;
 }
-.quick-action-wrap .quick-action {
-  width: calc(100% - 32px);
-}
 .quick-action-menu {
   position: absolute;
-  left: 16px;
-  right: 16px;
+  right: 0;
   top: calc(100% + 6px);
   z-index: 40;
   display: grid;
+  width: 15rem;
   padding: 5px;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -78,26 +59,6 @@
   padding: 7px 10px 7px 31px;
   background: var(--canvas);
   font-size: var(--type-xs);
-}
-.top-links {
-  display: flex;
-  gap: 22px;
-}
-.top-links a,
-.top-action {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: var(--type-sm);
-  font-weight: var(--weight-medium);
-}
-.top-links a:hover,
-.top-action:hover {
-  color: var(--ink);
-}
-.top-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
 }
 .table-action {
   display: inline-grid;

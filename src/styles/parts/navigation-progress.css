@@ -68,10 +68,3 @@
 .nav-link:has(.nav-link-spinner) svg:first-child {
   opacity: 0.45;
 }
-
-.top-links a .nav-link-spinner,
-.top-action .nav-link-spinner {
-  width: 11px;
-  height: 11px;
-  margin-left: 6px;
-}

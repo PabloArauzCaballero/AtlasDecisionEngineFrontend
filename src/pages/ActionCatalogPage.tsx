@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { errorMessage } from '../api/ApiError';
 import { Alert } from '../components/Alert';
 import { DataTable, type TableColumn } from '../components/DataTable';
@@ -77,6 +77,7 @@ export function ActionCatalogPage() {
   const [filters, setFilters] = useState<BankFilters>(EMPTY_BANK_FILTERS);
   const [editing, setEditing] = useState<BankEntry | null>(null);
   const [open, setOpen] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
   const bank = useActionBank();
   const write = useActionWrite();
 
@@ -90,6 +91,19 @@ export function ActionCatalogPage() {
     setOpen(true);
     write.reset();
   };
+
+  // El formulario se monta ARRIBA de la tabla: pulsar el lápiz de una fila de
+  // abajo no cambiaba nada a la vista y parecía un botón muerto. Se lleva la
+  // vista hasta él y el foco dentro, para quien navega con teclado.
+  useEffect(() => {
+    if (!open) return;
+    const node = formRef.current;
+    if (!node) return;
+    node.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    node.querySelector<HTMLElement>('input, [role="combobox"], button')?.focus({
+      preventScroll: true,
+    });
+  }, [open, editing]);
 
   return (
     <>
@@ -230,14 +244,16 @@ export function ActionCatalogPage() {
       ) : null}
 
       {open ? (
-        <Panel title={editing ? `Aplicar ${editing.code}` : 'Nueva acción · elige dónde crearla'}>
-          <ActionTargetPanel
-            entry={editing}
-            versions={bank.versions}
-            write={write}
-            onClose={() => setOpen(false)}
-          />
-        </Panel>
+        <div ref={formRef} style={{ scrollMarginTop: 'var(--space-6)' }}>
+          <Panel title={editing ? `Aplicar ${editing.code}` : 'Nueva acción · elige dónde crearla'}>
+            <ActionTargetPanel
+              entry={editing}
+              versions={bank.versions}
+              write={write}
+              onClose={() => setOpen(false)}
+            />
+          </Panel>
+        </div>
       ) : null}
 
       {bank.isLoading ? (

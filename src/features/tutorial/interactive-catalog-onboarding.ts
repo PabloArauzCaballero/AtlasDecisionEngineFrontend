@@ -75,7 +75,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         target: '[data-tutorial-id="quick-action"]',
         title: 'Atajos a lo más frecuente',
         content:
-          '«Acción rápida» lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
+          'El icono «+» de la barra superior (Acción rápida) lleva de un salto a las cuatro operaciones más habituales —simular, enviar a revisión, editar el grafo y ver objetivos— sin buscarlas en el menú.',
         optional: true,
       },
       {
@@ -127,7 +127,7 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         target: '[data-tutorial-id="user-summary"]',
         title: 'Quién eres para el portal',
         content:
-          'Tu nombre y tu área. De tu rol depende todo lo que ves: si una pantalla no aparece en el menú o un botón está deshabilitado, casi siempre es el permiso, no un fallo.',
+          'Tus iniciales y tu nombre; al pulsarlos se abre tu perfil, con tu cuenta, el cambio de contraseña y el cierre de sesión. De tu rol depende todo lo que ves: si una pantalla no aparece en el menú o un botón está deshabilitado, casi siempre es el permiso, no un fallo.',
         tip: 'Si necesitas acceso a algo, pídelo por rol —analista de riesgo, pruebas, cumplimiento—, no por pantalla.',
       },
       {
@@ -136,14 +136,6 @@ export const ONBOARDING_TUTORIALS: Readonly<Record<string, InteractiveTutorial>>
         title: 'Contra qué ambiente trabajas',
         content:
           'Indica si estás en producción o en un ambiente de prueba. Míralo antes de desplegar o de lanzar una ejecución: es la diferencia entre un ensayo y una decisión real sobre un cliente.',
-        optional: true,
-      },
-      {
-        id: 'logout',
-        target: '[data-tutorial-id="logout"]',
-        title: 'Cerrar sesión',
-        content:
-          'Libera tu canal seguro y te devuelve al acceso. Conviene hacerlo si compartes el equipo, porque la sesión sigue viva mientras no se cierre.',
         optional: true,
       },
     ],

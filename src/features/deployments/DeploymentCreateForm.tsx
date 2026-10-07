@@ -16,7 +16,11 @@ import { usePromotionTargets } from './usePromotionTargets';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
 
-type DeploymentCreateFormProps = { onClose: () => void };
+type DeploymentCreateFormProps = {
+  onClose: () => void;
+  /** La versión ya elegida, cuando se llega desde «Última versión de cada algoritmo». */
+  initialVersionId?: string;
+};
 
 const MODES = ['DIRECT', 'CANARY', 'CHAMPION_CHALLENGER'] as const;
 
@@ -39,7 +43,7 @@ const MODO_AYUDA: Record<(typeof MODES)[number], string> = {
  * la comprobación se repite antes de enviar: el catálogo puede degradar a texto
  * libre, y ahí el usuario podría escribir `PROD` a mano.
  */
-export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
+export function DeploymentCreateForm({ onClose, initialVersionId }: DeploymentCreateFormProps) {
   const queryClient = useQueryClient();
   const { notify } = useNotifications();
   const dialog = useRef<HTMLElement>(null);
@@ -47,7 +51,7 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
   // atrapaba el foco y no daba salida por teclado: quien no usa el ratón se
   // quedaba dentro del formulario sin poder abandonarlo.
   useDialogFocus(dialog, undefined, onClose);
-  const [versionId, setVersionId] = useState('');
+  const [versionId, setVersionId] = useState(initialVersionId ?? '');
   const [environmentCode, setEnvironmentCode] = useState('');
   const [deploymentMode, setDeploymentMode] = useState<string>('DIRECT');
   const [traffic, setTraffic] = useState<TrafficRuleDraft[]>([]);
@@ -79,6 +83,8 @@ export function DeploymentCreateForm({ onClose }: DeploymentCreateFormProps) {
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['resource', 'deployments'] });
+      // La tabla de «Última versión de cada algoritmo» deja de ofrecer lo que se acaba de desplegar.
+      await queryClient.invalidateQueries({ queryKey: ['ultima-version-por-algoritmo'] });
       notify({
         tone: 'success',
         title: 'Despliegue creado',

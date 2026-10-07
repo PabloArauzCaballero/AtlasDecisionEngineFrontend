@@ -21,6 +21,7 @@
 @import './parts/metrics.css';
 @import './parts/auth-feedback.css';
 @import './parts/corporate.css';
+@import './parts/topbar-profile.css';
 /* Documentos del solicitante en la revisión manual. Vivían en un `globals.css`
    —en plural— que NADIE importaba, así que llevaban meses sin aplicarse. */
 @import './parts/case-images.css';

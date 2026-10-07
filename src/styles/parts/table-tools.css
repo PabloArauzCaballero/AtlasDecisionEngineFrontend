@@ -119,6 +119,19 @@
 .table-expander-head {
   width: 34px;
 }
+/* Anchura EXACTA: el `left` de la columna de identidad anclada vale lo que mide
+   esta, y con el relleno de celda medía 58 px frente a los 34 declarados. */
+.data-table .table-expander-head,
+.data-table .table-expander {
+  min-width: 34px;
+  max-width: 34px;
+  box-sizing: border-box;
+  padding-inline: 0;
+  text-align: center;
+}
+.data-table .table-expander button {
+  margin-inline: auto;
+}
 .table-expander button {
   display: grid;
   place-items: center;
@@ -149,20 +162,20 @@ tr.is-expanded {
 
    El fondo se repite estado por estado porque una celda pegajosa que herede
    `transparent` deja ver pasar por debajo el resto de la fila. */
-.data-table .table-expander-head,
-.data-table .table-expander,
-.data-table th.table-identity,
-.data-table td.table-identity {
+.data-table[data-frozen] .table-expander-head,
+.data-table[data-frozen] .table-expander,
+.data-table[data-frozen] th.table-identity,
+.data-table[data-frozen] td.table-identity {
   position: sticky;
   z-index: 1;
   left: 0;
 }
-.data-table.has-expander th.table-identity,
-.data-table.has-expander td.table-identity {
+.data-table[data-frozen].has-expander th.table-identity,
+.data-table[data-frozen].has-expander td.table-identity {
   left: 34px;
 }
-.data-table th.table-identity,
-.data-table .table-expander-head {
+.data-table[data-frozen] th.table-identity,
+.data-table[data-frozen] .table-expander-head {
   z-index: 3;
 }
 /* --------------------------------------------------- columna de acciones
