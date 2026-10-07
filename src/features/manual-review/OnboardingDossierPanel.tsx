@@ -14,6 +14,7 @@ import {
   DossierCronometro,
   DossierDeclarado,
 } from './OnboardingDossierIdentity';
+import { MerchantDossierPanel } from './MerchantDossierPanel';
 import { fecha, senalesDelAlta } from './onboarding-dossier';
 
 /**
@@ -31,6 +32,9 @@ export function OnboardingDossierPanel({
   const alta = asRecord(raw);
   const hayExpediente = raw !== null && raw !== undefined && Object.keys(alta).length > 0;
   const actualizado = fecha(evidence.altaActualizadaEn ?? alta.generadoEn);
+
+  // Un caso de comercio no tiene cronómetro ni agenda: tiene una empresa. Lo dice el propio anexo.
+  if (hayExpediente && alta.origen === 'KYB_COMERCIO') return <MerchantDossierPanel alta={alta} />;
 
   if (!hayExpediente) {
     return (
