@@ -37,7 +37,11 @@ interface NavGroupProps {
  */
 export function NavGroup({ item, roles, pathname, onNavigate, isActivePath }: NavGroupProps) {
   const children = (item.children ?? []).filter((child) => hasAnyRole(roles, child.roles));
-  const dentro = isActivePath(pathname, item.path);
+  // Dentro del grupo se está en su propia ruta (`/workers/...`) o en la de cualquiera de sus
+  // hijos: un grupo de pantallas hermanas (`/variables`, `/reason-codes`) no comparte prefijo.
+  const dentro =
+    isActivePath(pathname, item.path) ||
+    children.some((child) => isActivePath(pathname, child.path));
   const [open, setOpen] = useState(dentro);
   const listId = useId();
 

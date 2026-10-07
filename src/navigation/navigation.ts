@@ -23,8 +23,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { accessPolicies } from '../auth/access-policies';
-import { navigationTail } from './navigation-tail';
-import type { NavigationSection } from './navigation-types';
+import { coverageGroup, navigationTail } from './navigation-tail';
+import { navigationGroup, type NavigationSection } from './navigation-types';
 
 export type { NavigationItem, NavigationSection } from './navigation-types';
 
@@ -68,83 +68,95 @@ export const navigation: readonly NavigationSection[] = [
   {
     label: 'Diseño',
     items: [
-      {
-        label: 'Variables',
-        path: '/variables',
-        icon: Database,
-        roles: accessPolicies.catalogRead,
-      },
-      {
-        label: 'Campos calculados',
-        path: '/calculated-fields',
-        icon: Calculator,
-        roles: accessPolicies.calculatedFields,
-      },
-      {
-        label: 'Librerías autorizadas',
-        path: '/libraries',
-        icon: Library,
-        roles: accessPolicies.libraryRegistry,
-      },
-      {
-        label: 'Motivos',
-        path: '/reason-codes',
-        icon: Braces,
-        roles: accessPolicies.catalogRead,
-      },
+      // Los tres diccionarios con los que se escribe una decisión: qué entra, qué se calcula y con qué motivo se responde.
+      navigationGroup('Catálogos', Database, [
+        {
+          label: 'Variables',
+          path: '/variables',
+          icon: Database,
+          roles: accessPolicies.catalogRead,
+        },
+        {
+          label: 'Campos calculados',
+          path: '/calculated-fields',
+          icon: Calculator,
+          roles: accessPolicies.calculatedFields,
+        },
+        {
+          label: 'Motivos',
+          path: '/reason-codes',
+          icon: Braces,
+          roles: accessPolicies.catalogRead,
+        },
+      ]),
       {
         label: 'Algoritmos y versiones',
         path: '/algorithms',
         icon: Layers,
         roles: accessPolicies.artifacts,
       },
-      {
-        label: 'Editor del diagrama',
-        path: '/graph-editor',
-        icon: GitBranch,
-        roles: accessPolicies.graphAuthoring,
-      },
-      {
-        label: 'Acciones',
-        path: '/actions',
-        icon: Zap,
-        roles: accessPolicies.graphAuthoring,
-      },
-      {
-        label: 'Importar código',
-        path: '/code-import',
-        icon: FileCode2,
-        roles: accessPolicies.codeImport,
-      },
+      // El diagrama y las acciones que sus nodos pueden ejecutar.
+      navigationGroup('Diagrama', GitBranch, [
+        {
+          label: 'Editor del diagrama',
+          path: '/graph-editor',
+          icon: GitBranch,
+          roles: accessPolicies.graphAuthoring,
+        },
+        {
+          label: 'Acciones',
+          path: '/actions',
+          icon: Zap,
+          roles: accessPolicies.graphAuthoring,
+        },
+      ]),
+      // Traer código y decidir qué librerías puede usar.
+      navigationGroup('Código', FileCode2, [
+        {
+          label: 'Importar código',
+          path: '/code-import',
+          icon: FileCode2,
+          roles: accessPolicies.codeImport,
+        },
+        {
+          label: 'Librerías autorizadas',
+          path: '/libraries',
+          icon: Library,
+          roles: accessPolicies.libraryRegistry,
+        },
+      ]),
     ],
   },
   {
     label: 'Calidad',
     items: [
-      {
-        label: 'Suites de prueba',
-        path: '/test-suites',
-        icon: FlaskConical,
-        roles: accessPolicies.qualityAuthoring,
-      },
-      {
-        label: 'Casos de prueba',
-        path: '/test-cases',
-        icon: ListChecks,
-        roles: accessPolicies.qualityAuthoring,
-      },
+      // La suite y los casos que la componen.
+      navigationGroup('Pruebas', FlaskConical, [
+        {
+          label: 'Suites de prueba',
+          path: '/test-suites',
+          icon: FlaskConical,
+          roles: accessPolicies.qualityAuthoring,
+        },
+        {
+          label: 'Casos de prueba',
+          path: '/test-cases',
+          icon: ListChecks,
+          roles: accessPolicies.qualityAuthoring,
+        },
+      ]),
       {
         label: 'Laboratorio de pruebas',
         path: '/qa-lab',
         icon: ScanSearch,
         roles: accessPolicies.qaLab,
       },
-      {
+      coverageGroup({
         label: 'Cobertura del diagrama',
         path: '/graph-coverage',
         icon: ShieldCheck,
         roles: accessPolicies.coverageRead,
-      },
+      }),
     ],
   },
   {
@@ -156,18 +168,21 @@ export const navigation: readonly NavigationSection[] = [
         icon: ClipboardCheck,
         roles: accessPolicies.governanceReview,
       },
-      {
-        label: 'Ambientes',
-        path: '/environments',
-        icon: Rocket,
-        roles: accessPolicies.environments,
-      },
-      {
-        label: 'Despliegues',
-        path: '/deployments',
-        icon: History,
-        roles: accessPolicies.environments,
-      },
+      // Dónde corre cada versión y el historial de cómo llegó ahí.
+      navigationGroup('Ambientes y despliegues', Rocket, [
+        {
+          label: 'Ambientes',
+          path: '/environments',
+          icon: Rocket,
+          roles: accessPolicies.environments,
+        },
+        {
+          label: 'Despliegues',
+          path: '/deployments',
+          icon: History,
+          roles: accessPolicies.environments,
+        },
+      ]),
       {
         // En «Gobierno» y no en «Auditoría»: no mide lo que pasó, fija las condiciones de lo
         // que puede pasar. Auditar es mirar hacia atrás; esto es poner el marco.
