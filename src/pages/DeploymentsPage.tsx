@@ -67,7 +67,7 @@ export function DeploymentsPage() {
    * ofrecerla sugiere que lo tiene. Sobre el resto, la fila conserva su enlace a detalle.
    */
   function accionesDeFila(row: Record<string, unknown>): RowAction[] {
-    if (!puedeIntervenir || !esAccionable(row.status)) return [];
+    if (!puedeIntervenir || !esAccionable(row.deploymentStatus ?? row.status)) return [];
     const deploymentId = String(row.id ?? '');
     const descripcion = describir(row);
     return [
