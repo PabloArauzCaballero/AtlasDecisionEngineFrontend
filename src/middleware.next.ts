@@ -50,6 +50,12 @@ function contentSecurityPolicy(nonce: string): string {
      * `Authorization`. Se pide con la credencial puesta y se reproduce local.
      */
     "media-src 'self' blob:",
+    /*
+     * Los PDF del expediente (matrícula, NIT, poder) se pintan en un `<iframe>` desde un `blob:`
+     * local, igual que las imágenes: se piden con la credencial y nunca por una URL pública. Sin
+     * `frame-src` el marco caía en `default-src 'self'` y quedaba en blanco, sin error en pantalla.
+     */
+    "frame-src 'self' blob:",
     "font-src 'self' data:",
     // Todo el tráfico de datos es del mismo origen: el proxy `/v1` lo reenvía.
     "connect-src 'self'",

@@ -50,6 +50,12 @@ describe('content security policy middleware', () => {
     expect(found.get('script-src')).not.toContain("'unsafe-eval'");
   });
 
+  it('deja pintar un PDF del expediente desde un blob local, y ningún marco de fuera', () => {
+    const policy = middleware(request()).headers.get('content-security-policy') ?? '';
+    // Sin `frame-src` el visor del PDF caía en `default-src` y quedaba en blanco, sin error.
+    expect(directives(policy).get('frame-src')).toBe("'self' blob:");
+  });
+
   /**
    * El artefacto de R lleva su PROPIA política, y la del portal no cambia.
    *

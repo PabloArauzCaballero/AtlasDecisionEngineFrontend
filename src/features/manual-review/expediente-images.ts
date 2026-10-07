@@ -1,8 +1,9 @@
 import { apiDownload } from '../../api/file-download';
 import { apiRequest } from '../../api/http-client';
+import { ApiError } from '../../api/ApiError';
 
 /**
- * El carnet y la selfie desde el EXPEDIENTE del cliente.
+ * Los archivos del EXPEDIENTE del cliente o del comercio: carnet y selfie, y también los PDF.
  *
  * El portal interno los muestra de ahí (`/internal/files/…`), y es la copia que sobrevive cuando
  * el registro de evidencias del alta ya no sirve el archivo. Es la misma puerta autenticada, con
@@ -27,13 +28,48 @@ export interface ImagenDeExpediente {
   nodoId: string;
   nombre: string;
   sha256: string | null;
+  /** Vacío si el archivo figura en el expediente pero el almacén ya no lo tiene. */
   objectUrl: string;
+  /** Tipo resuelto: el del nodo y, si no dice nada útil, el de la extensión. */
+  mimeType: string;
+  /** El expediente lo lista y el almacén no lo sirve: se enseña como ausente, nunca se esconde. */
+  ausente: boolean;
 }
 
-/** Se baja a lo sumo tres niveles: el expediente de identidad es poco profundo y no se recorre un árbol sin tope. */
+/** Se baja a lo sumo tres niveles: el expediente es poco profundo y no se recorre un árbol sin tope. */
 const PROFUNDIDAD_MAXIMA = 3;
 
-async function archivosDeImagen(
+const POR_EXTENSION: Record<string, string> = {
+  pdf: 'application/pdf',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
+/**
+ * El tipo con el que se pinta un archivo.
+ *
+ * El almacén contesta `application/octet-stream` cuando no supo decir más, y un `<iframe>` con ese
+ * tipo se queda en blanco sin un solo error. Manda lo que declare el nodo y, si tampoco ayuda, la
+ * extensión del nombre.
+ */
+export function tipoDeArchivo(nombre: string, declarado: string | null): string {
+  if (declarado && declarado !== 'application/octet-stream') return declarado;
+  const extension = /\.([a-z0-9]+)$/i.exec(nombre)?.[1]?.toLowerCase() ?? '';
+  return POR_EXTENSION[extension] ?? declarado ?? 'application/octet-stream';
+}
+
+/**
+ * TODOS los archivos vivos del expediente, no sólo las imágenes.
+ *
+ * Antes se filtraba por `image/*`: el carnet y la selfie se veían, y la matrícula de comercio, el
+ * NIT o el poder del representante —que llegan en PDF— desaparecían sin dejar rastro. El revisor
+ * leía «el expediente no tiene imágenes» de un comercio que sí había subido sus documentos. Un
+ * archivo que el almacén perdió (`objetoAusente`) también se devuelve: que falte es información.
+ */
+async function archivosDelExpediente(
   expedienteId: string,
   parentId: string | null,
   nivel: number,
@@ -45,16 +81,14 @@ async function archivosDeImagen(
     { signal },
   );
   const vivos = (Array.isArray(nodos) ? nodos : []).filter((nodo) => !nodo.borradoEn);
-  const imagenes = vivos.filter(
-    (nodo) => nodo.tipo === 'archivo' && !nodo.objetoAusente && nodo.mimeType?.startsWith('image/'),
-  );
-  if (nivel >= PROFUNDIDAD_MAXIMA) return imagenes;
+  const archivos = vivos.filter((nodo) => nodo.tipo === 'archivo');
+  if (nivel >= PROFUNDIDAD_MAXIMA) return archivos;
   const hijas = await Promise.all(
     vivos
       .filter((nodo) => nodo.tipo === 'carpeta')
-      .map((carpeta) => archivosDeImagen(expedienteId, carpeta.nodoId, nivel + 1, signal)),
+      .map((carpeta) => archivosDelExpediente(expedienteId, carpeta.nodoId, nivel + 1, signal)),
   );
-  return [...imagenes, ...hijas.flat()];
+  return [...archivos, ...hijas.flat()];
 }
 
 export type TipoDeSujeto = 'customer' | 'partner';
@@ -102,25 +136,33 @@ export async function imagenesDelExpediente(
   return { expedienteId: expediente.expedienteId, imagenes };
 }
 
-/** Las imágenes de un expediente por su número (el que muestra el portal en `/internal/files/<n>`). */
+/** Los archivos de un expediente por su número (el que muestra el portal en `/internal/files/<n>`). */
 export async function imagenesDeExpediente(
   expedienteId: string,
   signal: AbortSignal,
 ): Promise<ImagenDeExpediente[]> {
-  const nodos = await archivosDeImagen(expedienteId, null, 1, signal);
+  const nodos = await archivosDelExpediente(expedienteId, null, 1, signal);
   return Promise.all(
     nodos.map(async (nodo) => {
-      const archivo = await apiDownload(
-        `/atlas-backend/expedientes/${encodeURIComponent(expedienteId)}/nodos/${encodeURIComponent(nodo.nodoId)}/contenido?disposition=inline`,
-        nodo.nombre,
-        { signal },
-      );
-      return {
-        nodoId: nodo.nodoId,
-        nombre: nodo.nombre,
-        sha256: nodo.sha256,
-        objectUrl: URL.createObjectURL(archivo.blob),
-      };
+      const mimeType = tipoDeArchivo(nodo.nombre, nodo.mimeType);
+      const base = { nodoId: nodo.nodoId, nombre: nodo.nombre, sha256: nodo.sha256, mimeType };
+      if (nodo.objetoAusente) return { ...base, objectUrl: '', ausente: true };
+      try {
+        const archivo = await apiDownload(
+          `/atlas-backend/expedientes/${encodeURIComponent(expedienteId)}/nodos/${encodeURIComponent(nodo.nodoId)}/contenido?disposition=inline`,
+          nodo.nombre,
+          { signal },
+        );
+        // Se reenvuelve con el tipo resuelto: es el tipo del BLOB el que decide si un marco pinta un PDF.
+        const blob = new Blob([archivo.blob], { type: mimeType });
+        return { ...base, objectUrl: URL.createObjectURL(blob), ausente: false };
+      } catch (error) {
+        // Un archivo que no baja no esconde a los demás: se lista como ausente.
+        if (error instanceof ApiError && error.kind === 'not-found') {
+          return { ...base, objectUrl: '', ausente: true };
+        }
+        throw error;
+      }
     }),
   );
 }
