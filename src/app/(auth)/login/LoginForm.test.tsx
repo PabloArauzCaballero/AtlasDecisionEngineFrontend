@@ -15,6 +15,7 @@ function renderForm(overrides: Partial<Parameters<typeof LoginForm>[0]> = {}) {
       problem={null}
       notice={null}
       onSubmit={onSubmit}
+      onRecover={vi.fn()}
       {...overrides}
     />,
   );

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { apiRequest, publicApiRequest } from '../api/http-client';
 import {
   loginOutcomeSchema,
@@ -79,6 +80,36 @@ export async function logout(allDevices = false): Promise<void> {
   await publicApiRequest<void>(sessionPath('logout'), {
     method: 'POST',
     body: { allDevices },
+  });
+}
+
+export interface PasswordResetIdentity {
+  tenantId: string;
+  email: string;
+}
+
+/**
+ * «¿Olvidaste tu contraseña?», paso uno. La respuesta es la misma exista o no la cuenta: el
+ * motor sólo confirma que registró la solicitud, y el código llega al correo si la cuenta existe.
+ */
+export async function requestPasswordReset(identity: PasswordResetIdentity): Promise<void> {
+  // Rutas literales, igual que el cambio de contraseña: `scripts/engine-surface.mjs` lee estos
+  // literales para saber qué operaciones del motor consume el portal.
+  await publicApiRequest('/v1/session/password/reset/request', {
+    method: 'POST',
+    body: identity,
+    responseSchema: z.object({ requested: z.literal(true) }),
+  });
+}
+
+/** Paso dos: el código del correo y la contraseña nueva. Cierra toda sesión previa de la cuenta. */
+export async function confirmPasswordReset(
+  input: PasswordResetIdentity & { code: string; newPassword: string },
+): Promise<void> {
+  await publicApiRequest('/v1/session/password/reset/confirm', {
+    method: 'POST',
+    body: input,
+    responseSchema: z.object({ passwordChanged: z.literal(true) }),
   });
 }
 
