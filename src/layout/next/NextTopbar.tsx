@@ -5,6 +5,7 @@ import { useEnvironmentLabel } from '../../config/EnvironmentLabelProvider';
 import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
 import { NotificationCenter } from '../../notifications/NotificationCenter';
 import { ThemeToggle } from '../../theme/ThemeToggle';
+import { QuickActionMenu } from './QuickActionMenu';
 import { UserMenu } from './UserMenu';
 
 interface NextTopbarProps {
@@ -43,6 +44,7 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
           <span /> {environmentLabel}
         </div>
       ) : null}
+      <QuickActionMenu />
       <ThemeToggle />
       <NotificationCenter />
       <UserMenu />
