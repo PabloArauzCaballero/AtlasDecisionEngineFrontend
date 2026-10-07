@@ -28,6 +28,8 @@ export interface ReadinessItem {
   canGenerate?: boolean;
   /** Hay una corrida en marcha: conviene volver a preguntar en unos segundos. */
   running?: boolean;
+  /** La suite no comprueba nada: se enseña, pero ni cuenta ni bloquea (igual que en el motor). */
+  ignored?: boolean;
 }
 
 export interface ReviewReadiness {
@@ -56,6 +58,37 @@ function nodeCoverage(run: UnknownRecord): { covered: string[]; missing: string[
   const details = asRecord(node.detailsJson);
   const list = (value: unknown) => (Array.isArray(value) ? value.map(String) : []);
   return { covered: list(details.covered), missing: list(details.missing) };
+}
+
+/** ¿Declara este resultado esperado algo que comprobar? `{}` no. */
+export function hasExpectation(expected: unknown): boolean {
+  return (
+    typeof expected === 'object' &&
+    expected !== null &&
+    !Array.isArray(expected) &&
+    Object.keys(expected).length > 0
+  );
+}
+
+/** Una suite es evidencia si algún caso ACTIVO espera algo. Sin eso, pasa siempre y no prueba nada. */
+function isAssertable(suite: UnknownRecord): boolean {
+  return asRows(suite.cases).some(
+    (item) => item.isActive !== false && hasExpectation(item.expectedResultJson),
+  );
+}
+
+function ignoredItem(suite: UnknownRecord, index: number): ReadinessItem {
+  const id = display(suite, 'id');
+  return {
+    key: `ignored-${id === '—' ? String(index) : id}`,
+    ok: true,
+    ignored: true,
+    title: `Pruebas «${display(suite, 'suiteCode', 'name')}»`,
+    detail: asRows(suite.cases).some((item) => item.isActive !== false)
+      ? 'No cuenta: sus casos no esperan ningún resultado, así que no comprueban nada. No bloquea la revisión. Para que cuente, ponle un resultado esperado a algún caso.'
+      : 'No cuenta: no tiene ningún caso activo. No bloquea la revisión.',
+    action: { label: 'Abrir sus casos', href: `/test-suites/${encodeURIComponent(id)}/cases` },
+  };
 }
 
 function isRunning(status: string): boolean {
@@ -184,15 +217,20 @@ export function reviewReadiness(
         },
   );
 
-  const blocking = suites.filter((suite) => suite.isBlocking === true);
+  const declared = suites.filter((suite) => suite.isBlocking === true);
+  // Como el motor: una suite bloqueante que no espera nada no es evidencia, ni a favor ni en contra.
+  const blocking = declared.filter(isAssertable);
+  const empty = declared.filter((suite) => !isAssertable(suite));
   if (!blocking.length) {
     items.push({
       key: 'no-blocking-suite',
       ok: false,
       title: 'Pruebas bloqueantes',
-      detail: suites.length
-        ? 'Tiene suites de prueba, pero ninguna está marcada como bloqueante: el motor exige al menos una.'
-        : 'Esta versión no tiene ninguna suite de pruebas. Las pruebas NO se heredan de la versión anterior: hay que crearlas para ésta.',
+      detail: empty.length
+        ? `Tiene ${String(empty.length)} suite(s) bloqueante(s), pero ninguna comprueba nada: no tienen casos que esperen un resultado. Hace falta al menos una suite que sí compruebe.`
+        : suites.length
+          ? 'Tiene suites de prueba, pero ninguna está marcada como bloqueante: el motor exige al menos una.'
+          : 'Esta versión no tiene ninguna suite de pruebas. Las pruebas NO se heredan de la versión anterior: hay que crearlas para ésta.',
       action: {
         label: 'Crear las pruebas a mano',
         href: `/artifact-versions/${encodeURIComponent(versionId)}/test-suites`,
@@ -205,6 +243,7 @@ export function reviewReadiness(
     const coverage = coverageItem(versionId, blocking);
     if (coverage) items.push(coverage);
   }
+  empty.forEach((suite, index) => items.push(ignoredItem(suite, index)));
   return {
     ready: items.every((item) => item.ok),
     running: items.some((item) => item.running),

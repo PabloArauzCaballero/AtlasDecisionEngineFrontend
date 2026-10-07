@@ -38,3 +38,8 @@
 .gate-list li > .stack-actions {
   justify-content: flex-end;
 }
+
+/* Suite que no comprueba nada: se enseña apagada, ni verde ni roja. */
+.gate-list li[data-passing='ignored'] {
+  opacity: 0.75;
+}

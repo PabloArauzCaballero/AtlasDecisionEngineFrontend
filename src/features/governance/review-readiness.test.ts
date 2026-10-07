@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { reviewReadiness } from './review-readiness';
 
 const NODOS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-const caso = { id: '1' };
+const caso = { id: '1', expectedResultJson: { outcome: 'APPROVED' } };
 const corrida = (
   status: string,
   cubiertos?: string[],
@@ -131,8 +131,8 @@ describe('qué le falta a una versión para enviarse a revisión', () => {
     const r = reviewReadiness('8', 'COMPILED', [
       suite({
         cases: [
-          { id: '1', isActive: false },
-          { id: '2', isActive: true },
+          { ...caso, isActive: false },
+          { ...caso, id: '2', isActive: true },
         ],
         runs: [corrida('PASSED', NODOS)],
       }),
@@ -141,9 +141,46 @@ describe('qué le falta a una versión para enviarse a revisión', () => {
     expect(r.items[1]?.detail).toContain('1 caso(s)');
   });
 
-  it('una suite sin casos activos no cuenta como «nunca se ejecutó»', () => {
-    const item = reviewReadiness('8', 'COMPILED', [suite({ cases: [], runs: [] })]).items[1];
+  it('una suite que no espera nada no cuenta ni bloquea, aunque esté en rojo', () => {
+    // Las cinco suites de TEST del 2026-10-07: «Caso inicial» con resultado esperado `{}`.
+    const vacia = suite({
+      id: '12',
+      suiteCode: 'SUI001',
+      cases: [{ id: '9', isActive: true, expectedResultJson: {} }],
+      runs: [corrida('FAILED', [], '30')],
+    });
+    const r = reviewReadiness('5', 'COMPILED', [
+      suite({ runs: [corrida('PASSED', NODOS)] }),
+      vacia,
+    ]);
 
-    expect(item?.detail).toContain('no tiene ningún caso');
+    expect(r.ready).toBe(true);
+    const nota = r.items.find((item) => item.ignored);
+    expect(nota).toMatchObject({
+      ok: true,
+      title: 'Pruebas «SUI001»',
+      action: { href: '/test-suites/12/cases' },
+    });
+    expect(nota?.detail).toContain('No cuenta');
+  });
+
+  it('una suite sin casos activos tampoco cuenta, y lo dice con su motivo', () => {
+    const r = reviewReadiness('8', 'COMPILED', [suite({ cases: [], runs: [] })]);
+
+    expect(r.ready).toBe(false);
+    expect(r.items.find((item) => item.ignored)?.detail).toContain('no tiene ningún caso activo');
+  });
+
+  it('si las únicas suites no esperan nada, falta una de verdad y se ofrece generarla', () => {
+    const vacia = suite({
+      cases: [{ id: '9', isActive: true, expectedResultJson: {} }],
+      runs: [corrida('PASSED', NODOS)],
+    });
+    const r = reviewReadiness('5', 'COMPILED', [vacia]);
+
+    expect(r.ready).toBe(false);
+    const pendiente = r.items.find((item) => !item.ok);
+    expect(pendiente?.detail).toContain('ninguna comprueba nada');
+    expect(pendiente?.canGenerate).toBe(true);
   });
 });
