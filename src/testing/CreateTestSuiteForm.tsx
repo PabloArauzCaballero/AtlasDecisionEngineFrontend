@@ -6,6 +6,8 @@ import { Alert } from '../components/Alert';
 import { Panel } from '../components/Panel';
 import { parseJsonObject } from '../utils/json';
 import { CaseInputEditor } from './CaseInputEditor';
+import { expectationGap } from './expected-result';
+import { ExpectedResultNote } from './ExpectedResultNote';
 import { GenerateCaseInputButton } from './GenerateCaseInputButton';
 import { SUITE_TYPES, suiteType } from './suite-types';
 import { testSuiteSchema, type TestSuite } from './testing.schemas';
@@ -28,6 +30,7 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
   const [testName, setTestName] = useState('Caso inicial');
   const [input, setInput] = useState('{}');
   const [expectedResult, setExpectedResult] = useState('{}');
+  const gap = expectationGap(expectedResult);
   const create = useMutation({
     mutationFn: () =>
       apiRequest(`/v1/artifact-versions/${encodeURIComponent(versionId)}/test-suites`, {
@@ -54,6 +57,7 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    if (gap) return;
     create.mutate();
   };
 
@@ -160,9 +164,14 @@ export function CreateTestSuiteForm({ versionId, onCreated, onCancel }: CreateTe
           value={expectedResult}
           onChange={setExpectedResult}
         />
+        <ExpectedResultNote gap={gap} />
         {create.isError ? <Alert tone="error">{errorMessage(create.error)}</Alert> : null}
         <div className="inline-actions">
-          <button className="button button-primary" type="submit" disabled={create.isPending}>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={create.isPending || gap !== null}
+          >
             {create.isPending ? 'Creando…' : 'Crear suite'}
           </button>
           <button className="button" type="button" onClick={onCancel}>

@@ -22,7 +22,7 @@ export const SUITE_EN_VERDE = {
   id: '6',
   suiteCode: 'DESENLACES',
   isBlocking: true,
-  cases: [{ id: '1', isActive: true }],
+  cases: [{ id: '1', isActive: true, expectedResultJson: { outcome: 'APPROVED' } }],
   runs: [
     {
       id: '9',

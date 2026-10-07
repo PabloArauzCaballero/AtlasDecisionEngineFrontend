@@ -6,6 +6,8 @@ import { Alert } from '../components/Alert';
 import { Panel } from '../components/Panel';
 import { parseJsonObject } from '../utils/json';
 import { CaseInputEditor } from './CaseInputEditor';
+import { expectationGap } from './expected-result';
+import { ExpectedResultNote } from './ExpectedResultNote';
 import { GenerateCaseInputButton } from './GenerateCaseInputButton';
 import { suiteType } from './suite-types';
 import { testCaseSchema, type TestCase } from './testing.schemas';
@@ -33,6 +35,7 @@ export function CreateTestCaseForm({
   const [testName, setTestName] = useState('');
   const [input, setInput] = useState('{}');
   const [expectedResult, setExpectedResult] = useState('{}');
+  const gap = expectationGap(expectedResult);
   const create = useMutation({
     mutationFn: () =>
       apiRequest(`/v1/test-suites/${encodeURIComponent(suiteId)}/cases`, {
@@ -51,6 +54,7 @@ export function CreateTestCaseForm({
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    if (gap) return;
     create.mutate();
   };
 
@@ -108,9 +112,14 @@ export function CreateTestCaseForm({
           value={expectedResult}
           onChange={setExpectedResult}
         />
+        <ExpectedResultNote gap={gap} />
         {create.isError ? <Alert tone="error">{errorMessage(create.error)}</Alert> : null}
         <div className="inline-actions">
-          <button className="button button-primary" type="submit" disabled={create.isPending}>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={create.isPending || gap !== null}
+          >
             {create.isPending ? 'Guardando…' : 'Guardar caso'}
           </button>
           <button className="button" type="button" onClick={onCancel}>

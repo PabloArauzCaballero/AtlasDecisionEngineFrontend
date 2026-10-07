@@ -1,7 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, CheckCircle2, CircleAlert, FlaskConical, Loader, Wand2 } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  CircleAlert,
+  CircleSlash,
+  FlaskConical,
+  Loader,
+  Wand2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { errorMessage } from '../../api/ApiError';
 import { apiRequest } from '../../api/http-client';
@@ -77,10 +85,12 @@ export function ReviewReadinessList({
         aria-label="Requisitos para enviar a revisión"
       >
         {readiness.items.map((item) => (
-          <li key={item.key} data-passing={item.ok ? 'yes' : 'no'}>
+          <li key={item.key} data-passing={item.ignored ? 'ignored' : item.ok ? 'yes' : 'no'}>
             <span>
               <strong>
-                {item.ok ? (
+                {item.ignored ? (
+                  <CircleSlash aria-hidden="true" />
+                ) : item.ok ? (
                   <CheckCircle2 aria-hidden="true" />
                 ) : item.running ? (
                   <Loader aria-hidden="true" />
@@ -89,7 +99,13 @@ export function ReviewReadinessList({
                 )}{' '}
                 {item.title}
                 <span className="sr-only">
-                  {item.ok ? ' — cumplido' : item.running ? ' — en curso' : ' — pendiente'}
+                  {item.ignored
+                    ? ' — no cuenta'
+                    : item.ok
+                      ? ' — cumplido'
+                      : item.running
+                        ? ' — en curso'
+                        : ' — pendiente'}
                 </span>
               </strong>
               <small>{item.detail}</small>
