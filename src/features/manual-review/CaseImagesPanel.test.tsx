@@ -186,7 +186,7 @@ describe('caso viejo sin cliente: el analista indica el expediente', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Indicar el expediente a mano' }));
     const campo = await screen.findByPlaceholderText('54');
     fireEvent.change(campo, { target: { value: '54' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Ver imágenes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ver documentos' }));
 
     expect(await screen.findByText(/carnet-54\.jpg/)).toBeTruthy();
     expect(pedidas.some((r) => r.includes('/expedientes/54/nodos'))).toBe(true);

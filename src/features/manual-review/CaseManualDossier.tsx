@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { Field } from '../../components/Field';
+import { ArchivosDelExpediente } from './ArchivosDelExpediente';
 import { imagenesDeExpediente } from './expediente-images';
 
 /**
@@ -63,26 +63,18 @@ export function CaseManualDossier() {
           />
         </Field>{' '}
         <button type="submit" className="button" disabled={!/^\d+$/.test(escrito.trim())}>
-          Ver imágenes
+          Ver documentos
         </button>
       </form>
-      {query.isLoading ? <p className="muted">Cargando las imágenes…</p> : null}
+      {query.isLoading ? <p className="muted">Cargando los documentos…</p> : null}
       {query.error ? (
         <p className="muted">No se pudo abrir ese expediente. Revisa el número y tu permiso.</p>
       ) : null}
       {query.data && !query.data.length ? (
-        <p className="muted">Ese expediente no tiene imágenes.</p>
+        <p className="muted">Ese expediente no tiene archivos.</p>
       ) : null}
       {query.data?.length ? (
-        <CarruselDeDocumentos
-          etiquetaDelGrupo="Documentos del expediente"
-          documentos={query.data.map((imagen) => ({
-            id: imagen.nodoId,
-            etiqueta: imagen.nombre,
-            objectUrl: imagen.objectUrl,
-            pie: imagen.sha256 ? `${imagen.sha256.slice(0, 12)}…` : undefined,
-          }))}
-        />
+        <ArchivosDelExpediente etiquetaDelGrupo="Documentos del expediente" archivos={query.data} />
       ) : null}
     </div>
   );

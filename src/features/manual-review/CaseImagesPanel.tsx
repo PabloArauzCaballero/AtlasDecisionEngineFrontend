@@ -7,7 +7,8 @@ import { Panel } from '../../components/Panel';
 import { ApiError } from '../../api/ApiError';
 import { resolveAdminPortalUrl } from '../../config/env';
 import { CaseCandidates } from './CaseCandidates';
-import { imagenesDelExpediente, sujetoDelCaso } from './expediente-images';
+import { ArchivosDelExpediente } from './ArchivosDelExpediente';
+import { imagenesDelExpediente, sujetoDelCaso, type ImagenDeExpediente } from './expediente-images';
 
 /**
  * Las fotos con las que hay que decidir.
@@ -82,6 +83,8 @@ interface CaseImages {
   expedienteId: string | null;
   customerId: string;
   documents: EvidenceImage[];
+  /** Los archivos del expediente del sujeto, del tipo que sean (un comercio sube PDF). */
+  archivos: ImagenDeExpediente[];
 }
 
 /** El intento de verificación, si todavía existe: devuelve el cliente y los archivos del alta. */
@@ -112,6 +115,8 @@ export function CaseImagesPanel({
   const query = useQuery({
     queryKey: ['case-images', attemptId, requestId],
     enabled: Boolean(attemptId) || Boolean(sujeto),
+    // Las URL de objeto se liberan al desmontar: una respuesta en caché las devolvería ya muertas.
+    gcTime: 0,
     queryFn: async ({ signal }): Promise<CaseImages> => {
       /*
        * Los bytes se piden por la MISMA puerta autenticada que todo lo demás y se pintan desde un
@@ -150,6 +155,7 @@ export function CaseImagesPanel({
         sujeto ??
         (intento?.customerId ? { tipo: 'customer' as const, id: intento.customerId } : null);
       let expedienteId: string | null = null;
+      let archivos: ImagenDeExpediente[] = [];
       if (delExpediente && !documents.length) {
         const expediente = await imagenesDelExpediente(
           delExpediente.tipo,
@@ -157,32 +163,26 @@ export function CaseImagesPanel({
           signal,
         );
         expedienteId = expediente.expedienteId;
-        documents.push(
-          ...expediente.imagenes.map((imagen) => ({
-            documentId: imagen.nodoId,
-            documentType: imagen.nombre,
-            mimeType: null,
-            sizeBytes: null,
-            sha256: imagen.sha256,
-            objectUrl: imagen.objectUrl,
-          })),
-        );
+        archivos = expediente.imagenes;
       }
-      if (!documents.length && !expedienteId && attemptId && !intento) {
+      if (!documents.length && !archivos.length && !expedienteId && attemptId && !intento) {
         throw new ApiError(
           'El intento de verificación ya no existe y el caso no dice de qué cliente es.',
           404,
           'IDENTITY_ATTEMPT_NOT_FOUND',
         );
       }
-      return { expedienteId, customerId: intento?.customerId ?? '', documents };
+      return { expedienteId, customerId: intento?.customerId ?? '', documents, archivos };
     },
   });
 
   // Las URL de objeto se liberan al cambiar de caso o desmontar.
   useEffect(() => {
-    const urls = query.data?.documents.map((document) => document.objectUrl) ?? [];
-    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+    const urls = [
+      ...(query.data?.documents.map((document) => document.objectUrl) ?? []),
+      ...(query.data?.archivos.map((archivo) => archivo.objectUrl) ?? []),
+    ];
+    return () => urls.forEach((url) => url && URL.revokeObjectURL(url));
   }, [query.data]);
 
   const sujetoDelEnlace =
@@ -198,6 +198,7 @@ export function CaseImagesPanel({
   });
   const expedienteId = query.data?.expedienteId ?? enlace.data ?? null;
   const adminPortalUrl = resolveAdminPortalUrl();
+  const sinNada = !query.data?.documents.length && !query.data?.archivos.length;
 
   if (!attemptId && !sujeto) {
     return (
@@ -212,24 +213,25 @@ export function CaseImagesPanel({
   }
 
   return (
-    <Panel title="Documentos del solicitante" meta="lo que subió el cliente">
-      {query.isLoading ? <p className="muted">Cargando las imágenes…</p> : null}
+    <Panel title="Documentos del solicitante" meta="lo que subió el solicitante">
+      {query.isLoading ? <p className="muted">Cargando los documentos…</p> : null}
       {query.error ? (
         <p className="muted">
           {query.error instanceof ApiError && query.error.kind === 'not-found'
             ? 'No se encontró el cliente de este caso ni su expediente. Decide con lo que muestra el caso o pide que vuelvan a subir los documentos.'
-            : 'No se pudieron traer las imágenes. Vuelve a intentarlo; la decisión debería tomarse con ellas delante.'}
+            : 'No se pudieron traer los documentos. Vuelve a intentarlo; la decisión debería tomarse con ellos delante.'}
           {query.error instanceof ApiError && query.error.code ? ` (${query.error.code})` : ''}
         </p>
       ) : null}
 
-      {query.data && !query.data.documents.length ? (
-        <p className="muted">El expediente no tiene imágenes de este solicitante.</p>
+      {query.data && sinNada ? (
+        <p className="muted">
+          El expediente de este solicitante no tiene ningún archivo. Si debía haberlos, no llegaron:
+          pide que los vuelvan a subir antes de decidir.
+        </p>
       ) : null}
 
-      {query.error || (query.data && !query.data.documents.length) ? (
-        <CaseCandidates executedAt={executedAt} />
-      ) : null}
+      {query.error || (query.data && sinNada) ? <CaseCandidates executedAt={executedAt} /> : null}
 
       {query.data?.documents.length ? (
         <CarruselDeDocumentos
@@ -241,6 +243,13 @@ export function CaseImagesPanel({
             // El hash prueba que ESTA imagen es la que el motor evaluó.
             pie: documento.sha256 ? `${documento.sha256.slice(0, 12)}…` : undefined,
           }))}
+        />
+      ) : null}
+
+      {query.data?.archivos.length ? (
+        <ArchivosDelExpediente
+          etiquetaDelGrupo="Documentos del solicitante"
+          archivos={query.data.archivos}
         />
       ) : null}
 

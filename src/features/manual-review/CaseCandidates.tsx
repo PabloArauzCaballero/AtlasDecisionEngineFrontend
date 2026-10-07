@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { apiRequest } from '../../api/http-client';
-import { CarruselDeDocumentos } from '../../components/CarruselDeDocumentos';
 import { CaseManualDossier } from './CaseManualDossier';
+import { ArchivosDelExpediente } from './ArchivosDelExpediente';
 import { imagenesDeExpediente, type ImagenDeExpediente } from './expediente-images';
 
 /**
@@ -85,17 +85,10 @@ export function CaseCandidates({ executedAt }: Readonly<{ executedAt: string }>)
             {query.data.grupo.customerCode ? ` · ${query.data.grupo.customerCode}` : ''} — subió su
             carnet a las {hora(query.data.grupo.imagenes[0]?.creadoEn ?? executedAt)}
           </p>
-          {query.data.grupo.fotos.length ? (
-            <CarruselDeDocumentos
-              etiquetaDelGrupo={`Expediente ${query.data.grupo.expedienteId}`}
-              documentos={query.data.grupo.fotos.map((foto) => ({
-                id: foto.nodoId,
-                etiqueta: foto.nombre,
-                objectUrl: foto.objectUrl,
-                pie: foto.sha256 ? `${foto.sha256.slice(0, 12)}…` : undefined,
-              }))}
-            />
-          ) : null}
+          <ArchivosDelExpediente
+            etiquetaDelGrupo={`Expediente ${query.data.grupo.expedienteId}`}
+            archivos={query.data.grupo.fotos}
+          />
         </>
       ) : null}
       {query.data && query.data.candidatos > 1 ? (
