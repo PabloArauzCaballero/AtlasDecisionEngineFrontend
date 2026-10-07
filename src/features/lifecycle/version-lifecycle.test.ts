@@ -25,10 +25,40 @@ describe('qué admite cada estado de una versión', () => {
     expect(guia.nextAction).not.toMatch(/versión nueva/i);
   });
 
-  it('sólo lo desplegado o retirado manda a crear una versión nueva', () => {
-    for (const status of ['DEPLOYED', 'RETIRED'] as const) {
+  it('lo desplegado, retirado o que la revisión no aceptó manda a crear una versión nueva', () => {
+    for (const status of [
+      'DEPLOYED_TO_STAGING',
+      'DEPLOYED_TO_PROD',
+      'RETIRED',
+      'REJECTED',
+      'CHANGES_REQUESTED',
+    ] as const) {
       expect(lifecycleGuidance(status).nextAction).toMatch(/versión nueva/i);
+      expect(lifecycleGuidance(status).next).toBe('new-version');
     }
+  });
+
+  it('los estados son los que el motor emite de verdad, no los que este portal se inventó', () => {
+    // `PENDING_APPROVAL` y `DEPLOYED` no existen en el `enum VersionStatus` del motor: con ellos, una versión
+    // en revisión o desplegada no caía en ningún paso.
+    expect(VERSION_STATUSES).toContain('IN_REVIEW');
+    expect(VERSION_STATUSES).toContain('DEPLOYED_TO_STAGING');
+    expect(VERSION_STATUSES).not.toContain('PENDING_APPROVAL');
+    expect(VERSION_STATUSES).not.toContain('DEPLOYED');
+    expect(lifecycleGuidance('IN_REVIEW').stepIndex).toBeGreaterThanOrEqual(0);
+  });
+
+  it('la revisión es un paso propio, justo después de compilar', () => {
+    const pasos = LIFECYCLE_STEPS.map((step) => step.id);
+
+    expect(pasos).toEqual(['draft', 'validated', 'compiled', 'review', 'approved', 'deployed']);
+    expect(lifecycleGuidance('IN_REVIEW').stepIndex).toBe(3);
+  });
+
+  it('a una versión compilada se le ofrece ENVIARLA a revisión, y a una aprobada desplegarla', () => {
+    expect(lifecycleGuidance('COMPILED').next).toBe('submit-review');
+    expect(lifecycleGuidance('IN_REVIEW').next).toBe('follow-review');
+    expect(lifecycleGuidance('APPROVED').next).toBe('deploy');
   });
 
   it('cada estado cae en exactamente un paso del recorrido', () => {
