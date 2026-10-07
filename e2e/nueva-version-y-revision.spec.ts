@@ -25,13 +25,42 @@ const COMPILADA = {
   artifact: ARTIFACT,
 };
 const SHOTS = process.env.PW_SHOTS_DIR;
+const SUITE_EN_VERDE = {
+  id: '6',
+  suiteCode: 'DESENLACES',
+  isBlocking: true,
+  cases: [{ id: '1' }],
+  runs: [
+    {
+      id: '9',
+      status: 'PASSED',
+      finishedAt: '2026-10-07T01:00:00Z',
+      coverage: [{ coverageType: 'NODE', coveragePercentage: '100', detailsJson: { missing: [] } }],
+    },
+  ],
+};
+// El caso de TEST del 2026-10-07: nombre largo, compilada y SIN ninguna suite de pruebas.
+const IDENTIDAD = {
+  id: '5',
+  versionNumber: '2',
+  semanticVersion: '1.2.1',
+  status: 'COMPILED',
+  artifact: {
+    id: '2',
+    name: 'Verificación de identidad con carnet para el front móvil de la app del cliente',
+    artifactCode: 'IDENTIDAD_CARNET_MOVIL',
+  },
+};
 
 interface Capturas {
   clon: unknown;
   enviadas: string[];
 }
 
-async function backend(page: Page, opciones: { rechazo?: string } = {}): Promise<Capturas> {
+async function backend(
+  page: Page,
+  opciones: { rechazo?: string; suites?: unknown[] } = {},
+): Promise<Capturas> {
   const capturas: Capturas = { clon: null, enviadas: [] };
   await governanceBackend(page);
   let estado = 'COMPILED';
@@ -61,6 +90,32 @@ async function backend(page: Page, opciones: { rechazo?: string } = {}): Promise
       estado = 'IN_REVIEW';
       return route.fulfill({ status: 201, json: { id: '32', status: 'IN_REVIEW' } });
     }
+    if (/\/artifact-versions\/(70|5)\/test-suites/.test(url)) {
+      const items = url.includes('/5/') ? [] : (opciones.suites ?? [SUITE_EN_VERDE]);
+      return route.fulfill({
+        json: {
+          items,
+          page: 1,
+          pageSize: 50,
+          total: items.length,
+          totalPages: 1,
+          hasNextPage: false,
+        },
+      });
+    }
+    if (/\/v1\/artifact-versions\/5(\?|$)/.test(url)) return route.fulfill({ json: IDENTIDAD });
+    if (url.includes('/v1/views/pickers/artifact-versions') && url.includes('IDENTIDAD')) {
+      return route.fulfill({
+        json: {
+          items: [IDENTIDAD],
+          page: 1,
+          pageSize: 25,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+        },
+      });
+    }
     if (url.includes('/v1/views/pickers/artifact-versions')) {
       return route.fulfill({
         json: {
@@ -76,7 +131,7 @@ async function backend(page: Page, opciones: { rechazo?: string } = {}): Promise
     if (url.includes('/v1/views/pickers/artifacts')) {
       return route.fulfill({
         json: {
-          items: [ARTIFACT],
+          items: [ARTIFACT, IDENTIDAD.artifact],
           page: 1,
           pageSize: 25,
           total: 1,
@@ -159,7 +214,7 @@ test.describe('enviar a revisión', () => {
       .getByRole('button', { name: 'Enviar a revisión' })
       .click();
 
-    await expect(page.getByText(/pruebas bloqueantes no están en verde/)).toBeVisible();
+    await expect(page.getByText(/no la aceptó por sus pruebas/)).toBeVisible();
   });
 
   test('«Validar y compilar» enseña la revisión como el paso que sigue y la envía desde ahí', async ({
@@ -183,5 +238,59 @@ test.describe('enviar a revisión', () => {
     await expect(pasos.nth(3)).toContainText('Aquí está · En revisión');
     expect(capturas.enviadas).toHaveLength(1);
     await foto(page, '6-compilar-enviada');
+  });
+
+  test('sin ninguna suite dice que hay que CREARLAS y lleva directo a las pruebas de esa versión', async ({
+    page,
+  }) => {
+    const capturas = await backend(page);
+    await page.addInitScript(() => window.localStorage.setItem('atlas.theme', 'dark'));
+    await page.goto('/reviews?versionId=5', { waitUntil: 'domcontentloaded' });
+
+    const panel = page.locator('[data-tutorial-id="reviews-submit"]');
+    const requisitos = panel.locator('[data-tutorial-id="review-readiness"]');
+    await expect(requisitos).toContainText('no tiene ninguna suite de pruebas');
+    await expect(requisitos).toContainText('NO se heredan');
+    const ir = requisitos.getByRole('link', { name: /Crear las pruebas de esta versión/ });
+    await expect(ir).toHaveAttribute('href', '/artifact-versions/5/test-suites');
+    // No se ofrece pulsar algo que el motor va a rechazar.
+    await expect(panel.getByRole('button', { name: 'Enviar a revisión' })).toBeDisabled();
+    expect(capturas.enviadas).toHaveLength(0);
+
+    // El bug visual: con un nombre largo, el BOTÓN del selector de artefacto se salía de su campo y se metía
+    // debajo del de versión. Se miden los botones, no las columnas: las columnas ya medían bien.
+    const botones = await panel
+      .locator('.artifact-version-picker .option-select-button')
+      .evaluateAll((nodos) => nodos.map((nodo) => nodo.getBoundingClientRect().toJSON()));
+    expect(botones).toHaveLength(2);
+    expect(botones[1].left - botones[0].right).toBeGreaterThanOrEqual(8);
+    const recortado = await panel
+      .locator('.artifact-version-picker .option-select-value')
+      .first()
+      .evaluate((nodo) => nodo.scrollWidth > nodo.clientWidth);
+    // El nombre no cabe: se recorta con elipsis en vez de empujar.
+    expect(recortado).toBe(true);
+    await foto(page, '7-identidad-sin-suites-oscuro');
+
+    await ir.click();
+    await expect(page).toHaveURL(/\/artifact-versions\/5\/test-suites/);
+  });
+
+  test('con la corrida en rojo lleva a ver qué casos fallaron', async ({ page }) => {
+    const roja = {
+      ...SUITE_EN_VERDE,
+      runs: [{ id: '12', status: 'FAILED', finishedAt: '2026-10-07T02:00:00Z', coverage: [] }],
+    };
+    await backend(page, { suites: [roja] });
+    await page.goto('/artifact-versions/70/compile', { waitUntil: 'domcontentloaded' });
+
+    const requisitos = page.locator('[data-tutorial-id="review-readiness"]');
+    await expect(requisitos).toContainText('no pasó');
+    await expect(requisitos.getByRole('link', { name: /Ver qué casos fallaron/ })).toHaveAttribute(
+      'href',
+      '/test-runs/12',
+    );
+    await expect(page.locator('[data-tutorial-id="compile-submit-review"]')).toBeDisabled();
+    await foto(page, '8-compilar-con-corrida-en-rojo');
   });
 });

@@ -141,9 +141,13 @@
 /* Two-step artefacto → versión picker: artifact chooses, version narrows to it. */
 .artifact-version-picker {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Columnas encogibles: `1fr` a secas es `minmax(auto, 1fr)` y deja crecer la columna con su contenido. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
+}
+.artifact-version-picker > * {
+  min-width: 0;
 }
 @media (max-width: 560px) {
   .artifact-version-picker {

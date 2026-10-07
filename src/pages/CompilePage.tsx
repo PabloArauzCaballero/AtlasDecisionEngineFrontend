@@ -10,6 +10,10 @@ import { JsonPanel } from '../components/JsonPanel';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { NewVersionButton } from '../features/algorithms/NewVersionButton';
+import {
+  ReviewReadinessList,
+  useReviewReadiness,
+} from '../features/governance/ReviewReadinessList';
 import { useSubmitForReview } from '../features/governance/useSubmitForReview';
 import { LIFECYCLE_STEPS, lifecycleGuidance } from '../features/lifecycle/version-lifecycle';
 import { ARTIFACT_STATUS_LABEL } from '../resources/artifact-status';
@@ -57,6 +61,12 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
   // El estado, en español: el asistente enseñaba `COMPILED` tal cual lo manda el motor.
   const statusLabel = status ? (ARTIFACT_STATUS_LABEL[status] ?? status) : undefined;
   const review = useSubmitForReview(versionId);
+  // Sólo con la versión compilada: es cuando lo que sigue es la revisión y conviene saber si ya puede entrar.
+  const { known: readinessKnown, readiness } = useReviewReadiness(
+    versionId,
+    status === 'COMPILED' ? status : null,
+  );
+  const notReady = readinessKnown && readiness !== null && !readiness.ready;
 
   const saveDraft = () => {
     localStorage.setItem(DRAFT_KEY, versionId);
@@ -148,16 +158,21 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
             <div className={`lifecycle-state tone-${guidance.tone}`}>
               <strong>{guidance.summary}</strong>
               <p>{guidance.nextAction}</p>
+              {guidance.next === 'submit-review' && readiness && !review.requestId ? (
+                <ReviewReadinessList readiness={readiness} />
+              ) : null}
               {guidance.next === 'submit-review' && !review.requestId ? (
                 <button
                   className="button button-primary"
                   type="button"
                   data-tutorial-id="compile-submit-review"
-                  disabled={!review.canPropose || review.pending}
+                  disabled={!review.canPropose || review.pending || notReady}
                   title={
-                    review.canPropose
-                      ? 'Abre la solicitud de aprobación de esta versión'
-                      : 'Enviar a revisión es de quien propone el cambio: analista de calidad o de fraude.'
+                    notReady
+                      ? 'Resuelve antes los puntos pendientes de arriba'
+                      : review.canPropose
+                        ? 'Abre la solicitud de aprobación de esta versión'
+                        : 'Enviar a revisión es de quien propone el cambio: analista de calidad o de fraude.'
                   }
                   onClick={review.submit}
                 >
