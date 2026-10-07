@@ -244,7 +244,7 @@ export function ActionCatalogPage() {
       ) : null}
 
       {open ? (
-        <div ref={formRef} style={{ scrollMarginTop: 'var(--space-6)' }}>
+        <div ref={formRef} style={{ scrollMarginTop: 'calc(var(--shell-head) + var(--space-4))' }}>
           <Panel title={editing ? `Aplicar ${editing.code}` : 'Nueva acción · elige dónde crearla'}>
             <ActionTargetPanel
               entry={editing}
