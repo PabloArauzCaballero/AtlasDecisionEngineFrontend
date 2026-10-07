@@ -6,6 +6,7 @@ import {
   confirmPasswordReset as confirmReset,
   requestPasswordReset as requestReset,
 } from '../../../auth/auth.api';
+import { FieldLabel } from '../../../components/FieldLabel';
 import type { LoginProblem } from './login-errors';
 import { describeRecoveryError } from './recovery-errors';
 
@@ -136,8 +137,9 @@ export function PasswordRecovery({
       <form onSubmit={(event) => void submit(event)} className="login-form" noValidate>
         {step === 'request' ? (
           <>
-            <Field
+            <RecoveryField
               label="Correo electrónico"
+              tooltip="Correo con el que te dieron de alta; ahí te llega el código de recuperación."
               id="recovery-email"
               error={emailError ? 'Escribe un correo con el formato usuario@empresa.com.' : null}
             >
@@ -150,15 +152,16 @@ export function PasswordRecovery({
                 aria-describedby="recovery-email-status"
                 onChange={(event) => setEmail(event.target.value)}
               />
-            </Field>
+            </RecoveryField>
             {/* Plegado como en el acceso: casi nadie lo cambia. Abierto si ya trae otro número. */}
             <details
               className="login-advanced"
               open={tenantId !== '1' || tenantError ? true : undefined}
             >
               <summary>Mi cuenta es de otra organización</summary>
-              <Field
+              <RecoveryField
                 label="Número de organización"
+                tooltip="Sólo cambia si tu empresa opera varias organizaciones en Atlas y te dieron otro número."
                 id="recovery-tenant"
                 error={tenantError ? 'Escribe el identificador numérico de tu organización.' : null}
               >
@@ -170,13 +173,14 @@ export function PasswordRecovery({
                   aria-describedby="recovery-tenant-status"
                   onChange={(event) => setTenantId(event.target.value)}
                 />
-              </Field>
+              </RecoveryField>
             </details>
           </>
         ) : (
           <>
-            <Field
+            <RecoveryField
               label="Código de 6 dígitos"
+              tooltip="Los seis números que te enviamos por correo; caducan en pocos minutos."
               id="recovery-code"
               error={codeError ? 'El código son exactamente 6 números.' : null}
             >
@@ -190,9 +194,10 @@ export function PasswordRecovery({
                 aria-describedby="recovery-code-status"
                 onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
               />
-            </Field>
-            <Field
+            </RecoveryField>
+            <RecoveryField
               label="Contraseña nueva"
+              tooltip="La que usarás desde ahora para entrar; elige una que no uses en otro sitio."
               id="recovery-password"
               error={passwordError ? `Usa al menos ${MIN_PASSWORD} caracteres.` : null}
               help={`Mínimo ${MIN_PASSWORD} caracteres. Al cambiarla se cierran tus sesiones abiertas.`}
@@ -206,9 +211,10 @@ export function PasswordRecovery({
                 aria-describedby="recovery-password-status"
                 onChange={(event) => setPassword(event.target.value)}
               />
-            </Field>
-            <Field
+            </RecoveryField>
+            <RecoveryField
               label="Repite la contraseña nueva"
+              tooltip="Escríbela otra vez igual para confirmar que no hay una errata."
               id="recovery-repeat"
               error={repeatError ? 'Las dos contraseñas no coinciden.' : null}
             >
@@ -221,7 +227,7 @@ export function PasswordRecovery({
                 aria-describedby="recovery-repeat-status"
                 onChange={(event) => setRepeat(event.target.value)}
               />
-            </Field>
+            </RecoveryField>
           </>
         )}
 
@@ -258,15 +264,18 @@ export function PasswordRecovery({
   );
 }
 
-function Field({
+function RecoveryField({
   label,
   id,
+  tooltip,
   error,
   help,
   children,
 }: {
   label: string;
   id: string;
+  /** Qué poner en el campo y por qué importa: lo pinta el ⓘ junto a la etiqueta. */
+  tooltip: string;
   error: string | null;
   help?: string;
   children: ReactNode;
@@ -275,9 +284,7 @@ function Field({
   // entraría en el nombre accesible y el lector leería «Contraseña nueva Mínimo 10 caracteres…».
   return (
     <div className={`field login-field recovery-field${error ? ' has-error' : ''}`}>
-      <span>
-        <label htmlFor={id}>{label}</label>
-      </span>
+      <FieldLabel htmlFor={id} label={label} tooltip={tooltip} />
       {children}
       <small
         id={`${id}-status`}
