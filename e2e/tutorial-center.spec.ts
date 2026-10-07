@@ -192,7 +192,7 @@ test.describe('Centro de tutoriales', () => {
       .click();
 
     // 1. Lleva al LISTADO, no a una ficha inventada.
-    await expect(page).toHaveURL(/\/artifacts$/, { timeout: 30_000 });
+    await expect(page).toHaveURL(/\/algorithms$/, { timeout: 30_000 });
     const card = page.locator('.tutorial-tooltip');
     await expect(card).toContainText('Abre un artefacto', { timeout: 30_000 });
     // Y resalta la tabla, que es donde hay que pulsar.
@@ -207,7 +207,7 @@ test.describe('Centro de tutoriales', () => {
     //    dice exactamente eso, y esta prueba lo ejerce como está escrito.
     await page
       .locator('[data-tutorial-id="resource-table"]')
-      .getByRole('link', { name: 'Ver detalle' })
+      .getByRole('link', { name: /^Ver / })
       .first()
       .click();
     await expect(page).toHaveURL(/\/artifacts\/[^/]+$/, { timeout: 30_000 });

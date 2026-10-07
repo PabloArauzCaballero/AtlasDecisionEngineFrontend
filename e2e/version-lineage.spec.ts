@@ -145,7 +145,7 @@ test('el detalle del artefacto cuenta su historia como un repositorio', async ({
 test('el listado ofrece la vista de detalle sin desplazar la tabla', async ({ page }) => {
   await denseBackend(page);
   await page.setViewportSize({ width: 1512, height: 900 });
-  await page.goto('/artifacts', { waitUntil: 'domcontentloaded' });
+  await page.goto('/variables', { waitUntil: 'domcontentloaded' });
 
   const acciones = page.locator('.data-table tbody td.table-actions').first();
   await expect(acciones).toBeVisible();
@@ -160,5 +160,5 @@ test('el listado ofrece la vista de detalle sin desplazar la tabla', async ({ pa
   await page.getByRole('button', { name: 'Ver el detalle completo' }).first().click();
   const abrir = page.locator('.table-detail').getByRole('link', { name: 'Ver detalle' });
   await expect(abrir).toBeVisible();
-  await expect(abrir).toHaveAttribute('href', /^\/artifacts\//);
+  await expect(abrir).toHaveAttribute('href', /^\/variables\//);
 });

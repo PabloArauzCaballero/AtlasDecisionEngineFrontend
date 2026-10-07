@@ -1,8 +1,6 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { ResourceListPage } from '../../../pages/ResourceListPage';
-import { resources } from '../../../resources/resource.config';
-
+/** El inventario de artefactos se fundió con «Algoritmos y versiones»: una sola pantalla. */
 export default function ArtifactsRoute() {
-  return <ResourceListPage config={resources.artifacts} />;
+  redirect('/algorithms');
 }

@@ -108,3 +108,11 @@
   color: var(--accent);
   font-weight: var(--weight-semibold);
 }
+
+/* Los controles de escala flotan sobre el marco (`zoom-controls-floating`) y la
+   primera fila —con su resumen largo— quedaba DEBAJO de ellos: el texto seguía
+   por detrás del «100 %» y los puntos suspensivos no se veían. Se les reserva
+   una franja propia encima de la lista, en vez de taparla. */
+.version-graph-zoom .zoom-flow-viewport {
+  margin-top: 44px;
+}
