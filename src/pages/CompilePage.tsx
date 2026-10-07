@@ -159,7 +159,7 @@ export function CompilePage({ initialVersionId }: CompilePageProps) {
               <strong>{guidance.summary}</strong>
               <p>{guidance.nextAction}</p>
               {guidance.next === 'submit-review' && readiness && !review.requestId ? (
-                <ReviewReadinessList readiness={readiness} />
+                <ReviewReadinessList versionId={versionId} readiness={readiness} />
               ) : null}
               {guidance.next === 'submit-review' && !review.requestId ? (
                 <button

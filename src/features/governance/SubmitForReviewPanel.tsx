@@ -81,7 +81,7 @@ export function SubmitForReviewPanel() {
                 ? 'Esta versión cumple lo que el motor exige para entrar a revisión.'
                 : 'A esta versión todavía le falta algo para entrar a revisión. Cada punto pendiente te lleva a donde se resuelve:'}
             </p>
-            <ReviewReadinessList readiness={readiness} />
+            <ReviewReadinessList versionId={versionId} readiness={readiness} />
           </>
         ) : null}
         {review.problem ? <Alert tone="error">{review.problem}</Alert> : null}

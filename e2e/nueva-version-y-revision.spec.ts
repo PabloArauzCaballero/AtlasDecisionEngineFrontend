@@ -1,5 +1,5 @@
-import { expect, test, type Page, type Route } from '@playwright/test';
-import { governanceBackend } from './support/governance-backend';
+import { expect, test, type Page } from '@playwright/test';
+import { backend, SUITE_EN_VERDE } from './support/version-review-backend';
 
 /**
  * Crear una versión nueva y enviarla a revisión, a la vista.
@@ -12,140 +12,7 @@ import { governanceBackend } from './support/governance-backend';
  * 3. «Validar y compilar» saltaba de «Compilada» a «Aprobada y desplegada» sin enseñar la revisión, y sólo ofrecía
  *    un «Ir a Revisiones» que llevaba a esa tabla.
  */
-const ARTIFACT = {
-  id: '1',
-  name: 'Scoring de crédito de consumo',
-  artifactCode: 'SCORING_CREDITO_CONSUMO',
-};
-const COMPILADA = {
-  id: '70',
-  versionNumber: '7',
-  semanticVersion: '1.7.0',
-  status: 'COMPILED',
-  artifact: ARTIFACT,
-};
 const SHOTS = process.env.PW_SHOTS_DIR;
-const SUITE_EN_VERDE = {
-  id: '6',
-  suiteCode: 'DESENLACES',
-  isBlocking: true,
-  cases: [{ id: '1' }],
-  runs: [
-    {
-      id: '9',
-      status: 'PASSED',
-      finishedAt: '2026-10-07T01:00:00Z',
-      coverage: [{ coverageType: 'NODE', coveragePercentage: '100', detailsJson: { missing: [] } }],
-    },
-  ],
-};
-// El caso de TEST del 2026-10-07: nombre largo, compilada y SIN ninguna suite de pruebas.
-const IDENTIDAD = {
-  id: '5',
-  versionNumber: '2',
-  semanticVersion: '1.2.1',
-  status: 'COMPILED',
-  artifact: {
-    id: '2',
-    name: 'Verificación de identidad con carnet para el front móvil de la app del cliente',
-    artifactCode: 'IDENTIDAD_CARNET_MOVIL',
-  },
-};
-
-interface Capturas {
-  clon: unknown;
-  enviadas: string[];
-}
-
-async function backend(
-  page: Page,
-  opciones: { rechazo?: string; suites?: unknown[] } = {},
-): Promise<Capturas> {
-  const capturas: Capturas = { clon: null, enviadas: [] };
-  await governanceBackend(page);
-  let estado = 'COMPILED';
-  await page.route('**/v1/**', (route: Route) => {
-    const peticion = route.request();
-    const url = peticion.url();
-    if (peticion.method() === 'POST' && url.endsWith('/artifact-versions/55/clone')) {
-      capturas.clon = peticion.postDataJSON();
-      return route.fulfill({
-        status: 201,
-        json: { id: '77', versionNumber: '6', semanticVersion: '1.6.0', status: 'DRAFT' },
-      });
-    }
-    if (peticion.method() === 'POST' && url.endsWith('/artifact-versions/70/submit-for-review')) {
-      capturas.enviadas.push(url);
-      if (opciones.rechazo) {
-        return route.fulfill({
-          status: 409,
-          json: {
-            type: 'about:blank',
-            title: opciones.rechazo,
-            status: 409,
-            error: { code: opciones.rechazo, message: 'x' },
-          },
-        });
-      }
-      estado = 'IN_REVIEW';
-      return route.fulfill({ status: 201, json: { id: '32', status: 'IN_REVIEW' } });
-    }
-    if (/\/artifact-versions\/(70|5)\/test-suites/.test(url)) {
-      const items = url.includes('/5/') ? [] : (opciones.suites ?? [SUITE_EN_VERDE]);
-      return route.fulfill({
-        json: {
-          items,
-          page: 1,
-          pageSize: 50,
-          total: items.length,
-          totalPages: 1,
-          hasNextPage: false,
-        },
-      });
-    }
-    if (/\/v1\/artifact-versions\/5(\?|$)/.test(url)) return route.fulfill({ json: IDENTIDAD });
-    if (url.includes('/v1/views/pickers/artifact-versions') && url.includes('IDENTIDAD')) {
-      return route.fulfill({
-        json: {
-          items: [IDENTIDAD],
-          page: 1,
-          pageSize: 25,
-          total: 1,
-          totalPages: 1,
-          hasNextPage: false,
-        },
-      });
-    }
-    if (url.includes('/v1/views/pickers/artifact-versions')) {
-      return route.fulfill({
-        json: {
-          items: [COMPILADA],
-          page: 1,
-          pageSize: 25,
-          total: 1,
-          totalPages: 1,
-          hasNextPage: false,
-        },
-      });
-    }
-    if (url.includes('/v1/views/pickers/artifacts')) {
-      return route.fulfill({
-        json: {
-          items: [ARTIFACT, IDENTIDAD.artifact],
-          page: 1,
-          pageSize: 25,
-          total: 1,
-          totalPages: 1,
-          hasNextPage: false,
-        },
-      });
-    }
-    if (/\/v1\/artifact-versions\/70(\?|$)/.test(url))
-      return route.fulfill({ json: { ...COMPILADA, status: estado } });
-    return route.fallback();
-  });
-  return capturas;
-}
 
 async function foto(page: Page, nombre: string) {
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${nombre}.png`, fullPage: true });
@@ -251,8 +118,12 @@ test.describe('enviar a revisión', () => {
     const requisitos = panel.locator('[data-tutorial-id="review-readiness"]');
     await expect(requisitos).toContainText('no tiene ninguna suite de pruebas');
     await expect(requisitos).toContainText('NO se heredan');
-    const ir = requisitos.getByRole('link', { name: /Crear las pruebas de esta versión/ });
+    const ir = requisitos.getByRole('link', { name: /Crear las pruebas a mano/ });
     await expect(ir).toHaveAttribute('href', '/artifact-versions/5/test-suites');
+    // El acceso a las suites de prueba está SIEMPRE, no sólo cuando falta algo.
+    await expect(
+      panel.getByRole('link', { name: /Ir a las suites de prueba de esta versión/ }),
+    ).toHaveAttribute('href', '/artifact-versions/5/test-suites');
     // No se ofrece pulsar algo que el motor va a rechazar.
     await expect(panel.getByRole('button', { name: 'Enviar a revisión' })).toBeDisabled();
     expect(capturas.enviadas).toHaveLength(0);
@@ -272,8 +143,13 @@ test.describe('enviar a revisión', () => {
     expect(recortado).toBe(true);
     await foto(page, '7-identidad-sin-suites-oscuro');
 
-    await ir.click();
-    await expect(page).toHaveURL(/\/artifact-versions\/5\/test-suites/);
+    // Y sin escribir un solo caso: el motor las genera, las ejecuta y la lista se pone en verde.
+    await requisitos.getByRole('button', { name: /Generar pruebas automáticas/ }).click();
+    await expect(requisitos).toContainText('AUTO-COBERTURA');
+    await expect(requisitos).toContainText('Las pruebas recorren el 100 %');
+    expect(capturas.generadas).toBe(1);
+    await expect(panel.getByRole('button', { name: 'Enviar a revisión' })).toBeEnabled();
+    await foto(page, '9-identidad-con-pruebas-generadas');
   });
 
   test('con la corrida en rojo lleva a ver qué casos fallaron', async ({ page }) => {
