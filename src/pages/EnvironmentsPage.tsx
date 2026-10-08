@@ -10,12 +10,16 @@ import { asRecord, asRows, display, resolvePath } from '../utils/records';
 import { ScrollRegion } from '../components/ScrollRegion';
 
 export function EnvironmentsPage() {
-  const [selectedCode, setSelectedCode] = useState('');
+  const [chosenCode, setSelectedCode] = useState('');
   const query = useQuery({
     queryKey: ['environments'],
     queryFn: () => apiRequest<unknown>('/v1/environments'),
   });
   const rows = asRows(query.data);
+  // Sin elección, el historial abre con el primer ambiente: con uno solo (TEST tiene uno), pedir
+  // que lo «seleccionen» dejaba la mitad de la pantalla en blanco para nada.
+  const firstCode = rows[0] ? display(rows[0], 'code') : '';
+  const selectedCode = chosenCode || (firstCode === '—' ? '' : firstCode);
 
   // Deployment history for the selected environment. The backend DOES filter by
   // `environmentCode`, so we let it narrow server-side instead of the previous

@@ -14,6 +14,7 @@ import { PageHeader } from '../components/PageHeader';
 import { useGenerateCoverageSuite } from '../features/governance/useGenerateCoverageSuite';
 import { TutorialMenu } from '../features/tutorial/TutorialMenu';
 import { ArtifactVersionPicker } from '../components/ArtifactVersionPicker';
+import { useSuiteVersionSelection } from '../testing/useSuiteVersionSelection';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
 import { useNotifications } from '../notifications/useNotifications';
@@ -30,8 +31,8 @@ interface TestSuitesPageProps {
 }
 
 export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
-  const [draftId, setDraftId] = useState(initialVersionId);
-  const [versionId, setVersionId] = useState(initialVersionId);
+  const { versionId, setVersionId, draftId, pickerProps } =
+    useSuiteVersionSelection(initialVersionId);
   const [showCreate, setShowCreate] = useState(false);
   const [batchPending, setBatchPending] = useState(false);
   const router = useRouter();
@@ -170,7 +171,7 @@ export function TestSuitesPage({ initialVersionId = '' }: TestSuitesPageProps) {
           setVersionId(draftId.trim());
         }}
       >
-        <ArtifactVersionPicker versionId={draftId} onVersionChange={setDraftId} />
+        <ArtifactVersionPicker {...pickerProps} />
         <button className="button button-primary" type="submit">
           Cargar suites
         </button>
