@@ -62,6 +62,9 @@ export const navigation: readonly NavigationSection[] = [
         path: '/tutorials',
         icon: GraduationCap,
         roles: accessPolicies.tutorials,
+        // El birrete de la barra superior (`TutorialCenterLink`): la ayuda se busca arriba, junto
+        // a las notificaciones y el perfil, no como una pantalla más de trabajo.
+        enBarraSuperior: true,
       },
     ],
   },

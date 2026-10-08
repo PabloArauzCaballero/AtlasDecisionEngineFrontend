@@ -84,6 +84,7 @@
 @import './parts/session-expiry.css';
 @import './parts/tutorial-center.css';
 @import './parts/tutorial-cards.css';
+@import './parts/tutorial-page.css';
 /* Lenguaje visual transversal: iconos de concepto, ilustraciones, estados
    vacíos explicativos y fondos ambientales. Cargan al final para poder afinar
    piezas anteriores sin subir la especificidad. */

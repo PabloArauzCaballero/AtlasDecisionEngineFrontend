@@ -39,6 +39,7 @@ const routeAccessRules: readonly RouteAccessRule[] = [
   },
   { pattern: /^\/test-suites\/?$/, roles: accessPolicies.qualityAuthoring },
   { pattern: /^\/qa-lab\/?$/, roles: accessPolicies.qaLab },
+  { pattern: /^\/qa-lab\/tutorial\/?$/, roles: accessPolicies.qaLab },
   {
     pattern: /^\/calculated-fields(?:\/[^/]+)?\/?$/,
     roles: accessPolicies.calculatedFields,

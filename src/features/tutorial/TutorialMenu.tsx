@@ -3,10 +3,21 @@
 import { BookOpen, GraduationCap, Play } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useContext, useState } from 'react';
+import { NavLink } from '../../navigation/NavLink';
 import { tutorialById, tutorialsForRoute } from './interactive-catalog';
 import { InteractiveTutorialContext } from './InteractiveTutorialContext';
 import { resolveTutorial } from './tutorial-content';
 import { TutorialContext } from './TutorialContext';
+
+/**
+ * Pantallas cuyo tutorial es una PÁGINA propia en vez de un recorrido encima de la vista.
+ *
+ * En el Laboratorio de pruebas el recorrido tapaba el formulario y, al avanzar, se llevaba a la
+ * persona a otra pantalla. Ahí «Tutorial» abre su página y el laboratorio no se toca.
+ */
+const TUTORIAL_EN_PAGINA: Readonly<Record<string, string | undefined>> = {
+  '/qa-lab': '/qa-lab/tutorial',
+};
 
 /**
  * Único punto de entrada a la ayuda de cada pantalla. Ofrece dos modos, con el
@@ -22,6 +33,17 @@ export function TutorialMenu() {
   const interactive = useContext(InteractiveTutorialContext);
   const drawer = useContext(TutorialContext);
   const [open, setOpen] = useState(false);
+
+  const pagina = TUTORIAL_EN_PAGINA[pathname.replace(/\/$/, '')];
+  if (pagina) {
+    return (
+      <span data-tutorial-id="tutorial-menu">
+        <NavLink href={pagina} className="tutorial-button" showSpinner={false}>
+          <GraduationCap size={15} aria-hidden /> Tutorial
+        </NavLink>
+      </span>
+    );
+  }
 
   // Una pantalla puede tener más de un recorrido: el editor de grafo enseña sus
   // herramientas en uno y a construir un algoritmo en otro.
