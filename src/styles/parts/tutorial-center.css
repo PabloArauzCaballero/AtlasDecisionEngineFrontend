@@ -10,9 +10,8 @@
  * necesita y se alinean por arriba, que es por donde se leen.
  */
 .tutorial-center-summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  align-items: start;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   margin-bottom: var(--space-5);
 }
@@ -99,8 +98,8 @@
   color: var(--text-muted);
 }
 .tutorial-center-recommended ul {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -126,6 +125,11 @@
 .tutorial-center-recommended button span {
   display: flex;
   flex-direction: column;
+}
+/* La flecha al final dice «esto te lleva a algún sitio», como las metas de «Aprender». */
+.tutorial-center-recommended button > svg:last-child {
+  margin-left: auto;
+  color: var(--faint);
 }
 .tutorial-center-recommended button strong {
   color: var(--ink);
@@ -192,9 +196,6 @@
    al que la barra lateral se vuelve cajón. Dos vistas hermanas reorganizándose
    con 80 px de diferencia es ruido, no diseño. */
 @media (max-width: 820px) {
-  .tutorial-center-summary {
-    grid-template-columns: 1fr;
-  }
   .tutorial-center-count {
     margin-left: 0;
   }

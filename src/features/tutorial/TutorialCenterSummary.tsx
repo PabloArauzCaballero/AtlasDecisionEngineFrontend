@@ -1,6 +1,6 @@
 'use client';
 
-import { GraduationCap, PlayCircle } from 'lucide-react';
+import { ArrowRight, GraduationCap, PlayCircle } from 'lucide-react';
 import type { StartOptions } from './InteractiveTutorialContext';
 import type { TutorialListing } from './interactive-types';
 import type { CenterSummary } from './tutorial-center-state';
@@ -74,6 +74,7 @@ export function TutorialCenterSummary({ summary, recommended, onStart }: Props) 
                     <strong>{listing.title}</strong>
                     <small>{listing.estimatedMinutes} min</small>
                   </span>
+                  <ArrowRight size={15} aria-hidden />
                 </button>
               </li>
             ))}

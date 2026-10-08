@@ -26,7 +26,6 @@ function isActivePath(pathname: string, itemPath: string): boolean {
  */
 const NAV_TUTORIAL_IDS: Readonly<Record<string, string | undefined>> = {
   '/simulator': 'nav-simulator',
-  '/tutorials': 'tutorial-center-link',
 };
 
 export function NextSidebar({ open, onClose }: NextSidebarProps) {
@@ -55,7 +54,9 @@ export function NextSidebar({ open, onClose }: NextSidebarProps) {
       </div>
       <nav aria-label="Navegación principal" data-tutorial-id="sidebar-nav">
         {navigation.map((section) => {
-          const visibleItems = section.items.filter((item) => hasAnyRole(roles, item.roles));
+          const visibleItems = section.items.filter(
+            (item) => !item.enBarraSuperior && hasAnyRole(roles, item.roles),
+          );
           if (visibleItems.length === 0) return null;
 
           return (

@@ -24,6 +24,13 @@ export interface NavigationItem {
    * sigue siendo válida para quien la escriba o la tenga guardada.
    */
   children?: readonly NavigationItem[];
+  /**
+   * La pantalla tiene su acceso en la barra superior (un icono), no en el menú lateral.
+   *
+   * Sigue declarada aquí porque de esta lista salen su nombre para el asistente, su permiso y
+   * la garantía de que ninguna ruta se queda sin acceso; lo único que cambia es dónde se pinta.
+   */
+  enBarraSuperior?: boolean;
 }
 
 export interface NavigationSection {

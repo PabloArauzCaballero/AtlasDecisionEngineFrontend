@@ -33,6 +33,8 @@ interface NavLinkProps {
   className?: string;
   onClick?: () => void;
   'aria-current'?: 'page';
+  /** Nombre accesible, para un enlace que sólo lleva un icono. */
+  'aria-label'?: string;
   /** Renders a spinner in the link while its route loads. */
   showSpinner?: boolean;
 }
@@ -54,6 +56,7 @@ export function NavLink({
   onClick,
   showSpinner = true,
   'aria-current': ariaCurrent,
+  'aria-label': ariaLabel,
 }: NavLinkProps) {
   const pendientes = useUnsavedWorkGuard();
   const [preguntando, setPreguntando] = useState(false);
@@ -64,6 +67,7 @@ export function NavLink({
         href={href}
         className={className}
         aria-current={ariaCurrent}
+        aria-label={ariaLabel}
         onClick={(event) => {
           if (pendientes.length > 0) {
             event.preventDefault();

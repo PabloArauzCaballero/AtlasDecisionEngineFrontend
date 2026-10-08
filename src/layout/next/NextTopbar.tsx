@@ -6,6 +6,7 @@ import { GlobalSearchBox } from '../../features/search/GlobalSearchBox';
 import { NotificationCenter } from '../../notifications/NotificationCenter';
 import { ThemeToggle } from '../../theme/ThemeToggle';
 import { QuickActionMenu } from './QuickActionMenu';
+import { TutorialCenterLink } from './TutorialCenterLink';
 import { UserMenu } from './UserMenu';
 
 interface NextTopbarProps {
@@ -45,6 +46,7 @@ export function NextTopbar({ onMenu }: NextTopbarProps) {
         </div>
       ) : null}
       <QuickActionMenu />
+      <TutorialCenterLink />
       <ThemeToggle />
       <NotificationCenter />
       <UserMenu />

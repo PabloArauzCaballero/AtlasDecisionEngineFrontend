@@ -6,40 +6,68 @@
   margin-top: var(--space-5);
 }
 .tutorial-center-group > h2 {
-  margin: 0 0 var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--line-soft);
-  font-size: var(--type-sm);
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-xs);
   font-weight: var(--weight-semibold);
-  letter-spacing: var(--track-normal);
-  color: var(--faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
+/*
+ * Filas, no tarjetas.
+ *
+ * Eran cuarenta tarjetas a dos columnas: una página de quince pantallas de alto para decir
+ * cuarenta títulos. En fila —título y resumen a la izquierda, datos y acción a la derecha, como
+ * «Aprender» del portal interno— cada grupo cabe en una pantalla y el ojo baja por una sola
+ * columna de títulos. El DOM de la tarjeta no cambia: la fila es sólo otra rejilla.
+ */
 .tutorial-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
-  gap: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
 }
 
 .tutorial-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.15s ease;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px auto;
+  grid-template-areas:
+    'top meta actions'
+    'intro meta actions'
+    'notes meta actions';
+  column-gap: var(--space-5);
+  row-gap: var(--space-1);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  transition: background 0.15s ease;
+}
+.tutorial-card + .tutorial-card {
+  border-top: 1px solid var(--line-soft);
 }
 .tutorial-card:hover {
-  border-color: var(--line-strong);
+  background: var(--surface-hover);
+}
+.tutorial-card-top {
+  grid-area: top;
+}
+.tutorial-card-intro {
+  grid-area: intro;
+}
+.tutorial-card-meta {
+  grid-area: meta;
+}
+.tutorial-card-notes {
+  grid-area: notes;
+}
+.tutorial-card-actions {
+  grid-area: actions;
 }
 
 /* El título manda; el distintivo no se encoge ni lo empuja. */
 .tutorial-card-top {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--space-2);
 }
 .tutorial-card h3 {
@@ -72,23 +100,15 @@
   color: var(--warning-text);
 }
 
-/*
- * Tres líneas y punto.
- *
- * Sin recorte, una descripción larga estiraba su tarjeta y —como la rejilla
- * iguala las alturas de la fila— abría un hueco muerto enorme bajo las cortas,
- * con el botón flotando al fondo. Recortando, las tarjetas miden casi lo mismo
- * y la rejilla se lee como una rejilla. El texto completo vive en el propio
- * recorrido, así que aquí no se pierde nada.
- */
+/* Dos líneas: el texto completo vive en el propio recorrido, aquí basta para elegir. */
 .tutorial-card-intro {
   margin: 0;
   font-size: var(--type-base);
   line-height: 1.5;
   color: var(--text);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -124,19 +144,27 @@
   color: var(--text-muted);
 }
 
-/* `auto` alinea la acción al fondo en toda la fila; con el recorte de tres
-   líneas el hueco que deja ya es pequeño. */
 .tutorial-card-actions {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: auto;
-  padding-top: var(--space-3);
 }
-/* El botón mide lo que dice, no todo el ancho: a ancho completo se leía como
-   una barra maciza por tarjeta y la rejilla se volvía una escalera de bloques. */
-.tutorial-card-actions .button {
-  margin-right: auto;
+/* En estrecho la acción baja bajo el texto: una columna de 120 px para un botón estrujaba el título. */
+/* Sin sitio para la columna de datos, vuelven bajo el texto. */
+@media (max-width: 1180px) {
+  .tutorial-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'top actions' 'intro actions' 'meta actions' 'notes actions';
+  }
+}
+@media (max-width: 560px) {
+  .tutorial-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'top' 'intro' 'meta' 'notes' 'actions';
+  }
+  .tutorial-card-actions {
+    margin-top: var(--space-2);
+  }
 }
 .tutorial-card-restart {
   flex-shrink: 0;
