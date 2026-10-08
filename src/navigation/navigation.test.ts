@@ -26,6 +26,16 @@ describe('menú del Motor tras el recorte', () => {
     expect(lines).toHaveLength(21);
   });
 
+  it('la portada, la búsqueda y los tutoriales viven en la barra superior, no en el menú', () => {
+    // El logotipo lleva a la portada, la caja (o su lupa en estrecho) a la búsqueda y el birrete a
+    // los tutoriales. Siguen declarados aquí —nombre y permiso—; sólo dejan de ser renglones.
+    const arriba = navigation
+      .flatMap((section) => section.items)
+      .filter((item) => item.enBarraSuperior)
+      .map((item) => item.path);
+    expect(arriba).toEqual(['/platform-health', '/search', '/tutorials']);
+  });
+
   it('cada grupo dice qué pantallas junta', () => {
     expect(
       Object.fromEntries(
