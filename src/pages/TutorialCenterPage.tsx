@@ -20,6 +20,11 @@ import {
 } from '../features/tutorial/tutorial-center-state';
 import { TutorialCenterSummary } from '../features/tutorial/TutorialCenterSummary';
 import {
+  TUTORIAL_CATEGORY_ICONS,
+  tutorialGroupAnchor,
+} from '../features/tutorial/tutorial-category-icons';
+import { TutorialModuleNav, type ModuleTally } from '../features/tutorial/TutorialModuleNav';
+import {
   listingsForRoles,
   pendingPrerequisites,
   tutorialTitle,
@@ -70,6 +75,18 @@ export function TutorialCenterPage() {
     [listings, stateOf],
   );
 
+  // El índice cuenta sobre el catálogo del rol, no sobre lo filtrado: es un mapa del Centro, y un
+  // mapa que encoge al escribir en el buscador deja de servir para orientarse.
+  const modules = useMemo<ModuleTally[]>(
+    () =>
+      groupByCategory(listings).map(([category, items]) => ({
+        category,
+        total: items.length,
+        completed: items.filter((item) => stateOf(item) === 'completed').length,
+      })),
+    [listings, stateOf],
+  );
+
   return (
     <>
       <PageHeader
@@ -93,6 +110,8 @@ export function TutorialCenterPage() {
 
       <TutorialCenterSummary summary={summary} recommended={recommended} onStart={start} />
 
+      <TutorialModuleNav modules={modules} />
+
       {/* Sin `meta`: el recuento ya lo da la barra de filtros, y ahí sí cambia
           al filtrar. Repetirlo en la cabecera decía dos veces lo mismo. */}
       <Panel title="Todos los tutoriales">
@@ -115,33 +134,54 @@ export function TutorialCenterPage() {
           />
         ) : (
           <div data-tutorial-id="tutorial-center-list" data-testid="tutorial-list">
-            {groupByCategory(visible).map(([category, items]) => (
-              <section className="tutorial-center-group" key={category}>
-                <h2>{TUTORIAL_CATEGORY_LABELS[category]}</h2>
-                <div className="tutorial-card-grid">
-                  {items.map((listing) => {
-                    const entry = progress[listing.id];
-                    return (
-                      <TutorialCard
-                        key={listing.id}
-                        listing={listing}
-                        state={stateOf(listing)}
-                        lastStep={entry?.lastStep ?? 0}
-                        repeatCount={entry?.repeatCount ?? 0}
-                        pendingPrerequisites={pendingPrerequisites(listing, isCompleted, roles).map(
-                          tutorialTitle,
-                        )}
-                        onStart={() => start(listing.id, { resume: true })}
-                        // `repeat` ya persiste el reinicio dentro del motor:
-                        // llamar aquí también a `restart` contaría la repetición
-                        // dos veces.
-                        onRestart={() => start(listing.id, { repeat: true })}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
+            {groupByCategory(visible).map(([category, items]) => {
+              const Icon = TUTORIAL_CATEGORY_ICONS[category];
+              const minutos = items.reduce((suma, item) => suma + item.estimatedMinutes, 0);
+              const hechos = items.filter((item) => stateOf(item) === 'completed').length;
+              return (
+                <section
+                  className="tutorial-center-group"
+                  key={category}
+                  id={tutorialGroupAnchor(category)}
+                >
+                  <header className="tutorial-group-head">
+                    <span className="tutorial-group-icon" aria-hidden>
+                      <Icon size={16} />
+                    </span>
+                    <h2>{TUTORIAL_CATEGORY_LABELS[category]}</h2>
+                    <p>
+                      {items.length} {items.length === 1 ? 'recorrido' : 'recorridos'} · {minutos}{' '}
+                      min
+                      {hechos > 0 ? ` · ${hechos} hechos` : ''}
+                    </p>
+                  </header>
+                  <div className="tutorial-card-grid">
+                    {items.map((listing) => {
+                      const entry = progress[listing.id];
+                      return (
+                        <TutorialCard
+                          key={listing.id}
+                          listing={listing}
+                          state={stateOf(listing)}
+                          lastStep={entry?.lastStep ?? 0}
+                          repeatCount={entry?.repeatCount ?? 0}
+                          pendingPrerequisites={pendingPrerequisites(
+                            listing,
+                            isCompleted,
+                            roles,
+                          ).map(tutorialTitle)}
+                          onStart={() => start(listing.id, { resume: true })}
+                          // `repeat` ya persiste el reinicio dentro del motor:
+                          // llamar aquí también a `restart` contaría la repetición
+                          // dos veces.
+                          onRestart={() => start(listing.id, { repeat: true })}
+                        />
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         )}
       </Panel>

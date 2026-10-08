@@ -1,0 +1,83 @@
+/* Centro de Tutoriales: índice de módulos y el azulejo de icono que comparte con cada grupo.
+   Sólo tokens: los colores literales quedan ilegibles al conmutar el tema. */
+
+.tutorial-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.tutorial-module {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'icon text' 'bar bar';
+  align-items: center;
+  column-gap: var(--space-2);
+  row-gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+.tutorial-module:hover {
+  border-color: var(--accent);
+}
+.tutorial-module:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.tutorial-module-icon {
+  grid-area: icon;
+}
+.tutorial-module-text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tutorial-module-text strong {
+  color: var(--ink);
+  font-size: var(--type-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 1.25;
+}
+.tutorial-module-text small {
+  color: var(--faint);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+}
+.tutorial-module-bar {
+  grid-area: bar;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+.tutorial-module-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+/* El mismo azulejo en el índice y en la cabecera del grupo: ver el mismo dibujo en los dos sitios
+   es lo que confirma que el salto llevó a donde se pulsó. */
+.tutorial-module-icon,
+.tutorial-group-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-wash);
+  color: var(--accent-strong);
+}
+
+@media (max-width: 560px) {
+  .tutorial-modules {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

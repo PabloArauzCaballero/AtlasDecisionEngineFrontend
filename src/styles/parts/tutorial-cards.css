@@ -3,15 +3,30 @@
 
 /* — Grupos — */
 .tutorial-center-group + .tutorial-center-group {
-  margin-top: var(--space-5);
+  margin-top: var(--space-6);
 }
-.tutorial-center-group > h2 {
-  margin: 0 0 var(--space-2);
-  font-size: var(--type-xs);
+/* El ancla deja aire bajo la barra superior fija: sin esto, el salto desde el índice dejaba la
+   cabecera del grupo escondida debajo de ella. */
+.tutorial-center-group {
+  scroll-margin-top: 88px;
+}
+.tutorial-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.tutorial-group-head h2 {
+  margin: 0;
+  font-size: var(--type-lg);
   font-weight: var(--weight-semibold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--ink);
+}
+.tutorial-group-head p {
+  margin: 0 0 0 auto;
+  font-size: var(--type-sm);
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
 }
 
 /*
@@ -31,11 +46,11 @@
 
 .tutorial-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 190px auto;
+  grid-template-columns: 22px minmax(0, 1fr) 250px auto;
   grid-template-areas:
-    'top meta actions'
-    'intro meta actions'
-    'notes meta actions';
+    'mark top meta actions'
+    'mark intro meta actions'
+    'mark notes meta actions';
   column-gap: var(--space-5);
   row-gap: var(--space-1);
   align-items: center;
@@ -47,6 +62,11 @@
 }
 .tutorial-card:hover {
   background: var(--surface-hover);
+}
+.tutorial-card-mark {
+  grid-area: mark;
+  align-self: start;
+  margin-top: 2px;
 }
 .tutorial-card-top {
   grid-area: top;
@@ -113,25 +133,83 @@
   overflow: hidden;
 }
 
-/* Datos de apoyo en una línea con puntos medios. Eran cuatro cápsulas grises:
-   demasiado peso visual para decir "4 min" y "3 pasos". */
+/* Datos de apoyo con icono, sin cápsulas: son metadatos, no etiquetas que haya que distinguir
+   de un vistazo. El icono hace el trabajo que antes hacían los puntos medios. */
 .tutorial-card-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-3);
   margin: 0;
   font-size: var(--type-xs);
   color: var(--text-muted);
 }
-.tutorial-card-meta > span + span::before {
-  content: '·';
-  margin-right: var(--space-2);
-  color: var(--line-strong);
+.tutorial-card-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
 }
+.tutorial-card-meta svg {
+  color: var(--faint);
+}
+
+/* Nivel como medidor de tres barras crecientes; la palabra va al lado, nunca sólo la forma. */
+.tutorial-level-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 11px;
+}
+.tutorial-level-bars i {
+  width: 3px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+.tutorial-level-bars i:nth-child(1) {
+  height: 5px;
+}
+.tutorial-level-bars i:nth-child(2) {
+  height: 8px;
+}
+.tutorial-level-bars i:nth-child(3) {
+  height: 11px;
+}
+.tutorial-level-bars i[data-on] {
+  background: var(--accent);
+}
+
+/* Marca de estado: vacío pendiente, medio en curso, lleno hecho, ámbar si cambió. */
+.tutorial-card-mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  color: var(--surface);
+}
+.tutorial-card-in-progress .tutorial-card-mark {
+  border-color: var(--info);
+  background: linear-gradient(90deg, var(--info) 50%, transparent 50%);
+}
+.tutorial-card-completed .tutorial-card-mark {
+  border-color: var(--success);
+  background: var(--success);
+}
+.tutorial-card-outdated .tutorial-card-mark {
+  border-color: var(--warning);
+}
+
 .tutorial-card-essential {
+  flex-shrink: 0;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent-wash);
   color: var(--accent-strong);
-  font-weight: var(--weight-medium);
+  font-size: var(--type-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
 }
 
 .tutorial-card-notes:empty {
@@ -153,14 +231,18 @@
 /* Sin sitio para la columna de datos, vuelven bajo el texto. */
 @media (max-width: 1180px) {
   .tutorial-card {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: 'top actions' 'intro actions' 'meta actions' 'notes actions';
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'mark top actions'
+      'mark intro actions'
+      'mark meta actions'
+      'mark notes actions';
   }
 }
 @media (max-width: 560px) {
   .tutorial-card {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'top' 'intro' 'meta' 'notes' 'actions';
+    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-areas: 'mark top' 'mark intro' 'mark meta' 'mark notes' 'mark actions';
   }
   .tutorial-card-actions {
     margin-top: var(--space-2);
