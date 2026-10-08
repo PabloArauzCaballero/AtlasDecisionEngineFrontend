@@ -145,6 +145,11 @@
   }
 }
 @media (max-width: 560px) {
+  /* A 320 px la barra lleva siete controles: con el hueco de escritorio (12 px) el menú de usuario
+     se salía 23 px por la derecha. Apretar el hueco es lo único que cede sin quitar ningún acceso. */
+  .topbar {
+    gap: var(--space-1);
+  }
   .definition-grid {
     grid-template-columns: 1fr;
   }
