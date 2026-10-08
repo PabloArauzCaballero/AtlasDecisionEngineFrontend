@@ -1,6 +1,15 @@
 'use client';
 
-import { CheckCircle2, PlayCircle, RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
+import {
+  Check,
+  CheckCircle2,
+  Clock3,
+  ListOrdered,
+  PlayCircle,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 import { TUTORIAL_LEVEL_LABELS, type TutorialListing } from './interactive-types';
 import { primaryActionLabel, STATE_LABELS, type TutorialState } from './tutorial-center-state';
 
@@ -24,6 +33,9 @@ interface Props {
  * lo mismo —y con el mismo icono de "play" que ya lleva el botón de empezar—.
  * Lo que se marca es lo excepcional: lo hecho, lo empezado y lo que cambió.
  */
+/** Cuántas barras se encienden en el medidor de nivel. */
+const LEVEL_BARS = { basico: 1, intermedio: 2, avanzado: 3 } as const;
+
 const BADGE: Partial<Record<TutorialState, { icon: typeof CheckCircle2; tone: string }>> = {
   completed: { icon: CheckCircle2, tone: 'success' },
   'in-progress': { icon: RotateCcw, tone: 'info' },
@@ -52,8 +64,15 @@ export function TutorialCard({
 
   return (
     <article className={`tutorial-card tutorial-card-${state}`} data-tutorial-state={state}>
+      {/* La marca repite el estado en forma —círculo vacío, medio, lleno— para leer la columna
+          entera de un vistazo; el distintivo con palabra sigue al lado del título. */}
+      <span className="tutorial-card-mark" aria-hidden>
+        {state === 'completed' ? <Check size={14} strokeWidth={2.5} /> : null}
+      </span>
+
       <div className="tutorial-card-top">
         <h3>{listing.title}</h3>
+        {listing.essential ? <span className="tutorial-card-essential">Troncal</span> : null}
         {badge && BadgeIcon ? (
           <span className={`tutorial-card-badge tutorial-badge-${badge.tone}`}>
             <BadgeIcon size={13} aria-hidden /> {STATE_LABELS[state]}
@@ -66,12 +85,21 @@ export function TutorialCard({
       {/* Una línea de datos con separadores, y no cuatro cápsulas: son
           metadatos de apoyo, no etiquetas que haya que distinguir de un vistazo. */}
       <p className="tutorial-card-meta">
-        <span>{listing.estimatedMinutes} min</span>
-        <span>{TUTORIAL_LEVEL_LABELS[listing.level]}</span>
         <span>
-          {listing.stepCount} {listing.stepCount === 1 ? 'paso' : 'pasos'}
+          <Clock3 size={13} aria-hidden /> {listing.estimatedMinutes} min
         </span>
-        {listing.essential ? <span className="tutorial-card-essential">Troncal</span> : null}
+        <span className={`tutorial-level tutorial-level-${listing.level}`}>
+          <span className="tutorial-level-bars" aria-hidden>
+            {[1, 2, 3].map((bar) => (
+              <i key={bar} data-on={bar <= LEVEL_BARS[listing.level] || undefined} />
+            ))}
+          </span>
+          {TUTORIAL_LEVEL_LABELS[listing.level]}
+        </span>
+        <span>
+          <ListOrdered size={13} aria-hidden /> {listing.stepCount}{' '}
+          {listing.stepCount === 1 ? 'paso' : 'pasos'}
+        </span>
       </p>
 
       <div className="tutorial-card-notes">

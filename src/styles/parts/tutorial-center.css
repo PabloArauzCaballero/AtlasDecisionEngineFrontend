@@ -1,144 +1,6 @@
-/* Centro de Tutoriales: resumen de avance, filtros y rejilla de tarjetas.
+/* Centro de Tutoriales: filtros del catálogo. La cabecera (avance y ruta de inicio) y el índice
+   de módulos viven en tutorial-center-hero.css; las filas, en tutorial-cards.css.
    Sólo tokens: los colores literales quedan ilegibles al conmutar el tema. */
-
-/*
- * `start` y no el estirado por omisión de la rejilla.
- *
- * Los dos paneles tienen contenidos de altura muy distinta —cuatro líneas de
- * avance frente a la lista de recomendados—, así que estirarlos a la misma
- * altura abría medio panel de vacío bajo "Tu avance". Cada uno mide lo que
- * necesita y se alinean por arriba, que es por donde se leen.
- */
-.tutorial-center-summary {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-
-.tutorial-center-progress,
-.tutorial-center-recommended {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-}
-
-.tutorial-center-progress-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
-.tutorial-center-progress-head > div {
-  display: flex;
-  flex-direction: column;
-}
-.tutorial-center-progress-head strong {
-  color: var(--ink);
-  font-size: var(--type-md);
-}
-.tutorial-center-progress-head span {
-  color: var(--text-muted);
-  font-size: var(--type-base);
-}
-/* Contenido, no titular: el número compite con el título de la página si se
-   pinta enorme, y aquí sólo acompaña a la barra. */
-.tutorial-center-percent {
-  margin: 0 0 0 auto;
-  font-size: var(--type-xl);
-  font-weight: var(--weight-semibold);
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Más gruesa y sin borde: a 8 px con un 3 % pintado, el avance era un punto
-   perdido dentro de una línea, imposible de leer de un vistazo. */
-.tutorial-center-bar {
-  margin-top: var(--space-3);
-  height: 10px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-sunken);
-  overflow: hidden;
-}
-/* `min-width` para que un avance pequeño se VEA. Con un 3 %, el relleno medía
-   menos de la mitad de su propio radio y la barra parecía vacía: quien acababa
-   de completar su primer recorrido no veía ninguna señal de haberlo hecho.
-   El span sólo se pinta cuando hay algo que mostrar, así que un 0 % real sigue
-   viéndose vacío. */
-.tutorial-center-bar > span {
-  display: block;
-  height: 100%;
-  min-width: 8px;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  transition: width var(--motion-slow, 0.4s) ease;
-}
-
-.tutorial-center-tally {
-  display: flex;
-  gap: var(--space-4);
-  margin: var(--space-3) 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--type-base);
-  color: var(--text-muted);
-}
-.tutorial-center-tally strong {
-  color: var(--ink);
-}
-
-.tutorial-center-recommended h2 {
-  margin: 0 0 var(--space-1);
-  font-size: var(--type-md);
-  color: var(--ink);
-}
-.tutorial-center-recommended > p {
-  margin: 0 0 var(--space-3);
-  font-size: var(--type-base);
-  color: var(--text-muted);
-}
-.tutorial-center-recommended ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.tutorial-center-recommended button {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  background: var(--surface-sunken);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
-}
-.tutorial-center-recommended button:hover {
-  background: var(--surface-hover);
-  border-color: var(--line);
-}
-.tutorial-center-recommended button span {
-  display: flex;
-  flex-direction: column;
-}
-/* La flecha al final dice «esto te lleva a algún sitio», como las metas de «Aprender». */
-.tutorial-center-recommended button > svg:last-child {
-  margin-left: auto;
-  color: var(--faint);
-}
-.tutorial-center-recommended button strong {
-  color: var(--ink);
-  font-size: var(--type-base);
-}
-.tutorial-center-recommended button small {
-  color: var(--faint);
-  font-size: var(--type-xs);
-}
 
 /* — Filtros — */
 .tutorial-center-filters {
@@ -146,7 +8,11 @@
   flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
 }
 .tutorial-center-filters label,
 .tutorial-center-filters .field {
@@ -162,7 +28,7 @@
   align-items: center;
   gap: var(--space-2) !important;
   padding: 0 var(--space-3);
-  background: var(--surface-sunken);
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   color: var(--faint);

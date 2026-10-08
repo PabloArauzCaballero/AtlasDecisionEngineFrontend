@@ -83,6 +83,8 @@
 @import './parts/tutorial-welcome.css';
 @import './parts/session-expiry.css';
 @import './parts/tutorial-center.css';
+@import './parts/tutorial-center-hero.css';
+@import './parts/tutorial-modules.css';
 @import './parts/tutorial-cards.css';
 @import './parts/tutorial-page.css';
 /* Lenguaje visual transversal: iconos de concepto, ilustraciones, estados
