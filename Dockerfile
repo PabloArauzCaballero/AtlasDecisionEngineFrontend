@@ -18,6 +18,14 @@ COPY . .
 # se podía construir en la máquina que ya tenía los intérpretes bajados.
 # Se garantiza aquí; si están, el desplegador los copia al contexto y viajan dentro.
 RUN mkdir -p public
+# Y se TRAEN aquí. Sin este paso Coolify (que construye desde un clon limpio) publicaba una imagen sin
+# intérpretes: `/pyodide/pyodide.js` y `/webr/*` respondían 404 con la página HTML de Next, el
+# navegador la «cargaba» como script y el cuaderno decía «El intérprete se descargó pero no se
+# registró» (Python) y «R no está disponible en este ambiente» (R). Medido en TEST el 2026-10-08.
+# Los dos scripts son idempotentes: si el contexto ya trae `public/pyodide` o `public/webr`, no
+# vuelven a descargar. Si fallan, falla el build: mejor un despliegue que no sale que uno sin Python.
+RUN node scripts/setup-pyodide.mjs && node scripts/setup-webr.mjs \
+  && test -s public/pyodide/pyodide.js && test -s public/webr/webr-worker.js
 # PLAT-03: la identidad del artefacto se escribe AQUÍ, dentro de la imagen, y `/version` la lee de este
 # archivo. `SOURCE_COMMIT` (build-arg de Coolify) manda; si llega vacío se lee `.git/HEAD` del contexto
 # (el .dockerignore lo deja pasar). Sin ninguno queda `commit: null`: no se inventa, y el smoke lo rechaza.
