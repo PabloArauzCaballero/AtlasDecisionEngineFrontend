@@ -31,6 +31,10 @@
   .global-search {
     display: none;
   }
+  /* La lupa toma el sitio de la caja que acaba de ocultarse. */
+  .topbar-search-link {
+    display: inline-flex;
+  }
   .health-layout,
   .artifact-overview,
   .objective-layout,

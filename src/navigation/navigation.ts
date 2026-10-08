@@ -37,25 +37,19 @@ export const navigation: readonly NavigationSection[] = [
         path: '/platform-health',
         icon: Activity,
         roles: accessPolicies.platformHealth,
+        // Es la portada, y a la portada se llega tocando el logotipo (`brand-link`).
+        enBarraSuperior: true,
       },
       {
-        /*
-         * La búsqueda global vivía SÓLO en la caja de la barra superior, y esa
-         * caja se oculta por debajo de 820 px por falta de sitio. Resultado: en
-         * un teléfono no había forma de llegar a `/search`, porque no estaba en
-         * ninguna otra parte de la navegación —a diferencia de «Dashboard»,
-         * «Workspaces» y «Analytics», que sí se ocultan pero apuntan a rutas que
-         * el cajón ya lista—.
-         *
-         * Aquí no se duplica una vista, se le da el único acceso que tenía y que
-         * desaparecía al estrechar la pantalla.
-         */
         label: 'Búsqueda',
         path: '/search',
         // El mismo icono que ya usa la caja de la barra superior
         // (`GlobalSearchBox`): son la misma cosa vista desde dos sitios.
         icon: Search,
         roles: accessPolicies.globalSearch,
+        // La caja de la barra superior; cuando no cabe (< 820 px) la sustituye la lupa de
+        // `TopbarSearchLink`, así que el teléfono no se queda sin acceso a `/search`.
+        enBarraSuperior: true,
       },
       {
         label: 'Tutoriales',

@@ -43,6 +43,10 @@
 .quick-action-menu button svg {
   color: var(--accent);
 }
+/* Sustituto de la caja en estrecho; en ancho no existe (ver responsive.css). */
+.topbar-search-link {
+  display: none;
+}
 .global-search {
   position: relative;
   width: min(270px, 23vw);
