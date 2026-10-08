@@ -7,6 +7,7 @@ import { apiRequest } from '../api/http-client';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { PickerSelect } from '../components/PickerSelect';
+import { usePickerDefault } from '../components/usePickerDefault';
 import { useNotifications } from '../notifications/useNotifications';
 import { CreateTestCaseForm } from '../testing/CreateTestCaseForm';
 import { TestCaseRow } from '../testing/TestCaseRow';
@@ -36,7 +37,14 @@ function displayJson(value: unknown): string {
 
 export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
   const [draftId, setDraftId] = useState(initialSuiteId);
-  const [suiteId, setSuiteId] = useState(initialSuiteId);
+  // `null` = nadie eligió todavía: se abre con la suite más reciente ya cargada.
+  const [chosenSuiteId, setSuiteId] = useState<string | null>(initialSuiteId || null);
+  const autoSuiteId = usePickerDefault({
+    endpoint: SUITE_PICKER_ENDPOINT,
+    queryKey: 'test-suites',
+    enabled: chosenSuiteId === null,
+  });
+  const suiteId = chosenSuiteId ?? autoSuiteId;
   const [search, setSearch] = useState('');
   const [activeOnly, setActiveOnly] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -202,13 +210,13 @@ export function TestCasesPage({ initialSuiteId = '' }: TestCasesPageProps) {
           className="filter-bar"
           onSubmit={(event) => {
             event.preventDefault();
-            setSuiteId(draftId.trim());
+            setSuiteId((draftId || suiteId).trim());
             setShowCreate(false);
           }}
         >
           <PickerSelect
             label="Suite de pruebas"
-            value={draftId}
+            value={draftId || suiteId}
             onChange={setDraftId}
             endpoint={SUITE_PICKER_ENDPOINT}
             queryKey="test-suites"

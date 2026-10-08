@@ -9,6 +9,7 @@ import { MetricCard } from '../components/MetricCard';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
 import { PickerSelect } from '../components/PickerSelect';
+import { newestFirst, usePickerDefault } from '../components/usePickerDefault';
 import { ProgressBar } from '../components/ProgressBar';
 import { StatusBadge } from '../components/StatusBadge';
 import {
@@ -44,7 +45,17 @@ function detailList(value: unknown): string {
 
 export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps) {
   const [draftId, setDraftId] = useState(initialRunId);
-  const [runId, setRunId] = useState(initialRunId);
+  // `null` = nadie eligió todavía: se abre con la corrida terminada más reciente.
+  const [chosenRunId, setRunId] = useState<string | null>(initialRunId || null);
+  const autoRunId = usePickerDefault({
+    endpoint: '/v1/views/pickers/test-runs',
+    queryKey: 'test-runs',
+    enabled: chosenRunId === null,
+    // Una corrida que terminó tiene cobertura que enseñar; una en cola, todavía no.
+    rank: (a, b) =>
+      Number(Boolean(b.finishedAt)) - Number(Boolean(a.finishedAt)) || newestFirst(a, b),
+  });
+  const runId = chosenRunId ?? autoRunId;
   const query = useQuery({
     queryKey: ['test-run', runId],
     queryFn: ({ signal }) =>
@@ -101,12 +112,12 @@ export function GraphCoveragePage({ initialRunId = '' }: GraphCoveragePageProps)
         className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault();
-          setRunId(draftId.trim());
+          setRunId((draftId || runId).trim());
         }}
       >
         <PickerSelect
           label="Corrida de pruebas"
-          value={draftId}
+          value={draftId || runId}
           onChange={setDraftId}
           endpoint="/v1/views/pickers/test-runs"
           queryKey="test-runs"

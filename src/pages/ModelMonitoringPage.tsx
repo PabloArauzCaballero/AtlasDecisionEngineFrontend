@@ -18,17 +18,37 @@ import {
   useStabilityReport,
 } from '../features/model-monitoring/useModelMonitoring';
 import { useQaStressRuns } from '../features/model-monitoring/useQaStressRuns';
-import { asRecord } from '../utils/records';
+import { newestFirst, usePickerDefault } from '../components/usePickerDefault';
+import { asRecord, display, type UnknownRecord } from '../utils/records';
 
-const EMPTY_FORM: MonitoringForm = {
-  versionId: '',
-  from: '',
-  to: '',
-  variableCode: '',
-  referenceFrom: '',
-  referenceTo: '',
-  attribute: '',
-};
+/** `AAAA-MM-DD` de hace `days` días, en UTC (las ventanas del motor van en UTC). */
+function daysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * Abre con ventanas ESCRITAS en los campos —los últimos 30 días contra los 30 anteriores—, no con
+ * un valor escondido: quien mide ve exactamente qué compara y puede cambiarlo, y la cifra se
+ * reproduce con las mismas fechas. Antes los seis campos venían vacíos y la pantalla no enseñaba
+ * nada hasta rellenarlos todos.
+ */
+function initialForm(): MonitoringForm {
+  return {
+    versionId: '',
+    from: daysAgo(30),
+    to: daysAgo(0),
+    variableCode: '',
+    referenceFrom: daysAgo(60),
+    referenceTo: daysAgo(31),
+    attribute: '',
+  };
+}
+
+/** Se monitorea lo que decide: primero una versión desplegada, y entre ellas la más reciente. */
+function deployedFirst(a: UnknownRecord, b: UnknownRecord): number {
+  const deployed = (row: UnknownRecord) => display(row, 'status').startsWith('DEPLOYED');
+  return Number(deployed(b)) - Number(deployed(a)) || newestFirst(a, b);
+}
 
 /** Una fecha de formulario a instante ISO. Vacía = sin límite, que el motor acepta. */
 function toIso(date: string, endOfDay = false): string | undefined {
@@ -49,7 +69,17 @@ function toIso(date: string, endOfDay = false): string | undefined {
  * que todavía no le ha tocado.
  */
 export function ModelMonitoringPage() {
-  const [form, setForm] = useState<MonitoringForm>(EMPTY_FORM);
+  const [draft, setForm] = useState<MonitoringForm>(initialForm);
+  // Hasta que alguien toque la versión, se propone la desplegada. Misma clave que la lista de
+  // versiones del selector, así que no hay petición extra.
+  const [versionTouched, setVersionTouched] = useState(false);
+  const autoVersionId = usePickerDefault({
+    endpoint: '/v1/views/pickers/artifact-versions',
+    queryKey: 'avp-versions-all',
+    enabled: !versionTouched,
+    rank: deployedFirst,
+  });
+  const form = versionTouched ? draft : { ...draft, versionId: draft.versionId || autoVersionId };
   const performance = usePerformanceReport();
   const stability = useStabilityReport();
   const adverseImpact = useAdverseImpactReport();
@@ -94,7 +124,11 @@ export function ModelMonitoringPage() {
       <Panel title="Qué medir" tutorialId="monitoring-controls">
         <MonitoringControls
           form={form}
-          onChange={(patch) => setForm((current) => ({ ...current, ...patch }))}
+          onChange={(patch) => {
+            if ('versionId' in patch) setVersionTouched(true);
+            setForm((current) => ({ ...current, ...patch }));
+          }}
+          initialVersionId={versionTouched ? undefined : autoVersionId || undefined}
           onRun={run}
           running={running}
         />

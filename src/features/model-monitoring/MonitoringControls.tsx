@@ -18,6 +18,8 @@ interface MonitoringControlsProps {
   onChange: (patch: Partial<MonitoringForm>) => void;
   onRun: () => void;
   running: boolean;
+  /** Versión propuesta al abrir: rellena también el selector de algoritmo. */
+  initialVersionId?: string;
 }
 
 /**
@@ -27,7 +29,13 @@ interface MonitoringControlsProps {
  * omisión escondido: comparar contra «los últimos seis meses» sin decirlo hace que el índice cambie
  * cada día por razones que no son el modelo, y nadie puede reproducir la cifra de ayer.
  */
-export function MonitoringControls({ form, onChange, onRun, running }: MonitoringControlsProps) {
+export function MonitoringControls({
+  form,
+  onChange,
+  onRun,
+  running,
+  initialVersionId,
+}: MonitoringControlsProps) {
   return (
     <form
       className="monitoring-controls"
@@ -41,6 +49,7 @@ export function MonitoringControls({ form, onChange, onRun, running }: Monitorin
         onVersionChange={(versionId) => onChange({ versionId })}
         versionLabel="Versión a monitorear"
         required
+        initialVersionId={initialVersionId}
       />
 
       <div className="monitoring-field-row">
