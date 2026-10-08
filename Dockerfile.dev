@@ -5,11 +5,9 @@
 # sólo tienen sentido en un VPS:
 #
 #   1. Los INTÉRPRETES del cuaderno de datos son opcionales. `public/` no está versionado: lo llenan
-#      `yarn setup:pyodide` y `yarn setup:webr`, que se bajan ~80 MB entre los dos. En un VPS con el
-#      disco contado eso puede no compensar, así que aquí se controla con `SETUP_INTERPRETES` y por
-#      omisión NO se bajan. Consecuencia que hay que conocer antes de reportar un fallo: sin ellos
-#      la pestaña del cuaderno responde «No se encontró el intérprete en /pyodide/». Es el
-#      comportamiento esperado de esta imagen, no una regresión.
+#      `yarn setup:pyodide` y `yarn setup:webr`, ~75 MB entre los dos. Se controla con
+#      `SETUP_INTERPRETES`; por omisión NO se bajan, pero el compose de Coolify (DEV y TEST) lo pone en
+#      `true`. Sin ellos `/pyodide/` y `/webr/` dan 404 y el cuaderno no ejecuta Python ni R.
 #
 #   2. `public/` se garantiza vacío con `mkdir -p`. En un clon limpio el directorio NO existe y el
 #      `COPY` de más abajo hacía fallar la construcción entera con «/app/public: not found» — una
@@ -79,7 +77,12 @@ ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN mkdir -p public
-RUN if [ "$SETUP_INTERPRETES" = "true" ]; then yarn setup:interpretes; fi
+# Si se pidieron, tienen que QUEDAR: `setup-pyodide` sale con código 1 pero un `RUN` encadenado podía
+# dejar pasar una imagen sin cargador, y el fallo aparecía en el navegador de quien abre el cuaderno.
+RUN if [ "$SETUP_INTERPRETES" = "true" ]; then \
+      yarn setup:interpretes \
+      && test -s public/pyodide/pyodide.js && test -s public/webr/webr-worker.js; \
+    fi
 # PLAT-03: la identidad del artefacto se escribe AQUÍ, dentro de la imagen, y `/version` la lee de este
 # archivo. `SOURCE_COMMIT` llega como build-arg desde el compose de Coolify; si llega vacío se lee
 # `.git/HEAD` del contexto (el .dockerignore lo deja pasar). Sin ninguno queda `commit: null`: no se
