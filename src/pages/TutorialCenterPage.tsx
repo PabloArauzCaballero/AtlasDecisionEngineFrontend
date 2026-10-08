@@ -27,6 +27,9 @@ import {
 import { useInteractiveTutorial } from '../features/tutorial/useInteractiveTutorial';
 import { useTutorialProgress } from '../features/tutorial/useTutorialProgress';
 
+/** Archivo estático de `public/guias/`: se sirve sin pasar por el backend. */
+const GUIA_PDF = '/guias/ATLAS-Guia-del-Motor-de-decisiones.pdf';
+
 /** Agrupa por módulo conservando el orden del catálogo dentro de cada grupo. */
 function groupByCategory(listings: readonly TutorialListing[]) {
   const groups = new Map<TutorialListing['category'], TutorialListing[]>();
@@ -74,6 +77,18 @@ export function TutorialCenterPage() {
         title="Centro de tutoriales"
         description="Recorridos guiados sobre la interfaz real del portal. Empieza por los recomendados o retoma lo que dejaste a medias."
         hint="Cada tutorial se ejecuta sobre las pantallas de verdad: te lleva a la vista, resalta el elemento y te dice qué hacer. Puedes salir en cualquier momento y continuar después."
+        actions={
+          // La guía completa en PDF: los mismos recorridos, con la captura de cada pantalla, para
+          // leerla fuera del portal o pasársela a quien todavía no tiene acceso.
+          <a
+            className="button"
+            href={GUIA_PDF}
+            download="ATLAS-Guia-del-Motor-de-decisiones.pdf"
+            data-testid="guia-pdf"
+          >
+            Descargar la guía en PDF
+          </a>
+        }
       />
 
       <TutorialCenterSummary summary={summary} recommended={recommended} onStart={start} />
