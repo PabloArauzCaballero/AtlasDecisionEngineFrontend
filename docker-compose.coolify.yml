@@ -16,12 +16,13 @@
 # petición (`src/config/environment-label.ts`): primero `ENVIRONMENT_LABEL` del `.env` de Coolify
 # (se cambia sin reconstruir), después el dominio (un host con `.test.` es TEST) y sólo al final esto.
 #
-# ## `SETUP_INTERPRETES=false`, y lo que eso significa
+# ## `SETUP_INTERPRETES=true`: el cuaderno trae Python y R
 #
-# Deja fuera el intérprete de Python del navegador (Pyodide, ~200 MB). La pestaña del cuaderno
-# dirá «No se encontró el intérprete en /pyodide/»: es lo ESPERADO de este despliegue, no una
-# avería. Para tenerlo, ponlo en `true` y RECONSTRUYE — reiniciar no basta.
-#
+# Mete en la imagen los intérpretes del cuaderno de datos (Pyodide y WebR, ~75 MB entre los dos).
+# Estuvo en `false` por miedo a «~200 MB», y el precio fue el cuaderno roto en TEST: `/pyodide/` y
+# `/webr/` daban 404 y la pantalla decía «El intérprete se descargó pero no se registró» (Python) y
+# «R no está disponible en este ambiente» (R). Medido el 2026-10-08. Cambiarlo exige RECONSTRUIR.
+
 # ## Lo que este archivo NO trae
 #
 # La red externa `atlas_vps` ni `env_file`: Coolify añade `env_file: - .env` por su cuenta. Pega
@@ -78,7 +79,7 @@ services:
         # PLAT-03: el commit compilado. Sin este build-arg `/version` sale con commit `unknown` y el smoke de
         # TEST lo rechaza. Coolify rellena SOURCE_COMMIT al construir; si no, se lee `.git/HEAD`.
         SOURCE_COMMIT: '${SOURCE_COMMIT:-}'
-        SETUP_INTERPRETES: 'false'
+        SETUP_INTERPRETES: 'true'
         NEXT_PUBLIC_ENVIRONMENT: 'DEV'
     # `init: true` reparte SIGTERM al proceso de Node, sin depender de instalar un binario.
     init: true
