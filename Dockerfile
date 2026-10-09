@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM node:22-alpine AS base
+FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
@@ -33,7 +33,7 @@ ARG SOURCE_COMMIT=""
 RUN SOURCE_COMMIT="$SOURCE_COMMIT" node scripts/write-build-info.mjs build-info.json
 RUN yarn build
 
-FROM node:22-alpine AS runner
+FROM node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402 AS runner
 WORKDIR /app
 ENV NODE_ENV=production \
   NEXT_TELEMETRY_DISABLED=1 \
