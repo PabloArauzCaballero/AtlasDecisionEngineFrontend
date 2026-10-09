@@ -1,17 +1,22 @@
 import type { CellOutcome } from './notebook-types';
+import { MAX_LINEAS_REGISTRO } from './sandbox/protocolo';
+import { pedirAlSandbox } from './sandbox/cliente';
 
 /**
  * Ejecutor de JavaScript del cuaderno.
  *
  * El código de quien usa el cuaderno NO se evalúa con `eval` ni con `new Function`: se convierte
- * en el CUERPO de un worker que se carga desde un `blob:`. La diferencia no es estilística. La CSP
- * del portal no admite `unsafe-eval` —y no debe admitirlo, porque abrirlo aquí lo abre para todo
- * el portal—, mientras que `worker-src 'self' blob:` ya está declarado. Cargar un script es una
- * operación que la política permite; generar código en caliente, no.
+ * en el CUERPO de un worker que se carga desde un `blob:`. La diferencia no es estilística. Ni la
+ * CSP del portal ni la del marco aislado admiten `unsafe-eval`, mientras que `worker-src blob:` sí
+ * está declarado en el marco. Cargar un script es una operación que la política permite; generar
+ * código en caliente, no.
  *
- * El worker además es un aislamiento real y no una promesa: no comparte el DOM, no ve `document`
- * ni las cookies, y si el código no termina se le mata con `terminate()`. Un `while (true)` en una
- * celda cuelga su worker, no la pestaña.
+ * Y el worker NO se crea en la pestaña del portal (MOT-03). Un worker del mismo origen no ve el
+ * DOM, pero sí manda la cookie de sesión: pidiendo `/v1/session/refresh` una celda podía
+ * renovar la sesión y actuar como la persona. Se crea dentro del marco aislado
+ * (`sandbox/documento.ts`), con origen opaco y una CSP sin red: sin cookies que mandar, sin
+ * `document`, sin `parent` y sin poder navegar. Si el código no termina, el marco lo mata con
+ * `terminate()`: un `while (true)` en una celda cuelga su worker, no la pestaña.
  */
 
 const TIEMPO_MAXIMO_MS = 30_000;
@@ -24,12 +29,10 @@ const __formatear = (valor) => {
   if (typeof valor === 'string') return valor;
   try { return JSON.stringify(valor); } catch { return String(valor); }
 };
-const console = {
-  log: (...args) => __registro.push(args.map(__formatear).join(' ')),
-  info: (...args) => __registro.push(args.map(__formatear).join(' ')),
-  warn: (...args) => __registro.push(args.map(__formatear).join(' ')),
-  error: (...args) => __registro.push(args.map(__formatear).join(' ')),
+const __anotar = (...args) => {
+  if (__registro.length < ${MAX_LINEAS_REGISTRO}) __registro.push(args.map(__formatear).join(' ').slice(0, 100000));
 };
+const console = { log: __anotar, info: __anotar, warn: __anotar, error: __anotar };
 
 self.onmessage = async (evento) => {
   const { rows, columns } = evento.data;
@@ -54,84 +57,54 @@ ${codigo}
 `;
 }
 
-export function runJavaScriptCell(
+export async function runJavaScriptCell(
   codigo: string,
   datos: { rows: Record<string, unknown>[]; columns: string[] },
 ): Promise<CellOutcome> {
-  return new Promise((resolve) => {
-    let url: string | null = null;
-    let worker: Worker | null = null;
-    let temporizador: ReturnType<typeof setTimeout> | null = null;
+  const iniciado = performance.now();
+  const duracion = () => Math.round(performance.now() - iniciado);
 
-    const limpiar = () => {
-      if (temporizador) clearTimeout(temporizador);
-      worker?.terminate();
-      if (url) URL.revokeObjectURL(url);
+  let carga;
+  try {
+    carga = await pedirAlSandbox(
+      'javascript',
+      {
+        fuente: fuenteDelWorker(codigo),
+        datos: { rows: datos.rows, columns: datos.columns },
+        plazoMs: TIEMPO_MAXIMO_MS,
+      },
+      // Red de seguridad del portal: el marco ya mata el worker al cumplirse el plazo.
+      { plazoMs: TIEMPO_MAXIMO_MS + 5_000 },
+    );
+  } catch {
+    return {
+      status: 'error',
+      error: 'JavaScript no está disponible en este ambiente. Avisa a soporte.',
+      logs: [],
+      durationMs: 0,
     };
+  }
 
-    const iniciado = performance.now();
-
-    try {
-      url = URL.createObjectURL(new Blob([fuenteDelWorker(codigo)], { type: 'text/javascript' }));
-      worker = new Worker(url);
-    } catch {
-      limpiar();
-      resolve({
-        status: 'error',
-        error: 'JavaScript no está disponible en este ambiente. Avisa a soporte.',
-        logs: [],
-        durationMs: 0,
-      });
-      return;
-    }
-
-    temporizador = setTimeout(() => {
-      limpiar();
-      resolve({
-        status: 'error',
-        error: `La celda superó los ${TIEMPO_MAXIMO_MS / 1000} s y se detuvo. Revisa si hay un bucle sin salida.`,
-        logs: [],
-        durationMs: TIEMPO_MAXIMO_MS,
-      });
-    }, TIEMPO_MAXIMO_MS);
-
-    worker.onmessage = (evento: MessageEvent) => {
-      const carga = evento.data as {
-        ok: boolean;
-        resultado?: unknown;
-        error?: string;
-        registro?: string[];
-      };
-      limpiar();
-      resolve(
-        carga.ok
-          ? {
-              status: 'ok',
-              value: carga.resultado,
-              logs: carga.registro ?? [],
-              durationMs: Math.round(performance.now() - iniciado),
-            }
-          : {
-              status: 'error',
-              error: carga.error ?? 'La celda falló sin mensaje.',
-              logs: carga.registro ?? [],
-              durationMs: Math.round(performance.now() - iniciado),
-            },
-      );
+  if (carga.ok) {
+    return {
+      status: 'ok',
+      value: carga.resultado,
+      logs: carga.registro ?? [],
+      durationMs: duracion(),
     };
-
-    // Un error de SINTAXIS no llega por `onmessage`: el worker ni siquiera se carga, y sin esta
-    // rama la celda se quedaba girando hasta agotar el plazo sin decir qué estaba mal.
-    worker.onerror = (evento: ErrorEvent) => {
-      limpiar();
-      resolve({
-        status: 'error',
-        error: evento.message || 'El código no se pudo cargar: revisa la sintaxis.',
-        logs: [],
-        durationMs: Math.round(performance.now() - iniciado),
-      });
+  }
+  if ('plazo' in carga && carga.plazo) {
+    return {
+      status: 'error',
+      error: `La celda superó los ${TIEMPO_MAXIMO_MS / 1000} s y se detuvo. Revisa si hay un bucle sin salida.`,
+      logs: [],
+      durationMs: TIEMPO_MAXIMO_MS,
     };
-
-    worker.postMessage({ rows: datos.rows, columns: datos.columns });
-  });
+  }
+  return {
+    status: 'error',
+    error: carga.error ?? 'La celda falló sin mensaje.',
+    logs: ('registro' in carga ? carga.registro : undefined) ?? [],
+    durationMs: duracion(),
+  };
 }

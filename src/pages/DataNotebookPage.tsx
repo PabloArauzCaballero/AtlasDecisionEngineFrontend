@@ -20,7 +20,7 @@ export function DataNotebookPage() {
         eyebrow="Procesamiento"
         title="Cuadernos de datos"
         description="Tus cuadernos de análisis: elige uno para seguir donde lo dejaste o crea uno nuevo."
-        hint="Dentro eliges el dataset y trabajas con Python o JavaScript, celda a celda. El código corre en tu propia pestaña —no viaja a ningún servidor— y al guardar se conserva también lo que cada celda arrojó, con su fecha."
+        hint="Dentro eliges el dataset y trabajas con Python o JavaScript, celda a celda. El código corre en tu navegador, aislado de tu sesión —no viaja a ningún servidor— y al guardar se conserva también lo que cada celda arrojó, con su fecha."
       />
       <NotebookIndex />
     </>

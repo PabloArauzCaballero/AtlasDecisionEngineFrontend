@@ -60,8 +60,29 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        // Todo salvo el marco aislado del cuaderno, que el portal SÍ necesita poder montar.
+        source: '/:path((?!notebook-sandbox$).*)',
         headers: [...securityHeaders],
+      },
+      {
+        // El marco aislado: las mismas cabeceras menos `X-Frame-Options: DENY`. Lo que limita
+        // quién lo monta es su CSP (`frame-ancestors 'self'`), ver `src/app/notebook-sandbox`.
+        source: '/notebook-sandbox',
+        headers: securityHeaders.filter((cabecera) => cabecera.key !== 'X-Frame-Options'),
+      },
+      {
+        /*
+         * Los ficheros de Pyodide se piden desde el marco aislado del cuaderno, cuyo origen es
+         * opaco (`null`): para el navegador es una petición de OTRO origen y sin esta cabecera el
+         * intérprete no se descarga. `*` es correcto aquí y sólo aquí: son ficheros públicos y
+         * estáticos (los mismos del CDN de Pyodide, con su SHA-256 comprobado al construir), y la
+         * petición no lleva credenciales.
+         */
+        source: '/pyodide/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
+        ],
       },
     ];
   },

@@ -39,7 +39,7 @@ export function DataNotebookDetailPage({ notebookId }: { notebookId: string }) {
         eyebrow="Procesamiento · Cuadernos"
         title={cuaderno.data?.title ?? 'Cuaderno de datos'}
         description="Elige el dataset, escribe celdas y guarda el avance: al reabrirlo verás lo que cada celda arrojó, con su fecha."
-        hint="El código corre en tu propia pestaña y no viaja a ningún servidor. Lo que se guarda son las celdas y sus resultados —filas ya enmascaradas—, nunca datos en claro."
+        hint="El código corre en tu navegador y no viaja a ningún servidor; Python y JavaScript, además, aislados de tu sesión. Lo que se guarda son las celdas y sus resultados —filas ya enmascaradas—, nunca datos en claro."
       />
 
       <p className="notebook-detalle__volver">

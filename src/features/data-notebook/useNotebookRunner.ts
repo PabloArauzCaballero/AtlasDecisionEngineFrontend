@@ -12,13 +12,7 @@ import type {
   RuntimeStatus,
 } from './notebook-types';
 import { runJavaScriptCell } from './js-runtime';
-import {
-  bindPythonData,
-  capturarSimbolosPython,
-  loadPythonRuntime,
-  paquetesCargados,
-  runPythonCell,
-} from './python-runtime';
+import { loadPythonRuntime, paquetesCargados, runPythonCell } from './python-runtime';
 import { bindRData, capturarSimbolosR, loadRRuntime, runRCell } from './r-runtime';
 import type { useNotebookCells } from './useNotebookCells';
 
@@ -213,14 +207,13 @@ async function correrEnPython(
   source: string,
   anotar: Anotar,
 ): Promise<Corrida> {
-  const pyodide = await loadPythonRuntime(informar);
+  await loadPythonRuntime(informar);
   // Lo que se cargó DE VERDAD, no una lista escrita a mano. Con la lista fija, un artefacto de
   // Pyodide sin matplotlib seguía anunciando que se podía graficar y el fallo aparecía en el
   // `import` de quien lo intentaba, ya dentro de la celda.
   anotar('python', { phase: 'ready', packages: paquetesCargados() });
-  await bindPythonData(pyodide, entrada);
-  const outcome = await runPythonCell(pyodide, source);
-  return { outcome, simbolos: await capturarSimbolosPython(pyodide) };
+  // Datos, ejecución y símbolos en un solo viaje al marco aislado (ver `python-runtime.ts`).
+  return runPythonCell(source, entrada);
 }
 
 async function correrEnR(

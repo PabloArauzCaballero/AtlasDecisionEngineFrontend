@@ -22,7 +22,8 @@ import { useNotebookRunner } from './useNotebookRunner';
  * El cuaderno de datos.
  *
  * Lo que gobierna el diseño es el reparto: los DATOS los sirve AtlasBackend, ya acotados por
- * inquilino y enmascarados; el CÓDIGO corre en esta pestaña y en ningún otro sitio. El único
+ * inquilino y enmascarados; el CÓDIGO corre en el navegador y en ningún otro sitio —Python y
+ * JavaScript, además, en un marco aislado sin acceso a la sesión (`sandbox/`)—. El único
  * endpoint que recibe código es el del historial, y lo GUARDA sin interpretarlo jamás: abrir un
  * cuaderno de análisis no le añade al backend una superficie de ejecución remota, que es el
  * riesgo que suele traer una herramienta con esta forma.

@@ -17,9 +17,10 @@ interface RuntimeStatusBannerProps {
  * nada. Cuando falla, se dice el comando exacto que lo arregla en vez de «no disponible»: lo que
  * falta es un artefacto que no se versiona, y quien abre la pantalla no tiene por qué saberlo.
  *
- * La frase de «listo» repite en cada caso que el código **corre en esta pestaña**. No es un adorno:
- * es la propiedad que hace aceptable que exista un cuaderno sobre datos gobernados, y es justo lo
- * que alguien no puede deducir mirando la pantalla.
+ * La frase de «listo» repite en cada caso DÓNDE corre el código. No es un adorno: es la propiedad
+ * que hace aceptable que exista un cuaderno sobre datos gobernados, y es justo lo que alguien no
+ * puede deducir mirando la pantalla. Python corre en el marco aislado (MOT-03, ver
+ * `sandbox/documento.ts`) y la frase lo dice; R sigue en un worker de la pestaña y no promete más.
  */
 export function RuntimeStatusBanner({ motor, status }: RuntimeStatusBannerProps) {
   if (status.phase === 'idle') return null;
@@ -49,8 +50,10 @@ export function RuntimeStatusBanner({ motor, status }: RuntimeStatusBannerProps)
         <Icon aria-hidden="true" size={14} className="notebook-runtime__marca" />
         <CircleCheck aria-hidden="true" size={14} />
         {label} listo
-        {status.packages.length ? `, con ${status.packages.join(' y ')}` : ''}. Corre en esta
-        pestaña: el código no viaja a ningún servidor y no puede escribir en ninguna base.
+        {status.packages.length ? `, con ${status.packages.join(' y ')}` : ''}.{' '}
+        {motor === 'python'
+          ? 'Corre aislado en tu navegador, sin acceso a tu sesión: el código no viaja a ningún servidor y no puede escribir en ninguna base.'
+          : 'Corre en esta pestaña: el código no viaja a ningún servidor y no puede escribir en ninguna base.'}
       </p>
     );
   }
