@@ -1,0 +1,8 @@
+# Hallazgos de gitleaks en el HISTORIAL, detectados el 2026-10-09 (auditoría de seguridad) al
+# pasar el escaneo de la CI del árbol al historial completo. Pendientes de revisar/rotar por Pablo.
+# Este archivo existe para que la CI detecte fugas NUEVAS, no para dar por buenas las viejas.
+# Formato: <commit>:<archivo>:<regla>:<línea>. Nunca escribas aquí el valor.
+#
+# Falso positivo: fixture inventado de una prueba unitaria (token de desafío falso). En el árbol
+# actual la misma línea ya lleva `// gitleaks:allow`; este commit es anterior a esa marca.
+95bdd8c880a9dc2a1ed701a6af7a6548ce8b40e4:src/auth/password-change.test.ts:generic-api-key:37

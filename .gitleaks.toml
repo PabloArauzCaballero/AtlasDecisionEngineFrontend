@@ -6,7 +6,8 @@
 # gitleaks 8.30, `[[allowlists]]` con `paths` + `regexes` y `condition = "AND"` se salta el archivo
 # ENTERO, así que un token nuevo con otro nombre en ese mismo archivo pasaba sin avisar.
 #
-# Local: gitleaks dir . --config .gitleaks.toml --redact   (el .env local no llega a la CI)
+# CI (2026-10-09): gitleaks git . --config .gitleaks.toml --gitleaks-ignore-path .gitleaksignore --redact
+# (historial completo). Local, sólo el árbol: gitleaks dir . --config .gitleaks.toml --redact
 
 title = "Atlas gitleaks config"
 
