@@ -18,23 +18,14 @@ function contentSecurityPolicy(nonce: string): string {
   return [
     "default-src 'self'",
     /*
-     * `'wasm-unsafe-eval'` es lo que deja compilar WebAssembly, y NADA más.
+     * SIN `'wasm-unsafe-eval'` desde MOT-03.
      *
-     * Lo pide el cuaderno de datos: su Python es CPython compilado a WebAssembly (Pyodide),
-     * servido desde `/pyodide/` de este mismo origen. Sin este token el navegador rechaza el
-     * módulo con «WebAssembly.instantiate(): Refused to compile» y la pestaña de Python no
-     * arranca.
-     *
-     * No es `'unsafe-eval'` ni se le parece: `'unsafe-eval'` reabre `eval()` y `new Function()`
-     * para TODO el portal, que es exactamente el vector que un XSS necesita. El token de WASM
-     * autoriza la compilación de WebAssembly y deja la evaluación de cadenas de JavaScript tan
-     * cerrada como estaba. Existe en la especificación precisamente para no tener que elegir
-     * entre las dos cosas.
-     *
-     * El JavaScript de las celdas no necesita nada de esto: se carga como worker desde un
-     * `blob:` (ver `worker-src`), que es cargar un script y no generarlo en caliente.
+     * Lo pedía el Python del cuaderno (Pyodide, CPython compilado a WebAssembly) cuando corría en
+     * esta pestaña. Ahora corre en el marco aislado `/notebook-sandbox`, que lleva su propia CSP con
+     * ese token, y R compila su WebAssembly dentro de su worker (`CSP_WEBR`). La pestaña del portal
+     * ya no compila WebAssembly, así que no tiene por qué poder hacerlo.
      */
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${devOnly}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${devOnly}`,
     // Next.js inyecta estilos en línea al hidratar; no hay forma de firmarlos.
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
@@ -54,6 +45,10 @@ function contentSecurityPolicy(nonce: string): string {
      * Los PDF del expediente (matrícula, NIT, poder) se pintan en un `<iframe>` desde un `blob:`
      * local, igual que las imágenes: se piden con la credencial y nunca por una URL pública. Sin
      * `frame-src` el marco caía en `default-src 'self'` y quedaba en blanco, sin error en pantalla.
+     *
+     * `'self'` cubre también `/notebook-sandbox`, el marco aislado donde corren las celdas de
+     * Python y JavaScript del cuaderno (MOT-03). No hace falta nada más: lo que lo aísla es el
+     * atributo `sandbox` sin `allow-same-origin` y su propia CSP, no esta lista.
      */
     "frame-src 'self' blob:",
     "font-src 'self' data:",
@@ -63,6 +58,8 @@ function contentSecurityPolicy(nonce: string): string {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
+    // Los workers de las celdas ya no nacen aquí sino en el marco aislado; `blob:` sigue por los
+    // del editor (Monaco), que no ejecutan código de nadie.
     "worker-src 'self' blob:",
     'upgrade-insecure-requests',
   ].join('; ');
@@ -80,10 +77,12 @@ function contentSecurityPolicy(nonce: string): string {
  * Se declara aparte y no se «relaja la del portal» porque son dos contextos distintos y esto es lo
  * que hace que la diferencia importe:
  *
- * - **`connect-src 'self'` es el control que protege los datos.** R no puede descargar paquetes de
- *   `repo.r-wasm.org` ni sacar filas de clientes a ningún sitio: `download.file()`, `url()` y
- *   `webr::install()` chocan aquí. Es lo que convierte «R en el navegador» en una herramienta
- *   ANALÍTICA y de sólo lectura en vez de en un cliente de red con los datos ya cargados.
+ * - **`connect-src 'self'` limita a dónde puede ir R.** No puede descargar paquetes de
+ *   `repo.r-wasm.org` ni sacar filas a un dominio ajeno: `download.file()`, `url()` y
+ *   `webr::install()` chocan aquí. OJO: `'self'` incluye el propio portal (`/v1/*`), y este worker
+ *   es del MISMO origen, así que sus peticiones llevan la cookie de sesión. R NO está aislado como
+ *   Python y JavaScript (que corren en `/notebook-sandbox`, ver MOT-03); moverlo al marco es
+ *   trabajo pendiente.
  * - **`default-src 'none'`**: el worker no pinta, no carga tipografías y no abre marcos.
  * - **`'unsafe-eval'` vale SÓLO aquí dentro.** El pegamento de Emscripten que arranca R lo usa para
  *   sus bloques `EM_ASM`. Una CSP es por contexto de ejecución: esto autoriza a evaluar dentro del
@@ -101,6 +100,9 @@ const CSP_WEBR = [
 ].join('; ');
 
 export function middleware(request: NextRequest) {
+  // El marco aislado del cuaderno trae su propia CSP (ver `src/app/notebook-sandbox`). Ponerle
+  // además la del portal las sumaría, y su `frame-ancestors 'none'` impediría montarlo.
+  if (request.nextUrl.pathname === '/notebook-sandbox') return NextResponse.next();
   if (request.nextUrl.pathname.startsWith('/webr/')) {
     const respuesta = NextResponse.next();
     respuesta.headers.set('content-security-policy', CSP_WEBR);

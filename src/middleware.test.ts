@@ -84,4 +84,16 @@ describe('content security policy middleware', () => {
       expect(directives(portal ?? '').get('script-src')).not.toContain("'unsafe-eval'");
     });
   });
+
+  describe('marco aislado del cuaderno (MOT-03)', () => {
+    it('no le pone la CSP del portal: lleva la suya, y dos políticas se sumarían', () => {
+      const respuesta = middleware(request('/notebook-sandbox'));
+      expect(respuesta.headers.get('content-security-policy')).toBeNull();
+    });
+
+    it('la pestaña del portal ya no compila WebAssembly: Python vive en el marco', () => {
+      const portal = middleware(request('/data-notebook')).headers.get('content-security-policy');
+      expect(directives(portal ?? '').get('script-src')).not.toContain("'wasm-unsafe-eval'");
+    });
+  });
 });

@@ -9,11 +9,12 @@ import { escribirEnCelda } from './support/notebook-editor';
  * decenas de segundos: metido en la batería general la volvería lenta y la ataría a un artefacto
  * que no se versiona (`public/pyodide/`, lo trae `node scripts/setup-pyodide.mjs`).
  *
- * Lo que prueba, y que ninguna prueba de la interfaz puede sustituir: que la CSP del portal deja
- * compilar WebAssembly. `'wasm-unsafe-eval'` es un token nuevo en `script-src`, y si estuviera mal
- * puesto el fallo sería un mensaje en la consola del navegador —donde nadie mira— y una pestaña de
- * Python que no arranca nunca. Córrela contra la BUILD (`next start`), no sólo contra el servidor
- * de desarrollo: en desarrollo la CSP añade `'unsafe-eval'` y taparía el fallo.
+ * Lo que prueba, y que ninguna prueba de la interfaz puede sustituir: que Python arranca DENTRO del
+ * marco aislado (`/notebook-sandbox`, MOT-03). Su CSP propia lleva `'wasm-unsafe-eval'` y sólo deja
+ * pedir `/pyodide/`, que a su vez tiene que responder con CORS porque el marco es de origen opaco.
+ * Si cualquiera de las dos cosas estuviera mal, el fallo sería un mensaje en la consola del
+ * navegador —donde nadie mira— y una pestaña de Python que no arranca nunca. Córrela contra la
+ * BUILD (`next start`), no sólo contra el servidor de desarrollo.
  */
 
 /** Arrancar el intérprete y cargar pandas puede tardar; el plazo es del artefacto, no del código. */
