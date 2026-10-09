@@ -10,6 +10,8 @@ interface StepDetailProps {
   step: TraceStep;
   /** Resultado esperado del caso, cuando la vista lo conoce (pruebas). */
   expected?: unknown;
+  /** Variables clasificadas como dato personal: se pintan enmascaradas (ver `utils/sensitivity`). */
+  sensitiveCodes?: ReadonlySet<string>;
 }
 
 /**
@@ -19,7 +21,7 @@ interface StepDetailProps {
  * insinuar: qué recibió, qué devolvió, cuánto tardó, por dónde continuó, si
  * llamó a otro algoritmo y si alguien tuvo que intervenir.
  */
-export function StepDetail({ step, expected }: StepDetailProps) {
+export function StepDetail({ step, expected, sensitiveCodes }: StepDetailProps) {
   const definition = nodeTypeDefinition(step.nodeType);
   const Icon = definition.icon;
 
@@ -97,11 +99,15 @@ export function StepDetail({ step, expected }: StepDetailProps) {
         </p>
       ) : null}
 
-      {step.input !== undefined ? <JsonPanel label="Entradas del paso" value={step.input} /> : null}
-      {step.output !== undefined ? (
-        <JsonPanel label="Salidas del paso" value={step.output} />
+      {step.input !== undefined ? (
+        <JsonPanel label="Entradas del paso" value={step.input} sensitiveCodes={sensitiveCodes} />
       ) : null}
-      {expected !== undefined ? <JsonPanel label="Resultado esperado" value={expected} /> : null}
+      {step.output !== undefined ? (
+        <JsonPanel label="Salidas del paso" value={step.output} sensitiveCodes={sensitiveCodes} />
+      ) : null}
+      {expected !== undefined ? (
+        <JsonPanel label="Resultado esperado" value={expected} sensitiveCodes={sensitiveCodes} />
+      ) : null}
     </div>
   );
 }

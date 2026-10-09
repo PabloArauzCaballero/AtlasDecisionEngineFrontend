@@ -130,3 +130,38 @@ describe('ExecutionPlayback', () => {
     expect(screen.getByText('e2')).toBeInTheDocument();
   });
 });
+
+/*
+ * La reproducción enseña las entradas de cada paso, que son las del expediente real. La misma
+ * página enmascara la «Entrada original»; aquí salían en claro, con «copiar» al lado.
+ */
+describe('ExecutionPlayback con datos personales', () => {
+  const PII_STEPS = normalizeTrace({
+    traceSteps: [
+      {
+        nodeKey: 'INICIO',
+        nodeType: 'START',
+        status: 'COMPLETED',
+        inputJson: { ci: '4455667', ingresoMensual: 8200, plazo: 12 },
+        outputJson: { ci: '4455667', aprobado: true },
+      },
+    ],
+  });
+
+  it('enmascara las variables sensibles en entradas y salidas del paso', () => {
+    render(
+      <ExecutionPlayback
+        steps={PII_STEPS}
+        nodes={NODES}
+        edges={EDGES}
+        sensitiveCodes={new Set(['ci', 'ingresoMensual'])}
+      />,
+    );
+
+    expect(screen.queryByText(/4455667/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/8200/)).not.toBeInTheDocument();
+    expect(screen.getAllByText('Datos personales enmascarados').length).toBeGreaterThan(0);
+    // Lo que no es dato personal se sigue viendo.
+    expect(screen.getAllByText(/12/).length).toBeGreaterThan(0);
+  });
+});

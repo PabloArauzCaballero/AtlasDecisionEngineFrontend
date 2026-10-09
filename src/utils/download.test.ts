@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toCsv } from './download';
+import { neutralizeCsvFormula, restoreCsvFormula, toCsv } from './download';
 
 const COLUMNS = [
   { key: 'code', label: 'Código' },
@@ -48,5 +48,24 @@ describe('toCsv', () => {
   it('serializa nulos como celda vacía y objetos como JSON', () => {
     const csv = toCsv([{ code: null, name: { a: 1 } }], COLUMNS);
     expect(csv).toBe('Código,Nombre\r\n,"{""a"":1}"');
+  });
+});
+
+describe('neutralizeCsvFormula / restoreCsvFormula', () => {
+  it('ida y vuelta: lo que baja neutralizado sube como se escribió', () => {
+    for (const valor of [
+      '=HYPERLINK("https://x")',
+      '+1',
+      '-1',
+      '@SUM(A1)',
+      'PAGO NORMAL',
+      "'cita",
+    ]) {
+      expect(restoreCsvFormula(neutralizeCsvFormula(valor))).toBe(valor);
+    }
+  });
+
+  it('no toca un apóstrofo que es del dato', () => {
+    expect(restoreCsvFormula("'cita")).toBe("'cita");
   });
 });

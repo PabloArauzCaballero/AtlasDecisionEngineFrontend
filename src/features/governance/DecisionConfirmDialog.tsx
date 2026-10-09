@@ -45,11 +45,18 @@ export function DecisionConfirmDialog({
   onConfirm,
 }: DecisionConfirmDialogProps) {
   const approving = decision === 'APPROVE';
+  const requestingChanges = decision === 'REQUEST_CHANGES';
   const missingEvidence = !gates.reported || gates.failing.length > 0;
 
   return (
     <ModalDialog
-      title={approving ? 'Confirmar aprobación' : 'Confirmar rechazo'}
+      title={
+        approving
+          ? 'Confirmar aprobación'
+          : requestingChanges
+            ? 'Confirmar solicitud de cambios'
+            : 'Confirmar rechazo'
+      }
       subtitle={`${subject.requestLabel} · ${subject.stepLabel}`}
       tone={approving ? 'default' : 'danger'}
       icon={approving ? <ShieldCheck /> : <ShieldAlert />}
@@ -66,7 +73,11 @@ export function DecisionConfirmDialog({
             disabled={pending}
           >
             {pending ? <span className="inline-spinner" aria-hidden="true" /> : null}
-            {approving ? 'Firmar aprobación' : 'Firmar rechazo'}
+            {approving
+              ? 'Firmar aprobación'
+              : requestingChanges
+                ? 'Firmar solicitud de cambios'
+                : 'Firmar rechazo'}
           </button>
         </>
       }
@@ -91,7 +102,9 @@ export function DecisionConfirmDialog({
           <dd>
             {approving
               ? 'El paso queda firmado y la solicitud avanza en el flujo. No podrás deshacerlo desde el portal.'
-              : 'La solicitud se rechaza y la versión no avanza. El artefacto no se modifica.'}
+              : requestingChanges
+                ? 'La solicitud vuelve a la autora con cambios pedidos y la versión no avanza.'
+                : 'La solicitud se rechaza y la versión no avanza. El artefacto no se modifica.'}
           </dd>
         </div>
       </dl>

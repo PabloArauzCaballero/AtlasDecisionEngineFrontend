@@ -66,11 +66,30 @@ const FORMULA_LEAD = /^[=+\-@\t\r]/;
  *    entienden— impide la ejecución. Va DENTRO del entrecomillado, no fuera:
  *    puesto fuera formaría parte del delimitador y no del valor.
  */
-function escapeCsvCell(value: unknown): string {
+export function escapeCsvCell(value: unknown): string {
   if (value === null || value === undefined) return '';
   const text = typeof value === 'object' ? JSON.stringify(value) : String(value);
-  const safe = FORMULA_LEAD.test(text) ? `'${text}` : text;
+  const safe = neutralizeCsvFormula(text);
   return /[",\r\n]/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
+}
+
+/**
+ * Sólo la mitad de las fórmulas: el `'` inicial, sin entrecomillar.
+ *
+ * Para los CSV que ya tienen su propio entrecomillado (el del catálogo de categorías entrecomilla
+ * SIEMPRE, porque se vuelve a subir) y sólo necesitan no ejecutarse al abrirse.
+ */
+export function neutralizeCsvFormula(text: string): string {
+  return FORMULA_LEAD.test(text) ? `'${text}` : text;
+}
+
+/**
+ * Lo inverso, para los CSV que el portal descarga Y vuelve a leer: quita el `'` que puso
+ * `neutralizeCsvFormula`, de modo que `=SUMA` baja como `'=SUMA` y sube otra vez como `=SUMA`.
+ * Un `'` que no va delante de un carácter de fórmula es del dato y se queda.
+ */
+export function restoreCsvFormula(text: string): string {
+  return text.startsWith("'") && FORMULA_LEAD.test(text.slice(1)) ? text.slice(1) : text;
 }
 
 /** Serializes rows to CSV following the visible column order, resolving nested paths. */

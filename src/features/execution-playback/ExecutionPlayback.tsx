@@ -16,6 +16,11 @@ interface ExecutionPlaybackProps {
   edges: UnknownRecord[];
   /** Resultado esperado, si la vista lo conoce (caso de prueba). */
   expected?: unknown;
+  /**
+   * Variables clasificadas como dato personal. Las entradas de cada paso son las del expediente
+   * real, así que se enmascaran igual que la «Entrada original» de la misma página.
+   */
+  sensitiveCodes?: ReadonlySet<string>;
 }
 
 const TIMELINE_ICONS = {
@@ -36,7 +41,13 @@ const TIMELINE_ICONS = {
  * Si la ejecución no trae traza no se dibuja nada — no hay recorrido que
  * simular.
  */
-export function ExecutionPlayback({ steps, nodes, edges, expected }: ExecutionPlaybackProps) {
+export function ExecutionPlayback({
+  steps,
+  nodes,
+  edges,
+  expected,
+  sensitiveCodes,
+}: ExecutionPlaybackProps) {
   const playback = useExecutionPlayback(steps.length);
 
   if (!steps.length) {
@@ -104,7 +115,7 @@ export function ExecutionPlayback({ steps, nodes, edges, expected }: ExecutionPl
         })}
       </ol>
 
-      <StepDetail step={current} expected={expected} />
+      <StepDetail step={current} expected={expected} sensitiveCodes={sensitiveCodes} />
     </div>
   );
 }

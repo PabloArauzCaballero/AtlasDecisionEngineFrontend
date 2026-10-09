@@ -1,3 +1,4 @@
+import { escapeCsvCell } from '../../utils/download';
 import type { DerivedTable } from './notebook-types';
 
 /**
@@ -49,8 +50,12 @@ export function cellText(valor: unknown): string {
  * muchas filas después, cuando ya nadie relaciona el desajuste con esta función.
  */
 function escapeCsv(valor: unknown): string {
-  const texto = cellText(valor);
-  return /[",\r\n]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
+  // El mismo escapador que el resto de CSV del portal: además de la estructura, neutraliza las
+  // fórmulas (`=`, `+`, `-`, `@`). Las filas del cuaderno son glosas y datos que escribe un
+  // tercero, y este archivo se abre en Excel.
+  // Un número negativo es un número, no una fórmula: se deja tal cual para que la hoja lo sume.
+  if (typeof valor === 'number') return String(valor);
+  return escapeCsvCell(cellText(valor));
 }
 
 export function toCsv(tabla: DerivedTable): string {

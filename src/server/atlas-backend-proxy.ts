@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { atlasBackendAccess } from './atlas-backend-allowlist';
 import { buildUpstreamUrl, envMs, fetchUpstream } from './upstream';
 
 /**
  * Segundo destino del portal, y el motivo por el que no basta con el que ya había.
+ *
+ * No es un comodín: sólo reenvía los prefijos de `atlas-backend-allowlist.ts`.
  *
  * `/v1/*` va al motor de decisión. El cuaderno de datos no lee del motor: lee de la superficie
  * `read_api` de AtlasBackend, que es donde viven los clientes, los casos y la bitácora. Son dos
@@ -85,6 +88,22 @@ export async function proxyAtlasBackend(
       );
     }
     target.search = request.nextUrl.search;
+
+    // Sólo lo que el portal usa de verdad (ver `atlas-backend-allowlist.ts`). Va DESPUÉS de
+    // validar los segmentos: un `..` sigue siendo un 400, no un 404 que lo disimule.
+    const access = atlasBackendAccess(request.method, pathSegments);
+    if (access === 'not-found') {
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'Ruta no disponible desde el portal.' },
+        { status: 404 },
+      );
+    }
+    if (access === 'method-not-allowed') {
+      return NextResponse.json(
+        { code: 'METHOD_NOT_ALLOWED', message: 'Método no permitido en esta ruta.' },
+        { status: 405 },
+      );
+    }
 
     const clientChain = trustedClientChain(request);
     const headers = new Headers(request.headers);

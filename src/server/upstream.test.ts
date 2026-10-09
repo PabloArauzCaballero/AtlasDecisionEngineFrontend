@@ -126,10 +126,14 @@ describe('proxies contra un upstream real', () => {
     process.env.ATLAS_BACKEND_URL = upstream.url;
     process.env.ATLAS_BACKEND_TIMEOUT_MS = '1000';
 
-    const response = await proxyAtlasBackend(get('/atlas-backend/events'), ['events']);
+    const response = await proxyAtlasBackend(get('/atlas-backend/internal/assist/chat'), [
+      'internal',
+      'assist',
+      'chat',
+    ]);
     expect(response.status).toBe(200);
     expect(await countEvents(response.body!)).toBe(10);
-    expect(upstream.seen).toEqual(['/api/v1/events']);
+    expect(upstream.seen).toEqual(['/api/v1/internal/assist/chat']);
   });
 
   it('un upstream que no envía cabeceras se corta al plazo con 504', async () => {
@@ -158,7 +162,10 @@ describe('proxies contra un upstream real', () => {
     process.env.ATLAS_BACKEND_URL = upstream.url;
     process.env.ATLAS_BACKEND_TIMEOUT_MS = '400';
 
-    const response = await proxyAtlasBackend(get('/atlas-backend/x'), ['x']);
+    const response = await proxyAtlasBackend(get('/atlas-backend/sql-console/catalog'), [
+      'sql-console',
+      'catalog',
+    ]);
     expect(response.status).toBe(504);
     await upstream.closed;
   });
@@ -209,7 +216,11 @@ describe('proxies contra un upstream real', () => {
     upstream = await listen(sse(1_000, 100));
     process.env.ATLAS_BACKEND_URL = upstream.url;
 
-    const response = await proxyAtlasBackend(get('/atlas-backend/events'), ['events']);
+    const response = await proxyAtlasBackend(get('/atlas-backend/internal/assist/chat'), [
+      'internal',
+      'assist',
+      'chat',
+    ]);
     const reader = response.body!.getReader();
     await reader.read();
     await reader.cancel();
@@ -228,6 +239,19 @@ describe('proxies contra un upstream real', () => {
       const response = await proxyAtlasBackend(get('/atlas-backend/x'), segments);
       expect(response.status).toBe(400);
     }
+    expect(upstream.seen).toEqual([]);
+  });
+
+  it('AtlasBackend: una ruta que el portal no usa responde 404 sin llamar al upstream', async () => {
+    upstream = await listen((_req, res) => res.end('{}'));
+    process.env.ATLAS_BACKEND_URL = upstream.url;
+
+    const response = await proxyAtlasBackend(get('/atlas-backend/internal/auth/me'), [
+      'internal',
+      'auth',
+      'me',
+    ]);
+    expect(response.status).toBe(404);
     expect(upstream.seen).toEqual([]);
   });
 });

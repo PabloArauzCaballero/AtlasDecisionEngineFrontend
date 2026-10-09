@@ -75,6 +75,15 @@ describe('minimotor de Markdown', () => {
     expect(enlaceSeguro('  JavaScript:alert(1)')).toBe(false);
   });
 
+  it('`//host` y `/\\host` no pasan por ruta interna: son otro origen', () => {
+    expect(enlaceSeguro('//evil.com/login')).toBe(false);
+    expect(enlaceSeguro('/\\evil.com')).toBe(false);
+    const [parrafo] = parseMarkdown('[panel](//evil.com)');
+    expect(parrafo.type === 'paragraph' && parrafo.children).toEqual([
+      { type: 'text', value: '[panel](//evil.com)' },
+    ]);
+  });
+
   it('un enlace válido conserva rótulo y destino', () => {
     const [parrafo] = parseMarkdown('ver [la vista](/sql-console) para más');
     expect(parrafo.type === 'paragraph' && parrafo.children[1]).toMatchObject({

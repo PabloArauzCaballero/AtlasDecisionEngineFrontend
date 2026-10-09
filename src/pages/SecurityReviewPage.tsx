@@ -3,6 +3,15 @@ import { Download, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { useState } from 'react';
 import { apiRequest } from '../api/http-client';
 import { errorMessage } from '../api/ApiError';
+import { useAuth } from '../auth/useAuth';
+import { ApprovalStepsList } from '../features/governance/ApprovalStepsList';
+import { DecisionConfirmDialog } from '../features/governance/DecisionConfirmDialog';
+import {
+  activeGovernanceRequest,
+  evaluateDecisionGate,
+} from '../features/governance/decision-policy';
+import { useApprovalDecision, type Decision } from '../features/governance/useApprovalDecision';
+import { useVersionGates } from '../features/governance/useVersionGates';
 import { Alert } from '../components/Alert';
 import { PageHeader } from '../components/PageHeader';
 import { Panel } from '../components/Panel';
@@ -56,19 +65,48 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
   const review = asRecord(query.data);
   const artifact = asRecord(review.artifact);
   const governance = asRows(review.governance);
-  const pendingStep = governance
-    .flatMap((request) => asRows(request.steps))
-    .find((step) => step.status === 'PENDING');
-  const pendingStepId = pendingStep ? display(pendingStep, 'id') : null;
 
-  const decide = useMutation({
-    mutationFn: (decision: 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES') =>
-      apiRequest(`/v1/approval-steps/${encodeURIComponent(pendingStepId ?? '')}/decisions`, {
-        method: 'POST',
-        body: { decision, comments, evidence: [] },
-      }),
-    onSuccess: () => query.refetch(),
+  /*
+   * La firma desde aquí es la MISMA que en la solicitud de aprobación: el paso pendiente de menor
+   * orden de la solicitud abierta, la misma política (`evaluateDecisionGate`: ni el solicitante
+   * ni quien no tenga el rol del paso ven los botones), comentario obligatorio, confirmación con
+   * la evidencia de las pruebas y clave de idempotencia. Antes un AUDITOR veía «Aprobar» y un
+   * clic firmaba el primer PENDING que apareciera, sin nada de eso.
+   */
+  const { user } = useAuth();
+  const [confirming, setConfirming] = useState<Decision | null>(null);
+  const openRequest = activeGovernanceRequest(governance);
+  const gate = openRequest ? evaluateDecisionGate(openRequest, user) : null;
+  const reviewVersion = asRecord(review.version);
+  const { gates } = useVersionGates(openRequest ?? {}, {
+    ...reviewVersion,
+    id: reviewVersion.id ?? versionId,
   });
+  const requestLabel = openRequest ? `REQ-${display(openRequest, 'id')}` : '';
+  const decide = useApprovalDecision({
+    requestLabel,
+    refresh: () => void query.refetch(),
+  });
+  const blockedByComment = !comments.trim();
+
+  const askConfirmation = (decision: Decision) => {
+    decide.beginAttempt();
+    setConfirming(decision);
+  };
+
+  const confirmDecision = () => {
+    if (!gate?.canDecide || !gate.stepId || !confirming) return;
+    decide.mutate(
+      { stepId: gate.stepId, decision: confirming, comments },
+      {
+        onSuccess: () => {
+          setComments('');
+          setConfirming(null);
+        },
+        onError: () => setConfirming(null),
+      },
+    );
+  };
 
   const exportReview = useMutation({
     /*
@@ -154,46 +192,82 @@ export function SecurityReviewPage({ versionId }: SecurityReviewPageProps) {
         )}
       </Panel>
 
-      {pendingStepId ? (
-        <Panel title="Tu firma" meta={`Paso #${pendingStepId}`}>
-          <Field
-            label="Comentarios"
-            tooltip="Observaciones de la revisión de seguridad; quedan con el dictamen."
-          >
-            <textarea
-              value={comments}
-              onChange={(event) => setComments(event.target.value)}
-              rows={3}
-            />
-          </Field>
-          <div className="inline-actions">
-            <button
-              className="button"
-              type="button"
-              onClick={() => decide.mutate('REQUEST_CHANGES')}
-              disabled={decide.isPending}
-            >
-              Solicitar cambios
-            </button>
-            <button
-              className="button"
-              type="button"
-              onClick={() => decide.mutate('REJECT')}
-              disabled={decide.isPending}
-            >
-              <ThumbsDown size={16} /> Rechazar
-            </button>
-            <button
-              className="button button-primary"
-              type="button"
-              onClick={() => decide.mutate('APPROVE')}
-              disabled={decide.isPending}
-            >
-              <ThumbsUp size={16} /> Aprobar
-            </button>
-          </div>
-          {decide.isError ? <Alert tone="error">{errorMessage(decide.error)}</Alert> : null}
+      {openRequest && gate ? (
+        <Panel
+          title="Tu firma"
+          meta={`${requestLabel} · ${gate.requiredRole ? `Firma: ${gate.requiredRole}` : 'Sin rol indicado'}`}
+        >
+          <ApprovalStepsList request={openRequest} />
+          {decide.staleState ? (
+            <Alert tone="warning">
+              La solicitud cambió mientras la revisabas: otra persona decidió este paso o el flujo
+              avanzó. Se releyó el estado real; revísalo antes de volver a decidir.
+            </Alert>
+          ) : null}
+          {gate.canDecide ? (
+            <>
+              <Field
+                label="Comentario obligatorio"
+                tooltip="Observaciones de la revisión de seguridad; quedan con el dictamen."
+              >
+                <textarea
+                  value={comments}
+                  onChange={(event) => setComments(event.target.value)}
+                  rows={3}
+                />
+              </Field>
+              <div className="inline-actions">
+                <button
+                  className="button"
+                  type="button"
+                  onClick={() => askConfirmation('REQUEST_CHANGES')}
+                  disabled={blockedByComment || decide.isPending}
+                >
+                  Solicitar cambios
+                </button>
+                <button
+                  className="button button-danger"
+                  type="button"
+                  onClick={() => askConfirmation('REJECT')}
+                  disabled={blockedByComment || decide.isPending}
+                >
+                  <ThumbsDown size={16} /> Rechazar
+                </button>
+                <button
+                  className="button button-primary"
+                  type="button"
+                  onClick={() => askConfirmation('APPROVE')}
+                  disabled={blockedByComment || decide.isPending}
+                >
+                  <ThumbsUp size={16} /> Aprobar
+                </button>
+              </div>
+            </>
+          ) : (
+            <Alert tone="info">
+              {gate.reason ?? 'Esta solicitud no admite decisiones desde tu sesión.'}
+            </Alert>
+          )}
         </Panel>
+      ) : null}
+
+      {confirming && openRequest && gate ? (
+        <DecisionConfirmDialog
+          decision={confirming}
+          subject={{
+            requestLabel,
+            artifactName: display(artifact, 'name'),
+            artifactCode: display(artifact, 'artifactCode'),
+            versionLabel: display(reviewVersion, 'semanticVersion', 'versionNumber'),
+            requiredRole: gate.requiredRole,
+            stepLabel: `Paso ${display(asRecord(gate.step), 'stepOrder')}`,
+          }}
+          gates={gates}
+          comments={comments}
+          pending={decide.isPending}
+          onCancel={() => setConfirming(null)}
+          onConfirm={confirmDecision}
+        />
       ) : null}
 
       <SecurityDetails review={review} />

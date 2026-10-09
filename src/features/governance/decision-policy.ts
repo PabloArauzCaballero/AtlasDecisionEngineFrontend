@@ -130,3 +130,44 @@ export function evaluateDecisionGate(
 
   return { step, stepId, requiredRole, canDecide: true, reason: null };
 }
+
+/** Fecha de la solicitud como número, para ordenar; sin fecha va al final. */
+function requestedAtMs(request: UnknownRecord): number {
+  const ms = Date.parse(text(request.requestedAt));
+  return Number.isFinite(ms) ? ms : Number.NEGATIVE_INFINITY;
+}
+
+/**
+ * De todas las solicitudes de una versión, la que hoy admite firma.
+ *
+ * La revisión de seguridad recibe el historial completo de solicitudes. Tomar «el primer paso
+ * PENDING de cualquiera» firmaba sin ordenar y podía caer en una solicitud ya cerrada (un paso
+ * que quedó PENDING en una solicitud RECHAZADA). Aquí: sólo solicitudes no terminales con un
+ * paso pendiente, la más reciente; dentro de ella, el paso lo decide `activeApprovalStep`.
+ */
+export function activeGovernanceRequest(requests: readonly UnknownRecord[]): UnknownRecord | null {
+  const open = requests.filter(
+    (request) => !TERMINAL_STATUSES.has(upper(request.status)) && activeApprovalStep(request),
+  );
+  if (!open.length) return null;
+  return open.reduce((latest, request) =>
+    requestedAtMs(request) > requestedAtMs(latest) ? request : latest,
+  );
+}
+
+export interface StepSignature {
+  decidedBy: string;
+  decision: string;
+  decidedAt: string | null;
+}
+
+/** Quién firmó cada paso, en el orden en que llegaron las decisiones. */
+export function stepSignatures(step: UnknownRecord): StepSignature[] {
+  return asRows(step.decisions)
+    .map((decision) => ({
+      decidedBy: text(decision.decidedBy),
+      decision: upper(decision.decision),
+      decidedAt: text(decision.decidedAt) || null,
+    }))
+    .filter((signature) => signature.decidedBy);
+}
