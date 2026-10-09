@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { SQL_CONSOLE_TABS_KEY } from '../../auth/session-data';
 
 export interface ConsoleTab {
   id: string;
@@ -8,7 +9,8 @@ export interface ConsoleTab {
   statement: string;
 }
 
-const STORAGE_KEY = 'atlas.sql-console.tabs';
+// Se borra al cerrar sesión (`auth/session-data.ts`): el SQL puede llevar datos de clientes.
+const STORAGE_KEY = SQL_CONSOLE_TABS_KEY;
 /** Un tope para que el almacenamiento del navegador no crezca sin fin. */
 const MAX_TABS = 12;
 

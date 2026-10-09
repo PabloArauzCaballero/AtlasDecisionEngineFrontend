@@ -1,4 +1,5 @@
 import { Copy, FileDown, GitBranch } from 'lucide-react';
+import { SIMULATOR_PREFILL_KEY } from '../auth/session-data';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -103,7 +104,7 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
   const cloneToSimulator = () => {
     const input = asRecord(execution.inputJson ?? execution.inputSnapshot);
     sessionStorage.setItem(
-      'simulator-prefill',
+      SIMULATOR_PREFILL_KEY,
       JSON.stringify({
         artifactCode: display(execution, 'artifactCode'),
         variables: input.variables ?? input,
@@ -219,7 +220,12 @@ export function ExecutionDetailPage({ executionId }: ExecutionDetailPageProps) {
       </Panel>
       <ExecutionIdentityEvidence traceSteps={execution.traceSteps} />
       <Panel title="Reproducción de la decisión" meta={`${steps.length} pasos trazados`}>
-        <ExecutionPlayback steps={steps} nodes={asRows(graph.nodes)} edges={asRows(graph.edges)} />
+        <ExecutionPlayback
+          steps={steps}
+          nodes={asRows(graph.nodes)}
+          edges={asRows(graph.edges)}
+          sensitiveCodes={sensitiveCodes}
+        />
       </Panel>
       {/* Columnas de maquetación, no landmarks: el `<main>` del portal es el de
           `NextAppShell` y sólo puede haber uno. */}

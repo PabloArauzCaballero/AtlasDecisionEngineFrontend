@@ -1,3 +1,4 @@
+import { neutralizeCsvFormula, restoreCsvFormula } from '../../utils/download';
 import type { SemanticCategory } from './categories.api';
 import { aplanarExportacion } from './category-json';
 import {
@@ -79,7 +80,7 @@ export function partirLinea(linea: string): string[] {
     }
   }
   celdas.push(actual);
-  return celdas.map((celda) => celda.trim());
+  return celdas.map((celda) => restoreCsvFormula(celda.trim()));
 }
 
 function ejemplos(celda: string): string[] {
@@ -230,7 +231,9 @@ export function leerJson(texto: string): Lectura {
 export function celdaCsv(valor: string | number | null): string {
   if (valor === null) return '';
   if (typeof valor === 'number') return String(valor);
-  return `"${valor.split('"').join('""')}"`;
+  // Una glosa que empiece por `=`, `+`, `-` o `@` se ejecutaría al abrir el archivo en Excel:
+  // se neutraliza como en `utils/download.ts`, y `partirLinea` deshace la marca al volver a subir.
+  return `"${neutralizeCsvFormula(valor).split('"').join('""')}"`;
 }
 
 /**

@@ -7,6 +7,7 @@ import { useAuth } from '../../../auth/useAuth';
 import { AmbientBackground } from '../../../components/AmbientBackground';
 import { LoadingScreen } from '../../../components/LoadingScreen';
 import { ThemeToggle } from '../../../theme/ThemeToggle';
+import { safeInternalPath } from '../../../utils/internal-path';
 import { LoginForm, type LoginCredentials } from './LoginForm';
 import { LoginPinForm } from './LoginPinForm';
 import {
@@ -18,9 +19,13 @@ import {
 import { LoginShowcase } from './LoginShowcase';
 import { PasswordRecovery } from './PasswordRecovery';
 
+/**
+ * A dónde volver tras entrar. Sólo una ruta del propio portal: `?from=/\evil.com` pasaba el
+ * filtro anterior («empieza por `/` y no por `//`») y el navegador lo resolvía a otro dominio,
+ * así que un enlace al login real acababa, tras el segundo factor, en un clon.
+ */
 function resolveDestination(value: string | null): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/platform-health';
-  return value;
+  return safeInternalPath(value, '/platform-health');
 }
 
 const REMEMBER_KEY = 'atlas.login.remember';

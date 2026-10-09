@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import { SIMULATOR_PREFILL_KEY } from '../auth/session-data';
 import { AlertTriangle, GitBranch, Play } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
@@ -74,9 +75,9 @@ export function SimulatorPage() {
   // "Clonar" on an execution detail page leaves the original request here so
   // the operator can replay it as a dry run. Consumed once, then discarded.
   useEffect(() => {
-    const raw = sessionStorage.getItem('simulator-prefill');
+    const raw = sessionStorage.getItem(SIMULATOR_PREFILL_KEY);
     if (!raw) return;
-    sessionStorage.removeItem('simulator-prefill');
+    sessionStorage.removeItem(SIMULATOR_PREFILL_KEY);
     try {
       const prefill = JSON.parse(raw) as { artifactCode?: string; variables?: unknown };
       if (typeof prefill.artifactCode === 'string' && prefill.artifactCode !== '—') {

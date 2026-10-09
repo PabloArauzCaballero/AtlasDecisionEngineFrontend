@@ -5,7 +5,7 @@ import { apiRequest } from '../../api/http-client';
 import { useNotifications } from '../../notifications/useNotifications';
 import { idempotencyHeaders, newIdempotencyKey } from './idempotency';
 
-export type Decision = 'APPROVE' | 'REJECT';
+export type Decision = 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES';
 
 interface DecisionInput {
   stepId: string;
@@ -65,7 +65,9 @@ export function useApprovalDecision({ requestLabel, refresh }: UseApprovalDecisi
         title:
           decision === 'APPROVE'
             ? 'Decisión registrada: aprobada'
-            : 'Decisión registrada: rechazada',
+            : decision === 'REQUEST_CHANGES'
+              ? 'Decisión registrada: cambios solicitados'
+              : 'Decisión registrada: rechazada',
         description: `${requestLabel} quedó firmado en la bitácora de auditoría.`,
       });
     },

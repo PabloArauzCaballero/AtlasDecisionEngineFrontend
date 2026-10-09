@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react';
 import { SessionExpiryDialog } from './SessionExpiryDialog';
+import { clearSessionData } from './session-data';
 import { useSessionLimits } from './useSessionLimits';
 import { sessionRejected } from '../api/gateway-retry';
 import { configureHttpClient } from '../api/http-client';
@@ -68,6 +69,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     // sigue montada, así que nadie ve un parpadeo y no hay carrera con el
     // siguiente acceso.
     queryClient.clear();
+    // Y lo que el portal dejó en el navegador con datos de clientes (SQL de la consola, copia
+    // del expediente al simulador): la siguiente persona de la estación no lo hereda.
+    clearSessionData();
   }, [queryClient]);
 
   const refreshSession = useCallback(async () => {

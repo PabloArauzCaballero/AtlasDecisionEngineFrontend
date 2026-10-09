@@ -12,6 +12,8 @@
  * probarla sólo añade formas de que el texto salga distinto de lo que se escribió.
  */
 
+import { isInternalPath } from '../../utils/internal-path';
+
 export type InlineNode =
   | { type: 'text'; value: string }
   | { type: 'strong'; children: InlineNode[] }
@@ -38,7 +40,10 @@ export type MarkdownBlock =
 export function enlaceSeguro(href: string): boolean {
   const limpio = href.trim();
   if (/^(https?:|mailto:)/i.test(limpio)) return true;
-  return /^[/#]/.test(limpio);
+  if (limpio.startsWith('#')) return true;
+  // `//host` y `/\host` empiezan por `/` pero son OTRO origen: un enlace externo disfrazado de
+  // ruta del portal. La ruta interna se decide igual que el `?from=` del login.
+  return isInternalPath(limpio);
 }
 
 const PATRON_INLINE = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(_[^_]+_)|(\[[^\]]*\]\([^)\s]+\))/;
