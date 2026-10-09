@@ -69,3 +69,24 @@ updates:
       ci-actions:
         patterns: ['*']
         update-types: [major, minor, patch]
+  # Imágenes base de los Dockerfile (seguridad ola 4, 2026-10-09): van fijadas como
+  # `etiqueta@sha256:digest`. Dependabot entiende esa forma: cuando la etiqueta apunta a otra imagen
+  # (parche de seguridad de alpine/node) propone el digest nuevo conservando la etiqueta. Mayores
+  # de node no: el salto de 22 a otra versión se decide a mano.
+  - package-ecosystem: docker
+    directories: ['/']
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    labels: [dependencies]
+    commit-message:
+      prefix: 'chore(docker)'
+    ignore:
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
+    groups:
+      imagenes-base:
+        patterns: ['*']
+        update-types: [major, minor, patch]
