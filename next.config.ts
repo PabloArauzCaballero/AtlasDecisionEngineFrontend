@@ -84,6 +84,15 @@ const nextConfig: NextConfig = {
           { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
         ],
       },
+      {
+        // Lo mismo para WebR (MOT-03): también arranca en el marco aislado. Son los ficheros del
+        // paquete `webr` copiados tal cual (`scripts/setup-webr.mjs`), públicos y sin credenciales.
+        source: '/webr/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
+        ],
+      },
     ];
   },
 };

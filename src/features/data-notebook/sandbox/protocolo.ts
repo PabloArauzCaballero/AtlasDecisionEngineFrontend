@@ -51,7 +51,8 @@ const tabla = z.object({
   rows: z.array(z.record(z.unknown())).max(MAX_FILAS),
 });
 
-const salidaPython = z.discriminatedUnion('status', [
+/** La salida de una celda de Python o de R: misma forma, para que el visor no sepa de dónde vino. */
+const salidaCelda = z.discriminatedUnion('status', [
   z.object({
     status: z.literal('ok'),
     value: z.unknown(),
@@ -85,7 +86,16 @@ export const CARGAS = {
   'python-ejecutar': z.union([
     z.object({
       ok: z.literal(true),
-      salida: salidaPython,
+      salida: salidaCelda,
+      simbolos: z.array(simbolo).max(MAX_SIMBOLOS),
+    }),
+    fallo,
+  ]),
+  'r-cargar': z.union([z.object({ ok: z.literal(true) }), fallo]),
+  'r-ejecutar': z.union([
+    z.object({
+      ok: z.literal(true),
+      salida: salidaCelda,
       simbolos: z.array(simbolo).max(MAX_SIMBOLOS),
     }),
     fallo,

@@ -515,19 +515,29 @@ consola SQL y a los workers.
   la lista— tumbaba también pandas, que sí estaba.
 - **R es R real sobre WebAssembly** (WebR 0.6, base + recomendados), servido desde `/webr/` del
   propio origen. Lo publica `node scripts/setup-webr.mjs` COPIANDO `node_modules/webr/dist` (~45 MB,
-  en `.gitignore`): no se descarga nada, y así el cargador —que sí entra en el bundle— y los
-  binarios no pueden ser de versiones distintas. `yarn setup:interpretes` trae los dos.
+  en `.gitignore`): no se descarga nada, y así el cargador (`webr.js`) y los binarios no pueden ser
+  de versiones distintas. `yarn setup:interpretes` trae los dos.
+  - **R corre AISLADO (MOT-03), en su propio marco** `/notebook-sandbox?interprete=r`: un
+    `<iframe sandbox="allow-scripts">` de origen opaco (`sandbox/r-anfitrion.ts`), separado del de
+    Python y JavaScript. Antes WebR corría en un worker del MISMO origen (`/webr/webr-worker.js`):
+    su `connect-src 'self'` alcanzaba `/v1/*` con la cookie de sesión, y una celda con
+    `webr::eval_js("fetch('/v1/session/refresh')")` actuaba como la persona. Ahora el marco importa
+    `/webr/webr.js` (la biblioteca del MISMO paquete que los binarios; `setup-webr.mjs` la publica)
+    y el worker nace de un `blob:` —un documento opaco no puede arrancar un worker por URL, así que
+    el anfitrión le da a WebR un `Worker` que sólo para esa URL exacta usa el `blob:`—. La CSP del
+    marco de R sólo deja red hacia `/webr/` (con `Access-Control-Allow-Origin: *` en
+    `next.config.ts`, porque el origen es `null`) y concede `'unsafe-eval'`, que el pegamento de
+    Emscripten necesita para los `EM_ASM` de `libRblas.so`; por eso va en un marco aparte y no
+    alcanza a Python. `/webr/` ya NO lleva una CSP de worker propia: si alguien lo cargara como
+    worker del mismo origen, recibiría la del portal y no arrancaría. Lo fijan
+    `sandbox/sandbox.test.ts`, `src/middleware.test.ts` y `e2e/data-notebook-aislamiento.spec.ts`.
   - **No se instalan paquetes, y es deliberado.** `install.packages()` y `webr::install()` van a
-    `repo.r-wasm.org`; la CSP del artefacto (`connect-src 'self'`) lo impide, igual que impide
-    `download.file()` o `url()`. Es lo que convierte «R en el navegador» en una herramienta de
+    `repo.r-wasm.org`; la CSP del marco de R (`connect-src` sólo `/webr/`) lo impide, igual que
+    impide `download.file()` o `url()`. Es lo que convierte «R en el navegador» en una herramienta de
     lectura y análisis en vez de en un cliente de red con los datos ya cargados.
-  - **`/webr/` lleva su PROPIA CSP** (`middleware.next.ts`). Un worker no hereda la política de la
-    página que lo crea: con la del portal, `'strict-dynamic'` hace que `'self'` se ignore y el
-    `importScripts` del worker quedaba bloqueado. Ahí dentro —y sólo ahí— se concede `'unsafe-eval'`,
-    que el pegamento de Emscripten necesita para sus bloques `EM_ASM`; la CSP es por contexto de
-    ejecución, así que el portal sigue sin poder evaluar cadenas. Lo fija `src/middleware.test.ts`.
-  - **El canal es `PostMessage`, no `SharedArrayBuffer`**: aquél exigiría aislar el origen con
-    COOP/COEP y romper el resto del portal. Se pierde poder interrumpir una evaluación en marcha.
+  - **El canal es `PostMessage`, no `SharedArrayBuffer`**: aquél exigiría COOP/COEP, que un origen
+    opaco no puede tener, y además es el canal en el que el worker NO puede pedirle al documento que
+    evalúe JavaScript (`eval-await`). Se pierde poder interrumpir una evaluación en marcha.
   - **Los datos entran por COLUMNAS y con un tipo por columna** (`r-data.ts`, con pruebas). Dejar
     que R adivine fila a fila hace que una columna de importes con un solo `"N/D"` salga entera de
     texto y `mean()` devuelva `NA` sin fallar, que es la peor forma de estar mal. `null` cruza como

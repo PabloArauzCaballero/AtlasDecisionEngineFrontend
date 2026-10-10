@@ -51,9 +51,9 @@ export function RuntimeStatusBanner({ motor, status }: RuntimeStatusBannerProps)
         <CircleCheck aria-hidden="true" size={14} />
         {label} listo
         {status.packages.length ? `, con ${status.packages.join(' y ')}` : ''}.{' '}
-        {motor === 'python'
-          ? 'Corre aislado en tu navegador, sin acceso a tu sesión: el código no viaja a ningún servidor y no puede escribir en ninguna base.'
-          : 'Corre en esta pestaña: el código no viaja a ningún servidor y no puede escribir en ninguna base.'}
+        {/* Python y R corren en marcos aislados (MOT-03): ninguno de los dos ve la sesión. */}
+        Corre aislado en tu navegador, sin acceso a tu sesión: el código no viaja a ningún servidor
+        y no puede escribir en ninguna base.
       </p>
     );
   }

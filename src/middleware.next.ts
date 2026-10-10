@@ -21,9 +21,9 @@ function contentSecurityPolicy(nonce: string): string {
      * SIN `'wasm-unsafe-eval'` desde MOT-03.
      *
      * Lo pedía el Python del cuaderno (Pyodide, CPython compilado a WebAssembly) cuando corría en
-     * esta pestaña. Ahora corre en el marco aislado `/notebook-sandbox`, que lleva su propia CSP con
-     * ese token, y R compila su WebAssembly dentro de su worker (`CSP_WEBR`). La pestaña del portal
-     * ya no compila WebAssembly, así que no tiene por qué poder hacerlo.
+     * esta pestaña. Ahora Python y R corren en el marco aislado `/notebook-sandbox`, que lleva su
+     * propia CSP con ese token. La pestaña del portal ya no compila WebAssembly, así que no tiene
+     * por qué poder hacerlo.
      */
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${devOnly}`,
     // Next.js inyecta estilos en línea al hidratar; no hay forma de firmarlos.
@@ -65,49 +65,17 @@ function contentSecurityPolicy(nonce: string): string {
   ].join('; ');
 }
 
-/**
- * La política del intérprete de R, que es la de un WORKER y no la de un documento.
- *
- * WebR arranca R dentro de un worker cargado desde `/webr/webr-worker.js`. Un worker NO hereda la
- * CSP de la página que lo crea: la suya llega en la respuesta de su propio script. Sin esta rama
- * heredaba la del documento, y ahí `'strict-dynamic'` hace que `'self'` se ignore, de modo que el
- * `importScripts()` con el que el worker carga el intérprete quedaba bloqueado — con un mensaje en
- * la consola del navegador, que es donde nadie mira, y una celda de R que no arranca nunca.
- *
- * Se declara aparte y no se «relaja la del portal» porque son dos contextos distintos y esto es lo
- * que hace que la diferencia importe:
- *
- * - **`connect-src 'self'` limita a dónde puede ir R.** No puede descargar paquetes de
- *   `repo.r-wasm.org` ni sacar filas a un dominio ajeno: `download.file()`, `url()` y
- *   `webr::install()` chocan aquí. OJO: `'self'` incluye el propio portal (`/v1/*`), y este worker
- *   es del MISMO origen, así que sus peticiones llevan la cookie de sesión. R NO está aislado como
- *   Python y JavaScript (que corren en `/notebook-sandbox`, ver MOT-03); moverlo al marco es
- *   trabajo pendiente.
- * - **`default-src 'none'`**: el worker no pinta, no carga tipografías y no abre marcos.
- * - **`'unsafe-eval'` vale SÓLO aquí dentro.** El pegamento de Emscripten que arranca R lo usa para
- *   sus bloques `EM_ASM`. Una CSP es por contexto de ejecución: esto autoriza a evaluar dentro del
- *   worker de R, y no toca ni un milímetro la del portal —donde un XSS sí sería un problema— ni la
- *   de los workers de las celdas de JavaScript, que siguen sin poder generar código.
- */
-const CSP_WEBR = [
-  "default-src 'none'",
-  "script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'",
-  "connect-src 'self'",
-  "worker-src 'self'",
-  "base-uri 'none'",
-  "form-action 'none'",
-  "frame-ancestors 'none'",
-].join('; ');
-
 export function middleware(request: NextRequest) {
   // El marco aislado del cuaderno trae su propia CSP (ver `src/app/notebook-sandbox`). Ponerle
   // además la del portal las sumaría, y su `frame-ancestors 'none'` impediría montarlo.
   if (request.nextUrl.pathname === '/notebook-sandbox') return NextResponse.next();
-  if (request.nextUrl.pathname.startsWith('/webr/')) {
-    const respuesta = NextResponse.next();
-    respuesta.headers.set('content-security-policy', CSP_WEBR);
-    return respuesta;
-  }
+  /*
+   * `/webr/` ya NO lleva una política propia de worker. WebR arranca dentro del marco aislado y su
+   * worker nace allí de un `blob:`, con la CSP del marco (MOT-03). Antes `/webr/webr-worker.js` se
+   * cargaba como worker del MISMO origen, con `connect-src 'self'` y la cookie de sesión. Si alguien
+   * lo volviera a cargar así, recibiría la política del portal —con `'strict-dynamic'`, sin
+   * `'unsafe-eval'` ni WebAssembly— y R no arrancaría: fallar cerrado es lo correcto.
+   */
 
   const nonce = crypto.randomUUID().replaceAll('-', '');
   const policy = contentSecurityPolicy(nonce);
