@@ -7,8 +7,8 @@
  * una pestaña con la sesión de alguien que gobierna decisiones de crédito.
  *
  * A diferencia de Pyodide, aquí NO se descarga nada: el paquete `webr` de npm ya trae el intérprete
- * completo, y copiarlo garantiza que el cargador (que sí entra en el bundle) y los binarios que
- * carga son de la MISMA versión. Con dos orígenes —npm para el cargador, CDN para los binarios— esa
+ * completo, y copiarlo garantiza que el cargador (`webr.js`, que el marco aislado del cuaderno
+ * importa desde aquí) y los binarios que carga son de la MISMA versión. Con dos orígenes —npm para el cargador, CDN para los binarios— esa
  * pareja se puede desalinear en una actualización y el fallo aparece dentro del navegador.
  *
  * El resultado (~21 MB) está en `.gitignore`: es un artefacto reproducible, no fuente. Sin él, las
@@ -31,7 +31,17 @@ const DESTINO = join(RAIZ, 'public', 'webr');
  * fuente. Nada de eso lo carga el cuaderno, y publicarlo dejaría en `public/` —servido sin sesión—
  * una consola de R completa que nadie ha decidido exponer.
  */
-const NECESARIO = ['R.js', 'R.wasm', 'libRblas.so', 'libRlapack.so', 'webr-worker.js', 'vfs'];
+const NECESARIO = [
+  'R.js',
+  'R.wasm',
+  'libRblas.so',
+  'libRlapack.so',
+  // La biblioteca de WebR la carga el marco aislado del cuaderno desde aquí (MOT-03), no el bundle:
+  // así el cargador y los binarios salen SIEMPRE del mismo paquete.
+  'webr.js',
+  'webr-worker.js',
+  'vfs',
+];
 
 async function existe(ruta) {
   try {
@@ -87,7 +97,12 @@ async function main() {
   const publicada = await versionPublicada();
   const forzar = process.argv.includes('--forzar');
 
-  if (publicada === version && !forzar) {
+  // Un artefacto de la misma versión pero publicado con una lista anterior (sin `webr.js`) se rehace.
+  const completo = (
+    await Promise.all(NECESARIO.map((nombre) => existe(join(DESTINO, nombre))))
+  ).every(Boolean);
+
+  if (publicada === version && completo && !forzar) {
     console.log(`WebR ${version} ya está publicado en public/webr/. Usa --forzar para rehacerlo.`);
     return;
   }

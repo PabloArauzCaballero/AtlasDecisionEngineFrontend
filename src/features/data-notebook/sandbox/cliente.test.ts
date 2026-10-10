@@ -1,10 +1,10 @@
-import { cerrarSandbox, pedirAlSandbox, RUTA_SANDBOX } from './cliente';
+import { cerrarSandbox, pedirAlSandbox, RUTA_SANDBOX, RUTA_SANDBOX_R } from './cliente';
 import { CANAL_SANDBOX } from './protocolo';
 
 const base = { canal: CANAL_SANDBOX, v: 1 };
 
-function marco(): HTMLIFrameElement {
-  const iframe = document.querySelector<HTMLIFrameElement>(`iframe[src="${RUTA_SANDBOX}"]`);
+function marco(ruta = RUTA_SANDBOX): HTMLIFrameElement {
+  const iframe = document.querySelector<HTMLIFrameElement>(`iframe[src="${ruta}"]`);
   if (!iframe) throw new Error('no hay marco');
   return iframe;
 }
@@ -82,5 +82,35 @@ describe('cliente del marco aislado', () => {
     expect(progreso).toHaveBeenCalledWith('Cargando pandas…');
     desdeElMarco({ ...base, tipo: 'resultado', id, carga: { ok: true, paquetes: 'pandas' } });
     await expect(pedido).resolves.toMatchObject({ ok: false });
+  });
+
+  it('R va a SU marco, sin montar el general', async () => {
+    const pedido = pedirAlSandbox('r-cargar', { orden: { accion: 'cargar' } }, { plazoMs: 300 });
+    const r = marco(RUTA_SANDBOX_R);
+    expect(r.getAttribute('sandbox')).toBe('allow-scripts');
+    expect(document.querySelector(`iframe[src="${RUTA_SANDBOX}"]`)).toBeNull();
+
+    const enviados: { id: string; op: string }[] = [];
+    vi.spyOn(r.contentWindow!, 'postMessage').mockImplementation((mensaje: unknown) => {
+      enviados.push(mensaje as { id: string; op: string });
+    });
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { ...base, tipo: 'listo' },
+        origin: 'null',
+        source: r.contentWindow,
+      }),
+    );
+    await vi.waitFor(() => expect(enviados).toHaveLength(1));
+    expect(enviados[0]).toMatchObject({ op: 'r' });
+
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { ...base, tipo: 'resultado', id: enviados[0].id, carga: { ok: true } },
+        origin: 'null',
+        source: r.contentWindow,
+      }),
+    );
+    await expect(pedido).resolves.toEqual({ ok: true });
   });
 });

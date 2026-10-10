@@ -56,30 +56,20 @@ describe('content security policy middleware', () => {
     expect(directives(policy).get('frame-src')).toBe("'self' blob:");
   });
 
-  /**
-   * El artefacto de R lleva su PROPIA política, y la del portal no cambia.
-   *
-   * Un worker no hereda la CSP de la página que lo crea: la suya llega con su script. Estas dos
-   * pruebas fijan las dos mitades del trato — el worker puede arrancar R, y la evaluación que
-   * necesita para hacerlo NO se le concede al portal.
-   */
-  describe('el intérprete de R', () => {
-    it('recibe una política de worker propia, sin red hacia fuera', () => {
+  describe('el intérprete de R (MOT-03)', () => {
+    it('ya no recibe una política de worker propia: arranca en el marco aislado', () => {
       const policy = middleware(request('/webr/webr-worker.js')).headers.get(
         'content-security-policy',
       );
       const found = directives(policy ?? '');
-
-      expect(found.get('default-src')).toBe("'none'");
-      // Lo que impide que R descargue paquetes de terceros o saque filas del portal.
-      expect(found.get('connect-src')).toBe("'self'");
-      // Sin `'strict-dynamic'`: aquí `'self'` tiene que valer, o `importScripts` no carga R.
-      expect(found.get('script-src')).not.toContain("'strict-dynamic'");
-      expect(found.get('script-src')).toContain("'self'");
-      expect(found.get('script-src')).toContain("'wasm-unsafe-eval'");
+      // Si alguien lo cargara como worker del mismo origen, la política del portal no le deja
+      // importar el intérprete ni evaluar: falla cerrado, no con la cookie de sesión.
+      expect(found.get('script-src')).toContain("'strict-dynamic'");
+      expect(found.get('script-src')).not.toContain("'unsafe-eval'");
+      expect(found.get('script-src')).not.toContain("'wasm-unsafe-eval'");
     });
 
-    it('no contagia su permiso de evaluación al resto del portal', () => {
+    it('no contagia ningún permiso de evaluación al resto del portal', () => {
       const portal = middleware(request('/data-notebook')).headers.get('content-security-policy');
       expect(directives(portal ?? '').get('script-src')).not.toContain("'unsafe-eval'");
     });

@@ -59,6 +59,12 @@ const authorizedFetchFiles = new Set([
   'src/server/atlas-backend-proxy.ts',
   'src/server/upstream.ts',
   'src/server/print-authorization.ts',
+  /*
+   * El anfitrión de R del cuaderno (MOT-03). Su único `fetch` descarga `/webr/webr-worker.js`, un
+   * fichero estático, DESDE el marco aislado de origen opaco: sin cookies ni credencial, y con una
+   * CSP que sólo deja red hacia `/webr/`. No es tráfico de la API, y no podría serlo.
+   */
+  'src/features/data-notebook/sandbox/r-anfitrion.ts',
 ]);
 /**
  * Vistas cuya ausencia rompe la navegación del portal aunque nada falle al

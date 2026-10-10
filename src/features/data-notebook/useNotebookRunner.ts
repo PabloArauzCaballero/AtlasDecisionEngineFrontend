@@ -13,7 +13,7 @@ import type {
 } from './notebook-types';
 import { runJavaScriptCell } from './js-runtime';
 import { loadPythonRuntime, paquetesCargados, runPythonCell } from './python-runtime';
-import { bindRData, capturarSimbolosR, loadRRuntime, runRCell } from './r-runtime';
+import { loadRRuntime, runRCell } from './r-runtime';
 import type { useNotebookCells } from './useNotebookCells';
 
 /** La misma derivación que hace la vista: un DataFrame ya viene resuelto, un valor de JS no. */
@@ -222,7 +222,7 @@ async function correrEnR(
   source: string,
   anotar: Anotar,
 ): Promise<Corrida> {
-  const webR = await loadRRuntime(informar);
+  await loadRRuntime(informar);
   /*
    * La lista de paquetes va VACÍA, y es lo honesto.
    *
@@ -232,9 +232,8 @@ async function correrEnR(
    * celda de quien hizo caso.
    */
   anotar('r', { phase: 'ready', packages: [] });
-  await bindRData(webR, entrada);
-  const outcome = await runRCell(webR, source);
-  return { outcome, simbolos: await capturarSimbolosR(webR) };
+  // Datos, ejecución y símbolos en un solo viaje al marco aislado (ver `r-runtime.ts`).
+  return runRCell(source, entrada);
 }
 
 /**

@@ -1,7 +1,9 @@
 import { CANAL_SANDBOX, VERSION_PROTOCOLO } from './protocolo';
+import { SCRIPT_INTERMEDIARIO_R } from './r-anfitrion';
 
 /**
- * El documento del marco aislado donde corren las celdas de Python y JavaScript (MOT-03).
+ * Los documentos de los marcos aislados donde corren las celdas del cuaderno (MOT-03): uno para
+ * Python y JavaScript y otro, igual de opaco, para R (`r-anfitrion.ts`).
  *
  * ## Por qué un marco y no la pestaña
  *
@@ -14,7 +16,13 @@ import { CANAL_SANDBOX, VERSION_PROTOCOLO } from './protocolo';
  * `allow-same-origin`. Su origen es opaco: no hay cookies que mandar, ni almacenamiento que leer,
  * ni DOM del portal al que llegar. Y el código de las celdas ni siquiera corre en este documento:
  * corre en WORKERS creados desde aquí, que no pueden navegar (ni el marco ni la pestaña), no tienen
- * `document` y heredan esta CSP, donde la única red permitida son los ficheros de `/pyodide/`.
+ * `document` y heredan esta CSP, donde la única red permitida son los ficheros estáticos del
+ * intérprete (`/pyodide/` aquí, `/webr/` en el marco de R).
+ *
+ * R (WebR) corría en un worker del MISMO origen que el portal, con la cookie de sesión y un
+ * `connect-src 'self'` que alcanzaba `/v1/*`. Ahora arranca en su propio marco opaco. Va aparte y
+ * no en éste porque WebR necesita `'unsafe-eval'` (Emscripten) y esa concesión no tiene por qué
+ * alcanzar a los workers de Python y JavaScript.
  *
  * Este script es un mero intermediario: crea los workers con el código que le da el portal y
  * reenvía sus respuestas. Escucha SOLO a la ventana madre y SOLO si el mensaje viene del origen del
@@ -120,7 +128,14 @@ export const SCRIPT_INTERMEDIARIO = `(function () {
   alPortal({ tipo: 'listo' });
 })();`;
 
-export function documentoDelSandbox(nonce: string): string {
+/** Qué marco se sirve: el general (Python y JavaScript) o el de R. */
+export type InterpreteDelMarco = 'general' | 'r';
+
+export function documentoDelSandbox(
+  nonce: string,
+  interprete: InterpreteDelMarco = 'general',
+): string {
+  const script = interprete === 'r' ? SCRIPT_INTERMEDIARIO_R : SCRIPT_INTERMEDIARIO;
   return `<!doctype html>
 <html lang="es">
 <head>
@@ -128,7 +143,7 @@ export function documentoDelSandbox(nonce: string): string {
 <title>Cuaderno · entorno aislado</title>
 </head>
 <body>
-<script nonce="${nonce}">${SCRIPT_INTERMEDIARIO}</script>
+<script nonce="${nonce}">${script}</script>
 </body>
 </html>`;
 }
@@ -137,27 +152,37 @@ export function documentoDelSandbox(nonce: string): string {
 const HOST_VALIDO = /^(?:[a-z0-9-]+(?:\.[a-z0-9-]+)*|\[[0-9a-f:.]+\])(?::\d{1,5})?$/iu;
 
 /**
- * La CSP del marco. La del portal no aplica aquí: este documento no la hereda y se le sirve otra.
+ * La CSP de cada marco. La del portal no aplica aquí: estos documentos no la heredan.
  *
  * - `sandbox allow-scripts`: aunque alguien abra la URL directamente, sin el marco, el documento
  *   sigue siendo opaco.
- * - `connect-src` sólo `/pyodide/` del propio servidor: el intérprete descarga ahí su núcleo y
- *   sus ruedas, y NADA más. `/v1/*`, `/atlas-backend/*` o un dominio ajeno chocan aquí. La fuente
+ * - `connect-src` sólo los ficheros estáticos de SU intérprete (`/pyodide/` o `/webr/`) del propio
+ *   servidor, y NADA más. `/v1/*`, `/atlas-backend/*` o un dominio ajeno chocan aquí —también
+ *   desde una celda de R—, y aunque no chocaran saldrían de un origen opaco, sin cookies. La fuente
  *   lleva ruta, y una fuente con ruta exige escribir el host: por eso se compone con la cabecera
  *   `Host` (validada) en vez de con `'self'`. Sin un host válido, no hay red en absoluto.
- * - `script-src`: el intermediario por nonce, `importScripts` de `/pyodide/` y la compilación de
- *   WebAssembly. Nada de `'unsafe-eval'`.
+ * - `script-src`: el intermediario por nonce, los ficheros del intérprete y la compilación de
+ *   WebAssembly. En el marco general, nada de `'unsafe-eval'`. En el de R, sí: el pegamento de
+ *   Emscripten de WebR evalúa sus bloques `EM_ASM` al cargar `libRblas.so`/`libRlapack.so`. Es una
+ *   concesión dentro de un documento opaco, sin red hacia la API y donde la celda ya ejecuta código
+ *   arbitrario por diseño; no alcanza ni al portal ni a Python.
  * - `worker-src blob:`: los workers de las celdas.
  * - `frame-ancestors 'self'`: sólo el portal puede montarlo.
  */
-export function politicaDelSandbox(nonce: string, host: string | null): string {
-  const pyodide = host && HOST_VALIDO.test(host) ? `${host}/pyodide/` : null;
+export function politicaDelSandbox(
+  nonce: string,
+  host: string | null,
+  interprete: InterpreteDelMarco = 'general',
+): string {
+  const carpeta = interprete === 'r' ? 'webr' : 'pyodide';
+  const estaticos = host && HOST_VALIDO.test(host) ? `${host}/${carpeta}/` : null;
+  const evaluar = interprete === 'r' ? "'wasm-unsafe-eval' 'unsafe-eval'" : "'wasm-unsafe-eval'";
   return [
     'sandbox allow-scripts',
     "default-src 'none'",
-    `script-src 'nonce-${nonce}' ${pyodide ?? ''} 'wasm-unsafe-eval'`.replace(/\s+/gu, ' '),
+    `script-src 'nonce-${nonce}' ${estaticos ?? ''} ${evaluar}`.replace(/\s+/gu, ' '),
     'worker-src blob:',
-    `connect-src ${pyodide ?? "'none'"}`,
+    `connect-src ${estaticos ?? "'none'"}`,
     "base-uri 'none'",
     "form-action 'none'",
     "frame-ancestors 'self'",
