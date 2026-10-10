@@ -25,7 +25,7 @@ import { pedirAlSandbox } from './sandbox/cliente';
  *   con la base de R y los recomendados que vienen en el artefacto, que es lo que hace que el
  *   cuaderno sea reproducible: dos personas con el mismo código ven lo mismo.
  * - **Salir a la red.** `download.file`, `url()` y `readLines("https://…")` chocan contra la misma
- *   política, y `webr::eval_js("fetch(…)")` también: corre en un worker de origen opaco, sin
+ *   política, y una petición desde `webr::eval_js` también: corre en un worker de origen opaco, sin
  *   cookies que mandar y sin permiso para hablar con `/v1/*`.
  *
  * ## Por qué el canal es `PostMessage`
