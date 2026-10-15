@@ -1,5 +1,6 @@
 import type { NotificationInput } from '../../notifications/notification.types';
 import { REJECTION_ADVICE, type StatementRejectionReason } from './statement-review';
+import { hasMovements } from './statement-console-outcome';
 import type { WorkerRun } from './worker-types';
 
 /**
@@ -44,6 +45,17 @@ export function runAnnouncement(run: WorkerRun): NotificationInput | null {
       tone: 'success',
       title: 'Extracto procesado',
       description: 'Los movimientos están abajo, listos para revisar o descargar.',
+    };
+  }
+
+  if (run.status === 'SUCCEEDED_WITH_WARNINGS' && !hasMovements(run)) {
+    // Cerrado sin leer el extracto (p. ej. resuelto en revisión sin entidad): decir «hay resultado»
+    // aquí era falso, y la consola se quedaba en blanco debajo (2026-10-15).
+    return {
+      tone: 'warning',
+      title: 'Terminó sin movimientos',
+      description:
+        'La ejecución está cerrada pero no trae movimientos que analizar. El detalle está en la consola.',
     };
   }
 

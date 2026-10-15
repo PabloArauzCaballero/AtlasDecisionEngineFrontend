@@ -182,12 +182,13 @@ export async function fetchSemanticRunStatuses(
 export function createBankStatementRun(input: {
   file?: File;
   fixtureCode?: string;
-}): Promise<WorkerRun> {
+}): Promise<WorkerRun & { deduplicated?: boolean }> {
   const form = new FormData();
   if (input.file) form.append('file', input.file, input.file.name);
   if (input.fixtureCode) form.append('fixtureCode', input.fixtureCode);
 
-  return apiRequest<WorkerRun>('/v1/workers/bank-statement/runs', {
+  // `deduplicated`: el motor ya tenía ese archivo y devuelve su ejecución (ver la consola).
+  return apiRequest<WorkerRun & { deduplicated?: boolean }>('/v1/workers/bank-statement/runs', {
     method: 'POST',
     body: form,
   });

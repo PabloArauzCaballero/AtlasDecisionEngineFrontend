@@ -231,7 +231,13 @@ export const STATUS_HELP: Record<WorkerRunStatus, string> = {
  * era leerlo aquí. La frase accionable sigue debajo, en `errorMessage`: esto es
  * el titular, y su trabajo es no contradecirla.
  */
-export function statusHelp(run: Pick<WorkerRun, 'status' | 'rejectionReason'>): string {
+export function statusHelp(
+  run: Pick<WorkerRun, 'status' | 'rejectionReason'> & { result?: unknown },
+): string {
+  // «Con advertencias» y SIN resultado: decir «hay resultado y es utilizable» era falso (2026-10-15).
+  if (run.status === 'SUCCEEDED_WITH_WARNINGS' && 'result' in run && run.result == null) {
+    return 'Se cerró sin resultado: no hay movimientos que revisar ni descargar.';
+  }
   if (run.status === 'PDF_INVALID' && run.rejectionReason) {
     return `${REJECTION_REASON_LABEL[run.rejectionReason]}. No entra en la cola de revisión: queda registrado como rechazado.`;
   }

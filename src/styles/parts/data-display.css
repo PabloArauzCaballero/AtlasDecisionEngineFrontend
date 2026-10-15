@@ -173,6 +173,19 @@ tbody tr:hover {
   background: var(--warning-wash);
   border-color: var(--warning-line);
 }
+/*
+ * Un enlace dentro de un aviso hereda el color del aviso: el azul del navegador sobre el ámbar se
+ * leía como un elemento ajeno, y con el contraste del aviso ya resuelto no hace falta otro color.
+ */
+.alert a {
+  color: inherit;
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.alert p {
+  margin: var(--space-1) 0 0;
+}
 .json-panel {
   margin-top: 16px;
   overflow: hidden;

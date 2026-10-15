@@ -20,7 +20,15 @@ import { STATEMENT_RESULT } from './workers-results';
  * para comprobar—.
  */
 
-export type EscenarioTriage = 'procesado' | 'invalido' | 'dudoso' | 'timeout';
+export type EscenarioTriage =
+  | 'procesado'
+  | 'invalido'
+  | 'dudoso'
+  | 'timeout'
+  /** El mismo PDF ya estaba en el motor, detenido porque no reconoció la entidad (TEST, 2026-10-15). */
+  | 'repetido'
+  /** Cerrado sin leer el extracto: terminó «con advertencias» y sin movimientos. */
+  | 'sinMovimientos';
 
 const BASE = {
   requestId: 'run-extracto',
@@ -57,6 +65,22 @@ const DESENLACE: Record<EscenarioTriage, Record<string, unknown>> = {
     rejectionReason: null,
     errorCode: 'DOUBTFUL_DOCUMENT',
     errorMessage: 'El documento se parece a un estado de cuenta, pero no se pudo confirmar.',
+  },
+  repetido: {
+    status: 'IN_REVIEW',
+    reviewReason: 'UNKNOWN_BANK',
+    reviewPriority: 2,
+    rejectionReason: null,
+    errorCode: 'UNSUPPORTED_INSTITUTION',
+    errorMessage: null,
+  },
+  sinMovimientos: {
+    status: 'SUCCEEDED_WITH_WARNINGS',
+    result: null,
+    reviewReason: 'UNKNOWN_BANK',
+    rejectionReason: null,
+    errorCode: 'UNSUPPORTED_INSTITUTION',
+    errorMessage: null,
   },
   timeout: {
     status: 'PENDING_REVIEW',
@@ -174,6 +198,14 @@ export async function mockStatementTriage(page: Page, escenario: EscenarioTriage
     }
     if (url.includes('/runs') && metodo === 'POST') {
       polls = 0;
+      // El motor ya tenía ese archivo: devuelve la ejecución que existe, tal cual, y lo dice.
+      if (escenario === 'repetido') {
+        polls = 99;
+        return route.fulfill({
+          status: 202,
+          json: { ...BASE, progress: 100, ...DESENLACE.repetido, deduplicated: true },
+        });
+      }
       return route.fulfill({
         status: 202,
         json: { ...BASE, status: 'QUEUED', progress: 0, startedAt: null, finishedAt: null },
