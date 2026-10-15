@@ -1,3 +1,4 @@
+import { apiDownload, type DownloadedFile } from '../../api/file-download';
 import { apiRequest } from '../../api/http-client';
 import type {
   ReviewAction,
@@ -109,9 +110,29 @@ export function resolveStatementReview(
   });
 }
 
-export function reprocessStatementReview(requestId: string): Promise<unknown> {
+/**
+ * Reprocesar el caso; con `institutionCode`, con la entidad que asigna quien revisa después de ver el
+ * PDF. Sin ella, el reproceso de siempre.
+ */
+export function reprocessStatementReview(
+  requestId: string,
+  institutionCode?: string,
+): Promise<unknown> {
   return apiRequest(
     `/v1/workers/bank-statement/reviews/${encodeURIComponent(requestId)}/reprocess`,
-    { method: 'POST' },
+    { method: 'POST', body: institutionCode ? { institutionCode } : {} },
+  );
+}
+
+/** El PDF original del caso, pedido con la sesión (un enlace directo no lleva la credencial). */
+export function fetchStatementDocument(
+  requestId: string,
+  fileName: string,
+  signal?: AbortSignal,
+): Promise<DownloadedFile> {
+  return apiDownload(
+    `/v1/workers/bank-statement/reviews/${encodeURIComponent(requestId)}/document`,
+    fileName,
+    { signal },
   );
 }

@@ -67,6 +67,7 @@ export interface WorkerRun {
   requestedBy: string;
   correlationId: string;
   result?: unknown;
+  provisionalResult?: unknown; // emisor en duda: lo leído, para decidir; no es un resultado aplicado
   warnings?: unknown;
   errorCode?: string | null;
   errorMessage?: string | null;

@@ -7,7 +7,7 @@ import { StatementCategoriesBar } from '../features/workers/StatementCategoriesB
 import { StatementAnalytics } from '../features/workers/StatementAnalytics';
 import { StatementCategoriesChart } from '../features/workers/StatementCategoriesChart';
 import { StatementConsoleOutcome } from '../features/workers/StatementConsoleOutcome';
-import { consoleOutcome, hasMovements } from '../features/workers/statement-console-outcome';
+import * as consola from '../features/workers/statement-console-outcome';
 import { StatementDownloads } from '../features/workers/StatementDownloads';
 import { StatementResultView } from '../features/workers/StatementResultView';
 import { StatementUploadField } from '../features/workers/StatementUploadField';
@@ -148,7 +148,7 @@ export function BankStatementWorkerConsole() {
   // Sin movimientos no hay nada que descargar: los botones ofrecían archivos vacíos.
   const finished =
     (run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS') &&
-    hasMovements(run.data);
+    consola.hasMovements(run.data);
 
   const categorias = useStatementCategories();
   useAvisoDeRevision(categorias.enRevision);
@@ -167,7 +167,7 @@ export function BankStatementWorkerConsole() {
     `Una clasificación de movimientos en curso (${categorias.hechas} de ${categorias.total} glosas).`,
   );
   const { movimientos, glosas, resumen, cuentas } = useStatementConsoleData(
-    run.data?.result,
+    run.data && consola.displayableResult(run.data), // el resultado, o el análisis provisional
     categorias.veredictos,
   );
 
@@ -227,7 +227,7 @@ export function BankStatementWorkerConsole() {
       {requestId && run.data ? (
         <Panel title="Ejecución">
           {(() => {
-            const outcome = consoleOutcome(run.data, deduplicated);
+            const outcome = consola.consoleOutcome(run.data, deduplicated);
             return outcome ? <StatementConsoleOutcome outcome={outcome} /> : null;
           })()}
           <WorkerRunTracker
@@ -251,7 +251,7 @@ export function BankStatementWorkerConsole() {
         </Panel>
       ) : null}
 
-      {run.data?.result ? (
+      {run.data && consola.displayableResult(run.data) ? (
         <Panel title="Movimientos">
           {/*
            * Clasificar es un paso APARTE de convertir, y por eso se pide aquí y
@@ -279,7 +279,7 @@ export function BankStatementWorkerConsole() {
            */}
           <StatementAnalytics resumen={cuentas} />
           <StatementResultView
-            result={run.data.result}
+            result={consola.displayableResult(run.data)}
             warnings={run.data.warnings}
             categorias={categorias.total > 0 ? categorias.veredictos : undefined}
           />

@@ -171,6 +171,14 @@ export interface StatementReviewDetail extends StatementReviewItem {
   reviewNotes: string | null;
   /** Si el PDF original sigue guardado. Sin él no se puede reprocesar. */
   documentAvailable: boolean;
+  /**
+   * Lo que el motor leyó aunque no reconociera el emisor (movimientos, ingresos, gastos, categorías,
+   * capacidad), con la misma forma que `result`. Es para decidir: no es un resultado aplicado.
+   * Ausente con un motor anterior al 2026-10-15.
+   */
+  provisional?: unknown;
+  /** La entidad que asignó a mano quien revisa, y quién y cuándo. */
+  assignedInstitution?: { code: string; by: string | null; at: string | null } | null;
 }
 
 /** Contador de una pestaña. `category: null` es «Todos». */
