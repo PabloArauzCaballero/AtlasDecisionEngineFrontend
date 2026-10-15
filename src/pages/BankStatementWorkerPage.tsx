@@ -6,6 +6,8 @@ import { Panel } from '../components/Panel';
 import { StatementCategoriesBar } from '../features/workers/StatementCategoriesBar';
 import { StatementAnalytics } from '../features/workers/StatementAnalytics';
 import { StatementCategoriesChart } from '../features/workers/StatementCategoriesChart';
+import { StatementConsoleOutcome } from '../features/workers/StatementConsoleOutcome';
+import { consoleOutcome, hasMovements } from '../features/workers/statement-console-outcome';
 import { StatementDownloads } from '../features/workers/StatementDownloads';
 import { StatementResultView } from '../features/workers/StatementResultView';
 import { StatementUploadField } from '../features/workers/StatementUploadField';
@@ -51,6 +53,8 @@ export function BankStatementWorkerConsole() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [fixtureCode, setFixtureCode] = useState('');
   const [requestId, setRequestId] = useState<string | null>(null);
+  // El motor ya tenía ese PDF y devolvió su ejecución en vez de crear otra.
+  const [deduplicated, setDeduplicated] = useState(false);
 
   const catalog = useQuery({
     queryKey: ['worker-catalog'],
@@ -81,11 +85,21 @@ export function BankStatementWorkerConsole() {
       createBankStatementRun(mode === 'fixture' ? { fixtureCode } : { file: file ?? undefined }),
     onSuccess: (created) => {
       setRequestId(created.requestId);
-      notify({
-        tone: 'success',
-        title: 'Extracto encolado',
-        description: 'Los movimientos aparecerán abajo en cuanto un worker lo procese.',
-      });
+      setDeduplicated(created.deduplicated === true);
+      notify(
+        created.deduplicated
+          ? {
+              tone: 'info',
+              title: 'Este PDF ya estaba en el motor',
+              description:
+                'No se vuelve a procesar: abajo está la ejecución que ya existe y su estado.',
+            }
+          : {
+              tone: 'success',
+              title: 'Extracto encolado',
+              description: 'Los movimientos aparecerán abajo en cuanto un worker lo procese.',
+            },
+      );
     },
     /*
      * El rechazo en la PUERTA no tiene ejecución que sondear: el motor contesta
@@ -125,13 +139,16 @@ export function BankStatementWorkerConsole() {
 
   function reset() {
     setRequestId(null);
+    setDeduplicated(false);
     setFile(null);
     setFileError(null);
     setFixtureCode('');
   }
 
+  // Sin movimientos no hay nada que descargar: los botones ofrecían archivos vacíos.
   const finished =
-    run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS';
+    (run.data?.status === 'SUCCEEDED' || run.data?.status === 'SUCCEEDED_WITH_WARNINGS') &&
+    hasMovements(run.data);
 
   const categorias = useStatementCategories();
   useAvisoDeRevision(categorias.enRevision);
@@ -209,6 +226,10 @@ export function BankStatementWorkerConsole() {
 
       {requestId && run.data ? (
         <Panel title="Ejecución">
+          {(() => {
+            const outcome = consoleOutcome(run.data, deduplicated);
+            return outcome ? <StatementConsoleOutcome outcome={outcome} /> : null;
+          })()}
           <WorkerRunTracker
             worker={WORKER}
             run={run.data}
