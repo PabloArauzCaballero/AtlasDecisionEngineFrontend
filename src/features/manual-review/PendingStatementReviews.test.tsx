@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { PendingStatementReviews } from './PendingStatementReviews';
 
 const fetchStatementReviews = vi.fn();
-vi.mock('../workers/statement-review.api', () => ({ fetchStatementReviews: (...a: unknown[]) => fetchStatementReviews(...a) }));
+vi.mock('../workers/statement-review.api', () => ({
+  fetchStatementReviews: (...a: unknown[]) => fetchStatementReviews(...a),
+}));
 
 function pintar() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -31,7 +33,9 @@ describe('PendingStatementReviews · los extractos no se quedan sin mirar', () =
     expect(await screen.findByText('2 extractos bancarios esperan revisión')).toBeTruthy();
     expect(screen.getByText(/hace 8 días/)).toBeTruthy();
     expect(screen.getByText(/pasó el plazo de 24 h/)).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Revisar extractos' }).getAttribute('href')).toBe('/workers/bank-statement?vista=revision');
+    expect(screen.getByRole('link', { name: 'Revisar extractos' }).getAttribute('href')).toBe(
+      '/workers/bank-statement?vista=revision',
+    );
   });
 
   it('sin casos no pinta nada', async () => {

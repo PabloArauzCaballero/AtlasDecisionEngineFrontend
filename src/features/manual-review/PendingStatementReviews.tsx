@@ -42,11 +42,13 @@ export function PendingStatementReviews() {
     <div className="pending-statement-reviews" data-testid="pending-statement-reviews">
       <Alert tone={vencido ? 'warning' : 'info'}>
         <strong>
-          {page.total === 1 ? '1 extracto bancario espera revisión' : `${page.total} extractos bancarios esperan revisión`}
+          {page.total === 1
+            ? '1 extracto bancario espera revisión'
+            : `${page.total} extractos bancarios esperan revisión`}
         </strong>
         {masAntiguo > 0 ? ` · el más antiguo, hace ${espera(masAntiguo)}` : ''}
-        {vencido ? ' (pasó el plazo de 24 h que se le promete al cliente)' : ''}
-        . No aparecen en esta lista: tienen su propia bandeja.{' '}
+        {vencido ? ' (pasó el plazo de 24 h que se le promete al cliente)' : ''}. No aparecen en
+        esta lista: tienen su propia bandeja.{' '}
         <Link href="/workers/bank-statement?vista=revision">Revisar extractos</Link>
       </Alert>
     </div>
