@@ -29,9 +29,17 @@ const ENTIDADES = {
   href: '/workers/bank-statement?vista=entidades',
 };
 
-/** Si el resultado trae movimientos que pintar. */
-export function hasMovements(run: Pick<WorkerRun, 'result'>): boolean {
-  return asRows(asRecord(run.result).transactions).length > 0;
+/**
+ * Lo que la consola puede pintar: el resultado, o el análisis PROVISIONAL de un extracto detenido por
+ * la entidad (2026-10-15: «que haga el ejercicio sin fijarse si es o no entidad validada»).
+ */
+export function displayableResult(run: Pick<WorkerRun, 'result' | 'provisionalResult'>): unknown {
+  return run.result ?? run.provisionalResult;
+}
+
+/** Si hay movimientos que pintar, en el resultado o en el análisis provisional. */
+export function hasMovements(run: Pick<WorkerRun, 'result' | 'provisionalResult'>): boolean {
+  return asRows(asRecord(displayableResult(run)).transactions).length > 0;
 }
 
 export function consoleOutcome(run: WorkerRun, deduplicated: boolean): ConsoleOutcome | null {
@@ -52,7 +60,9 @@ export function consoleOutcome(run: WorkerRun, deduplicated: boolean): ConsoleOu
         (entidad
           ? 'El motor sólo procesa extractos de entidades que están en el padrón. Si el padrón está vacío o no incluye este banco, el extracto espera a una persona. Cárgalo en «Entidades financieras» o resuélvelo en la revisión.'
           : 'Una persona tiene que decidirlo en la revisión de extractos; mientras tanto no hay movimientos que enseñar aquí.') +
-        (hasMovements(run) ? ' Lo que sí se pudo leer está abajo.' : ''),
+        (hasMovements(run)
+          ? ' Lo que sí se pudo leer —ingresos, gastos y movimientos— está abajo, como análisis provisional.'
+          : ''),
       links: entidad ? [REVISION, ENTIDADES] : [REVISION],
     };
   }
@@ -64,7 +74,7 @@ export function consoleOutcome(run: WorkerRun, deduplicated: boolean): ConsoleOu
       title: 'Terminó sin movimientos',
       body:
         repetido +
-        'La ejecución está cerrada pero no trae movimientos que analizar: se resolvió sin leer el extracto (por ejemplo, desde la revisión, antes de que la entidad estuviera en el padrón). Para analizarlo, resuélvelo de nuevo desde la revisión con la entidad cargada.',
+        'La ejecución está cerrada pero no trae movimientos que analizar: se resolvió sin leer el extracto (por ejemplo, desde la revisión, antes de que la entidad estuviera en el padrón). Vuelve a subir el mismo PDF: el motor ya no reutiliza una ejecución vacía y lo analiza de nuevo.',
       links: [REVISION, ENTIDADES],
     };
   }
