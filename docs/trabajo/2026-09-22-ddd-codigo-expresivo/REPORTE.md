@@ -5,10 +5,10 @@
 
 ## Completado en H1
 
-| ID | Qué se logró | Comando | Resultado |
-|---|---|---|---|
-| H1.S1.M1 | Entrada `src/features/deployments/DeploymentControlDialog.tsx` y propietario `src/features/deployments/deployment-controls.api.ts` localizados | inspección de rutas y símbolos | rutas presentes |
-| H1.S1.M2 | Referencia del flujo | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/deployment-controls.test.ts` | 1 suite; 5/5 pruebas pasan |
+| ID       | Qué se logró                                                                                                                                   | Comando                                                                                                   | Resultado                  |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------- |
+| H1.S1.M1 | Entrada `src/features/deployments/DeploymentControlDialog.tsx` y propietario `src/features/deployments/deployment-controls.api.ts` localizados | inspección de rutas y símbolos                                                                            | rutas presentes            |
+| H1.S1.M2 | Referencia del flujo                                                                                                                           | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/deployment-controls.test.ts` | 1 suite; 5/5 pruebas pasan |
 
 ## Ejecución H2
 

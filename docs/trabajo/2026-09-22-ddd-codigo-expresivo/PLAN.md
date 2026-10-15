@@ -20,10 +20,10 @@
 
 **CA:** Dado el checkout actual, cuando se sigue el flujo, entonces se distingue regla de coordinación. **DoD:** rutas y símbolos reales registrados abajo. **Estado:** HECHO
 
-| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
-|---|---|---|---|---|
-| H1.S1.M1 | Localizar entrada y propietario | Ambas rutas existen y se identificó la regla | `test -f 'src/features/deployments/DeploymentControlDialog.tsx' && test -f 'src/features/deployments/deployment-controls.api.ts'` → salida 0 | HECHO |
-| H1.S1.M2 | Fijar referencia | El chequeo dirigido termina con salida 0 | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/deployment-controls.test.ts` → 1 suite; 5/5 pruebas pasan | HECHO |
+| ID       | Microtarea                      | CA (binario)                                 | DoD (comando de verificación)                                                                                                                | Estado |
+| -------- | ------------------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| H1.S1.M1 | Localizar entrada y propietario | Ambas rutas existen y se identificó la regla | `test -f 'src/features/deployments/DeploymentControlDialog.tsx' && test -f 'src/features/deployments/deployment-controls.api.ts'` → salida 0 | HECHO  |
+| H1.S1.M2 | Fijar referencia                | El chequeo dirigido termina con salida 0     | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/deployment-controls.test.ts` → 1 suite; 5/5 pruebas pasan       | HECHO  |
 
 **Regla observada:** Motivo explícito, acción única mientras espera y resultado decidido por el servidor.
 
@@ -37,16 +37,16 @@
 
 **CA:** La condición límite tiene resultado esperado documentado. **DoD:** prueba dirigida y revisión del contrato vigente. **Estado:** HECHO
 
-| ID | Microtarea | CA (binario) | DoD (comando de verificación) | Estado |
-|---|---|---|---|---|
-| H2.S1.M1 | Probar rechazo 409 sin confirmar la operación | El diálogo conserva motivo y no anuncia éxito | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/DeploymentControlDialog.test.tsx` → salida 0 | HECHO |
-| H2.S1.M2 | Probar confirmación posterior | Solo una respuesta exitosa dispara el refresco y cierra el diálogo | mismo comando → salida 0 | HECHO |
-| H2.S1.M3 | Refrescar el listado cuando el Motor responde conflicto | Un 409 provoca recarga sin anunciar éxito ni cerrar el motivo | mismo comando y `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn typecheck` → salida 0 | HECHO |
+| ID       | Microtarea                                              | CA (binario)                                                       | DoD (comando de verificación)                                                                                             | Estado |
+| -------- | ------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | ------ |
+| H2.S1.M1 | Probar rechazo 409 sin confirmar la operación           | El diálogo conserva motivo y no anuncia éxito                      | `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn test src/features/deployments/DeploymentControlDialog.test.tsx` → salida 0 | HECHO  |
+| H2.S1.M2 | Probar confirmación posterior                           | Solo una respuesta exitosa dispara el refresco y cierra el diálogo | mismo comando → salida 0                                                                                                  | HECHO  |
+| H2.S1.M3 | Refrescar el listado cuando el Motor responde conflicto | Un 409 provoca recarga sin anunciar éxito ni cerrar el motivo      | mismo comando y `PATH=/opt/homebrew/opt/node@22/bin:$PATH yarn typecheck` → salida 0                                      | HECHO  |
 
 ## Riesgos y bloqueos previstos
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
+| Riesgo                                                      | Impacto                    | Mitigación                                                       |
+| ----------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------- |
 | No anunciar reversión por timeout sin respuesta confirmada. | Resultado o contrato falso | Confirmar con código, contrato y prueba antes de editar producto |
 
 ## Decisión de diseño
