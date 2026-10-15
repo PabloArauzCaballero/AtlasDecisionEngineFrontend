@@ -21,6 +21,7 @@ import {
 } from './statement-review';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import { StatementInstitutionAssign } from './StatementInstitutionAssign';
 
 /**
  * Lo que una persona puede hacer con un caso.
@@ -130,85 +131,91 @@ export function StatementReviewActions({ detalle }: { detalle: StatementReviewDe
   }
 
   return (
-    <form
-      className="revision-acciones"
-      onSubmit={(evento) => {
-        evento.preventDefault();
-        if (notas.trim().length === 0) {
-          // Se avisa aquí y no se deja que el motor conteste 400: la explicación
-          // es el único rastro de POR QUÉ un documento dudoso se aprobó.
-          notify({
-            tone: 'warning',
-            title: 'Falta la explicación',
-            description: 'Escribe por qué decides esto: queda en la auditoría del caso.',
-          });
-          return;
-        }
-        resolver.mutate();
-      }}
-    >
-      <Field label={'Decisión'} tooltip="Qué haces con el extracto que acabas de revisar.">
-        <OptionSelect
-          name="decision"
-          value={accion}
-          onChange={(valor) => setAccion(valor as ReviewAction)}
-          options={REVIEW_ACTIONS.map((valor) => ({
-            value: valor, // sin-ayuda: el motor no publica ayuda por acción; el rótulo nombra el efecto
-            label: REVIEW_ACTION_LABEL[valor],
-          }))}
-        />
-      </Field>
-
-      {accion === 'MARK_INVALID' ? (
-        <Field
-          label={'Motivo del rechazo'}
-          tooltip="Motivo del rechazo; cada uno lleva el mensaje que verá quien subió el documento."
-        >
+    <>
+      {/* Asignar la entidad sólo tiene sentido cuando el motor no la reconoció. */}
+      {detalle.reviewReason === 'UNKNOWN_BANK' || detalle.assignedInstitution ? (
+        <StatementInstitutionAssign detalle={detalle} onDone={refrescar} />
+      ) : null}
+      <form
+        className="revision-acciones"
+        onSubmit={(evento) => {
+          evento.preventDefault();
+          if (notas.trim().length === 0) {
+            // Se avisa aquí y no se deja que el motor conteste 400: la explicación
+            // es el único rastro de POR QUÉ un documento dudoso se aprobó.
+            notify({
+              tone: 'warning',
+              title: 'Falta la explicación',
+              description: 'Escribe por qué decides esto: queda en la auditoría del caso.',
+            });
+            return;
+          }
+          resolver.mutate();
+        }}
+      >
+        <Field label={'Decisión'} tooltip="Qué haces con el extracto que acabas de revisar.">
           <OptionSelect
-            name="motivo"
-            value={motivo}
-            onChange={(valor) => setMotivo(valor as StatementRejectionReason)}
-            options={REJECTION_REASONS.map((valor) => ({
-              value: valor,
-              label: REJECTION_REASON_LABEL[valor],
-              description: REJECTION_ADVICE[valor],
+            name="decision"
+            value={accion}
+            onChange={(valor) => setAccion(valor as ReviewAction)}
+            options={REVIEW_ACTIONS.map((valor) => ({
+              value: valor, // sin-ayuda: el motor no publica ayuda por acción; el rótulo nombra el efecto
+              label: REVIEW_ACTION_LABEL[valor],
             }))}
           />
         </Field>
-      ) : null}
 
-      <Field
-        className="revision-acciones-notas"
-        label="Por qué"
-        tooltip="Qué comprobaste y qué concluyes; queda junto a la decisión."
-      >
-        <textarea
-          value={notas}
-          rows={3}
-          maxLength={2_000}
-          placeholder="Qué comprobaste y qué concluyes."
-          onChange={(evento) => setNotas(evento.target.value)}
-        />
-      </Field>
+        {accion === 'MARK_INVALID' ? (
+          <Field
+            label={'Motivo del rechazo'}
+            tooltip="Motivo del rechazo; cada uno lleva el mensaje que verá quien subió el documento."
+          >
+            <OptionSelect
+              name="motivo"
+              value={motivo}
+              onChange={(valor) => setMotivo(valor as StatementRejectionReason)}
+              options={REJECTION_REASONS.map((valor) => ({
+                value: valor,
+                label: REJECTION_REASON_LABEL[valor],
+                description: REJECTION_ADVICE[valor],
+              }))}
+            />
+          </Field>
+        ) : null}
 
-      <div className="worker-run-actions">
-        <button type="submit" className="button button-primary" disabled={resolver.isPending}>
-          {resolver.isPending ? 'Registrando…' : 'Registrar decisión'}
-        </button>
-        <button
-          type="button"
-          className="button"
-          disabled={reprocesar.isPending || !detalle.documentAvailable}
-          title={
-            detalle.documentAvailable
-              ? undefined
-              : 'El PDF original ya no está guardado: hay que volver a subirlo.'
-          }
-          onClick={() => reprocesar.mutate()}
+        <Field
+          className="revision-acciones-notas"
+          label="Por qué"
+          tooltip="Qué comprobaste y qué concluyes; queda junto a la decisión."
         >
-          {reprocesar.isPending ? 'Enviando…' : 'Reprocesar'}
-        </button>
-      </div>
-    </form>
+          <textarea
+            value={notas}
+            rows={3}
+            maxLength={2_000}
+            placeholder="Qué comprobaste y qué concluyes."
+            onChange={(evento) => setNotas(evento.target.value)}
+          />
+        </Field>
+
+        <div className="worker-run-actions">
+          <button type="submit" className="button button-primary" disabled={resolver.isPending}>
+            {resolver.isPending ? 'Registrando…' : 'Registrar decisión'}
+          </button>
+          <button
+            type="button"
+            className="button"
+            disabled={reprocesar.isPending || !detalle.documentAvailable}
+            title={
+              detalle.documentAvailable
+                ? undefined
+                : 'El PDF original ya no está guardado: hay que volver a subirlo.'
+            }
+            onClick={() => reprocesar.mutate()}
+          >
+            {reprocesar.isPending ? 'Enviando…' : 'Reprocesar'}
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

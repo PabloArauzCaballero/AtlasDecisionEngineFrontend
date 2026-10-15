@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
 import { formatDateTime } from '../../config/locale';
-import { StatementResultView } from './StatementResultView';
+import { StatementDocumentViewer } from './StatementDocumentViewer';
+import { StatementReviewAnalysis } from './StatementReviewAnalysis';
 import { StatementReviewActions } from './StatementReviewActions';
 import { fetchStatementReview } from './statement-review.api';
 import {
@@ -111,21 +112,38 @@ export function StatementReviewCase({ item }: { item: StatementReviewItem }) {
         ) : detalle.data ? (
           <>
             {/*
-             * El documento original ya no siempre está: se conserva mientras el
-             * caso sigue abierto y se borra al cerrarlo. Decirlo es lo honesto —y
-             * es lo que explica que «Reprocesar» pueda estar apagado—.
+             * El PDF, a la vista (2026-10-15): sin él no se puede saber de qué banco
+             * es ni contrastar lo leído. Se conserva mientras el caso sigue abierto.
              */}
-            <p className="field-help">
-              {detalle.data.documentAvailable
-                ? 'El PDF original sigue guardado: se puede reprocesar sin volver a subirlo. Se borra al cerrar el caso.'
-                : 'El PDF original ya no está guardado. Para volver a intentarlo hay que subirlo de nuevo.'}
-            </p>
+            <StatementDocumentViewer
+              requestId={item.requestId}
+              fileName={item.fileName}
+              available={detalle.data.documentAvailable}
+            />
 
             {detalle.data.result ? (
               <section className="revision-caso-extraido">
                 <h4>Información extraída</h4>
-                <StatementResultView
+                <StatementReviewAnalysis
                   result={detalle.data.result}
+                  warnings={detalle.data.warnings}
+                />
+              </section>
+            ) : detalle.data.provisional ? (
+              /*
+               * Lo leído aunque el emisor no se reconociera: ingresos, gastos,
+               * categorías y capacidad para decidir con datos. Provisional: no se
+               * aplica a nadie hasta que una persona lo apruebe.
+               */
+              <section className="revision-caso-extraido" data-testid="statement-provisional">
+                <h4>Análisis provisional</h4>
+                <p className="field-help">
+                  El motor leyó el documento sin reconocer la entidad. Estas cifras sirven para
+                  decidir; no se aplican al cliente hasta que apruebes el caso o lo reproceses con
+                  la entidad correcta.
+                </p>
+                <StatementReviewAnalysis
+                  result={detalle.data.provisional}
                   warnings={detalle.data.warnings}
                 />
               </section>
