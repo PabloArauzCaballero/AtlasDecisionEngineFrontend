@@ -22,6 +22,7 @@ export const REVIEW_REASONS = [
   'OCR_ERROR',
   'MANUAL_REQUEST',
   'SUSPECTED_TAMPERING',
+  'HOLDER_UNREADABLE',
 ] as const;
 
 export type StatementReviewReason = (typeof REVIEW_REASONS)[number];
@@ -36,6 +37,7 @@ export const REVIEW_REASON_LABEL: Record<StatementReviewReason, string> = {
   OCR_ERROR: 'Error de lectura',
   MANUAL_REQUEST: 'Revisión manual',
   SUSPECTED_TAMPERING: 'Indicios de edición',
+  HOLDER_UNREADABLE: 'Titular sin confirmar',
 };
 
 /** Qué hay que hacer con cada categoría. Se enseña junto a la lista. */
@@ -56,6 +58,8 @@ export const REVIEW_REASON_HELP: Record<StatementReviewReason, string> = {
   MANUAL_REQUEST: 'Alguien lo mandó a revisar a mano.',
   SUSPECTED_TAMPERING:
     'El archivo muestra señales de haberse tocado después de emitirse y ninguna es concluyente: una impresión desde el navegador, una reescritura, datos internos del archivo borrados. Es la franja donde rechazar castigaría a un cliente honesto y aceptar sería mirar a otro lado.',
+  HOLDER_UNREADABLE:
+    'El extracto se analizó, pero el motor no pudo leer el nombre del titular. Mira la carátula del PDF: si la cuenta es del cliente (o es cotitular), apruébalo; si es de otra persona, recházalo.',
 };
 
 /** Por qué se rechazó un documento. Nunca aparecen en la cola: sólo en historial. */
@@ -69,6 +73,7 @@ export const REJECTION_REASONS = [
   'ACTIVE_CONTENT',
   'INSUFFICIENT_PERIOD',
   'STALE_PERIOD',
+  'HOLDER_MISMATCH',
 ] as const;
 
 export type StatementRejectionReason = (typeof REJECTION_REASONS)[number];
@@ -83,6 +88,7 @@ export const REJECTION_REASON_LABEL: Record<StatementRejectionReason, string> = 
   ACTIVE_CONTENT: 'PDF con contenido ejecutable',
   INSUFFICIENT_PERIOD: 'Periodo insuficiente',
   STALE_PERIOD: 'Extracto vencido',
+  HOLDER_MISMATCH: 'Titular distinto del cliente',
 };
 
 /**
@@ -126,6 +132,8 @@ export const REJECTION_ADVICE: Record<StatementRejectionReason, string> = {
    */
   STALE_PERIOD:
     'El extracto es válido y su último movimiento es demasiado antiguo: ya no describe la situación actual. Hay que descargar de la banca por internet el extracto hasta la fecha de hoy y volver a subirlo.',
+  HOLDER_MISMATCH:
+    'El titular que figura en el extracto no es el cliente que lo subió. Hay que subir el extracto de una cuenta a su nombre (o de la que sea cotitular).',
 };
 
 export const REVIEW_PRIORITY_LABEL: Record<number, string> = {
@@ -179,7 +187,26 @@ export interface StatementReviewDetail extends StatementReviewItem {
   provisional?: unknown;
   /** La entidad que asignó a mano quien revisa, y quién y cuándo. */
   assignedInstitution?: { code: string; by: string | null; at: string | null } | null;
+  /** De quién es la cuenta: el titular exigido frente al leído. Ausente con un motor anterior al 2026-10-16. */
+  holder?: StatementHolder | null;
 }
+
+/** `MATCH` · `MISMATCH` · `UNREADABLE` · `NOT_REQUIRED`. */
+export type HolderVerdict = 'MATCH' | 'MISMATCH' | 'UNREADABLE' | 'NOT_REQUIRED';
+
+/** El titular de un extracto: el que se exige (el cliente que lo subió) y el que se leyó en la carátula. */
+export interface StatementHolder {
+  expected: string | null;
+  read: string | null;
+  verdict: HolderVerdict | null;
+}
+
+export const HOLDER_VERDICT_LABEL: Record<HolderVerdict, string> = {
+  MATCH: 'Coincide con el cliente',
+  MISMATCH: 'No coincide con el cliente',
+  UNREADABLE: 'No se pudo leer el titular',
+  NOT_REQUIRED: 'Sin titular exigido',
+};
 
 /** Contador de una pestaña. `category: null` es «Todos». */
 export interface StatementReviewCategory {

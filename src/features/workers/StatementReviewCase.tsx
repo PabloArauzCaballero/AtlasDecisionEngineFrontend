@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { StatusBadge } from '../../components/StatusBadge';
 import { formatDateTime } from '../../config/locale';
+import { StatementHolderPanel } from './StatementHolderPanel';
 import { StatementDocumentViewer } from './StatementDocumentViewer';
 import { StatementReviewAnalysis } from './StatementReviewAnalysis';
 import { StatementReviewActions } from './StatementReviewActions';
@@ -115,6 +116,9 @@ export function StatementReviewCase({ item }: { item: StatementReviewItem }) {
              * El PDF, a la vista (2026-10-15): sin él no se puede saber de qué banco
              * es ni contrastar lo leído. Se conserva mientras el caso sigue abierto.
              */}
+            {/* De quién es la cuenta: el cliente frente a lo que dice la carátula (2026-10-16). */}
+            <StatementHolderPanel holder={detalle.data.holder} />
+
             <StatementDocumentViewer
               requestId={item.requestId}
               fileName={item.fileName}

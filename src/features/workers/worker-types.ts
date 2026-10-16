@@ -68,6 +68,8 @@ export interface WorkerRun {
   correlationId: string;
   result?: unknown;
   provisionalResult?: unknown; // emisor en duda: lo leído, para decidir; no es un resultado aplicado
+  /** Extractos: el titular exigido (el cliente que lo subió), el leído y el veredicto. */
+  holder?: import('./statement-review').StatementHolder | null;
   warnings?: unknown;
   errorCode?: string | null;
   errorMessage?: string | null;
