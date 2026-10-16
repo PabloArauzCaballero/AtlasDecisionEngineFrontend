@@ -160,7 +160,8 @@
 .revision-caso-problema,
 .revision-caso-extraido,
 .revision-caso-documento,
-.revision-caso-entidad {
+.revision-caso-entidad,
+.revision-caso-titular {
   padding: 0 var(--space-3) var(--space-3);
 }
 
@@ -249,4 +250,20 @@
   .identity-arbitration-form > p {
     grid-column: 1 / -1;
   }
+}
+
+/* El titular: el veredicto con el color de su estado, para que se lea antes que el nombre. */
+.revision-caso-titular-ok {
+  color: var(--success);
+  font-weight: var(--weight-semibold);
+}
+
+.revision-caso-titular-mal {
+  color: var(--danger);
+  font-weight: var(--weight-semibold);
+}
+
+.revision-caso-titular-duda {
+  color: var(--warning);
+  font-weight: var(--weight-semibold);
 }

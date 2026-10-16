@@ -110,6 +110,8 @@ function reviewDescription(reason: WorkerRun['reviewReason']): string {
        * enseñarle qué evitar. El detalle está en la ejecución, para quien audita.
        */
       return 'El archivo tiene indicios de haberse modificado después de emitirse. Lo revisa una persona; volver a descargarlo del banco y subirlo sin abrirlo lo resuelve antes.';
+    case 'HOLDER_UNREADABLE':
+      return 'Analizamos el extracto, pero no pudimos leer el nombre del titular. Una persona confirma que la cuenta es del cliente.';
     default:
       return 'No pudimos determinar el resultado con suficiente seguridad. El documento fue enviado a revisión y puedes continuar trabajando.';
   }

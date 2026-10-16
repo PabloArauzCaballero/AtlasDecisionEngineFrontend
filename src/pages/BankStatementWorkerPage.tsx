@@ -7,6 +7,7 @@ import { StatementCategoriesBar } from '../features/workers/StatementCategoriesB
 import { StatementAnalytics } from '../features/workers/StatementAnalytics';
 import { StatementCategoriesChart } from '../features/workers/StatementCategoriesChart';
 import { StatementConsoleOutcome } from '../features/workers/StatementConsoleOutcome';
+import { StatementHolderPanel } from '../features/workers/StatementHolderPanel';
 import * as consola from '../features/workers/statement-console-outcome';
 import { StatementDownloads } from '../features/workers/StatementDownloads';
 import { StatementResultView } from '../features/workers/StatementResultView';
@@ -172,8 +173,7 @@ export function BankStatementWorkerConsole() {
   );
 
   return (
-    // Contenedor propio por lo mismo que en la consola semántica: el panel de
-    // control sigue montado al lado y comparte vocabulario con esta vista.
+    // Contenedor propio: el panel de control sigue montado al lado y comparte vocabulario.
     <div className="worker-console">
       <WorkerHeaderFacts descriptor={descriptor} loading={catalog.isLoading} />
 
@@ -230,6 +230,7 @@ export function BankStatementWorkerConsole() {
             const outcome = consola.consoleOutcome(run.data, deduplicated);
             return outcome ? <StatementConsoleOutcome outcome={outcome} /> : null;
           })()}
+          <StatementHolderPanel holder={run.data.holder} />
           <WorkerRunTracker
             worker={WORKER}
             run={run.data}
