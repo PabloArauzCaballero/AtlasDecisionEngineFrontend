@@ -89,6 +89,12 @@ async function simular(page: Page, reprocesos: unknown[]) {
           result: null,
           provisional: STATEMENT_RESULT,
           assignedInstitution: null,
+          // 2026-10-16: el titular exigido frente al leído.
+          holder: {
+            expected: 'Juan Carlos Pérez Gómez',
+            read: 'PEREZ GOMEZ JUAN CARLOS',
+            verdict: 'MATCH',
+          },
           warnings: [],
           fileHash: 'a'.repeat(64),
           fileSizeBytes: 240_000,
@@ -125,6 +131,11 @@ for (const tema of ['light', 'dark'] as const) {
     await caso.locator('summary').click();
     await expect(caso.getByTestId('statement-provisional')).toBeVisible({ timeout: 60_000 });
     await expect(caso.getByText('Análisis provisional')).toBeVisible();
+    // De quién es la cuenta: el cliente frente a lo que dice la carátula (2026-10-16).
+    const titular = caso.getByTestId('statement-holder');
+    await expect(titular).toContainText('Juan Carlos Pérez Gómez');
+    await expect(titular).toContainText('PEREZ GOMEZ JUAN CARLOS');
+    await expect(titular).toContainText('Coincide con el cliente');
 
     await caso.getByRole('button', { name: 'Ver el PDF subido' }).click();
     await expect(caso.locator('iframe.case-files__viewer')).toHaveAttribute('src', /^blob:/);
