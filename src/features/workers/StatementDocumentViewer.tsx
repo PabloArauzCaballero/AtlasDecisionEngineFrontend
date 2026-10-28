@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { saveFile } from '../documents/save-file';
+import { asPdfBlob } from './pdf-blob';
 import { fetchStatementDocument } from './statement-review.api';
 
 /**
@@ -32,7 +33,7 @@ export function StatementDocumentViewer({
     retry: false,
   });
   const url = useMemo(
-    () => (documento.data ? URL.createObjectURL(documento.data.blob) : null),
+    () => (documento.data ? URL.createObjectURL(asPdfBlob(documento.data.blob)) : null),
     [documento.data],
   );
   useEffect(() => () => (url ? URL.revokeObjectURL(url) : undefined), [url]);

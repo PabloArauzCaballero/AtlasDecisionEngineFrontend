@@ -1,0 +1,120 @@
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 105ms
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 95s
+  Running TypeScript ...
+✓ Finished writing to filesystem cache in 18.9s
+  Finished TypeScript in 47s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/42) ...
+  Generating static pages using 3 workers (10/42) 
+  Generating static pages using 3 workers (20/42) 
+  Generating static pages using 3 workers (31/42) 
+✓ Generating static pages using 3 workers (42/42) in 1172ms
+Turbopack build encountered 1 warning:
+./src/lib/build-info.ts:65:28
+Warning: Dynamic filesystem access causes tracing of the whole project
+  [90m63 |[0m   [36mlet[0m build: [33mBuildInfo[0m;
+  [90m64 |[0m   [36mtry[0m {
+[33m[1m>[0m [90m65 |[0m     build = parseBuildInfo(readFileSync(path, [32m'utf8'[0m));
+  [90m   |[0m                            [33m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m66 |[0m   } [36mcatch[0m {
+  [90m67 |[0m     build = { commit: [36mnull[0m, builtAt: [36mnull[0m };
+  [90m68 |[0m   }
+
+Static analysis determined that this filesystem access causes the whole project to be traced and included in the output.
+This is usually unintentional and leads to all source files (including the public folder) to be deployed as part of the server code.
+This can slow down deployments or lead to failures when size limits are exceeded.
+To resolve this, you can
+- make sure the path is statically scoped to some subfolder, for example path.join(process.cwd(), 'data', bar), or
+- only use them in development, or
+- opt out by adding an ignore comment to the highlighted call: fs.readFileSync(/*turbopackIgnore: true*/ ...), or
+- remove them.
+
+Import trace:
+  App Route:
+    ./src/lib/build-info.ts
+    ./src/app/version/route.next.ts
+
+
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /actions
+├ ƒ /algorithms
+├ ƒ /approval-requests/[requestId]
+├ ƒ /artifact-versions/[versionId]/compile
+├ ƒ /artifact-versions/[versionId]/graph
+├ ƒ /artifact-versions/[versionId]/test-suites
+├ ƒ /artifacts
+├ ƒ /artifacts/[artifactId]
+├ ƒ /artifacts/[artifactId]/dependency-graph
+├ ƒ /atlas-backend/[...path]
+├ ƒ /audit-events
+├ ƒ /calculated-fields
+├ ƒ /calculated-fields/[fieldId]
+├ ƒ /code-import
+├ ƒ /coverage-matrix
+├ ƒ /data-notebook
+├ ƒ /data-notebook/[notebookId]
+├ ƒ /data-subject-requests
+├ ƒ /decision-quality
+├ ƒ /deployments
+├ ƒ /environments
+├ ƒ /executions
+├ ƒ /executions/[executionId]
+├ ƒ /graph-coverage
+├ ƒ /graph-editor
+├ ƒ /health/[[...path]]
+├ ƒ /libraries
+├ ƒ /login
+├ ƒ /manual-reviews
+├ ƒ /manual-reviews/[caseId]
+├ ƒ /metrics
+├ ƒ /model-monitoring
+├ ƒ /notebook-sandbox
+├ ƒ /objectives
+├ ƒ /objectives/[objectiveId]
+├ ƒ /pdf/[...path]
+├ ƒ /platform-health
+├ ƒ /qa-lab
+├ ƒ /qa-lab/tutorial
+├ ƒ /reason-codes
+├ ƒ /reviews
+├ ƒ /risk-governance
+├ ƒ /search
+├ ƒ /security-review/[versionId]
+├ ƒ /simulator
+├ ƒ /sql-console
+├ ƒ /test-cases
+├ ƒ /test-runs/[runId]
+├ ƒ /test-runs/[runId]/coverage
+├ ƒ /test-suites
+├ ƒ /test-suites/[suiteId]/cases
+├ ƒ /tutorials
+├ ƒ /v1/[...path]
+├ ƒ /variables
+├ ƒ /variables/[definitionId]
+├ ƒ /version
+├ ƒ /workers
+├ ƒ /workers/audio-tts
+├ ƒ /workers/bank-statement
+├ ƒ /workers/identity-verification
+├ ƒ /workers/pdf-generator
+└ ƒ /workers/semantic-analysis
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+
+exit=0

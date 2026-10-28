@@ -1,0 +1,2 @@
+Source verification passed for 1260 files: every portal route has an access rule and every CSS token resolves.
+exit=0

@@ -154,6 +154,23 @@ describe('apiRequest', () => {
     });
     cleanup();
   });
+
+  it('rejects paths the browser would resolve to another origin (backslash, control chars)', async () => {
+    const { cleanup } = configureAuthenticatedClient();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+
+    // El analizador de URL trata `\` como `/` y borra tabuladores y saltos de línea: las tres
+    // formas acaban en `//example.com/…`, es decir, en otro origen con el `authorization` puesto.
+    for (const hostile of [
+      '/\\example.com/v1/data',
+      '/\t/example.com/v1/data',
+      '/\n/example.com',
+    ]) {
+      await expect(apiRequest(hostile)).rejects.toMatchObject({ code: 'INVALID_API_PATH' });
+    }
+    expect(fetchSpy).not.toHaveBeenCalled();
+    cleanup();
+  });
 });
 
 describe('apiEventStream (Fase 8 — live execution)', () => {

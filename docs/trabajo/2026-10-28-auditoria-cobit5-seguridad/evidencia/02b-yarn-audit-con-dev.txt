@@ -1,0 +1,21 @@
+moderate vitest                   >=2.1.0 <4.1.11      parcheado: >=4.1.11   GHSA-82fw-gwwq-j7x9 | Vitest: Path Traversal / Arbitrary File Read via @vitest/moc
+moderate @vitest/mocker           >=2.1.0 <4.1.11      parcheado: >=4.1.11   GHSA-82fw-gwwq-j7x9 | Vitest: Path Traversal / Arbitrary File Read via @vitest/moc
+critical tinypool                 <=2.1.0              parcheado: >=2.1.1    GHSA-5gmw-xhrv-c9v3 | Tinypool: Prototype Pollution gadget in worker options leads
+critical tinypool                 <2.1.2               parcheado: >=2.1.2    GHSA-85c8-ppgw-ccpr | Tinypool: Prototype Pollution Gadget to RCE in run() options
+moderate @vitest/mocker           >=2.1.0-beta.7 <4.1.12 parcheado: >=4.1.12   GHSA-qxg6-89mg-rqv8 | Vitest: Code injection via unauthenticated manual mock regis
+high     zod                      <4.6.6               parcheado: >=4.6.6    GHSA-mrhx-c7xc-m3w5 | Zod can exhaust memory while validating oversized constraine
+high     js-yaml                  >=4.0.0 <4.3.2       parcheado: >=4.3.2    GHSA-2883-xcg3-v3hh | js-yaml: maxTotalMergeKeys does not limit CPU use for empty 
+moderate brace-expansion          >=2.0.0 <2.1.7       parcheado: >=2.1.7    GHSA-q2hr-2g5m-vwhr | brace-expansion: Quadratic-time expansion of the `{a},b}` re
+high     brace-expansion          >=2.0.0 <2.1.6       parcheado: >=2.1.6    GHSA-qhr7-859c-m2p7 | brace-expansion: DoS via uncontrolled recursion on nested br
+high     brace-expansion          >=2.0.0 <2.1.5       parcheado: >=2.1.5    GHSA-6j4f-fj2g-mc7p | brace-expansion: DoS via uncontrolled recursion in parseComm
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-698v-4r3x-3vcv | launch-editor: escapeCmdArgs() omits % escaping on Windows
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-698v-4r3x-3vcv | launch-editor: escapeCmdArgs() omits % escaping on Windows
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-r825-w8mm-5pxw | launch-editor: Editor CLI flag misinterpretation causing arb
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-r825-w8mm-5pxw | launch-editor: Editor CLI flag misinterpretation causing arb
+high     vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-587h-7wmj-h5pm | launch-editor: `fs.existsSync()` existence check can be bypa
+high     vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-587h-7wmj-h5pm | launch-editor: `fs.existsSync()` existence check can be bypa
+low      vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-9jrq-w75r-8gcw | Vite: Cross origin script execution through Vite custom midd
+low      vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-9jrq-w75r-8gcw | Vite: Cross origin script execution through Vite custom midd
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-rq7h-c2jc-7f22 | Vite: Files outside `server.fs.allow` could be served when p
+moderate vite                     >=7.0.0 <=7.3.6      parcheado: >=7.3.7    GHSA-rq7h-c2jc-7f22 | Vite: Files outside `server.fs.allow` could be served when p
+RESUMEN {"info":0,"low":2,"moderate":10,"high":6,"critical":2}

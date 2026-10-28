@@ -1,0 +1,2 @@
+high     zod                      <4.6.6               parcheado: >=4.6.6    GHSA-mrhx-c7xc-m3w5 | Zod can exhaust memory while validating oversized constraine
+RESUMEN {"info":0,"low":0,"moderate":0,"high":1,"critical":0}

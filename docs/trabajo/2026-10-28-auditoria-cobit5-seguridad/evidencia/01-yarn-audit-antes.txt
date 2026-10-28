@@ -1,0 +1,11 @@
+high     zod                      <4.6.6               parcheado: >=4.6.6    GHSA-mrhx-c7xc-m3w5 | Zod can exhaust memory while validating oversized constraine
+moderate baseline-browser-mapping >=2.0.0 <2.11.0      parcheado: >=2.11.0   GHSA-w5vr-8v7q-w6rv | baseline-browser-mapping process termination on invalid inpu
+critical next                     >=16.0.0 <=16.4.0    parcheado: >=16.4.1   GHSA-2464-fhr4-w9xw | Next.js: Unauthenticated Remote Code Execution in Image Opti
+high     next                     >=16.0.0 <=16.4.0    parcheado: >=16.4.1   GHSA-p3m5-59mp-jv5r | Next.js: Denial of Service in App Router using Server Action
+critical next                     >=16.0.0 <=16.4.0    parcheado: >=16.4.1   GHSA-673q-mjm6-r5xr | Next.js: Unauthenticated Remote Code Execution in `use cache
+low      dompurify                >=3.4.13 <=3.4.15    parcheado: >=3.4.16   GHSA-p98j-92pf-mc4p | DOMPurify: IN_PLACE: node-removing afterSanitize hook leaves
+low      dompurify                <=3.4.15             parcheado: >=3.4.16   GHSA-6688-9rhm-gjv2 | DOMPurify: IN_PLACE returns a force-removed rawtext root who
+critical dompurify                >=3.4.4 <=3.4.16     parcheado: >=3.4.17   GHSA-cg2g-xh64-v4q7 | DOMPurify SAFE_FOR_TEMPLATES bypass: split template expressi
+high     dompurify                <=3.4.16             parcheado: >=3.4.17   GHSA-mrv2-3pqr-j5jr | DOMPurify IN_PLACE: hook that removes a parent or sibling le
+low      dompurify                <=3.4.16             parcheado: >=3.4.17   GHSA-c6gr-qvv4-5v3f | DOMPurify: SMIL attributeName=href guard is skipped when PAR
+RESUMEN {"info":0,"low":3,"moderate":1,"high":3,"critical":3}

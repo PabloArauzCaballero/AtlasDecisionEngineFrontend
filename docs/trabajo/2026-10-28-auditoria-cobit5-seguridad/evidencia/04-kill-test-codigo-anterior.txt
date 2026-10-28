@@ -1,0 +1,8 @@
+ ❯ src/api/http-client.test.ts (13 tests | 1 failed) 20088ms
+   ✓ apiRequest > refreshes once after a 401 and retries with the new access token 9ms
+   ✓ apiRequest > does not expire a refreshed session when the retried request is forbidden 3ms
+   ✓ apiRequest > expires local state immediately when no token exists 1ms
+   ✓ apiRequest > normalizes a request timeout 4ms
+   ✓ apiRequest > propagates caller cancellation as a normalized error 1ms
+   ✓ apiRequest > rejects a successful payload that violates its runtime contract 2ms
+   ✓ apiRequest > rejects absolute and protocol-relative API paths 1ms
