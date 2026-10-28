@@ -38,6 +38,15 @@ export const metadata: Metadata = {
     template: '%s · ATLAS Decision Engine',
   },
   description: 'Portal corporativo de administración y gobierno del Motor de Decisión ATLAS.',
+  /*
+   * Estático en `public/` y no `manifest.next.ts`: este proyecto sólo carga como ruta los ficheros
+   * `*.next.ts(x)` (`pageExtensions`), y con ese nombre Next enlaza `/manifest.next` en vez de
+   * `/manifest.webmanifest` y la petición responde 500. No registra service worker ni cachea nada:
+   * un portal que gobierna decisiones de crédito no puede mostrar pantallas viejas sin avisar. Los
+   * colores son los del lienzo claro; el tema oscuro es un interruptor propio que un manifiesto
+   * estático no puede seguir.
+   */
+  manifest: '/manifest.webmanifest',
   // El logo de la app móvil, servido desde `public/`: es el icono de la pestaña en todos los portales.
   icons: {
     icon: [

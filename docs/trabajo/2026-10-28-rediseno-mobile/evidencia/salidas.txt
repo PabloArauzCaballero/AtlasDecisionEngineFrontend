@@ -1,0 +1,25 @@
+# Salidas literales (recortadas). Entorno: Node 22.22.0, yarn 1.22.22 (--ignore-engines solo para instalar).
+# Motor SIMULADO: `denseBackend(page)` del propio E2E del repo (e2e/support/dense-backend.ts). NO es el motor real.
+# Spec de captura y config en el scratchpad (fuera del repo), con Chromium preinstalado (`executablePath`).
+
+# Intento descartado: src/app/manifest.next.ts
+$ curl -s -w "HTTP %{http_code}" localhost:5173/manifest.webmanifest   -> HTTP 500  "route not found /manifest.webmanifest/route"
+$ curl -s localhost:5173/login | grep -o '<link rel="manifest"[^>]*>'   -> <link rel="manifest" href="/manifest.next"/>
+# Causa: `pageExtensions: ['next.tsx','next.ts']` en next.config.ts; Next enlaza /manifest.next. Se retiró el archivo.
+
+# Solución adoptada: public/manifest.webmanifest + `manifest` en metadata de layout.next.tsx
+$ curl -s localhost:5173/login | grep -oE '<link rel="manifest"[^>]*>'
+<link rel="manifest" href="/manifest.webmanifest"/>
+$ curl -s -o /dev/null -w "manifest HTTP %{http_code} %{content_type}\n" localhost:5173/manifest.webmanifest   (sin sesión)
+manifest HTTP 200 application/manifest+json
+$ curl -s -o /dev/null -w "icon HTTP %{http_code}\n" localhost:5173/icon-192.png
+icon HTTP 200
+
+$ NEXT_TELEMETRY_DISABLED=1 yarn -s verify ; echo $?      (format:check, lint, verify:source, verify:help, typecheck, test, build)
+ Test Files  220 passed (220)
+      Tests  1679 passed (1679)
+verify exit=0
+
+# Línea base a 375 px (denseBackend), 5 rutas: /platform-health, /variables, /executions, /algorithms (+ /search no medida)
+desborde: 0 en todas · consoleErrors 0 en los tres viewports
+cabecera a 375: ["Abrir navegación","Buscar","Acción rápida","Tutoriales","Tema del sistema","Notificaciones","Perfil"] = 7 controles
