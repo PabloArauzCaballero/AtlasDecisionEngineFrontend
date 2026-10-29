@@ -15,6 +15,7 @@ import { TrafficRulesEditor, trafficRulesValid, type TrafficRuleDraft } from './
 import { usePromotionTargets } from './usePromotionTargets';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import { esVersionDesplegable } from './version-status';
 
 type DeploymentCreateFormProps = {
   onClose: () => void;
@@ -154,7 +155,7 @@ export function DeploymentCreateForm({ onClose, initialVersionId }: DeploymentCr
               placeholder="Elegir versión…"
               mapOption={(row) => {
                 const id = display(row, 'id');
-                return id === '—'
+                return id === '—' || !esVersionDesplegable(display(row, 'status'))
                   ? null
                   : {
                       value: id,

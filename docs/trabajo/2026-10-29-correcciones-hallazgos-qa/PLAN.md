@@ -61,3 +61,15 @@
 | -------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- | ------ |
 | H5.S1.M1 | `inputIdFromVariableCode` (pura) y su uso en el selector (id y filtro de «ya elegidas») | `QA_H4_279386` → `qa_h4_279386`; códigos raros → id válido | `yarn vitest run src/features/calculated-fields/input-id.test.ts` | TODO   |
 | H5.S1.M2 | Clic real con una variable en mayúsculas                                                | `POST /v1/calculated-fields/N/versions` → 201              | script `h4-de-campo.cjs` con `VARIABLE=QA_H4`                     | TODO   |
+
+## H6 — OBS-28 (Motor): selectores que ofrecen versiones que el servidor rechaza
+
+**CA:** (a) En «Nuevo despliegue» sólo se ofrecen versiones desplegables (aprobadas o ya desplegadas); (b) en «Crear acción» sólo se ofrecen versiones editables (borrador o con validación fallida) y, si no hay ninguna, la pantalla lo explica.
+**DoD:** `yarn vitest run src/features/deployments src/features/actions` + lint + typecheck (sin errores en `src/`) + clic real.
+**Estado:** HECHO
+
+| ID       | Microtarea                                                                            | CA (binario)                                         | DoD                 | Estado |
+| -------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------- | ------ |
+| H6.S1.M1 | `esVersionDesplegable` y su uso en `DeploymentCreateForm`                             | DRAFT y COMPILED no salen                            | prueba              | HECHO  |
+| H6.S1.M2 | `esVersionEditable` y su uso en `ActionTargetPanel` (sin aviso falso de «desplegada») | sólo DRAFT/VALIDATION_FAILED                         | prueba              | HECHO  |
+| H6.S1.M3 | Clic real de ambas pantallas                                                          | los selectores no ofrecen lo que el servidor rechaza | script (scratchpad) | HECHO  |

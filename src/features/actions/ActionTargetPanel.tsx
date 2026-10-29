@@ -11,6 +11,7 @@ import type { BankEntry, VersionGraph } from './action-bank';
 import type { useActionWrite } from './useActionBank';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import { esVersionEditable } from '../deployments/version-status';
 
 interface Props {
   /** Entrada del banco a aplicar, o null para crear una acción nueva. */
@@ -28,12 +29,18 @@ interface Props {
  * definición antes de escribirla y dice de antemano si allí ya existe —añadir y
  * reemplazar no significan lo mismo cuando la versión está desplegada—.
  */
-export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
+export function ActionTargetPanel({ entry, versions: todas, write, onClose }: Props) {
+  // El servidor sólo deja cambiar las acciones de una versión en borrador (`VERSION_IMMUTABLE`):
+  // ofrecer las demás era ofrecer un 409 (QA 2026-10-29, OBS-28).
+  const versions = todas.filter((version) => esVersionEditable(version.status));
   const present = entry ? entry.origins.map((origin) => origin.versionId) : [];
-  const [versionId, setVersionId] = useState(present[0] ?? versions[0]?.versionId ?? '');
+  const [versionId, setVersionId] = useState(
+    present.find((id) => versions.some((version) => version.versionId === id)) ??
+      versions[0]?.versionId ??
+      '',
+  );
   const target = versions.find((version) => version.versionId === versionId);
   const exists = present.includes(versionId);
-  const deployed = Boolean(target && target.status.startsWith('DEPLOYED'));
 
   const apply = (action: UnknownRecord) => {
     write.mutate({ versionId, action }, { onSuccess: onClose });
@@ -63,10 +70,11 @@ export function ActionTargetPanel({ entry, versions, write, onClose }: Props) {
         </small>
       </Field>
 
-      {deployed ? (
+      {versions.length === 0 ? (
         <Alert tone="warning">
-          <AlertTriangle size={14} aria-hidden="true" /> Esta versión está desplegada en producción.
-          Cambiar sus acciones cambia decisiones que se están tomando ahora mismo.
+          <AlertTriangle size={14} aria-hidden="true" /> Ningún algoritmo está en borrador: las
+          versiones aprobadas o desplegadas no se modifican. Crea una versión nueva en borrador para
+          guardar acciones.
         </Alert>
       ) : null}
 
