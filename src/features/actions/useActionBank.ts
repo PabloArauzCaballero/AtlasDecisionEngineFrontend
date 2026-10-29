@@ -5,6 +5,7 @@ import { apiRequest } from '../../api/http-client';
 import { snapshotToEditableGraph } from '../../graph/graph.adapter';
 import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 import { toActionBank, type VersionGraph } from './action-bank';
+import { resolverMotivos } from './reason-ids';
 
 const BANK_KEY = ['action-bank'];
 
@@ -56,6 +57,16 @@ async function loadVersion(version: UnknownRecord, signal: AbortSignal): Promise
   };
 }
 
+/** Busca el id del catálogo de un motivo por su código exacto; `null` si no existe. */
+async function buscarMotivo(codigo: string): Promise<string | null> {
+  const respuesta = await apiRequest<unknown>(
+    `/v1/reason-codes?search=${encodeURIComponent(codigo)}&page=1&pageSize=50`,
+  );
+  const items = Array.isArray(respuesta) ? respuesta : asRecord(respuesta).items;
+  const fila = asRows(items).find((item) => display(item, 'reasonCode', 'code') === codigo);
+  return fila ? display(fila, 'id') : null;
+}
+
 export interface ActionWrite {
   versionId: string;
   /** La acción a escribir; sin ella la operación es un borrado. */
@@ -87,11 +98,12 @@ export function useActionWrite() {
       const next = remove
         ? current.filter((entry) => display(entry, 'code') !== remove)
         : upsert(current, action as UnknownRecord);
+      const conMotivos = await resolverMotivos(next, buscarMotivo);
 
       return apiRequest<UnknownRecord>(`/v1/artifact-versions/${encoded}/graph`, {
         method: 'PUT',
         headers: { 'if-match': display(version, 'lockVersion') },
-        body: snapshotToEditableGraph({ ...asRecord(graph), actions: next }),
+        body: snapshotToEditableGraph({ ...asRecord(graph), actions: conMotivos }),
       });
     },
     onSuccess: () => client.invalidateQueries({ queryKey: BANK_KEY }),

@@ -26,3 +26,13 @@
 | ID | Microtarea | CA (binario) | DoD | Estado |
 |---|---|---|---|---|
 | H2.S1.M1 | Listener de Escape en `TutorialOverlay` + prueba | el diálogo desaparece y no hay `atlas.tutorial.completed` | `yarn vitest run src/features/tutorial` → 99 pruebas | HECHO |
+
+## H3 — BUG-7: crear una acción que emite un motivo manda `reasonCodeId: "undefined"`
+**CA:** Dado el banco de acciones, cuando se crea una acción «Emitir un motivo» con un código que existe en el catálogo, entonces se guarda en la versión en borrador (PUT del grafo 200); si el código no existe, se explica con un mensaje claro y no se envía nada.
+**DoD:** `yarn vitest run src/features/actions` + `yarn lint` + repetir el clic en el navegador.
+**Estado:** A MEDIAS
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H3.S1.M1 | `resolverMotivos` (pura): completa `id` y `priority` de cada motivo a partir de su código y falla con mensaje si no existe | resuelve, conserva los que ya traen id, lanza si falta | `yarn vitest run src/features/actions` → 30 pruebas | HECHO |
+| H3.S1.M2 | `useActionWrite` la usa antes de armar el cuerpo | el PUT lleva `reasonCodeId` numérico y `priority` ≥ 1 | clic real: ya no responde 400 por motivo; responde 400 `nodes must contain at least 1 elements` (borrador vacío) | A MEDIAS |
