@@ -155,7 +155,7 @@ export function LibrariesPage() {
               ? 'Cambia la búsqueda o el lenguaje de los filtros de arriba para ver más librerías.'
               : 'El registro no tiene librerías aprobadas todavía. Un campo calculado sin librerías sigue pudiendo usar el constructor visual.'
           }
-          example="math@1.0.0 · estadística · JavaScript"
+          example={filtered ? undefined : 'math@1.0.0 · estadística · JavaScript'}
         />
       )}
     </>

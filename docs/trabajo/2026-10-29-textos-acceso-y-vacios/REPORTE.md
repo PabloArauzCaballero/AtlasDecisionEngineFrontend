@@ -28,6 +28,7 @@ ninguno
 ## Evidencia
 
 - Salida de `yarn verify` en el scratchpad de la sesión (exit 0).
+- Capturas a 375 px con el backend interceptado por Playwright (sin motor real; sesión y listas simuladas, correo `@example.test`): `evidencia/de_01_pin-ayuda.png`, `de_02_librerias-vacio.png`, `de_03_librerias-sin-coincidencias.png`, `de_04_tabla-vacia.png`.
 
 ## No cubierto
 
@@ -37,6 +38,8 @@ ninguno
 
 ## Desvíos del plan
 
+- Al mirar la captura de «Ninguna librería coincide» apareció el ejemplo `math@1.0.0…` debajo; se quitó cuando hay filtros (`LibrariesPage`, una línea).
+- Los textos de respaldo del acceso solo se ven ante errores que no sean del cliente de API (un corte de red ya lo traduce el cliente); en este portal el cambio fue solo la pista del PIN.
 - El texto de `DataTable` se acortó para respetar el límite de 299 líneas (Prettier lo partía en 5 líneas).
 
 ## Riesgos residuales
