@@ -4,8 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '../../api/http-client';
 import { Alert } from '../../components/Alert';
 import { DataTable, type TableColumn } from '../../components/DataTable';
-import { asRecord, asRows } from '../../utils/records';
-import { ultimaVersionPorAlgoritmo, type FilaUltimaVersion } from './ultima-version';
+import { filasDeLista, ultimaVersionPorAlgoritmo, type FilaUltimaVersion } from './ultima-version';
 
 const COLUMNAS: readonly TableColumn<FilaUltimaVersion>[] = [
   { key: 'artifactCode', label: 'Algoritmo', code: true },
@@ -44,10 +43,7 @@ export function UltimaVersionTabla({ onDeploy }: { onDeploy: (versionId: string)
         apiRequest<unknown>('/v1/views/pickers/artifact-versions', { signal }),
         apiRequest<unknown>('/v1/deployments?status=ACTIVE&page=1&pageSize=100', { signal }),
       ]);
-      return ultimaVersionPorAlgoritmo(
-        asRows(asRecord(versiones).items),
-        asRows(asRecord(despliegues).items),
-      );
+      return ultimaVersionPorAlgoritmo(filasDeLista(versiones), filasDeLista(despliegues));
     },
     staleTime: 30_000,
   });

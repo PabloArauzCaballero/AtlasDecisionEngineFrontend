@@ -1,4 +1,4 @@
-import { asRecord, display, type UnknownRecord } from '../../utils/records';
+import { asRecord, asRows, display, type UnknownRecord } from '../../utils/records';
 
 /** Una fila de «Última versión de cada algoritmo». */
 export interface FilaUltimaVersion extends Record<string, unknown> {
@@ -98,4 +98,15 @@ function siguientePaso(estado: string, activa: boolean): string {
   if (ESPERANDO_FIRMAS.has(estado)) return 'Esperando las dos firmas en Gobierno → Revisiones.';
   if (estado.startsWith('DEPLOYED')) return 'Desplegada, pero no activa en ningún ambiente ahora.';
   return 'En preparación: todavía no se envió a revisión.';
+}
+
+/**
+ * Las filas de una respuesta de lista, sea un array desnudo o un sobre `{ items }`.
+ *
+ * Los selectores (`pickers/*`) devuelven el array desnudo y los listados paginados un sobre; leer
+ * `.items` de un array daba «sin versiones» sin ningún error, que es justo lo que se midió en
+ * `/deployments` (QA 2026-10-28, OBS-7).
+ */
+export function filasDeLista(respuesta: unknown): UnknownRecord[] {
+  return Array.isArray(respuesta) ? asRows(respuesta) : asRows(asRecord(respuesta).items);
 }

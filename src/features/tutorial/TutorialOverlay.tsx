@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { useTutorial } from './useTutorial';
 import { useTutorialTarget } from './useTutorialTarget';
@@ -20,6 +21,17 @@ const SPOTLIGHT_PADDING = 8;
 export function TutorialOverlay({ step }: TutorialOverlayProps) {
   const { stepIndex, totalSteps, next, previous, exit } = useTutorial();
   const rect = useTutorialTarget(step.targetSelector);
+
+  // Escape sale del tutorial, igual que el botón de cerrar. Sin `aria-modal` el recorrido deja la
+  // página activa, pero mientras está abierto el scrim bloquea los clics: sin una salida por
+  // teclado quedaba la página inutilizable (QA 2026-10-28, OBS-10).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') exit();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [exit]);
 
   const tooltipStyle = rect
     ? {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ultimaVersionPorAlgoritmo } from './ultima-version';
+import { filasDeLista, ultimaVersionPorAlgoritmo } from './ultima-version';
 
 /**
  * El caso medido en TEST el 2026-10-06: el crédito v2.0.1 y el riesgo v1.0.1 estaban APROBADOS y no
@@ -94,5 +94,20 @@ describe('ultimaVersionPorAlgoritmo', () => {
       ],
     );
     expect(filas[0]).toMatchObject({ activa: 'Ninguna', desplegable: true });
+  });
+});
+
+describe('filasDeLista', () => {
+  it('lee un array desnudo —lo que devuelven los selectores— y un sobre con items', () => {
+    const filas = [version('v1', 'credit', 1, '1.0.0', 'APPROVED')];
+    expect(filasDeLista(filas)).toHaveLength(1);
+    expect(filasDeLista({ items: filas })).toHaveLength(1);
+    expect(ultimaVersionPorAlgoritmo(filasDeLista(filas), [])).toHaveLength(1);
+  });
+
+  it('lo que no es lista da vacío, sin lanzar', () => {
+    expect(filasDeLista(null)).toEqual([]);
+    expect(filasDeLista({ otra: 1 })).toEqual([]);
+    expect(filasDeLista('x')).toEqual([]);
   });
 });

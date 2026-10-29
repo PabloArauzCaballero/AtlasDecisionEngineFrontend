@@ -105,4 +105,13 @@ describe('TutorialProvider (Fase 4 — interactive tutorial)', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(window.localStorage.getItem('atlas.tutorial.completed')).toBe('true');
   });
+
+  it('Escape sale del tutorial sin marcarlo como completado', () => {
+    renderWithProvider();
+    fireEvent.click(screen.getByText('start-tutorial'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(window.localStorage.getItem('atlas.tutorial.completed')).not.toBe('true');
+  });
 });
