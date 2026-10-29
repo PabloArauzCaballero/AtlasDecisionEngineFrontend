@@ -70,7 +70,7 @@ export function LoginPinForm({
         <h1 id="login-pin-title">Revisa tu correo</h1>
         <p>
           Enviamos un código de {PIN_LENGTH} dígitos a <strong>{email}</strong>. Escríbelo aquí para
-          terminar de entrar.
+          terminar de entrar. Si no llega, mira en no deseados.
         </p>
       </header>
 

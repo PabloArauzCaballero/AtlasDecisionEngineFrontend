@@ -31,6 +31,14 @@ describe('LoginPinForm', () => {
     expect(screen.getByText('ana@atlas.test')).toBeInTheDocument();
   });
 
+  it('orienta a quien no recibe el código: mirar en no deseados o volver atrás', () => {
+    renderPin();
+    expect(screen.getByText(/Si no llega, mira en no deseados/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Volver e intentar con otra cuenta/ }),
+    ).toBeInTheDocument();
+  });
+
   /*
    * El motor sólo acepta seis dígitos. Dejar escribir otra cosa no da flexibilidad: gasta uno de
    * los pocos intentos que hay antes de que el desafío se invalide.

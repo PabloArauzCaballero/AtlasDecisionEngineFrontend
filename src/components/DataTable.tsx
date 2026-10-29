@@ -108,7 +108,7 @@ export function DataTable<T extends Record<string, unknown>>({
   if (!rows.length) {
     return (
       <div className="empty-state">
-        <p>No hay registros para los filtros seleccionados.</p>
+        <p>No hay registros que mostrar. Si hay filtros, cámbialos o quítalos para ver más.</p>
       </div>
     );
   }

@@ -52,6 +52,14 @@ const bodyCodes = () =>
     .slice(1)
     .map((row) => within(row).getAllByRole('cell')[1]?.textContent ?? '');
 
+describe('tabla sin filas', () => {
+  it('no afirma que haya filtros: dice qué hacer si los hay', () => {
+    render(<DataTable rows={[]} columns={COLUMNS} getRowKey={(row) => row.id} />);
+    expect(screen.getByText(/No hay registros que mostrar/)).toBeInTheDocument();
+    expect(screen.getByText(/cámbialos o quítalos/)).toBeInTheDocument();
+  });
+});
+
 describe('comparación de celdas', () => {
   it('ordena números como números, no como texto', () => {
     expect(compareCells('100', '20')).toBeGreaterThan(0);
