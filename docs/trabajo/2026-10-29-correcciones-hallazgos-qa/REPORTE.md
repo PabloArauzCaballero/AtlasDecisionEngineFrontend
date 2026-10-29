@@ -1,4 +1,4 @@
-> **AVANCE: 3 / 4 — 75,0 %.**
+> **AVANCE: 4 / 5 — 80,0 %.**
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/compassionate-franklin-p7u3rw`
 - Peldaño de evidencia alcanzado: `TESTED`. No `VERIFIED`: no se observó en navegador tras el cambio.
@@ -9,6 +9,7 @@
 | H1.S1.M1 | OBS-7: causa real = el panel leía `.items` de un array desnudo (el selector `pickers/artifact-versions` devuelve array, ver `views.controller.ts:56`); `filasDeLista` acepta ambas formas | `yarn vitest run src/features/deployments` | PASS (22 pruebas, 2 nuevas) |
 | H2.S1.M1 | OBS-10: Escape cierra `TutorialOverlay` | `yarn vitest run src/features/tutorial` | PASS (99 pruebas, 1 nueva) |
 | H3.S1.M1 | BUG-7 (hallado en la pasada H4): crear una acción que emite un motivo enviaba `reasonCodeId: "undefined"` y `priority: NaN` (400); `resolverMotivos` completa id y prioridad desde el catálogo y da un error claro si el código no existe | `yarn vitest run src/features/actions` | PASS (30 pruebas) · lint 0 avisos |
+| H4.S1.M1 | BUG-8 (hallado en la pasada H4): en 1440×900 el grupo de acciones del editor de grafos tapaba «Cargar»; la barra envuelve y el bloque primario no se encoge | medición en Chromium (`elementFromPoint`, script `h4-de-toolbar.cjs`) | antes: 1440×900 tapado · después: 1280, 1440 y 1920 sin solape; lienzo en y=330 (<350) y 570/470 px visibles (>450) |
 
 ## A medias
 ### H3.S1.M2 — Repetir «Crear acción» en el navegador

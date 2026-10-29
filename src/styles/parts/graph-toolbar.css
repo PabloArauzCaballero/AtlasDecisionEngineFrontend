@@ -12,7 +12,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  /* Envuelve siempre: a 1440×900 (1160 px útiles con el menú) la identidad, el selector de versión
+     y las acciones no caben en una fila y el grupo de acciones pisaba «Cargar» (QA 2026-10-29). */
+  flex-wrap: wrap;
+  gap: 8px 18px;
   padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--panel-live);
@@ -28,7 +31,8 @@
 }
 .editor-toolbar-primary {
   gap: 20px;
-  min-width: 0;
+  /* No se encoge: lo que no cabe baja de fila en vez de solaparse con las acciones. */
+  flex: 0 0 auto;
 }
 .editor-identity {
   display: flex;

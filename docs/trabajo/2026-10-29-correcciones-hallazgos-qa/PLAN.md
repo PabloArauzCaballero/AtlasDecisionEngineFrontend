@@ -36,3 +36,12 @@
 |---|---|---|---|---|
 | H3.S1.M1 | `resolverMotivos` (pura): completa `id` y `priority` de cada motivo a partir de su código y falla con mensaje si no existe | resuelve, conserva los que ya traen id, lanza si falta | `yarn vitest run src/features/actions` → 30 pruebas | HECHO |
 | H3.S1.M2 | `useActionWrite` la usa antes de armar el cuerpo | el PUT lleva `reasonCodeId` numérico y `priority` ≥ 1 | clic real: ya no responde 400 por motivo; responde 400 `nodes must contain at least 1 elements` (borrador vacío) | A MEDIAS |
+
+## H4 — BUG-8: a 1440×900 el grupo de acciones del editor de grafos tapa el botón «Cargar»
+**CA:** Dado el editor de diagrama a 1440×900, cuando se abre, entonces «Cargar» recibe el clic (nada lo cubre) y el lienzo sigue empezando antes de 350 px.
+**DoD:** medición `elementFromPoint` en 1280/1440/1920 (script `h4-de-toolbar.cjs`) + `yarn lint` + `e2e/editor-and-tables.spec.ts` si se puede ejecutar.
+**Estado:** HECHO
+
+| ID | Microtarea | CA (binario) | DoD | Estado |
+|---|---|---|---|---|
+| H4.S1.M1 | `.editor-toolbar` envuelve siempre y `.editor-toolbar-primary` no se encoge | `elementFromPoint(Cargar) === Cargar` en 1280, 1440 y 1920 | medición en Chromium | HECHO |
