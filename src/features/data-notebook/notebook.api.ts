@@ -73,7 +73,7 @@ export const notebookCatalogResponseSchema = sobre(notebookCatalogSchema);
 const notebookPageSchema = z.object({
   dataset: z.object({ code: z.string(), label: z.string(), view: z.string() }),
   columns: z.array(notebookColumnSchema),
-  rows: z.array(z.record(z.unknown())),
+  rows: z.array(z.record(z.string(), z.unknown())),
   page: z.number(),
   pageSize: z.number(),
   total: z.number(),

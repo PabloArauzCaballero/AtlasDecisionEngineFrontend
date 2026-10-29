@@ -118,7 +118,7 @@ export const sampleBatchSchema = z.object({
       index: z.number(),
       kind: z.string(),
       mutation: z.string().optional(),
-      input: z.record(z.unknown()),
+      input: z.record(z.string(), z.unknown()),
       /** Entradas cuyo contrato no admite NINGÚN valor válido; hay que decirlo. */
       unsatisfiable: z.array(z.string()).optional(),
     }),
@@ -147,7 +147,7 @@ export const outcomeReportSchema = z.object({
       index: z.number(),
       kind: z.string(),
       mutation: z.string().optional(),
-      input: z.record(z.unknown()),
+      input: z.record(z.string(), z.unknown()),
       outcome: z.string(),
       value: z.unknown().optional(),
       error: z.string().optional(),

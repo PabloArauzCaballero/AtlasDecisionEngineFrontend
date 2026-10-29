@@ -139,7 +139,7 @@ export const simulationResponseSchema = z
     score: z.unknown().optional(),
     riskBand: z.unknown().optional(),
     limit: z.unknown().optional(),
-    output: z.record(z.unknown()).default({}),
+    output: z.record(z.string(), z.unknown()).default({}),
     primaryResult: z
       .object({ code: z.string().min(1), value: z.unknown() })
       .passthrough()

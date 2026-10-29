@@ -37,7 +37,7 @@ export const sampleInputsSchema = z.object({
     .object({
       source: z.string(),
       reason: z.string().optional(),
-      mappedVariables: z.record(z.string()).optional(),
+      mappedVariables: z.record(z.string(), z.string()).optional(),
     })
     .optional(),
   cases: z.array(
@@ -49,7 +49,7 @@ export const sampleInputsSchema = z.object({
       nodeKey: z.string().optional(),
       path: z.array(z.string()).optional(),
       unresolved: z.array(z.string()).optional(),
-      input: z.record(z.unknown()),
+      input: z.record(z.string(), z.unknown()),
     }),
   ),
 });

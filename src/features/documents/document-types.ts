@@ -32,16 +32,15 @@ export interface TemplateFieldDescriptor {
  * salida siempre está. Sin esto TypeScript rechaza la anotación, que es
  * obligatoria porque el esquema se referencia a sí mismo y no puede inferirse.
  */
-const fieldDescriptorSchema: z.ZodType<TemplateFieldDescriptor, z.ZodTypeDef, unknown> = z.lazy(
-  () =>
-    z.object({
-      type: z.string(),
-      required: z.boolean().default(false),
-      description: z.string().optional(),
-      values: z.array(z.string()).optional(),
-      items: fieldDescriptorSchema.optional(),
-      fields: z.record(fieldDescriptorSchema).optional(),
-    }),
+const fieldDescriptorSchema: z.ZodType<TemplateFieldDescriptor, unknown> = z.lazy(() =>
+  z.object({
+    type: z.string(),
+    required: z.boolean().default(false),
+    description: z.string().optional(),
+    values: z.array(z.string()).optional(),
+    items: fieldDescriptorSchema.optional(),
+    fields: z.record(z.string(), fieldDescriptorSchema).optional(),
+  }),
 );
 
 export const templateSummarySchema = z
@@ -74,7 +73,7 @@ export const templateSchemaResultSchema = z
     version: z.string(),
     title: z.string(),
     description: z.string(),
-    fields: z.record(fieldDescriptorSchema),
+    fields: z.record(z.string(), fieldDescriptorSchema),
     example: z.unknown(),
   })
   .passthrough();
@@ -191,7 +190,7 @@ export const artifactSampleSchema = z
     templateId: z.string(),
     artifactId: z.string(),
     artifactVersion: z.string(),
-    payload: z.record(z.unknown()),
+    payload: z.record(z.string(), z.unknown()),
     /** Campos obligatorios que el artefacto NO pudo rellenar. No se inventan. */
     missing: z.array(z.string()).default([]),
     compatibility: compatibilityReportSchema,

@@ -25,7 +25,7 @@ export const storedOutcomeSchema = z.object({
   status: z.enum(['ok', 'error']),
   value: z.unknown().optional(),
   table: z
-    .object({ columns: z.array(z.string()), rows: z.array(z.record(z.unknown())) })
+    .object({ columns: z.array(z.string()), rows: z.array(z.record(z.string(), z.unknown())) })
     .optional(),
   images: z.array(z.string()).optional(),
   error: z.string().optional(),
