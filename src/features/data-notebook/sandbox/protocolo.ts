@@ -48,7 +48,7 @@ const figura = z
 
 const tabla = z.object({
   columns: z.array(texto(1_000)).max(MAX_COLUMNAS),
-  rows: z.array(z.record(z.unknown())).max(MAX_FILAS),
+  rows: z.array(z.record(z.string(), z.unknown())).max(MAX_FILAS),
 });
 
 /** La salida de una celda de Python o de R: misma forma, para que el visor no sepa de dónde vino. */

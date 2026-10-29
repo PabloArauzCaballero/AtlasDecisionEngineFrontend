@@ -19,7 +19,7 @@ const sampleSchema = z.object({
   cases: z
     .array(
       z.object({
-        input: z.record(z.unknown()),
+        input: z.record(z.string(), z.unknown()),
         outcome: z.string().optional(),
         unresolved: z.array(z.string()).optional(),
       }),

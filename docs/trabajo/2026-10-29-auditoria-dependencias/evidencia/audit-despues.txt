@@ -1,0 +1,2 @@
+Auditoría de dependencias de producción (161 paquetes): 1 moderate.
+  [informa] moderate baseline-browser-mapping

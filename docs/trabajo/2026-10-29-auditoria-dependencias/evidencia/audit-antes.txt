@@ -1,0 +1,13 @@
+Auditoría de dependencias de producción (161 paquetes): 3 critical · 3 high · 1 moderate · 3 low.
+  [BLOQUEA] critical next
+  [BLOQUEA] critical next
+  [BLOQUEA] critical dompurify
+  [BLOQUEA] high     zod
+  [BLOQUEA] high     next
+  [BLOQUEA] high     dompurify
+  [informa] moderate baseline-browser-mapping
+  [informa] low      dompurify
+  [informa] low      dompurify
+  [informa] low      dompurify
+
+6 aviso(s) de severidad alta o crítica en dependencias de producción. Actualice el paquete o fije una resolución antes de desplegar.
