@@ -84,3 +84,13 @@
 | -------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------ | ------ |
 | H7.S1.M1 | `motivoSinEdicion(versionId, cargada)` (pura)                                   | null sólo si la versión elegida está cargada y es editable | prueba             | HECHO  |
 | H7.S1.M2 | El hook guarda la versión cargada; la barra apaga Validar/Guardar con el motivo | botones apagados con `title`                               | prueba + clic real | HECHO  |
+
+## H8 — OBS-3: «Documentos del solicitante: no se pudieron traer (VALIDATION_ERROR)» en un caso KYB
+
+**CA:** Dado un caso de comercio cuyo identificador de verificación no es el de un intento de identidad, cuando se abre su detalle, entonces el panel no muestra un error: sigue con el expediente del comercio.
+**DoD:** `yarn vitest run src/features/manual-review` + lint + typecheck.
+**Estado:** HECHO
+
+| ID       | Microtarea                                                                                 | CA (binario)        | DoD          | Estado |
+| -------- | ------------------------------------------------------------------------------------------ | ------------------- | ------------ | ------ |
+| H8.S1.M1 | Un 400 de validación del identificador se trata como «no es un intento» (igual que el 404) | no propaga el error | prueba nueva | HECHO  |

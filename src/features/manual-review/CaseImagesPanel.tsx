@@ -101,7 +101,10 @@ async function documentosDelIntento(attemptId: string, signal: AbortSignal) {
   } catch (error) {
     // Un intento que ya no existe no es el fin: el cliente puede leerse del `requestId` y su
     // expediente conserva los archivos. Cualquier otro fallo (401, 500) sí se propaga.
-    if (error instanceof ApiError && error.kind === 'not-found') return null;
+    // Un identificador que NO es de un intento (el caso de un comercio trae el de su expediente) lo
+    // rechaza la validación del servidor con 400, no con 404: tampoco es el fin (QA 2026-10-29, OBS-3).
+    if (error instanceof ApiError && (error.kind === 'not-found' || error.kind === 'validation'))
+      return null;
     throw error;
   }
 }

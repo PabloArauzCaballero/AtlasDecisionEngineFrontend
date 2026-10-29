@@ -277,3 +277,28 @@ describe('candidatos por hora: con varios no se muestra ninguno', () => {
     expect(vi.mocked(apiDownload)).not.toHaveBeenCalled();
   });
 });
+
+describe('caso de comercio con un identificador que no es de un intento de identidad', () => {
+  it('un 400 de validación no tumba el panel: no es un error, es que no hay intento (OBS-3)', async () => {
+    const { apiRequest } = await import('../../api/http-client');
+    const { ApiError } = await import('../../api/ApiError');
+    vi.mocked(apiRequest).mockImplementation(((ruta: string) =>
+      ruta.includes('identity-verifications')
+        ? Promise.reject(new ApiError('VALIDATION_ERROR', 400, 'VALIDATION_ERROR'))
+        : Promise.resolve({ expedienteId: null })) as typeof apiRequest);
+
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <CaseImagesPanel attemptId="8b2f0c5e-aaaa-4bbb-8ccc-123456789abc" />
+      </QueryClientProvider>,
+    );
+
+    // El único mensaje admisible es el de «no hay a dónde llegar», nunca el error de validación.
+    expect(await screen.findByText('Documentos del solicitante')).toBeTruthy();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText(/VALIDATION_ERROR/)).toBeNull();
+    expect(screen.queryByText(/no se pudieron traer/i)).toBeNull();
+  });
+});
