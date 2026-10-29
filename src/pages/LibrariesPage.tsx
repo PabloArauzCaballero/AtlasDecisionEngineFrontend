@@ -38,6 +38,7 @@ export function LibrariesPage() {
   });
 
   const rows = asRows(asRecord(query.data).items);
+  const filtered = Boolean(search.trim() || language);
   const byCategory = new Map<string, UnknownRecord[]>();
   for (const row of rows) {
     const category = display(row, 'category');
@@ -148,9 +149,13 @@ export function LibrariesPage() {
       ) : (
         <EmptyState
           illustration="empty"
-          title="Sin librerías aprobadas"
-          description="El registro está vacío o ningún elemento coincide con el filtro. Un campo calculado sin librerías sigue pudiendo usar el constructor visual."
-          example="math@1.0.0 · estadística · JavaScript"
+          title={filtered ? 'Ninguna librería coincide' : 'Sin librerías aprobadas'}
+          description={
+            filtered
+              ? 'Cambia la búsqueda o el lenguaje de los filtros de arriba para ver más librerías.'
+              : 'El registro no tiene librerías aprobadas todavía. Un campo calculado sin librerías sigue pudiendo usar el constructor visual.'
+          }
+          example={filtered ? undefined : 'math@1.0.0 · estadística · JavaScript'}
         />
       )}
     </>
