@@ -40,7 +40,7 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "webr": "0.6.0",
-    "zod": "^3.25.76"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

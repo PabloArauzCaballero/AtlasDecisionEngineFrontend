@@ -16,7 +16,7 @@
 **DoD:** `yarn security:audit` exit 0 · `yarn verify` exit 0 (format, lint, verify:source, typecheck, tests, build).
 **Estado:** TODO
 
-| ID    | Microtarea                               | CA (binario)                  | DoD                                  | Estado |
-| ----- | ---------------------------------------- | ----------------------------- | ------------------------------------ | ------ |
-| H1.M1 | `next` a >=16.4.1 y `dompurify` a >=3.4.17 | Desaparecen next y dompurify  | `yarn security:audit`                 | TODO   |
-| H1.M2 | `zod` a >=4.6.6 y adaptar el código       | Desaparece zod                | `yarn security:audit` + `yarn verify` | TODO   |
+| ID    | Microtarea                                 | CA (binario)                 | DoD                                   | Estado |
+| ----- | ------------------------------------------ | ---------------------------- | ------------------------------------- | ------ |
+| H1.M1 | `next` a >=16.4.1 y `dompurify` a >=3.4.17 | Desaparecen next y dompurify | `yarn security:audit`                 | TODO   |
+| H1.M2 | `zod` a >=4.6.6 y adaptar el código        | Desaparece zod               | `yarn security:audit` + `yarn verify` | TODO   |
