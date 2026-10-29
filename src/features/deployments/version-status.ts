@@ -24,3 +24,25 @@ export const esVersionDesplegable = (estado: unknown): boolean =>
   DESPLEGABLES.has(normalizar(estado));
 
 export const esVersionEditable = (estado: unknown): boolean => EDITABLES.has(normalizar(estado));
+
+export interface VersionCargada {
+  readonly id: string;
+  readonly status: string;
+}
+
+/**
+ * Por qué el editor de grafos no puede validar ni guardar ahora, o `null` si puede.
+ *
+ * Sin la versión CARGADA no hay `lockVersion` (viaja `If-Match: 0` y el servidor responde 400
+ * `INVALID_IF_MATCH`), y una versión que no es borrador es inmutable (409 `VERSION_IMMUTABLE`):
+ * los botones estaban encendidos y devolvían el error en crudo (QA 2026-10-29, OBS-17).
+ */
+export function motivoSinEdicion(versionId: string, cargada: VersionCargada | null): string | null {
+  if (!versionId) return null; // ya lo explica «Elige primero un algoritmo y una versión»
+  if (!cargada || cargada.id !== versionId)
+    return 'Pulsa «Cargar» para traer la versión antes de validarla o guardarla.';
+  if (!esVersionEditable(cargada.status)) {
+    return `Esta versión está «${cargada.status}»: sólo los borradores se pueden modificar. Crea una versión nueva en borrador.`;
+  }
+  return null;
+}

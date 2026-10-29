@@ -30,6 +30,8 @@ interface GraphEditorToolbarProps {
   loading: boolean;
   saving: boolean;
   validating: boolean;
+  /** Por qué no se puede validar ni guardar ahora; `null` si se puede. */
+  sinEdicion: string | null;
   onVersionIdChange: (value: string) => void;
   onLoad: () => void;
   onUndo: () => void;
@@ -180,8 +182,8 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
           className="button"
           type="button"
           data-tutorial-id="graph-validate"
-          disabled={!props.versionId || props.validating}
-          title={props.versionId ? undefined : ELIGE_VERSION}
+          disabled={!props.versionId || props.validating || props.sinEdicion !== null}
+          title={props.versionId ? (props.sinEdicion ?? undefined) : ELIGE_VERSION}
           onClick={props.onValidate}
         >
           <ShieldCheck size={16} /> {props.validating ? 'Validando…' : 'Validar'}
@@ -189,8 +191,8 @@ export function GraphEditorToolbar(props: GraphEditorToolbarProps) {
         <button
           className="button button-primary"
           type="button"
-          disabled={!props.versionId || props.saving}
-          title={props.versionId ? undefined : ELIGE_VERSION}
+          disabled={!props.versionId || props.saving || props.sinEdicion !== null}
+          title={props.versionId ? (props.sinEdicion ?? undefined) : ELIGE_VERSION}
           onClick={props.onSave}
         >
           <Save size={16} /> {props.saving ? 'Guardando…' : 'Guardar'}

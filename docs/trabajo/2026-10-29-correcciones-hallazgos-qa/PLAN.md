@@ -73,3 +73,14 @@
 | H6.S1.M1 | `esVersionDesplegable` y su uso en `DeploymentCreateForm`                             | DRAFT y COMPILED no salen                            | prueba              | HECHO  |
 | H6.S1.M2 | `esVersionEditable` y su uso en `ActionTargetPanel` (sin aviso falso de «desplegada») | sólo DRAFT/VALIDATION_FAILED                         | prueba              | HECHO  |
 | H6.S1.M3 | Clic real de ambas pantallas                                                          | los selectores no ofrecen lo que el servidor rechaza | script (scratchpad) | HECHO  |
+
+## H7 — OBS-17: el editor de grafos deja validar y guardar lo que el servidor rechaza
+
+**CA:** Dado el editor, cuando la versión elegida no está cargada o no es un borrador, entonces «Validar» y «Guardar» están apagados y dicen por qué (antes: `409 VERSION_IMMUTABLE` o `400 INVALID_IF_MATCH` en crudo).
+**DoD:** `yarn vitest run src/features/deployments/version-status.test.ts` + lint + typecheck + clic real.
+**Estado:** HECHO
+
+| ID       | Microtarea                                                                      | CA (binario)                                               | DoD                | Estado |
+| -------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------ | ------ |
+| H7.S1.M1 | `motivoSinEdicion(versionId, cargada)` (pura)                                   | null sólo si la versión elegida está cargada y es editable | prueba             | HECHO  |
+| H7.S1.M2 | El hook guarda la versión cargada; la barra apaga Validar/Guardar con el motivo | botones apagados con `title`                               | prueba + clic real | HECHO  |

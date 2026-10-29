@@ -11,12 +11,14 @@ import { connectionErrorNotice, type ConnectionNotice } from './connection-feedb
 import { layoutGraphNodes, normalizeLoadedGraph } from './graph-layout';
 import { withEdges, withNewNodeCondition, withNodes, withoutNode } from './graph-snapshot';
 import { useGraphHistory } from './useGraphHistory';
+import { motivoSinEdicion, type VersionCargada } from '../deployments/version-status';
 
 export function useGraphEditor(initialVersionId = '') {
   const [versionId, setVersionId] = useState(initialVersionId);
   const [selectedKey, setSelectedKey] = useState('');
   const [selectedEdgeKey, setSelectedEdgeKey] = useState('');
   const [lockVersion, setLockVersion] = useState('0');
+  const [cargada, setCargada] = useState<VersionCargada | null>(null);
   const [connectMode, setConnectMode] = useState(false);
   const [pendingFrom, setPendingFrom] = useState<string | null>(null);
   const [connectionNotice, setConnectionNotice] = useState<ConnectionNotice | null>(null);
@@ -61,12 +63,13 @@ export function useGraphEditor(initialVersionId = '') {
         apiRequest<UnknownRecord>(`/v1/artifact-versions/${encodedVersionId}`),
       ]);
     },
-    onSuccess: ([graph, version]) => {
+    onSuccess: ([graph, version], objetivo) => {
       const normalized = normalizeLoadedGraph(graph);
       history.reset(normalized);
       setSelectedKey(display(asRows(normalized.nodes)[0] ?? {}, 'key'));
       setSelectedEdgeKey('');
       setLockVersion(display(version, 'lockVersion'));
+      setCargada({ id: objetivo ?? versionId, status: display(version, 'status') });
       setPendingFrom(null);
       setConnectMode(false);
       setConnectionNotice(null);
@@ -225,6 +228,8 @@ export function useGraphEditor(initialVersionId = '') {
   return {
     versionId,
     setVersionId,
+    /** Por qué no se puede validar ni guardar ahora (o `null`). */
+    sinEdicion: motivoSinEdicion(versionId, cargada),
     nodes,
     edges,
     variables,

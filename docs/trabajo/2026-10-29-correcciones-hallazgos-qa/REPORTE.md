@@ -1,4 +1,4 @@
-> **AVANCE: 10 / 10 — 100,0 %.**
+> **AVANCE: 12 / 12 — 100,0 %.**
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/compassionate-franklin-p7u3rw`
 - Peldaño de evidencia alcanzado: `TESTED`. No `VERIFIED`: no se observó en navegador tras el cambio.
@@ -18,6 +18,8 @@
 | H6.S1.M1 | OBS-28: «Nuevo despliegue» sólo ofrece versiones desplegables (aprobadas o ya desplegadas) | `yarn vitest run src/features/deployments src/features/actions` | PASS (56) |
 | H6.S1.M2 | OBS-28: «Crear acción» sólo ofrece versiones editables y, si no hay ninguna, lo explica; se quitó el aviso falso «desplegada en producción: cambiar sus acciones cambia decisiones» (el servidor no deja cambiarlas) | misma suite · lint 0 avisos · typecheck sin errores en `src/` | PASS |
 | H6.S1.M3 | OBS-28 en el navegador | script `h4-de-selectores.cjs` (scratchpad) | antes: 9 versiones (borrador y compilados incluidos); después: 6 `DEPLOYED_TO_STAGING` en despliegue y sólo `QA_H4_… · DRAFT` en acciones |
+| H7.S1.M1 | OBS-17: `motivoSinEdicion` (pura): sin versión cargada o con una que no es borrador, no se valida ni se guarda | `yarn vitest run src/features/deployments src/features/graph-editor src/pages` | PASS (256) · lint 0 avisos · typecheck sin errores en `src/` |
+| H7.S1.M2 | OBS-17 en el navegador | script `h4-de-guardar.cjs` (scratchpad) | borrador sin cargar: Guardar/Validar apagados («Pulsa «Cargar»…») · borrador cargado: encendidos · `DEPLOYED_TO_STAGING` cargada: apagados («sólo los borradores se pueden modificar») |
 
 ## A medias
 

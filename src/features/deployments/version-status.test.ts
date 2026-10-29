@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { esVersionDesplegable, esVersionEditable } from './version-status';
+import { esVersionDesplegable, esVersionEditable, motivoSinEdicion } from './version-status';
 
 describe('esVersionDesplegable', () => {
   it('admite las aprobadas y las ya desplegadas (para promoverlas)', () => {
@@ -39,5 +39,27 @@ describe('esVersionEditable', () => {
     for (const estado of ['APPROVED', 'COMPILED', 'DEPLOYED_TO_STAGING', 'IN_REVIEW', undefined]) {
       expect(esVersionEditable(estado)).toBe(false);
     }
+  });
+});
+
+describe('motivoSinEdicion', () => {
+  it('sin versión elegida no añade motivo propio (lo explica el selector)', () => {
+    expect(motivoSinEdicion('', null)).toBeNull();
+  });
+
+  it('con la versión elegida pero sin cargar pide cargarla', () => {
+    expect(motivoSinEdicion('9', null)).toMatch(/Cargar/);
+    expect(motivoSinEdicion('9', { id: '8', status: 'DRAFT' })).toMatch(/Cargar/);
+  });
+
+  it('una versión cargada que no es borrador no se puede modificar y dice su estado', () => {
+    expect(motivoSinEdicion('8', { id: '8', status: 'DEPLOYED_TO_STAGING' })).toMatch(
+      /DEPLOYED_TO_STAGING/,
+    );
+  });
+
+  it('un borrador cargado sí', () => {
+    expect(motivoSinEdicion('9', { id: '9', status: 'DRAFT' })).toBeNull();
+    expect(motivoSinEdicion('9', { id: '9', status: 'VALIDATION_FAILED' })).toBeNull();
   });
 });

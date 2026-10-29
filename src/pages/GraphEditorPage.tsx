@@ -100,6 +100,7 @@ export function GraphEditorPage({ initialVersionId = '' }: GraphEditorPageProps)
         loading={editor.load.isPending}
         saving={editor.save.isPending}
         validating={editor.validate.isPending}
+        sinEdicion={editor.sinEdicion}
         onVersionIdChange={editor.setVersionId}
         onLoad={() => editor.load.mutate(undefined)}
         onUndo={editor.undo}
