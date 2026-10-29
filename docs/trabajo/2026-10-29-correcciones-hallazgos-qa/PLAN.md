@@ -50,3 +50,14 @@
 | ID       | Microtarea                                                                  | CA (binario)                                               | DoD                  | Estado |
 | -------- | --------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------- | ------ |
 | H4.S1.M1 | `.editor-toolbar` envuelve siempre y `.editor-toolbar-primary` no se encoge | `elementFromPoint(Cargar) === Cargar` en 1280, 1440 y 1920 | medición en Chromium | HECHO  |
+
+## H5 — BUG-9: una variable con código en mayúsculas rompe la versión de un campo calculado
+
+**CA:** Dado el asistente de campos calculados, cuando se elige una variable del catálogo cuyo código está en mayúsculas, entonces la entrada recibe un id válido (`^[a-z][a-z0-9_]{1,119}$`) y el campo y su versión se crean (`POST 201` ×2).
+**DoD:** `yarn vitest run src/features/calculated-fields` + `yarn lint` + clic real con una variable en mayúsculas.
+**Estado:** HECHO
+
+| ID       | Microtarea                                                                              | CA (binario)                                               | DoD                                                               | Estado |
+| -------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- | ------ |
+| H5.S1.M1 | `inputIdFromVariableCode` (pura) y su uso en el selector (id y filtro de «ya elegidas») | `QA_H4_279386` → `qa_h4_279386`; códigos raros → id válido | `yarn vitest run src/features/calculated-fields/input-id.test.ts` | TODO   |
+| H5.S1.M2 | Clic real con una variable en mayúsculas                                                | `POST /v1/calculated-fields/N/versions` → 201              | script `h4-de-campo.cjs` con `VARIABLE=QA_H4`                     | TODO   |

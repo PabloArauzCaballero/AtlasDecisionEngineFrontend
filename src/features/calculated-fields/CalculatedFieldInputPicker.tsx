@@ -10,6 +10,7 @@ import { asRecord, asRows, display, type UnknownRecord } from '../../utils/recor
 import type { CalculatedFieldInput } from './calculated-field.types';
 import { Field } from '../../components/Field';
 import { OptionSelect } from '../../components/OptionSelect';
+import { inputIdFromVariableCode } from './input-id';
 
 interface Props {
   taken: string[];
@@ -45,7 +46,9 @@ export function CalculatedFieldInputPicker({ taken, onAdd, onConstraints }: Prop
     queryKey: ['variable-picker'],
     queryFn: ({ signal }) => apiRequest<UnknownRecord[]>('/v1/views/pickers/variables', { signal }),
   });
-  const rows = asRows(catalog.data).filter((row) => !taken.includes(display(row, 'variableCode')));
+  const rows = asRows(catalog.data).filter(
+    (row) => !taken.includes(inputIdFromVariableCode(display(row, 'variableCode'))),
+  );
 
   /**
    * Las restricciones no viajan en el picker: viven en el detalle de la variable. Se
@@ -58,8 +61,9 @@ export function CalculatedFieldInputPicker({ taken, onAdd, onConstraints }: Prop
     if (!row) return;
     const code = display(row, 'variableCode');
     setChosen('');
+    const inputId = inputIdFromVariableCode(code);
     onAdd({
-      id: code,
+      id: inputId,
       name: display(row, 'canonicalName') || code,
       description: `Variable ${code} del catálogo`,
       dataType: normalizeDataType(display(row, 'dataType')),
@@ -72,7 +76,7 @@ export function CalculatedFieldInputPicker({ taken, onAdd, onConstraints }: Prop
       const versions = asRows(asRecord(detail).versions);
       const latest = versions[versions.length - 1] ?? {};
       const constraints = parseConstraints(latest.constraintsJson ?? latest.validationSchemaJson);
-      if (Object.keys(constraints).length) onConstraints(code, constraints);
+      if (Object.keys(constraints).length) onConstraints(inputId, constraints);
     } catch {
       // La entrada ya está añadida con su tipo: quedarse sin restricciones es una
       // pérdida de comodidad, no un fallo que merezca deshacer lo elegido.

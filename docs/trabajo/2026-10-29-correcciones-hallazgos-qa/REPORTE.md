@@ -1,4 +1,4 @@
-> **AVANCE: 5 / 5 — 100,0 %.**
+> **AVANCE: 7 / 7 — 100,0 %.**
 
 - Fecha: 2026-10-29 · Plan: [PLAN.md](./PLAN.md) · Rama: `claude/compassionate-franklin-p7u3rw`
 - Peldaño de evidencia alcanzado: `TESTED`. No `VERIFIED`: no se observó en navegador tras el cambio.
@@ -13,6 +13,8 @@
 | H4.S1.M1 | BUG-8 (hallado en la pasada H4): en 1440×900 el grupo de acciones del editor de grafos tapaba «Cargar»; la barra envuelve y el bloque primario no se encoge                                                                               | medición en Chromium (`elementFromPoint`, script `h4-de-toolbar.cjs`) | antes: 1440×900 tapado · después: 1280, 1440 y 1920 sin solape; lienzo en y=330 (<350) y 570/470 px visibles (>450) |
 
 | H3.S1.M2 | BUG-7 repetido en el navegador: «Crear acción» sobre un borrador con grafo (guardado antes con el editor, 4 nodos) | script `h4-de-accion.cjs` (scratchpad) | `PUT /v1/artifact-versions/9/graph` → 200; BD: `decision_rule_action` (EMIT_REASON) y `decision_action_reason_mapping.reason_code_id = 22` |
+| H5.S1.M1 | BUG-9 (hallado en la pasada H4): el id de la entrada de un campo calculado se copiaba del código de la variable (mayúsculas) y el servidor lo rechazaba; `inputIdFromVariableCode` lo normaliza | `yarn vitest run src/features/calculated-fields` | PASS (44 pruebas, 5 nuevas) · lint y typecheck (sin errores en `src/`) |
+| H5.S1.M2 | BUG-9 en el navegador con la variable `QA_H4_279386` | script `h4-de-campo.cjs` (scratchpad) | antes: `POST /v1/calculated-fields/1/versions` 400 (campo creado sin versión) · después: `POST /v1/calculated-fields` 201 + `…/3/versions` 201 |
 
 ## A medias
 
